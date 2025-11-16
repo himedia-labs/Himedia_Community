@@ -1,4 +1,4 @@
-import QueryProvider from './provider/QueryProvider';
+import QueryProvider from './provider/ReactQuery/QueryProvider';
 
 import './globals.css';
 import './reset.css';
