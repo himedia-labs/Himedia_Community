@@ -1,0 +1,23 @@
+html {
+  scrollbar-gutter: stable both-edges;
+}
+
+/*  구분선 스타일  */
+hr {
+  width: 100%;
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.layout {
+  width: 100%;
+  max-width: 1920px;
+
+  height: 100%;
+
+  margin: 0 auto;
+  padding: 0 clamp(3rem, 10vw, 8rem);
+
+  box-sizing: border-box;
+  user-select: none;
+}
