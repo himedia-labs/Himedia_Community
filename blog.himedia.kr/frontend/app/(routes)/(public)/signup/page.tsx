@@ -1,10 +1,29 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
+import { useSignupMutation } from '@/app/api/auth/auth.mutations';
 import styles from './signup.module.css';
 
+const COURSE_OPTIONS = [
+  '프론트엔드 개발자 양성과정 1기',
+  '프론트엔드 개발자 양성과정 2기',
+  '백엔드 개발자 양성과정 1기',
+  '백엔드 개발자 양성과정 2기',
+  '풀스택 개발자 양성과정 1기',
+  '풀스택 개발자 양성과정 2기',
+  'AI 개발자 양성과정 1기',
+  'AI 개발자 양성과정 2기',
+  '데이터 분석 양성과정 1기',
+  '데이터 분석 양성과정 2기',
+  '기타',
+];
+
 export default function SignupPage() {
+  const router = useRouter();
+  const signupMutation = useSignupMutation();
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,7 +40,7 @@ export default function SignupPage() {
   const [roleError, setRoleError] = useState('');
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, ''); // 숫자만 추출
+    const value = e.target.value.replace(/[^0-9]/g, '');
 
     if (value.length <= 11) {
       let formatted = value;
@@ -87,7 +106,31 @@ export default function SignupPage() {
 
     if (hasError) return;
 
-    // 회원가입 처리
+    // 전화번호에서 공백 제거
+    const phoneNumber = phone.replace(/\s/g, '');
+
+    // role을 대문자로 변환
+    const upperRole = role.toUpperCase() as 'TRAINEE' | 'MENTOR' | 'INSTRUCTOR';
+
+    signupMutation.mutate(
+      {
+        name,
+        email,
+        password,
+        phone: phoneNumber,
+        role: upperRole,
+        course: course || undefined,
+      },
+      {
+        onSuccess: () => {
+          router.push('/');
+        },
+        onError: (error: any) => {
+          const message = error.response?.data?.message || '회원가입에 실패했습니다.';
+          setEmailError(message);
+        },
+      }
+    );
   };
 
   return (
@@ -239,17 +282,11 @@ export default function SignupPage() {
             </label>
             <select id="course" value={course} onChange={e => setCourse(e.target.value)} className={styles.select}>
               <option value="">선택해주세요</option>
-              <option value="frontend-1">프론트엔드 개발자 양성과정 1기</option>
-              <option value="frontend-2">프론트엔드 개발자 양성과정 2기</option>
-              <option value="backend-1">백엔드 개발자 양성과정 1기</option>
-              <option value="backend-2">백엔드 개발자 양성과정 2기</option>
-              <option value="fullstack-1">풀스택 개발자 양성과정 1기</option>
-              <option value="fullstack-2">풀스택 개발자 양성과정 2기</option>
-              <option value="ai-1">AI 개발자 양성과정 1기</option>
-              <option value="ai-2">AI 개발자 양성과정 2기</option>
-              <option value="data-1">데이터 분석 양성과정 1기</option>
-              <option value="data-2">데이터 분석 양성과정 2기</option>
-              <option value="other">기타</option>
+              {COURSE_OPTIONS.map(option => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
             </select>
           </div>
 

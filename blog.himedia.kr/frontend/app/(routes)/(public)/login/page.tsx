@@ -1,10 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
+import { useLoginMutation } from '@/app/api/auth/auth.mutations';
 import styles from './login.module.css';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const loginMutation = useLoginMutation();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -31,7 +36,21 @@ export default function LoginPage() {
 
     if (hasError) return;
 
-    // 로그인 처리
+    loginMutation.mutate(
+      {
+        email,
+        password,
+      },
+      {
+        onSuccess: () => {
+          router.push('/');
+        },
+        onError: (error: any) => {
+          const message = error.response?.data?.message || '로그인에 실패했습니다.';
+          setEmailError(message);
+        },
+      }
+    );
   };
 
   return (
