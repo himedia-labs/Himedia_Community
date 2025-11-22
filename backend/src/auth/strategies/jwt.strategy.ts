@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import * as passportJwt from 'passport-jwt';
 import type { Request } from 'express';
 
-import { JwtPayload } from '../interfaces/jwt-payload.interface';
+import { JwtPayload } from '../interfaces/jwt.interface';
 
 type JwtFromRequestFunction = (req: Request) => string | null;
 type PassportJwtStrategy = new (...args: any[]) => {
