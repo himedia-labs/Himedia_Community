@@ -174,7 +174,7 @@ export default function ForgotPasswordPage() {
                 }}
                 className={codeError ? `${styles.input} ${styles.error}` : styles.input}
                 disabled={!codeSent || verifyCodeMutation.isPending}
-                placeholder="8자리 영문+숫자"
+                placeholder="8자리 인증번호"
                 maxLength={8}
               />
               {codeError && <p className={styles.errorMessage}>{codeError}</p>}
