@@ -9,12 +9,13 @@ import { AuthService } from './auth.service';
 import { User } from './entities/user.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RefreshToken } from './entities/refreshToken.entity';
+import { PasswordReset } from './entities/passwordReset.entity';
 import { LocalStrategy } from './strategies/local.strategy';
 import { getRequiredEnv } from '../common/exception/config.exception';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, RefreshToken]),
+    TypeOrmModule.forFeature([User, RefreshToken, PasswordReset]),
     PassportModule,
     JwtModule.registerAsync({
       inject: [ConfigService],

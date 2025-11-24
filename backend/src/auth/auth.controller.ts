@@ -17,6 +17,9 @@ import { LocalGuard } from './guards/local.guard';
 import type { JwtPayload } from './interfaces/jwt.interface';
 import { RefreshTokenDto } from './dto/refreshToken.dto';
 import { ChangePasswordDto } from './dto/resetPassword.dto';
+import { ForgotPasswordDto } from './dto/forgotPassword.dto';
+import { VerifyResetCodeDto } from './dto/verifyResetCode.dto';
+import { ResetPasswordWithCodeDto } from './dto/resetPasswordWithCode.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -52,9 +55,24 @@ export class AuthController {
     return this.authService.getProfileById(req.user.sub);
   }
 
+  @Post('password/send-code')
+  sendPasswordResetCode(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.sendPasswordResetCode(forgotPasswordDto);
+  }
+
+  @Post('password/verify-code')
+  verifyResetCode(@Body() verifyResetCodeDto: VerifyResetCodeDto) {
+    return this.authService.verifyResetCode(verifyResetCodeDto);
+  }
+
+  @Post('password/reset-with-code')
+  resetPasswordWithCode(@Body() resetPasswordDto: ResetPasswordWithCodeDto) {
+    return this.authService.resetPasswordWithCode(resetPasswordDto);
+  }
+
   @UseGuards(JwtGuard)
-  @Post('password/reset')
-  resetPassword(
+  @Post('password/change')
+  changePassword(
     @Request() req: ExpressRequest & { user: JwtPayload },
     @Body() changePasswordDto: ChangePasswordDto,
   ) {

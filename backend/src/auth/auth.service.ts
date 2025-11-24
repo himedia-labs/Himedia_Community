@@ -15,7 +15,12 @@ import { User } from './entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
 import { RefreshTokenDto } from './dto/refreshToken.dto';
 import { ChangePasswordDto } from './dto/resetPassword.dto';
+import { ForgotPasswordDto } from './dto/forgotPassword.dto';
+import { VerifyResetCodeDto } from './dto/verifyResetCode.dto';
+import { ResetPasswordWithCodeDto } from './dto/resetPasswordWithCode.dto';
 import { RefreshToken } from './entities/refreshToken.entity';
+import { PasswordReset } from './entities/passwordReset.entity';
+import { EmailService } from '../email/email.service';
 import type {
   AuthResponse,
   AuthTokens,
@@ -39,8 +44,11 @@ export class AuthService {
     private readonly usersRepository: Repository<User>,
     @InjectRepository(RefreshToken)
     private readonly refreshTokensRepository: Repository<RefreshToken>,
+    @InjectRepository(PasswordReset)
+    private readonly passwordResetRepository: Repository<PasswordReset>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly emailService: EmailService,
   ) {}
 
   async login(user: User): Promise<AuthResponse> {
@@ -72,13 +80,13 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('잘못된 로그인 정보입니다.');
+      throw new UnauthorizedException('정확한 로그인 정보를 입력해주세요.');
     }
 
     const isMatch = await comparePassword(password, user.password);
 
     if (!isMatch) {
-      throw new UnauthorizedException('잘못된 로그인 정보입니다.');
+      throw new UnauthorizedException('정확한 로그인 정보를 입력해주세요.');
     }
 
     return user;
@@ -145,6 +153,110 @@ export class AuthService {
     }
 
     return this.buildUserProfile(user);
+  }
+
+  async sendPasswordResetCode(dto: ForgotPasswordDto) {
+    const user = await this.usersRepository.findOne({
+      where: { email: dto.email },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('등록되지 않은 이메일입니다.');
+    }
+
+    const code = this.generateResetCode();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    const passwordReset = this.passwordResetRepository.create({
+      userId: user.id,
+      code,
+      expiresAt,
+      used: false,
+    });
+
+    await this.passwordResetRepository.save(passwordReset);
+    await this.emailService.sendPasswordResetCode(user.email, code);
+
+    return { success: true, message: '인증번호가 이메일로 발송되었습니다.' };
+  }
+
+  async verifyResetCode(dto: VerifyResetCodeDto) {
+    const user = await this.usersRepository.findOne({
+      where: { email: dto.email },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('등록되지 않은 이메일입니다.');
+    }
+
+    const resetRecord = await this.passwordResetRepository.findOne({
+      where: {
+        userId: user.id,
+        code: dto.code,
+        used: false,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    if (!resetRecord) {
+      throw new UnauthorizedException('유효하지 않은 인증번호입니다.');
+    }
+
+    if (resetRecord.expiresAt.getTime() < Date.now()) {
+      throw new UnauthorizedException('인증번호가 만료되었습니다.');
+    }
+
+    return { success: true, message: '인증번호가 확인되었습니다.' };
+  }
+
+  async resetPasswordWithCode(dto: ResetPasswordWithCodeDto) {
+    const user = await this.usersRepository.findOne({
+      where: { email: dto.email },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('등록되지 않은 이메일입니다.');
+    }
+
+    const resetRecord = await this.passwordResetRepository.findOne({
+      where: {
+        userId: user.id,
+        code: dto.code,
+        used: false,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    if (!resetRecord) {
+      throw new UnauthorizedException('유효하지 않은 인증번호입니다.');
+    }
+
+    if (resetRecord.expiresAt.getTime() < Date.now()) {
+      throw new UnauthorizedException('인증번호가 만료되었습니다.');
+    }
+
+    user.password = await hashPassword(dto.newPassword, 10);
+    await this.usersRepository.save(user);
+
+    resetRecord.used = true;
+    await this.passwordResetRepository.save(resetRecord);
+
+    return { success: true, message: '비밀번호가 성공적으로 변경되었습니다.' };
+  }
+
+  private generateResetCode(): string {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const length = 8;
+    let code = '';
+    for (let i = 0; i < length; i += 1) {
+      const index = Math.floor(Math.random() * chars.length);
+      code += chars[index];
+    }
+    return code;
   }
 
   private async buildAuthResponse(user: User): Promise<AuthResponse> {
