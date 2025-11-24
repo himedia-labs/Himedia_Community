@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation';
 
 import { useLoginMutation } from '@/app/api/auth/auth.mutations';
 import { handleAuthError } from '@/app/api/auth/auth.error';
+import { useToast } from '@/app/shared/components/toast/ToastProvider';
 import styles from './login.module.css';
 
 export default function LoginPage() {
   const router = useRouter();
   const loginMutation = useLoginMutation();
+  const { showToast } = useToast();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -48,7 +50,7 @@ export default function LoginPage() {
         },
         onError: (error: Error) => {
           const message = handleAuthError(error, '로그인에 실패했습니다.');
-          setEmailError(message);
+          showToast({ message, type: 'warning' });
         },
       }
     );
