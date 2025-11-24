@@ -37,6 +37,9 @@ export class User {
   @Column({ type: 'varchar', length: 255, nullable: true })
   course!: string | null;
 
+  @Column({ type: 'boolean', name: 'privacy_consent', default: false })
+  privacyConsent!: boolean;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
