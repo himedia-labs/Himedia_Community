@@ -109,7 +109,7 @@
 
 .submitButton {
   padding: 14px 36px;
-  background: #ff3d3d;
+  background: #ff6363;
   color: white;
   border: none;
   border-radius: 12px;
@@ -120,7 +120,7 @@
 }
 
 .submitButton:hover {
-  background: #ff5d5d;
+  background: #ff9696;
 }
 
 .submitButton:active {
@@ -135,7 +135,7 @@
 }
 
 .required {
-  color: #ff3d3d;
+  color: #ff6363;
   font-weight: 500;
 }
 
@@ -157,5 +157,5 @@
   width: 18px;
   height: 18px;
   cursor: pointer;
-  accent-color: #ff3d3d;
+  accent-color: #ff6363;
 }

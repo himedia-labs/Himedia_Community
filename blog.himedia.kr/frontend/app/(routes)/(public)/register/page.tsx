@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { useSignupMutation } from '@/app/api/auth/auth.mutations';
-import styles from './signup.module.css';
+import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
+import { handleAuthError } from '@/app/api/auth/auth.error';
+import styles from './register.module.css';
 
 const COURSE_OPTIONS = [
   '프론트엔드 개발자 양성과정 1기',
@@ -20,9 +21,9 @@ const COURSE_OPTIONS = [
   '기타',
 ];
 
-export default function SignupPage() {
+export default function RegisterPage() {
   const router = useRouter();
-  const signupMutation = useSignupMutation();
+  const registerMutation = useRegisterMutation();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -112,7 +113,7 @@ export default function SignupPage() {
     // role을 대문자로 변환
     const upperRole = role.toUpperCase() as 'TRAINEE' | 'MENTOR' | 'INSTRUCTOR';
 
-    signupMutation.mutate(
+    registerMutation.mutate(
       {
         name,
         email,
@@ -125,8 +126,8 @@ export default function SignupPage() {
         onSuccess: () => {
           router.push('/');
         },
-        onError: (error: any) => {
-          const message = error.response?.data?.message || '회원가입에 실패했습니다.';
+        onError: (error: Error) => {
+          const message = handleAuthError(error, '회원가입에 실패했습니다.');
           setEmailError(message);
         },
       }
