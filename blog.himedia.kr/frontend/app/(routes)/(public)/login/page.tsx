@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useLoginMutation } from '@/app/api/auth/auth.mutations';
+import { handleAuthError } from '@/app/api/auth/auth.error';
 import styles from './login.module.css';
 
 export default function LoginPage() {
@@ -45,8 +46,8 @@ export default function LoginPage() {
         onSuccess: () => {
           router.push('/');
         },
-        onError: (error: any) => {
-          const message = error.response?.data?.message || '로그인에 실패했습니다.';
+        onError: (error: Error) => {
+          const message = handleAuthError(error, '로그인에 실패했습니다.');
           setEmailError(message);
         },
       }
@@ -95,7 +96,7 @@ export default function LoginPage() {
 
           <div className={styles.footer}>
             <div className={styles.links}>
-              <a href="/signup" className={styles.link}>
+              <a href="/register" className={styles.link}>
                 회원가입
               </a>
               <span className={styles.separator}>|</span>
