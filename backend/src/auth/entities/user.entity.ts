@@ -13,6 +13,7 @@ export enum UserRole {
   TRAINEE = 'TRAINEE',
   MENTOR = 'MENTOR',
   INSTRUCTOR = 'INSTRUCTOR',
+  ADMIN = 'ADMIN',
 }
 
 @Entity({ name: 'users' })
@@ -41,6 +42,9 @@ export class User {
 
   @Column({ type: 'boolean', name: 'privacy_consent', default: false })
   privacyConsent!: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  approved!: boolean;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
