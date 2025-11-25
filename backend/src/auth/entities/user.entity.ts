@@ -18,6 +18,9 @@ export enum UserRole {
 
 @Entity({ name: 'users' })
 @Index(['email'])
+@Index(['role'])
+@Index(['approved'])
+@Index(['role', 'approved'])
 export class User {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id!: string;
