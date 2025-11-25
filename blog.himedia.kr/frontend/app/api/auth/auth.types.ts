@@ -10,6 +10,7 @@ export interface RegisterRequest {
   phone: string;
   role: 'TRAINEE' | 'MENTOR' | 'INSTRUCTOR';
   course?: string;
+  privacyConsent: boolean;
 }
 
 export interface LoginRequest {
