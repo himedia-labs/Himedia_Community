@@ -16,7 +16,7 @@ import {
   AUTH_ERROR_MESSAGES,
   AUTH_SUCCESS_MESSAGES,
 } from '../auth.constants';
-import type { HashFunction } from '../interfaces/auth.interface';
+import type { HashFunction } from '../interfaces/bcrypt.interface';
 
 const { hash: hashPassword } = bcrypt as {
   hash: HashFunction;
