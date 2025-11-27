@@ -9,6 +9,7 @@ export const AUTH_ERROR_MESSAGES = {
   EXPIRED_REFRESH_TOKEN: '리프레시 토큰이 만료되었습니다.',
   INVALID_RESET_CODE: '유효하지 않은 인증번호입니다.',
   EXPIRED_RESET_CODE: '인증번호가 만료되었습니다.',
+  PENDING_APPROVAL: '관리자 승인 대기 중입니다.',
 } as const;
 
 // 인증 관련 성공 메시지
