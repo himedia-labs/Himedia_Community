@@ -148,7 +148,7 @@ export class PasswordService {
   }
 
   /**
-   * 사용자 조회 (ID)
+   * 사용자 조회 (ID) [내부]
    * @description ID로 사용자 조회, 없으면 예외 발생
    */
   private async getUserByIdOrThrow(userId: string): Promise<User> {
@@ -166,7 +166,7 @@ export class PasswordService {
   }
 
   /**
-   * 사용자 조회 (이메일)
+   * 사용자 조회 (이메일) [사용자 전용]
    * @description 이메일로 사용자 조회, 없으면 예외 발생
    */
   private async getUserByEmailOrThrow(email: string): Promise<User> {
