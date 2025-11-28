@@ -1,18 +1,19 @@
-import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { randomBytes, randomUUID } from 'crypto';
+import type { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+
+import { Repository } from 'typeorm';
+import { randomBytes, randomUUID } from 'crypto';
 
 import { User } from '../entities/user.entity';
 import { RefreshToken } from '../entities/refreshToken.entity';
 
 import { UserService } from './user.service';
+import appConfig from '../../config/app.config';
 import { RefreshTokenDto } from '../dto/refreshToken.dto';
 import { comparePassword, hashPassword } from '../utils/bcrypt.util';
 import { AUTH_CONFIG, AUTH_ERROR_MESSAGES } from '../auth.constants';
-import { getRequiredEnv } from '../../common/exception/config.exception';
 
 import type { AuthTokens, AuthResponse } from '../interfaces/auth.interface';
 
@@ -22,7 +23,8 @@ export class TokenService {
     @InjectRepository(RefreshToken)
     private readonly refreshTokensRepository: Repository<RefreshToken>,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    @Inject(appConfig.KEY)
+    private readonly config: ConfigType<typeof appConfig>,
     private readonly userService: UserService,
   ) {}
 
@@ -247,19 +249,13 @@ export class TokenService {
 
   /**
    * Refresh Token 만료 시간 계산
-   * @description 환경변수 기반으로 만료일 계산
+   * @description Type-safe하게 환경변수 기반으로 만료일 계산
    */
   private getRefreshTokenExpiryDate(): Date {
     // 만료 일수 조회
-    const value = getRequiredEnv(
-      this.configService,
-      'REFRESH_TOKEN_EXPIRES_IN_DAYS',
-    );
+    const configuredDays = this.config.jwt.refreshExpiresInDays;
 
-    // 숫자 변환
-    const configuredDays = Number(value);
-
-    // 만료 시간 계산
+    // 만료 시간 계산 (일 → 밀리초)
     return new Date(Date.now() + configuredDays * 24 * 60 * 60 * 1000);
   }
 }
