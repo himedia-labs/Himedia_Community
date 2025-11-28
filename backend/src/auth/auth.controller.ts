@@ -2,11 +2,13 @@ import {
   Body,
   Controller,
   Get,
+  Inject,
   Post,
   Request,
   Response,
   UseGuards,
 } from '@nestjs/common';
+import type { ConfigType } from '@nestjs/config';
 
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -23,11 +25,12 @@ import { PasswordService } from './services/password.service';
 import { JwtGuard } from './guards/jwt.guard';
 import { LocalGuard } from './guards/local.guard';
 
-import type { JwtPayload } from './interfaces/jwt.interface';
+import appConfig from '../config/app.config';
 
 import { setCookies, clearCookies } from './utils/cookie.util';
 
 import type { User } from './entities/user.entity';
+import type { JwtPayload } from './interfaces/jwt.interface';
 
 import type {
   Request as ExpressRequest,
@@ -45,6 +48,8 @@ export class AuthController {
     private readonly tokenService: TokenService,
     private readonly passwordService: PasswordService,
     private readonly userService: UserService,
+    @Inject(appConfig.KEY)
+    private readonly config: ConfigType<typeof appConfig>,
   ) {}
 
   /**
@@ -59,7 +64,12 @@ export class AuthController {
     @Response() res: ExpressResponse,
   ) {
     const authResponse = await this.authService.login(req.user);
-    setCookies(res, authResponse.accessToken, authResponse.refreshToken);
+    setCookies(
+      res,
+      authResponse.accessToken,
+      authResponse.refreshToken,
+      this.config,
+    );
     return res.json({ user: authResponse.user });
   }
 
@@ -73,7 +83,12 @@ export class AuthController {
     @Response() res: ExpressResponse,
   ) {
     const authResponse = await this.authService.register(registerDto);
-    setCookies(res, authResponse.accessToken, authResponse.refreshToken);
+    setCookies(
+      res,
+      authResponse.accessToken,
+      authResponse.refreshToken,
+      this.config,
+    );
     return res.json({ user: authResponse.user });
   }
 
@@ -94,7 +109,12 @@ export class AuthController {
     const authResponse = await this.tokenService.refreshTokens({
       refreshToken,
     });
-    setCookies(res, authResponse.accessToken, authResponse.refreshToken);
+    setCookies(
+      res,
+      authResponse.accessToken,
+      authResponse.refreshToken,
+      this.config,
+    );
     return res.json({ user: authResponse.user });
   }
 
@@ -111,7 +131,7 @@ export class AuthController {
     if (refreshToken) {
       await this.tokenService.logout({ refreshToken });
     }
-    clearCookies(res);
+    clearCookies(res, this.config);
     return res.json({ success: true });
   }
 
