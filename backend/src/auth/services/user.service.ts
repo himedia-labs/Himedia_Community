@@ -1,9 +1,10 @@
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
+import { Repository } from 'typeorm';
+
 import { User } from '../entities/user.entity';
-import { AUTH_ERROR_MESSAGES } from '../auth.constants';
+import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
 
 import type { AuthUserProfile } from '../interfaces/auth.interface';
 

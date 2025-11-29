@@ -1,12 +1,13 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+
+import type { Request } from 'express';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 
 import { UserService } from '../services/user.service';
-import { AUTH_ERROR_MESSAGES } from '../auth.constants';
+import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
 
-import type { Request } from 'express';
 import type { JwtPayload } from '../interfaces/jwt.interface';
 
 /**
@@ -30,10 +31,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   ) {
     super({
       // 토큰 추출 > 쿠키 우선, 없으면 Bearer 토큰 사용
-      jwtFromRequest: ExtractJwt.fromExtractors([
-        cookieExtractor,
-        ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ]),
+      jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor, ExtractJwt.fromAuthHeaderAsBearerToken()]),
       // 만료된 토큰 거부
       ignoreExpiration: false,
       // JWT 시크릿 키

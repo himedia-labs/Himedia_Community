@@ -1,10 +1,4 @@
-import {
-  IsEmail,
-  IsString,
-  Length,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { IsEmail, IsString, Length, MaxLength, MinLength } from 'class-validator';
 
 // 인증번호 확인 후 새 비밀번호로 재설정 요청에 사용
 export class ResetPasswordWithCodeDto {

@@ -13,7 +13,10 @@ import { UserService } from './user.service';
 import appConfig from '../../config/app.config';
 import { RefreshTokenDto } from '../dto/refreshToken.dto';
 import { comparePassword, hashPassword } from '../utils/bcrypt.util';
-import { AUTH_CONFIG, AUTH_ERROR_MESSAGES } from '../auth.constants';
+
+import { AUTH_CONFIG } from '../../constants/config/auth.config';
+import { TOKEN_CONFIG } from '../../constants/config/token.config';
+import { TOKEN_ERROR_MESSAGES } from '../../constants/message/token.messages';
 
 import type { AuthTokens, AuthResponse } from '../interfaces/auth.interface';
 
@@ -54,9 +57,7 @@ export class TokenService {
     const tokenId = randomUUID();
 
     // 랜덤 시크릿 생성
-    const secret = randomBytes(
-      AUTH_CONFIG.REFRESH_TOKEN_SECRET_LENGTH,
-    ).toString('hex');
+    const secret = randomBytes(TOKEN_CONFIG.REFRESH_TOKEN_SECRET_LENGTH).toString('hex');
 
     // 만료 시간 설정
     const expiresAt = this.getRefreshTokenExpiryDate();
@@ -82,9 +83,7 @@ export class TokenService {
    * 토큰 갱신
    * @description Refresh Token 검증 후 기존 토큰 무효화하고 새 토큰 발급
    */
-  async refreshTokens({
-    refreshToken,
-  }: RefreshTokenDto): Promise<AuthResponse> {
+  async refreshTokens({ refreshToken }: RefreshTokenDto): Promise<AuthResponse> {
     // 토큰 검증
     const storedToken = await this.getValidatedRefreshToken(refreshToken);
 
@@ -129,16 +128,12 @@ export class TokenService {
 
     // 토큰 없음 또는 무효화됨
     if (!storedToken || storedToken.revokedAt) {
-      throw new UnauthorizedException(
-        AUTH_ERROR_MESSAGES.INVALID_REFRESH_TOKEN,
-      );
+      throw new UnauthorizedException(TOKEN_ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
     }
 
     // 토큰 만료
     if (storedToken.expiresAt.getTime() < Date.now()) {
-      throw new UnauthorizedException(
-        AUTH_ERROR_MESSAGES.EXPIRED_REFRESH_TOKEN,
-      );
+      throw new UnauthorizedException(TOKEN_ERROR_MESSAGES.EXPIRED_REFRESH_TOKEN);
     }
 
     // 시크릿 검증
@@ -146,9 +141,7 @@ export class TokenService {
 
     // 시크릿 불일치
     if (!isMatch) {
-      throw new UnauthorizedException(
-        AUTH_ERROR_MESSAGES.INVALID_REFRESH_TOKEN,
-      );
+      throw new UnauthorizedException(TOKEN_ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
     }
 
     return storedToken;
@@ -202,7 +195,7 @@ export class TokenService {
     // 모든 토큰 무효화
     const now = new Date();
     await this.refreshTokensRepository.save(
-      tokens.map((token) => ({
+      tokens.map(token => ({
         ...token,
         revokedAt: token.revokedAt ?? now,
       })),
@@ -239,9 +232,7 @@ export class TokenService {
 
     // 형식 오류
     if (!tokenId || !secret) {
-      throw new UnauthorizedException(
-        AUTH_ERROR_MESSAGES.INVALID_REFRESH_TOKEN,
-      );
+      throw new UnauthorizedException(TOKEN_ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
     }
 
     return { tokenId, secret };

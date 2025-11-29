@@ -1,16 +1,14 @@
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+
+import { Repository } from 'typeorm';
 
 import { TokenService } from './token.service';
 import { User } from '../entities/user.entity';
 import { RegisterDto } from '../dto/register.dto';
-import { AUTH_CONFIG, AUTH_ERROR_MESSAGES } from '../auth.constants';
 import { comparePassword, hashPassword } from '../utils/bcrypt.util';
+import { AUTH_CONFIG } from '../../constants/config/auth.config';
+import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
 
 import type { AuthResponse } from '../interfaces/auth.interface';
 
@@ -46,10 +44,7 @@ export class AuthService {
     }
 
     // 비밀번호 해싱
-    const password = await hashPassword(
-      registerDto.password,
-      AUTH_CONFIG.BCRYPT_ROUNDS,
-    );
+    const password = await hashPassword(registerDto.password, AUTH_CONFIG.BCRYPT_ROUNDS);
 
     // 사용자 엔티티 생성
     const userEntity = this.usersRepository.create({

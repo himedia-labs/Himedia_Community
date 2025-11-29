@@ -14,11 +14,10 @@ import { ForgotPasswordDto } from '../dto/forgotPassword.dto';
 import { VerifyResetCodeDto } from '../dto/verifyResetCode.dto';
 import { ResetPasswordWithCodeDto } from '../dto/resetPasswordWithCode.dto';
 
-import {
-  AUTH_CONFIG,
-  AUTH_ERROR_MESSAGES,
-  AUTH_SUCCESS_MESSAGES,
-} from '../auth.constants';
+import { AUTH_CONFIG } from '../../constants/config/auth.config';
+import { PASSWORD_CONFIG } from '../../constants/config/password.config';
+import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
+import { PASSWORD_ERROR_MESSAGES, PASSWORD_SUCCESS_MESSAGES } from '../../constants/message/password.messages';
 
 import { comparePassword, hashPassword } from '../utils/bcrypt.util';
 
@@ -40,10 +39,7 @@ export class PasswordService {
    * 비밀번호 변경
    * @description 현재 비밀번호 검증 후 새 비밀번호로 변경하고 모든 토큰 무효화
    */
-  async changePassword(
-    userId: string,
-    dto: ChangePasswordDto,
-  ): Promise<AuthResponse> {
+  async changePassword(userId: string, dto: ChangePasswordDto): Promise<AuthResponse> {
     // 사용자 조회
     const user = await this.getUserByIdOrThrow(userId);
 
@@ -52,16 +48,11 @@ export class PasswordService {
 
     // 비밀번호 불일치
     if (!isValid) {
-      throw new UnauthorizedException(
-        AUTH_ERROR_MESSAGES.INVALID_CURRENT_PASSWORD,
-      );
+      throw new UnauthorizedException(AUTH_ERROR_MESSAGES.INVALID_CURRENT_PASSWORD);
     }
 
     // 새 비밀번호 해싱
-    user.password = await hashPassword(
-      dto.newPassword,
-      AUTH_CONFIG.BCRYPT_ROUNDS,
-    );
+    user.password = await hashPassword(dto.newPassword, AUTH_CONFIG.BCRYPT_ROUNDS);
 
     // DB 저장
     await this.usersRepository.save(user);
@@ -85,9 +76,7 @@ export class PasswordService {
     const code = this.generateResetCode();
 
     // 만료 시간 설정 (10분)
-    const expiresAt = new Date(
-      Date.now() + AUTH_CONFIG.RESET_CODE_EXPIRY_MINUTES * 60 * 1000,
-    );
+    const expiresAt = new Date(Date.now() + PASSWORD_CONFIG.RESET_CODE_EXPIRY_MINUTES * 60 * 1000);
 
     // 재설정 레코드 생성
     const passwordReset = this.passwordResetRepository.create({
@@ -103,7 +92,7 @@ export class PasswordService {
     // 이메일 발송
     await this.emailService.sendPasswordResetCode(user.email, code);
 
-    return { success: true, message: AUTH_SUCCESS_MESSAGES.RESET_CODE_SENT };
+    return { success: true, message: PASSWORD_SUCCESS_MESSAGES.RESET_CODE_SENT };
   }
 
   /**
@@ -116,7 +105,7 @@ export class PasswordService {
 
     return {
       success: true,
-      message: AUTH_SUCCESS_MESSAGES.RESET_CODE_VERIFIED,
+      message: PASSWORD_SUCCESS_MESSAGES.RESET_CODE_VERIFIED,
     };
   }
 
@@ -126,16 +115,10 @@ export class PasswordService {
    */
   async resetPasswordWithCode(dto: ResetPasswordWithCodeDto) {
     // 코드 검증
-    const { user, resetRecord } = await this.validatePasswordResetCode(
-      dto.email,
-      dto.code,
-    );
+    const { user, resetRecord } = await this.validatePasswordResetCode(dto.email, dto.code);
 
     // 새 비밀번호 해싱
-    user.password = await hashPassword(
-      dto.newPassword,
-      AUTH_CONFIG.BCRYPT_ROUNDS,
-    );
+    user.password = await hashPassword(dto.newPassword, AUTH_CONFIG.BCRYPT_ROUNDS);
 
     // DB 저장
     await this.usersRepository.save(user);
@@ -144,7 +127,7 @@ export class PasswordService {
     resetRecord.used = true;
     await this.passwordResetRepository.save(resetRecord);
 
-    return { success: true, message: AUTH_SUCCESS_MESSAGES.PASSWORD_CHANGED };
+    return { success: true, message: PASSWORD_SUCCESS_MESSAGES.PASSWORD_CHANGED };
   }
 
   /**
@@ -208,12 +191,12 @@ export class PasswordService {
 
     // 코드 없음
     if (!resetRecord) {
-      throw new UnauthorizedException(AUTH_ERROR_MESSAGES.INVALID_RESET_CODE);
+      throw new UnauthorizedException(PASSWORD_ERROR_MESSAGES.INVALID_RESET_CODE);
     }
 
     // 코드 만료
     if (resetRecord.expiresAt.getTime() < Date.now()) {
-      throw new UnauthorizedException(AUTH_ERROR_MESSAGES.EXPIRED_RESET_CODE);
+      throw new UnauthorizedException(PASSWORD_ERROR_MESSAGES.EXPIRED_RESET_CODE);
     }
 
     return { user, resetRecord };
@@ -224,8 +207,8 @@ export class PasswordService {
    * @description 8자리 랜덤 코드 생성
    */
   private generateResetCode(): string {
-    const chars = AUTH_CONFIG.RESET_CODE_CHARSET;
-    const length = AUTH_CONFIG.RESET_CODE_LENGTH;
+    const chars = PASSWORD_CONFIG.RESET_CODE_CHARSET;
+    const length = PASSWORD_CONFIG.RESET_CODE_LENGTH;
     let code = '';
 
     // 랜덤 문자 생성

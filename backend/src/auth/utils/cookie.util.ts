@@ -43,10 +43,7 @@ export const setCookies = (
  * 인증 쿠키 삭제
  * @description 로그아웃 시 Access Token과 Refresh Token 쿠키 제거
  */
-export const clearCookies = (
-  res: Response,
-  config: ConfigType<typeof appConfig>,
-) => {
+export const clearCookies = (res: Response, config: ConfigType<typeof appConfig>) => {
   const cookieOptions = getCookieOptions(config.env);
   res.clearCookie('accessToken', cookieOptions);
   res.clearCookie('refreshToken', cookieOptions);

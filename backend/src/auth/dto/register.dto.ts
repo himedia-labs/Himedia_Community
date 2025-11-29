@@ -1,13 +1,4 @@
-import {
-  IsEmail,
-  IsEnum,
-  IsBoolean,
-  IsOptional,
-  IsString,
-  MaxLength,
-  MinLength,
-  Equals,
-} from 'class-validator';
+import { IsEmail, IsEnum, IsBoolean, IsOptional, IsString, MaxLength, MinLength, Equals } from 'class-validator';
 
 import { UserRole } from '../entities/user.entity';
 
