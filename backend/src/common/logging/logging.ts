@@ -18,35 +18,59 @@ export class LoggingInterceptor implements NestInterceptor {
     const now = Date.now();
     const request = context.switchToHttp().getRequest<Request>();
     const { method, url } = request;
-    const body = request.body as Record<string, unknown>;
-    const params = request.params as Record<string, unknown>;
-    const query = request.query as Record<string, unknown>;
 
-    const paramMessage = Object.keys(params).length
-      ? ` \n params: ${JSON.stringify(params, null, 2)}`
-      : '';
-    const queryMessage = Object.keys(query).length
-      ? ` \n query: ${JSON.stringify(query, null, 2)}`
-      : '';
-    const bodyMessage = Object.keys(body).length
-      ? ` \n body: ${JSON.stringify(body, null, 2)}`
-      : '';
+    // Request 로깅
+    const requestInfo = this.formatRequestInfo(request);
+    this.logger.log(`Request to ${method} ${url}${requestInfo}`);
 
-    this.logger.log(
-      `Request to ${method} ${url} ${paramMessage} ${queryMessage} ${bodyMessage}`,
-    );
+    return next.handle().pipe(
+      tap((data) => {
+        const duration = Date.now() - now;
+        const className = context.getClass().name;
 
-    return next
-      .handle()
-      .pipe(
-        tap((data) =>
+        // Response 로깅
+        if (data !== undefined && data !== null) {
+          try {
+            const responseData = JSON.stringify(data, null, 2);
+            this.logger.log(
+              `Response from ${method} ${url} ${className} ${duration}ms \n response: ${responseData}`,
+            );
+          } catch {
+            // circular structure 에러 처리
+            this.logger.log(
+              `Response from ${method} ${url} ${className} ${duration}ms (response contains circular structure)`,
+            );
+          }
+        } else {
           this.logger.log(
-            `Response from ${method} ${url} ${context.getClass().name} ${
-              Date.now() - now
-            }ms \n response: ${JSON.stringify(data, null, 2)}`,
-          ),
-        ),
-      );
+            `Response from ${method} ${url} ${className} ${duration}ms (no response data)`,
+          );
+        }
+      }),
+    );
+  }
+
+  /**
+   * Request 정보 포맷팅
+   */
+  private formatRequestInfo(request: Request): string {
+    const params = request.params as Record<string, unknown> | undefined;
+    const query = request.query as Record<string, unknown> | undefined;
+    const body = request.body as Record<string, unknown> | undefined;
+
+    const parts: string[] = [];
+
+    if (params && Object.keys(params).length > 0) {
+      parts.push(`params: ${JSON.stringify(params, null, 2)}`);
+    }
+    if (query && Object.keys(query).length > 0) {
+      parts.push(`query: ${JSON.stringify(query, null, 2)}`);
+    }
+    if (body && Object.keys(body).length > 0) {
+      parts.push(`body: ${JSON.stringify(body, null, 2)}`);
+    }
+
+    return parts.length > 0 ? ` \n ${parts.join(' \n ')}` : '';
   }
 }
 
