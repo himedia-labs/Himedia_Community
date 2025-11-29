@@ -1,29 +1,29 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable } from '@nestjs/common';
+import type { ConfigType } from '@nestjs/config';
 import { createTransport, type Transporter } from 'nodemailer';
 
-import { getRequiredEnv } from '../common/exception/config.exception';
+import appConfig from '../config/app.config';
 
 @Injectable()
 export class EmailService {
   private transporter: Transporter;
 
-  constructor(private readonly configService: ConfigService) {
-    const user = getRequiredEnv(this.configService, 'GMAIL_USER');
-    const pass = getRequiredEnv(this.configService, 'GMAIL_APP_PASSWORD');
-
+  constructor(
+    @Inject(appConfig.KEY)
+    private readonly config: ConfigType<typeof appConfig>,
+  ) {
     this.transporter = createTransport({
       service: 'gmail',
       auth: {
-        user,
-        pass,
+        user: this.config.email.user,
+        pass: this.config.email.password,
       },
     });
   }
 
   async sendPasswordResetCode(to: string, code: string) {
     await this.transporter.sendMail({
-      from: this.configService.get<string>('GMAIL_USER'),
+      from: this.config.email.user,
       to,
       subject: '[하이미디어] 비밀번호 재설정을 위한 인증번호를 확인해주세요.',
       html: `
