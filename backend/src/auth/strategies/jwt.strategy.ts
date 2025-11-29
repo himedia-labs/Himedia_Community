@@ -1,12 +1,13 @@
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import type { ConfigType } from '@nestjs/config';
 
 import type { Request } from 'express';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 
 import { UserService } from '../services/user.service';
 import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
+import appConfig from '../../common/config/app.config';
 
 import type { JwtPayload } from '../interfaces/jwt.interface';
 
@@ -26,7 +27,8 @@ const cookieExtractor = (req: Request): string | null => {
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
-    configService: ConfigService,
+    @Inject(appConfig.KEY)
+    private readonly config: ConfigType<typeof appConfig>,
     private readonly userService: UserService,
   ) {
     super({
@@ -35,7 +37,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       // 만료된 토큰 거부
       ignoreExpiration: false,
       // JWT 시크릿 키
-      secretOrKey: configService.getOrThrow<string>('JWT_SECRET'),
+      secretOrKey: config.jwt.secret,
     });
   }
 
