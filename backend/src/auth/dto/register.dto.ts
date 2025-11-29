@@ -2,6 +2,7 @@ import { IsEmail, IsEnum, IsBoolean, IsOptional, IsString, MaxLength, MinLength,
 
 import { UserRole } from '../entities/user.entity';
 
+// 회원가입
 export class RegisterDto {
   @IsString({ message: '이름은 문자열이어야 합니다.' })
   @MaxLength(100, { message: '이름은 100자 이하여야 합니다.' })
