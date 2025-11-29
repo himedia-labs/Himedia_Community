@@ -88,7 +88,7 @@ export class PasswordService {
     // 재설정 레코드 생성
     const passwordReset = this.passwordResetRepository.create({
       userId: user.id,
-      code,
+      code: await hashPassword(code, AUTH_CONFIG.BCRYPT_ROUNDS),
       expiresAt,
       used: false,
     });
@@ -151,11 +151,10 @@ export class PasswordService {
     // 사용자 조회
     const user = await this.userService.getUserByEmailOrThrow(email);
 
-    // 최근 미사용 코드 조회
-    const resetRecord = await this.passwordResetRepository.findOne({
+    // 미사용 코드들 조회
+    const resetRecords = await this.passwordResetRepository.find({
       where: {
         userId: user.id,
-        code,
         used: false,
       },
       order: {
@@ -164,6 +163,21 @@ export class PasswordService {
     });
 
     // 코드 없음
+    if (!resetRecords.length) {
+      throw new UnauthorizedException(PASSWORD_ERROR_MESSAGES.INVALID_RESET_CODE);
+    }
+
+    // 코드 해시 검증
+    let resetRecord: PasswordReset | null = null;
+    for (const record of resetRecords) {
+      const isMatch = await comparePassword(code, record.code);
+      if (isMatch) {
+        resetRecord = record;
+        break;
+      }
+    }
+
+    // 코드 불일치
     if (!resetRecord) {
       throw new UnauthorizedException(PASSWORD_ERROR_MESSAGES.INVALID_RESET_CODE);
     }

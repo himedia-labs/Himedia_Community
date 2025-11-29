@@ -13,7 +13,7 @@ export class PasswordReset {
   @Column({ type: 'bigint', name: 'user_id' })
   userId!: string;
 
-  @Column({ length: 8 })
+  @Column({ length: 255 })
   code!: string;
 
   @Column({ type: 'timestamp', name: 'expires_at' })
