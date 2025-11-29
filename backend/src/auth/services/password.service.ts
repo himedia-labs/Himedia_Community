@@ -169,7 +169,14 @@ export class PasswordService {
 
     // 코드 해시 검증
     let resetRecord: PasswordReset | null = null;
+    const now = Date.now();
     for (const record of resetRecords) {
+      // 만료된 코드는 즉시 사용 처리하여 정리
+      if (record.expiresAt.getTime() < now) {
+        record.used = true;
+        await this.passwordResetRepository.save(record);
+        continue;
+      }
       const isMatch = await comparePassword(code, record.code);
       if (isMatch) {
         resetRecord = record;
@@ -180,11 +187,6 @@ export class PasswordService {
     // 코드 불일치
     if (!resetRecord) {
       throw new UnauthorizedException(PASSWORD_ERROR_MESSAGES.INVALID_RESET_CODE);
-    }
-
-    // 코드 만료
-    if (resetRecord.expiresAt.getTime() < Date.now()) {
-      throw new UnauthorizedException(PASSWORD_ERROR_MESSAGES.EXPIRED_RESET_CODE);
     }
 
     return { user, resetRecord };
