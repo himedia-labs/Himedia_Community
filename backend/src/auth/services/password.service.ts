@@ -170,13 +170,12 @@ export class PasswordService {
     // 코드 해시 검증
     let resetRecord: PasswordReset | null = null;
     const now = Date.now();
-    for (const record of resetRecords) {
-      // 만료된 코드는 즉시 사용 처리하여 정리
-      if (record.expiresAt.getTime() < now) {
-        record.used = true;
-        await this.passwordResetRepository.save(record);
-        continue;
-      }
+    const expiredRecords = resetRecords.filter(record => record.expiresAt.getTime() < now);
+    if (expiredRecords.length) {
+      await this.passwordResetRepository.save(expiredRecords.map(record => ({ ...record, used: true })));
+    }
+    const activeRecords = resetRecords.filter(record => record.expiresAt.getTime() >= now);
+    for (const record of activeRecords) {
       const isMatch = await comparePassword(code, record.code);
       if (isMatch) {
         resetRecord = record;
