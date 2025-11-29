@@ -14,7 +14,7 @@ export class ResetPasswordWithCodeDto {
   @MinLength(8, { message: '새 비밀번호는 최소 8자 이상이어야 합니다.' })
   @MaxLength(255, { message: '새 비밀번호는 255자 이하여야 합니다.' })
   @Matches(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
-    message: '새 최소 8자의 영문, 숫자, 특수문자를 입력해주세요.',
+    message: '최소 8자의 영문, 숫자, 특수문자를 입력해주세요.',
   })
   newPassword!: string;
 }
