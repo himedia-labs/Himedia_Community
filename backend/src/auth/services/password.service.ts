@@ -134,6 +134,9 @@ export class PasswordService {
     resetRecord.used = true;
     await this.passwordResetRepository.save(resetRecord);
 
+    // 모든 토큰 무효화
+    await this.tokenService.revokeAllUserTokens(user.id);
+
     return { success: true, message: PASSWORD_SUCCESS_MESSAGES.PASSWORD_CHANGED };
   }
 
