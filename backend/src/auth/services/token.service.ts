@@ -35,7 +35,7 @@ export class TokenService {
    * 토큰 생성
    * @description Access Token과 Refresh Token을 함께 생성
    */
-  async generateTokens(user: User): Promise<AuthTokens> {
+  async generateTokens(user: User, userAgent?: string, ipAddress?: string): Promise<AuthTokens> {
     // Access Token 생성
     const accessToken = await this.jwtService.signAsync({
       sub: user.id,
@@ -43,7 +43,7 @@ export class TokenService {
     });
 
     // Refresh Token 생성
-    const refreshToken = await this.createRefreshToken(user);
+    const refreshToken = await this.createRefreshToken(user, userAgent, ipAddress);
 
     return { accessToken, refreshToken };
   }
@@ -52,7 +52,7 @@ export class TokenService {
    * Refresh Token 생성
    * @description UUID + 랜덤 시크릿으로 구성된 Refresh Token 생성
    */
-  async createRefreshToken(user: User): Promise<string> {
+  async createRefreshToken(user: User, userAgent?: string, ipAddress?: string): Promise<string> {
     // UUID 생성
     const tokenId = randomUUID();
 
@@ -70,6 +70,8 @@ export class TokenService {
       userId: user.id,
       user,
       revokedAt: null,
+      userAgent: userAgent,
+      ipAddress: ipAddress,
     });
 
     // DB 저장
@@ -83,7 +85,7 @@ export class TokenService {
    * 토큰 갱신
    * @description Refresh Token 검증 후 기존 토큰 무효화하고 새 토큰 발급
    */
-  async refreshTokens({ refreshToken }: RefreshTokenDto): Promise<AuthResponse> {
+  async refreshTokens({ refreshToken }: RefreshTokenDto, userAgent?: string, ipAddress?: string): Promise<AuthResponse> {
     // 토큰 검증
     const storedToken = await this.getValidatedRefreshToken(refreshToken);
 
@@ -94,7 +96,7 @@ export class TokenService {
     await this.revokeToken(storedToken);
 
     // 새 토큰 및 프로필 반환
-    return this.buildAuthResponseForUser(user);
+    return this.buildAuthResponseForUser(user, userAgent, ipAddress);
   }
 
   /**
@@ -206,12 +208,12 @@ export class TokenService {
    * 인증 응답 생성
    * @description 사용자 프로필과 토큰을 포함한 응답 객체 생성
    */
-  async buildAuthResponseForUser(user: User): Promise<AuthResponse> {
+  async buildAuthResponseForUser(user: User, userAgent?: string, ipAddress?: string): Promise<AuthResponse> {
     // 프로필 생성
     const profile = this.userService.buildUserProfile(user);
 
     // 토큰 생성
-    const tokens = await this.generateTokens(user);
+    const tokens = await this.generateTokens(user, userAgent, ipAddress);
 
     return {
       ...tokens,

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Post, Request, Response, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Inject, Ip, Post, Request, Response, UseGuards } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 
 import { LoginDto } from './dto/login.dto';
@@ -50,8 +50,10 @@ export class AuthController {
     @Body() _loginDto: LoginDto,
     @Request() req: ExpressRequest & { user: User },
     @Response() res: ExpressResponse,
+    @Headers('user-agent') userAgent?: string,
+    @Ip() ipAddress?: string,
   ) {
-    const authResponse = await this.authService.login(req.user);
+    const authResponse = await this.authService.login(req.user, userAgent, ipAddress);
     setCookies(res, authResponse.accessToken, authResponse.refreshToken, this.config);
     return res.json({ user: authResponse.user });
   }
@@ -61,8 +63,13 @@ export class AuthController {
    * @description 새 사용자 등록 후 토큰 발급
    */
   @Post('register')
-  async register(@Body() registerDto: RegisterDto, @Response() res: ExpressResponse) {
-    const authResponse = await this.authService.register(registerDto);
+  async register(
+    @Body() registerDto: RegisterDto,
+    @Response() res: ExpressResponse,
+    @Headers('user-agent') userAgent?: string,
+    @Ip() ipAddress?: string,
+  ) {
+    const authResponse = await this.authService.register(registerDto, userAgent, ipAddress);
     setCookies(res, authResponse.accessToken, authResponse.refreshToken, this.config);
     return res.json({ user: authResponse.user });
   }
@@ -72,15 +79,18 @@ export class AuthController {
    * @description Refresh Token으로 새로운 Access/Refresh Token 발급
    */
   @Post('refresh')
-  async refresh(@Request() req: ExpressRequest, @Response() res: ExpressResponse) {
+  async refresh(
+    @Request() req: ExpressRequest,
+    @Response() res: ExpressResponse,
+    @Headers('user-agent') userAgent?: string,
+    @Ip() ipAddress?: string,
+  ) {
     const refreshToken = req.cookies?.refreshToken as string | undefined;
     if (!refreshToken) {
       return res.status(401).json({ message: 'Refresh token not found' });
     }
 
-    const authResponse = await this.tokenService.refreshTokens({
-      refreshToken,
-    });
+    const authResponse = await this.tokenService.refreshTokens({ refreshToken }, userAgent, ipAddress);
     setCookies(res, authResponse.accessToken, authResponse.refreshToken, this.config);
     return res.json({ user: authResponse.user });
   }
@@ -142,7 +152,12 @@ export class AuthController {
    */
   @UseGuards(JwtGuard)
   @Post('password/change')
-  changePassword(@Request() req: ExpressRequest & { user: JwtPayload }, @Body() changePasswordDto: ChangePasswordDto) {
-    return this.passwordService.changePassword(req.user.sub, changePasswordDto);
+  changePassword(
+    @Request() req: ExpressRequest & { user: JwtPayload },
+    @Body() changePasswordDto: ChangePasswordDto,
+    @Headers('user-agent') userAgent?: string,
+    @Ip() ipAddress?: string,
+  ) {
+    return this.passwordService.changePassword(req.user.sub, changePasswordDto, userAgent, ipAddress);
   }
 }

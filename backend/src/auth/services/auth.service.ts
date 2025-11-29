@@ -24,16 +24,16 @@ export class AuthService {
    * 로그인
    * @description 검증된 사용자에 대해 토큰 생성 및 프로필 반환
    */
-  async login(user: User): Promise<AuthResponse> {
+  async login(user: User, userAgent?: string, ipAddress?: string): Promise<AuthResponse> {
     // 토큰 생성 및 프로필과 함께 반환
-    return this.tokenService.buildAuthResponseForUser(user);
+    return this.tokenService.buildAuthResponseForUser(user, userAgent, ipAddress);
   }
 
   /**
    * 회원가입
    * @description 이메일 중복 확인 후 비밀번호 해싱하여 사용자 생성
    */
-  async register(registerDto: RegisterDto): Promise<AuthResponse> {
+  async register(registerDto: RegisterDto, userAgent?: string, ipAddress?: string): Promise<AuthResponse> {
     // 이메일 중복 확인
     const existingUser = await this.usersRepository.findOne({
       where: { email: registerDto.email },
@@ -56,7 +56,7 @@ export class AuthService {
     const savedUser = await this.usersRepository.save(userEntity);
 
     // 토큰 및 프로필 반환
-    return this.tokenService.buildAuthResponseForUser(savedUser);
+    return this.tokenService.buildAuthResponseForUser(savedUser, userAgent, ipAddress);
   }
 
   /**

@@ -39,7 +39,7 @@ export class PasswordService {
    * 비밀번호 변경
    * @description 현재 비밀번호 검증 후 새 비밀번호로 변경하고 모든 토큰 무효화
    */
-  async changePassword(userId: string, dto: ChangePasswordDto): Promise<AuthResponse> {
+  async changePassword(userId: string, dto: ChangePasswordDto, userAgent?: string, ipAddress?: string): Promise<AuthResponse> {
     // 사용자 조회
     const user = await this.getUserByIdOrThrow(userId);
 
@@ -61,7 +61,7 @@ export class PasswordService {
     await this.tokenService.revokeAllUserTokens(user.id);
 
     // 새 토큰 및 프로필 반환
-    return this.tokenService.buildAuthResponseForUser(user);
+    return this.tokenService.buildAuthResponseForUser(user, userAgent, ipAddress);
   }
 
   /**
