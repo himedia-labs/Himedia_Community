@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, Generated, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity({ name: 'refresh_tokens' })
@@ -7,6 +7,7 @@ import { User } from './user.entity';
 @Index(['userId', 'revokedAt'])
 export class RefreshToken {
   @PrimaryColumn('uuid')
+  @Generated('uuid')
   id!: string;
 
   @Column({ name: 'token_hash', length: 255 })
@@ -17,6 +18,12 @@ export class RefreshToken {
 
   @Column({ name: 'revoked_at', type: 'timestamp', nullable: true })
   revokedAt!: Date | null;
+
+  @Column({ name: 'user_agent', length: 500, nullable: true })
+  userAgent!: string | null;
+
+  @Column({ name: 'ip_address', length: 45, nullable: true })
+  ipAddress!: string | null;
 
   @Column({ name: 'user_id', type: 'bigint' })
   userId!: string;

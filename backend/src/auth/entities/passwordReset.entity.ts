@@ -2,8 +2,10 @@ import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, Primary
 import { User } from './user.entity';
 
 @Entity({ name: 'password_resets' })
-@Index(['userId', 'code', 'used'])
+@Index(['userId'])
+@Index(['code'])
 @Index(['expiresAt'])
+@Index(['userId', 'code', 'used'])
 export class PasswordReset {
   @PrimaryGeneratedColumn('uuid')
   id!: string;

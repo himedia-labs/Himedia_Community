@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, Entity, Index, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { RefreshToken } from './refreshToken.entity';
 
+// 권한
 export enum UserRole {
   TRAINEE = 'TRAINEE',
   MENTOR = 'MENTOR',
@@ -26,7 +27,7 @@ export class User {
   @Column({ length: 255 })
   password!: string;
 
-  @Column({ length: 20 })
+  @Column({ length: 20, unique: true })
   phone!: string;
 
   @Column({ type: 'varchar', length: 20 })
