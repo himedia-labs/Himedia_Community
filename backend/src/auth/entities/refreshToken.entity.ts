@@ -19,10 +19,10 @@ export class RefreshToken {
   @Column({ name: 'revoked_at', type: 'timestamp', nullable: true })
   revokedAt!: Date | null;
 
-  @Column({ name: 'user_agent', length: 500, nullable: true })
+  @Column({ name: 'user_agent', type: 'varchar', length: 500, nullable: true })
   userAgent!: string | null;
 
-  @Column({ name: 'ip_address', length: 45, nullable: true })
+  @Column({ name: 'ip_address', type: 'varchar', length: 45, nullable: true })
   ipAddress!: string | null;
 
   @Column({ name: 'user_id', type: 'bigint' })
