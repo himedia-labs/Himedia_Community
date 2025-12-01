@@ -1,33 +1,16 @@
 'use client';
 
-import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import type { IconType } from 'react-icons';
 import { TbExclamationMark } from 'react-icons/tb';
 import { IoMdCheckmark } from 'react-icons/io';
 import { AiOutlineInfo } from 'react-icons/ai';
 
 import styles from './toast.module.css';
+import type { ToastContextValue, ToastItem, ToastOptions, ToastType } from './toast.types';
+import type { IconType } from 'react-icons';
 
-type ToastType = 'info' | 'success' | 'error' | 'warning';
-
-type ToastOptions = {
-  message: string;
-  type?: ToastType;
-  duration?: number | null;
-};
-
-type ToastItem = ToastOptions & {
-  id: string;
-  leaving?: boolean;
-};
-
-type ToastContextValue = {
-  showToast: (options: ToastOptions) => void;
-  hideToast: (id: string) => void;
-};
-
-const ToastContext = createContext<ToastContextValue | null>(null);
+const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
 const iconStyles: Record<ToastType, { bg: string; color: string }> = {
   info: { bg: '#e7eefc', color: '#3050a6' },
@@ -36,8 +19,8 @@ const iconStyles: Record<ToastType, { bg: string; color: string }> = {
   error: { bg: '#ffe4e6', color: '#b91c1c' },
 };
 
-const defaultDuration: number | null = 3000;
 const exitDuration = 200;
+const defaultDuration: number | null = 3000;
 
 const iconMap: Record<ToastType, IconType> = {
   info: AiOutlineInfo,
@@ -70,11 +53,7 @@ function ToastCard({ toast, onClose }: { toast: ToastItem; onClose: (id: string)
 
 export default function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = typeof window !== 'undefined';
 
   const hideToast = useCallback((id: string) => {
     setToasts(prev => {
@@ -103,7 +82,7 @@ export default function ToastProvider({ children }: { children: ReactNode }) {
         }, duration);
       }
     },
-    [hideToast]
+    [hideToast],
   );
 
   const contextValue = useMemo(() => ({ showToast, hideToast }), [showToast, hideToast]);
@@ -118,7 +97,7 @@ export default function ToastProvider({ children }: { children: ReactNode }) {
               <ToastCard key={toast.id} toast={toast} onClose={hideToast} />
             ))}
           </div>,
-          document.body
+          document.body,
         )}
     </ToastContext.Provider>
   );
