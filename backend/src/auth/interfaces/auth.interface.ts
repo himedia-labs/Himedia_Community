@@ -1,18 +1,5 @@
-import type { UserRole } from '../entities/user.entity';
-
-export interface AuthUserProfile {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  phone: string;
-  course: string | null;
-}
-
-export interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
-}
+import type { AuthTokens } from './token.interface';
+import type { AuthUserProfile } from './user.interface';
 
 export interface AuthResponse extends AuthTokens {
   user: AuthUserProfile;
