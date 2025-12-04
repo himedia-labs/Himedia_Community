@@ -54,8 +54,8 @@ export class AuthController {
     @Ip() ipAddress?: string,
   ) {
     const authResponse = await this.authService.login(req.user, userAgent, ipAddress);
-    setCookies(res, authResponse.accessToken, authResponse.refreshToken, this.config);
-    return res.json({ user: authResponse.user });
+    setCookies(res, authResponse.refreshToken, this.config);
+    return res.json({ accessToken: authResponse.accessToken, user: authResponse.user });
   }
 
   /**
@@ -70,8 +70,8 @@ export class AuthController {
     @Ip() ipAddress?: string,
   ) {
     const authResponse = await this.authService.register(registerDto, userAgent, ipAddress);
-    setCookies(res, authResponse.accessToken, authResponse.refreshToken, this.config);
-    return res.json({ user: authResponse.user });
+    setCookies(res, authResponse.refreshToken, this.config);
+    return res.json({ accessToken: authResponse.accessToken, user: authResponse.user });
   }
 
   /**
@@ -87,12 +87,13 @@ export class AuthController {
   ) {
     const refreshToken = req.cookies?.refreshToken as string | undefined;
     if (!refreshToken) {
-      return res.status(401).json({ message: 'Refresh token not found' });
+      // 쿠키가 없으면 204 No Content 반환 (비로그인 상태)
+      return res.status(204).send();
     }
 
     const authResponse = await this.tokenService.refreshTokens({ refreshToken }, userAgent, ipAddress);
-    setCookies(res, authResponse.accessToken, authResponse.refreshToken, this.config);
-    return res.json({ user: authResponse.user });
+    setCookies(res, authResponse.refreshToken, this.config);
+    return res.json({ accessToken: authResponse.accessToken, user: authResponse.user });
   }
 
   /**

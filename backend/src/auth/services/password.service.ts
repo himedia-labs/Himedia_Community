@@ -1,5 +1,5 @@
 import { randomInt } from 'crypto';
-import { Repository } from 'typeorm';
+import { LessThan, MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
@@ -15,15 +15,19 @@ import { ForgotPasswordDto } from '../dto/forgotPassword.dto';
 import { VerifyResetCodeDto } from '../dto/verifyResetCode.dto';
 import { ResetPasswordWithCodeDto } from '../dto/resetPasswordWithCode.dto';
 
-import { AUTH_CONFIG } from '../../constants/config/auth.config';
 import { PASSWORD_CONFIG } from '../../constants/config/password.config';
 import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
 import { PASSWORD_ERROR_MESSAGES, PASSWORD_SUCCESS_MESSAGES } from '../../constants/message/password.messages';
 
-import { comparePassword, hashPassword } from '../utils/bcrypt.util';
+import { comparePassword, hashWithAuthRounds } from '../utils/bcrypt.util';
 
 import type { AuthResponse } from '../interfaces/auth.interface';
+import type { PasswordResetValidation } from '../interfaces/password.interface';
 
+/**
+ * 비밀번호 관리 서비스
+ * @description 비밀번호 변경, 재설정 코드 발송 및 검증 처리
+ */
 @Injectable()
 export class PasswordService {
   constructor(
@@ -36,6 +40,15 @@ export class PasswordService {
     private readonly tokenService: TokenService,
     private readonly userService: UserService,
   ) {}
+
+  /**
+   * 8자리 인증 코드 생성 + 해시 생성 헬퍼 함수
+   */
+  private async generateAndHashResetCode(): Promise<{ code: string; hashedCode: string }> {
+    const code = this.generateResetCode();
+    const hashedCode = await hashWithAuthRounds(code);
+    return { code, hashedCode };
+  }
 
   /**
    * 비밀번호 변경
@@ -59,7 +72,7 @@ export class PasswordService {
     }
 
     // 새 비밀번호 해싱
-    user.password = await hashPassword(dto.newPassword, AUTH_CONFIG.BCRYPT_ROUNDS);
+    user.password = await hashWithAuthRounds(dto.newPassword);
 
     // DB 저장
     await this.usersRepository.save(user);
@@ -75,12 +88,12 @@ export class PasswordService {
    * 비밀번호 재설정 코드 전송
    * @description 이메일로 8자리 인증 코드 발송 (10분 유효)
    */
-  async sendPasswordResetCode(dto: ForgotPasswordDto) {
+  async sendPasswordResetCode(dto: ForgotPasswordDto): Promise<{ success: true; message: string }> {
     // 사용자 조회
     const user = await this.userService.getUserByEmailOrThrow(dto.email);
 
-    // 인증 코드 생성
-    const code = this.generateResetCode();
+    // 인증 코드 생성 및 해싱
+    const { code, hashedCode } = await this.generateAndHashResetCode();
 
     // 만료 시간 설정 (10분)
     const expiresAt = new Date(Date.now() + PASSWORD_CONFIG.RESET_CODE_EXPIRY_MINUTES * 60 * 1000);
@@ -88,7 +101,7 @@ export class PasswordService {
     // 재설정 레코드 생성
     const passwordReset = this.passwordResetRepository.create({
       userId: user.id,
-      code: await hashPassword(code, AUTH_CONFIG.BCRYPT_ROUNDS),
+      code: hashedCode,
       expiresAt,
       used: false,
     });
@@ -106,8 +119,8 @@ export class PasswordService {
    * 재설정 코드 검증
    * @description 인증 코드 유효성 확인
    */
-  async verifyResetCode(dto: VerifyResetCodeDto) {
-    // 코드 유효성 검증
+  async verifyResetCode(dto: VerifyResetCodeDto): Promise<{ success: true; message: string }> {
+    // 이메일+코드 유효성 검증
     await this.validatePasswordResetCode(dto.email, dto.code);
 
     return {
@@ -120,19 +133,18 @@ export class PasswordService {
    * 코드로 비밀번호 재설정
    * @description 인증 코드 확인 후 새 비밀번호로 변경
    */
-  async resetPasswordWithCode(dto: ResetPasswordWithCodeDto) {
+  async resetPasswordWithCode(dto: ResetPasswordWithCodeDto): Promise<{ success: true; message: string }> {
     // 코드 검증
     const { user, resetRecord } = await this.validatePasswordResetCode(dto.email, dto.code);
 
-    // 새 비밀번호 해싱
-    user.password = await hashPassword(dto.newPassword, AUTH_CONFIG.BCRYPT_ROUNDS);
+    // 비밀번호 변경 + 코드 사용 처리를 트랜잭션으로 수행
+    await this.usersRepository.manager.transaction(async manager => {
+      user.password = await hashWithAuthRounds(dto.newPassword);
+      resetRecord.used = true;
 
-    // DB 저장
-    await this.usersRepository.save(user);
-
-    // 코드 사용 완료 처리
-    resetRecord.used = true;
-    await this.passwordResetRepository.save(resetRecord);
+      await manager.save(user);
+      await manager.save(resetRecord);
+    });
 
     // 모든 토큰 무효화
     await this.tokenService.revokeAllUserTokens(user.id);
@@ -144,18 +156,27 @@ export class PasswordService {
    * 재설정 코드 검증
    * @description 이메일과 코드로 유효성 확인
    */
-  private async validatePasswordResetCode(
-    email: string,
-    code: string,
-  ): Promise<{ user: User; resetRecord: PasswordReset }> {
+  private async validatePasswordResetCode(email: string, code: string): Promise<PasswordResetValidation> {
     // 사용자 조회
     const user = await this.userService.getUserByEmailOrThrow(email);
+    const now = new Date();
 
-    // 미사용 코드들 조회
+    // 만료된 코드 사용 처리
+    await this.passwordResetRepository.update(
+      {
+        userId: user.id,
+        used: false,
+        expiresAt: LessThan(now),
+      },
+      { used: true },
+    );
+
+    // 유효(미사용+만료 전) 코드 조회
     const resetRecords = await this.passwordResetRepository.find({
       where: {
         userId: user.id,
         used: false,
+        expiresAt: MoreThanOrEqual(now),
       },
       order: {
         createdAt: 'DESC',
@@ -169,13 +190,7 @@ export class PasswordService {
 
     // 코드 해시 검증
     let resetRecord: PasswordReset | null = null;
-    const now = Date.now();
-    const expiredRecords = resetRecords.filter(record => record.expiresAt.getTime() < now);
-    if (expiredRecords.length) {
-      await this.passwordResetRepository.save(expiredRecords.map(record => ({ ...record, used: true })));
-    }
-    const activeRecords = resetRecords.filter(record => record.expiresAt.getTime() >= now);
-    for (const record of activeRecords) {
+    for (const record of resetRecords) {
       const isMatch = await comparePassword(code, record.code);
       if (isMatch) {
         resetRecord = record;

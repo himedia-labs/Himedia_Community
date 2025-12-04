@@ -6,8 +6,12 @@ import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
 
-import type { AuthUserProfile } from '../interfaces/auth.interface';
+import type { AuthUserProfile } from '../interfaces/user.interface';
 
+/**
+ * 사용자 서비스
+ * @description 사용자 조회 및 프로필 관리
+ */
 @Injectable()
 export class UserService {
   constructor(

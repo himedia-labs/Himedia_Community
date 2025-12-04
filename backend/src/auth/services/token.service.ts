@@ -1,35 +1,43 @@
 import { JwtService } from '@nestjs/jwt';
-import type { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { randomBytes, randomUUID } from 'crypto';
 
 import { User } from '../entities/user.entity';
 import { RefreshToken } from '../entities/refreshToken.entity';
 
-import { UserService } from './user.service';
 import appConfig from '../../common/config/app.config';
-import { RefreshTokenDto } from '../dto/refreshToken.dto';
-import { comparePassword, hashPassword } from '../utils/bcrypt.util';
-
-import { AUTH_CONFIG } from '../../constants/config/auth.config';
 import { TOKEN_CONFIG } from '../../constants/config/token.config';
+
+import { UserService } from './user.service';
+import { RefreshTokenDto } from '../dto/refreshToken.dto';
+import { comparePassword, hashWithAuthRounds } from '../utils/bcrypt.util';
 import { TOKEN_ERROR_MESSAGES } from '../../constants/message/token.messages';
 
-import type { AuthTokens, AuthResponse } from '../interfaces/auth.interface';
+import type { ConfigType } from '@nestjs/config';
+import type { AuthResponse } from '../interfaces/auth.interface';
+import type { AuthTokens, ParsedRefreshToken } from '../interfaces/token.interface';
 
+/**
+ * 토큰 관리 서비스
+ * @description Access Token 및 Refresh Token의 생성, 검증, 무효화 처리
+ */
 @Injectable()
 export class TokenService {
+  private readonly config: ConfigType<typeof appConfig>;
+
   constructor(
     @InjectRepository(RefreshToken)
     private readonly refreshTokensRepository: Repository<RefreshToken>,
     private readonly jwtService: JwtService,
-    @Inject(appConfig.KEY)
-    private readonly config: ConfigType<typeof appConfig>,
+
+    @Inject(appConfig.KEY) config: ConfigType<typeof appConfig>,
     private readonly userService: UserService,
-  ) {}
+  ) {
+    this.config = config;
+  }
 
   /**
    * 토큰 생성
@@ -65,7 +73,7 @@ export class TokenService {
     // 토큰 엔티티 생성
     const refreshToken = this.refreshTokensRepository.create({
       id: tokenId,
-      tokenHash: await hashPassword(secret, AUTH_CONFIG.BCRYPT_ROUNDS),
+      tokenHash: await hashWithAuthRounds(secret),
       expiresAt,
       userId: user.id,
       user,
@@ -107,7 +115,7 @@ export class TokenService {
    * 로그아웃
    * @description Refresh Token을 무효화 처리
    */
-  async logout({ refreshToken }: RefreshTokenDto) {
+  async logout({ refreshToken }: RefreshTokenDto): Promise<{ success: true }> {
     // 토큰 조회
     const storedToken = await this.getRefreshToken(refreshToken);
 
@@ -188,24 +196,9 @@ export class TokenService {
    * @description 특정 사용자의 모든 Refresh Token을 무효화
    */
   async revokeAllUserTokens(userId: string): Promise<void> {
-    // 모든 토큰 조회
-    const tokens = await this.refreshTokensRepository.find({
-      where: { userId },
-    });
-
-    // 토큰 없음
-    if (!tokens.length) {
-      return;
-    }
-
     // 모든 토큰 무효화
     const now = new Date();
-    await this.refreshTokensRepository.save(
-      tokens.map(token => ({
-        ...token,
-        revokedAt: token.revokedAt ?? now,
-      })),
-    );
+    await this.refreshTokensRepository.update({ userId, revokedAt: IsNull() }, { revokedAt: now });
   }
 
   /**
@@ -229,14 +222,17 @@ export class TokenService {
    * Refresh Token 파싱
    * @description "tokenId.secret" 형식을 분리
    */
-  private parseRefreshToken(refreshToken: string): {
-    tokenId: string;
-    secret: string;
-  } {
-    // "." 기준 분리
-    const [tokenId, secret] = refreshToken.split('.');
+  private parseRefreshToken(refreshToken: string): ParsedRefreshToken {
+    // 정상적인 토큰인지 검사
+    const parts = refreshToken.split('.');
 
-    // 형식 오류
+    if (parts.length !== 2) {
+      throw new UnauthorizedException(TOKEN_ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
+    }
+
+    const [tokenId, secret] = parts;
+
+    // 빈 문자열 체크
     if (!tokenId || !secret) {
       throw new UnauthorizedException(TOKEN_ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
     }
@@ -249,10 +245,10 @@ export class TokenService {
    * @description Type-safe하게 환경변수 기반으로 만료일 계산
    */
   private getRefreshTokenExpiryDate(): Date {
-    // 만료 일수 조회
-    const configuredDays = this.config.jwt.refreshExpiresInDays;
+    // 만료 시간 조회
+    const expiresInSeconds = this.config.jwt.refreshExpiresInSeconds;
 
-    // 만료 시간 계산 (일 → 밀리초)
-    return new Date(Date.now() + configuredDays * 24 * 60 * 60 * 1000);
+    // 만료 시간 계산 (초 > 밀리초)
+    return new Date(Date.now() + expiresInSeconds * 1000);
   }
 }
