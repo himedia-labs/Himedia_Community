@@ -6,3 +6,7 @@ export type NavItem = {
   Icon?: IconType;
   isAuthDependent?: boolean;
 };
+
+export interface HeaderProps {
+  initialIsLoggedIn: boolean;
+}

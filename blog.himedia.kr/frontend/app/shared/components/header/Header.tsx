@@ -3,18 +3,22 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+
 import { CiLogin } from 'react-icons/ci';
 import { useQueryClient } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
 import { CiBellOff, CiBellOn, CiMenuBurger, CiSearch, CiUser } from 'react-icons/ci';
 
-import { useCurrentUser } from '@/app/api/auth/auth.queries';
-import { useLogoutMutation } from '@/app/api/auth/auth.mutations';
 import { authKeys } from '@/app/api/auth/auth.keys';
+import { useCurrentUser } from '@/app/api/auth/auth.queries';
 import { useToast } from '@/app/shared/components/toast/toast';
+import { useLogoutMutation } from '@/app/api/auth/auth.mutations';
+import { useAuthStore } from '@/app/shared/store/authStore';
 
 import styles from './Header.module.css';
-import { NavItem } from './Header.types';
+
+import { HeaderProps, NavItem } from './Header.types';
+import { HeaderConfig } from './Header.config';
 
 const NAV_ITEMS: NavItem[] = [
   { label: '알림', Icon: CiBellOn },
@@ -22,22 +26,37 @@ const NAV_ITEMS: NavItem[] = [
   { label: '로그인/프로필', isAuthDependent: true },
 ];
 
-export default function Header() {
+export default function Header({ initialIsLoggedIn }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
-
   const { data: currentUser } = useCurrentUser();
-  const isLoggedIn = !!currentUser;
-
   const queryClient = useQueryClient();
   const logoutMutation = useLogoutMutation();
   const [isBellOn, setIsBellOn] = useState(true);
-
+  const clearAuth = useAuthStore(state => state.clearAuth);
   const { showToast } = useToast();
+
+  // 특정 경로에서는 Header 숨김
+  if (HeaderConfig.hidePaths.includes(pathname)) {
+    return null;
+  }
+
+  // React Query 데이터가 없으면 서버에서 받은 초기값 사용
+  // 이렇게 하면 서버 렌더링과 클라이언트 hydration 시 같은 값을 사용 → 깜빡임 없음
+  const isLoggedIn = currentUser !== undefined ? !!currentUser : initialIsLoggedIn;
+  const toggleBell = () => setIsBellOn(prev => !prev);
+  const isActive = (href?: string) => {
+    if (!href) return false;
+    if (href === '/') return pathname === '/';
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   const handleLogout = async () => {
     logoutMutation.mutate(undefined, {
       onSuccess: () => {
+        // Zustand: accessToken 제거
+        clearAuth();
+        // React Query: user 캐시 제거
         queryClient.setQueryData(authKeys.currentUser, null);
         queryClient.invalidateQueries({ queryKey: authKeys.currentUser });
         showToast({ message: '로그아웃되었습니다.', type: 'success' });
@@ -97,13 +116,8 @@ export default function Header() {
               }
 
               const isLink = Boolean(item.href);
-              const isActive =
-                isLink && item.href
-                  ? item.href !== '/'
-                    ? pathname === item.href || pathname.startsWith(`${item.href}/`)
-                    : pathname === '/'
-                  : false;
-              const linkClassName = isActive ? `${styles.navLink} ${styles.navActive}` : styles.navLink;
+              const active = isLink ? isActive(item.href) : false;
+              const linkClassName = active ? `${styles.navLink} ${styles.navActive}` : styles.navLink;
               const isBellItem = item.label === '알림';
               const IconComponent = isBellItem ? (isBellOn ? CiBellOn : CiBellOff) : item.Icon!;
 
@@ -115,7 +129,7 @@ export default function Header() {
                       className={linkClassName}
                       aria-label={item.label}
                       title={item.label}
-                      aria-current={isActive ? 'page' : undefined}
+                      aria-current={active ? 'page' : undefined}
                     >
                       <IconComponent aria-hidden="true" focusable="false" />
                     </Link>
@@ -125,7 +139,7 @@ export default function Header() {
                       className={`${styles.navLink} ${styles.navButton}`}
                       aria-label={item.label}
                       title={item.label}
-                      onClick={isBellItem ? () => setIsBellOn(prev => !prev) : undefined}
+                      onClick={isBellItem ? toggleBell : undefined}
                     >
                       <IconComponent aria-hidden="true" focusable="false" />
                     </button>

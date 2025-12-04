@@ -3,14 +3,19 @@
 import { usePathname } from 'next/navigation';
 import { SlArrowUp } from 'react-icons/sl';
 
+import { ScrollTopButtonConfig } from './ScrollTopButton.config';
 import { useScroll } from '../../hooks/useScroll';
 import styles from './ScrollTopButton.module.css';
 
 export default function ScrollTopButton() {
   const isVisible = useScroll();
   const pathname = usePathname();
-  const isHome = pathname === '/';
 
+  if (ScrollTopButtonConfig.hidePaths.includes(pathname)) {
+    return null;
+  }
+
+  const isHome = pathname === '/';
   const handleClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
