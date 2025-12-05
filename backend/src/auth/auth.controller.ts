@@ -20,7 +20,7 @@ import appConfig from '../common/config/app.config';
 
 import { setCookies, clearCookies } from './utils/cookie.util';
 
-import type { User } from './entities/user.entity';
+import { User } from './entities/user.entity';
 import type { JwtPayload } from './interfaces/jwt.interface';
 
 import type { Request as ExpressRequest, Response as ExpressResponse } from 'express';
