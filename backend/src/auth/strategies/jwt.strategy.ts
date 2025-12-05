@@ -2,7 +2,6 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import type { ConfigType } from '@nestjs/config';
 
-import type { Request } from 'express';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 
 import { UserService } from '../services/user.service';
@@ -12,17 +11,8 @@ import appConfig from '../../common/config/app.config';
 import type { JwtPayload } from '../interfaces/jwt.interface';
 
 /**
- * 쿠키 추출
- * @description 요청 쿠키에서 accessToken 추출
- */
-const cookieExtractor = (req: Request): string | null => {
-  const token = req?.cookies?.accessToken as unknown;
-  return typeof token === 'string' ? token : null;
-};
-
-/**
  * JWT 인증
- * @description 쿠키 우선, 없으면 Authorization 헤더에서 토큰 추출
+ * @description Authorization 헤더에서 Bearer 토큰 추출
  */
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -32,11 +22,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly userService: UserService,
   ) {
     super({
-      // 토큰 추출 > 쿠키 우선, 없으면 Bearer 토큰 사용
-      jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor, ExtractJwt.fromAuthHeaderAsBearerToken()]),
-      // 만료된 토큰 거부
+      // Authorization: Bearer <token> 헤더에서 JWT를 읽고, 만료는 체크하며, 주어진 시크릿으로 검증
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      // JWT 시크릿 키
       secretOrKey: config.jwt.secret,
     });
   }
