@@ -1,17 +1,16 @@
-import axiosInstance from '@/app/shared/network/axiosInstance';
-
-import type {
+import { axiosInstance } from '@/app/shared/network/axios.config';
+import {
   AuthResponse,
   LoginRequest,
   RegisterRequest,
-  SendResetCodeRequest,
-  SendResetCodeResponse,
-  VerifyResetCodeRequest,
-  VerifyResetCodeResponse,
   ResetPasswordRequest,
   ResetPasswordResponse,
+  SendResetCodeRequest,
+  SendResetCodeResponse,
   User,
-} from './auth.types';
+  VerifyResetCodeRequest,
+  VerifyResetCodeResponse,
+} from '@/app/shared/types/auth';
 
 // 회원가입
 const register = async (data: RegisterRequest): Promise<AuthResponse> => {
