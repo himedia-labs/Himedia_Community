@@ -1,3 +1,19 @@
+// User
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: 'TRAINEE' | 'MENTOR' | 'INSTRUCTOR';
+  phone: string;
+  course?: string | null;
+}
+
+// Auth Response
+export interface AuthResponse {
+  user: User;
+}
+
+// Register
 export interface RegisterRequest {
   name: string;
   email: string;
@@ -8,11 +24,13 @@ export interface RegisterRequest {
   privacyConsent: boolean;
 }
 
+// Login
 export interface LoginRequest {
   email: string;
   password: string;
 }
 
+// Password Reset - Send Code
 export interface SendResetCodeRequest {
   email: string;
 }
@@ -22,6 +40,7 @@ export interface SendResetCodeResponse {
   message: string;
 }
 
+// Password Reset - Verify Code
 export interface VerifyResetCodeRequest {
   email: string;
   code: string;
@@ -32,6 +51,7 @@ export interface VerifyResetCodeResponse {
   message: string;
 }
 
+// Password Reset - Reset Password
 export interface ResetPasswordRequest {
   email: string;
   code: string;
@@ -43,15 +63,5 @@ export interface ResetPasswordResponse {
   message: string;
 }
 
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: 'TRAINEE' | 'MENTOR' | 'INSTRUCTOR';
-  phone: string;
-  course?: string | null;
-}
-
-export interface AuthResponse {
-  user: User;
-}
+// Find Password Page
+export type AuthStep = 'verify' | 'password';
