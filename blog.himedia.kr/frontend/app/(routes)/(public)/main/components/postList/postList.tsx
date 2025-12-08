@@ -5,10 +5,10 @@ import { CiCalendar, CiGrid41 } from 'react-icons/ci';
 import { FiEye } from 'react-icons/fi';
 import { PiList } from 'react-icons/pi';
 
-import styles from './blogList.module.css';
-import { BlogPost, TopPost, ViewMode } from './blogList.types';
+import styles from './postList.module.css';
+import type { Post, TopPost, ViewMode } from '@/app/shared/types/post';
 
-const BLOG_POSTS: BlogPost[] = [
+const POSTS: Post[] = [
   {
     id: 'ai-lab',
     title: 'AI 기반 실시간 번역 시스템 개발하면서 마주한 7가지 기술적 도전과 해결 과정',
@@ -103,12 +103,12 @@ const CATEGORIES = [
   'UI/UX Designer',
 ];
 
-export default function BlogListSection() {
+export default function PostListSection() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
 
   return (
-    <section className={styles.container} aria-label="블로그 하이라이트">
+    <section className={styles.container} aria-label="포스트 하이라이트">
       <div className={styles.main}>
         <div className={styles.header}>
           <button
@@ -123,7 +123,7 @@ export default function BlogListSection() {
 
         {viewMode === 'list' ? (
           <ul className={styles.listView}>
-            {BLOG_POSTS.map(post => (
+            {POSTS.map(post => (
               <li key={post.id}>
                 <article className={styles.listItem}>
                   <div className={styles.listBody}>
@@ -158,7 +158,7 @@ export default function BlogListSection() {
           </ul>
         ) : (
           <ul className={styles.cardGrid}>
-            {BLOG_POSTS.map(post => (
+            {POSTS.map(post => (
               <li key={post.id}>
                 <article className={styles.cardItem}>
                   <div

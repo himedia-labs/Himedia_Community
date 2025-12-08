@@ -1,11 +1,11 @@
 import Banner from './(routes)/(public)/main/components/banner/banner';
-import BlogListSection from './(routes)/(public)/main/components/blogList/blogList';
+import PostListSection from './(routes)/(public)/main/components/postList/postList';
 
 export default function Home() {
   return (
     <>
       <Banner />
-      <BlogListSection />
+      <PostListSection />
     </>
   );
 }
