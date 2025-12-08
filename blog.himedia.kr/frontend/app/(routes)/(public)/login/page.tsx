@@ -6,69 +6,40 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { useLoginMutation } from '@/app/api/auth/auth.mutations';
-import { handleAuthError } from '@/app/api/auth/auth.error';
-import { useToast } from '@/app/shared/components/toast/toast';
 import { authKeys } from '@/app/api/auth/auth.keys';
+import { authenticateUser } from './login.handlers';
+import { useToast } from '@/app/shared/components/toast/toast';
+import { useLoginMutation } from '@/app/api/auth/auth.mutations';
 
 import styles from './login.module.css';
 
 export default function LoginPage() {
+  // Hooks & Mutations
   const router = useRouter();
   const queryClient = useQueryClient();
   const loginMutation = useLoginMutation();
+  const { showToast } = useToast();
 
+  // Form
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  // Error
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
-  const { showToast } = useToast();
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    setEmailError('');
-    setPasswordError('');
-
-    let hasError = false;
-
-    if (!email) {
-      setEmailError('이메일을 입력해주세요.');
-      hasError = true;
-    }
-
-    if (!password) {
-      setPasswordError('비밀번호를 입력해주세요.');
-      hasError = true;
-    }
-
-    if (hasError) return;
-
-    loginMutation.mutate(
-      {
-        email,
-        password,
-      },
-      {
-        onSuccess: data => {
-          queryClient.setQueryData(authKeys.currentUser, data.user);
-          router.push('/');
-        },
-        onError: (error: Error) => {
-          const message = handleAuthError(error, '로그인에 실패했습니다.');
-
-          if (message.includes('이메일')) {
-            setEmailError(message);
-          } else if (message.includes('비밀번호')) {
-            setPasswordError(message);
-          } else {
-            showToast({ message, type: 'warning' });
-          }
-        },
-      },
-    );
-  };
+  // 로그인 핸들러
+  const handleLogin = authenticateUser({
+    email,
+    password,
+    setEmailError,
+    setPasswordError,
+    loginMutation,
+    showToast,
+    queryClient,
+    authKeys,
+    router,
+  });
 
   return (
     <div className={styles.container}>
@@ -87,7 +58,7 @@ export default function LoginPage() {
         <div className={styles.loginBox}>
           <h1 className={styles.title}>로그인</h1>
 
-          <form onSubmit={handleSubmit} className={styles.form}>
+          <form onSubmit={handleLogin} className={styles.form}>
             <div className={styles.formGroup}>
               <label htmlFor="email" className={styles.label}>
                 이메일 주소
