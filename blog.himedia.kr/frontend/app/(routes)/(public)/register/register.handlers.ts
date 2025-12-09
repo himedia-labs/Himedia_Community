@@ -137,6 +137,7 @@ export const register = (params: {
         privacyConsent: params.privacyConsent,
       },
       {
+        // 성공 시
         onSuccess: () => {
           params.showToast({
             message: '회원가입이 완료되었습니다.\n관리자 승인 후 로그인하실 수 있습니다.',
@@ -147,6 +148,7 @@ export const register = (params: {
             params.router.push('/');
           });
         },
+        // 실패 시
         onError: (error: unknown) => {
           const axiosError = error as AxiosError<{ message: string }>;
           const message = axiosError.response?.data?.message;
