@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/app/shared/network/axios.config';
+import { axiosInstance } from '@/app/shared/network/axios.instance';
 import {
   AuthResponse,
   LoginRequest,
