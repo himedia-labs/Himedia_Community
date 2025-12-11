@@ -24,6 +24,7 @@ import { User } from './entities/user.entity';
 import type { JwtPayload } from './interfaces/jwt.interface';
 
 import type { Request as ExpressRequest, Response as ExpressResponse } from 'express';
+import { PasswordRateLimitGuard } from './guards/passwordRateLimit.guard';
 
 /**
  * 인증 컨트롤러
@@ -124,6 +125,7 @@ export class AuthController {
    * 비밀번호 재설정 코드 전송
    * @description 이메일로 8자리 인증번호 발송 (비인증)
    */
+  @UseGuards(PasswordRateLimitGuard)
   @Post('password/send-code')
   sendPasswordResetCode(@Body() forgotPasswordDto: ForgotPasswordDto) {
     return this.passwordService.sendPasswordResetCode(forgotPasswordDto);

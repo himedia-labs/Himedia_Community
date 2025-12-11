@@ -10,6 +10,7 @@ import { UserService } from './services/user.service';
 import { AuthService } from './services/auth.service';
 import { TokenService } from './services/token.service';
 import { PasswordService } from './services/password.service';
+import { RateLimitService } from './services/rateLimit.service';
 
 import { User } from './entities/user.entity';
 import { RefreshToken } from './entities/refreshToken.entity';
@@ -18,6 +19,7 @@ import { PasswordReset } from './entities/passwordReset.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 
+import { PasswordRateLimitGuard } from './guards/passwordRateLimit.guard';
 import { EmailModule } from '../email/email.module';
 import appConfig from '../common/config/app.config';
 
@@ -41,6 +43,15 @@ import appConfig from '../common/config/app.config';
     EmailModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, TokenService, PasswordService, UserService, LocalStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    TokenService,
+    PasswordService,
+    RateLimitService,
+    UserService,
+    LocalStrategy,
+    JwtStrategy,
+    PasswordRateLimitGuard,
+  ],
 })
 export class AuthModule {}
