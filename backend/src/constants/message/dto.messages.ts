@@ -45,4 +45,7 @@ export const VALIDATION_MESSAGES = {
   // 개인정보 동의
   PRIVACY_CONSENT_BOOLEAN: '개인정보 동의는 불리언 값이어야 합니다.',
   PRIVACY_CONSENT_REQUIRED: '개인정보 수집 및 이용에 동의가 필요합니다.',
+
+  // 공통
+  UNKNOWN: '유효하지 않은 요청입니다.',
 } as const;
