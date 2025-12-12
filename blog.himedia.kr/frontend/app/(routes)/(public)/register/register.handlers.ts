@@ -1,32 +1,31 @@
 import type { AxiosError } from 'axios';
 import type { UseMutationResult } from '@tanstack/react-query';
-import type { RegisterRequest, AuthResponse } from '@/app/shared/types/auth';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+
+import { isValidPassword } from '@/app/shared/utils/password';
+import type { RegisterRequest, AuthResponse } from '@/app/shared/types/auth';
 
 /**
  * 전화번호 포맷팅
  * @description 사용자가 숫자를 입력하면 자동으로 XXX XXXX XXXX 형식으로 변환해줍니다.
  */
-
 export const formatPhone = (params: {
-  phone: string;
   setPhone: (value: string) => void;
   phoneError: string;
   setPhoneError: (value: string) => void;
 }) => {
   return (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, '');
+    const digits = e.target.value.replace(/[^0-9]/g, '').slice(0, 11);
 
-    if (value.length <= 11) {
-      let formatted = value;
-      if (value.length > 3 && value.length <= 7) {
-        formatted = `${value.slice(0, 3)} ${value.slice(3)}`;
-      } else if (value.length > 7) {
-        formatted = `${value.slice(0, 3)} ${value.slice(3, 7)} ${value.slice(7, 11)}`;
-      }
-      params.setPhone(formatted);
-      if (params.phoneError) params.setPhoneError('');
+    let formatted = digits;
+    if (digits.length > 3 && digits.length <= 7) {
+      formatted = `${digits.slice(0, 3)} ${digits.slice(3)}`;
+    } else if (digits.length > 7) {
+      formatted = `${digits.slice(0, 3)} ${digits.slice(3, 7)} ${digits.slice(7)}`;
     }
+
+    params.setPhone(formatted);
+    if (params.phoneError) params.setPhoneError('');
   };
 };
 
@@ -50,11 +49,10 @@ export const register = (params: {
   setPhoneError: (value: string) => void;
   setRoleError: (value: string) => void;
   setCourseError: (value: string) => void;
-  setPrivacyError: (value: boolean) => void;
+  setPrivacyError: (value: string) => void;
   registerMutation: UseMutationResult<AuthResponse, Error, RegisterRequest>;
   showToast: (options: { message: string; type: 'success' | 'error' | 'warning'; duration?: number }) => void;
   router: AppRouterInstance;
-  isValidPassword: (value: string) => boolean;
   onSuccessCleanup?: () => void;
 }) => {
   return (e: React.FormEvent) => {
@@ -68,11 +66,11 @@ export const register = (params: {
     params.setPhoneError('');
     params.setRoleError('');
     params.setCourseError('');
-    params.setPrivacyError(false);
+    params.setPrivacyError('');
 
     let hasError = false;
 
-    // 필수 입력 체크
+    // 유효성 검사
     if (!params.name) {
       params.setNameError('이름을 입력해주세요.');
       hasError = true;
@@ -86,7 +84,7 @@ export const register = (params: {
     if (!params.password) {
       params.setPasswordError('비밀번호를 입력해주세요.');
       hasError = true;
-    } else if (!params.isValidPassword(params.password)) {
+    } else if (!isValidPassword(params.password)) {
       params.setPasswordError('최소 8자의 영문, 숫자, 특수문자를 입력해주세요.');
       hasError = true;
     }
@@ -115,7 +113,7 @@ export const register = (params: {
     }
 
     if (!params.privacyConsent) {
-      params.setPrivacyError(true);
+      params.setPrivacyError('개인정보 수집 및 이용에 동의해주세요.');
       hasError = true;
     }
 
@@ -146,30 +144,26 @@ export const register = (params: {
             type: 'success',
             duration: 5000,
           });
-          setTimeout(() => {
-            params.router.push('/');
-          });
+          params.router.push('/');
         },
         // 실패 시
         onError: (error: unknown) => {
-          const axiosError = error as AxiosError<{ message: string }>;
-          const message = axiosError.response?.data?.message;
+          const axiosError = error as AxiosError<{ message: string; code?: string }>;
+          const { message, code } = axiosError.response?.data || {};
 
-          if (message?.includes('이름')) {
-            params.setNameError(message);
-          } else if (message?.includes('이메일')) {
-            params.setEmailError(message);
-          } else if (message?.includes('비밀번호')) {
-            params.setPasswordError(message);
-          } else if (message?.includes('전화번호')) {
-            params.setPhoneError(message);
-          } else if (message?.includes('역할')) {
-            params.setRoleError(message);
-          } else if (message?.includes('과정')) {
-            params.setCourseError(message);
-          } else if (message) {
-            // 특정 필드를 알 수 없는 경우 이메일 필드에 표시
-            params.setEmailError(message);
+          if (!message) return;
+
+          // 백엔드 에러 코드 기반 처리
+          switch (code) {
+            case 'AUTH_EMAIL_ALREADY_EXISTS':
+              params.setEmailError(message);
+              break;
+            case 'AUTH_PHONE_ALREADY_EXISTS':
+              params.setPhoneError(message);
+              break;
+            default:
+              // 코드가 없거나 알 수 없는 에러는 이메일 필드에 표시
+              params.setEmailError(message);
           }
         },
       },

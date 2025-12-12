@@ -10,16 +10,13 @@ import { TbExternalLink } from 'react-icons/tb';
 
 import useRegisterForm from './register.hooks';
 import { register } from './register.handlers';
+import { isValidPassword } from '@/app/shared/utils/password';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
 
 import styles from './register.module.css';
 
-// 비밀번호 유효성 검사 (최소 8자, 영문+숫자+특수문자)
-const PASSWORD_PATTERN = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-const isValidPassword = (value: string) => PASSWORD_PATTERN.test(value);
-
-// 교육과정 리스트
+// 교육과정 리스트 (임시 데이터)
 const COURSE_OPTIONS = [
   '프론트엔드 개발자 양성과정 1기',
   '프론트엔드 개발자 양성과정 2기',
@@ -35,13 +32,12 @@ const COURSE_OPTIONS = [
 ];
 
 export default function RegisterPage() {
-  // Hooks & Mutations
   const router = useRouter();
   const registerMutation = useRegisterMutation();
   const { showToast } = useToast();
   const restoredToastShownRef = useRef(false);
 
-  // Form state/handlers (includes cache load/save, phone formatting, etc.)
+  // 폼 상태/핸들러(캐시 로드 및 저장, 전화번호 포맷 등 포함)
   const {
     form,
     setFormField,
@@ -52,7 +48,9 @@ export default function RegisterPage() {
     restoredFromKeep,
   } = useRegisterForm();
 
+  // 폼 입력값 상태
   const { name, email, password, passwordConfirm, phone, role, course, privacyConsent } = form;
+  // 폼 에러 상태
   const {
     nameError,
     emailError,
@@ -63,6 +61,7 @@ export default function RegisterPage() {
     courseError,
     privacyError,
   } = errors;
+  // 에러 세터 모음
   const {
     setNameError,
     setEmailError,
@@ -74,7 +73,7 @@ export default function RegisterPage() {
     setPrivacyError,
   } = setErrors;
 
-  // 약관 페이지에서 돌아왔을 때 캐시 로드 안내 토스트 (1회)
+  // 약관 페이지에서 돌아왔을 때 캐시 로드 안내 토스트
   useEffect(() => {
     if (hasCache && restoredFromKeep && !restoredToastShownRef.current) {
       showToast({ message: '임시 저장된 내용을 불러왔습니다.', type: 'info' });
@@ -103,7 +102,6 @@ export default function RegisterPage() {
     registerMutation,
     showToast,
     router,
-    isValidPassword,
     onSuccessCleanup: clearFormCache,
   });
 
@@ -280,10 +278,9 @@ export default function RegisterPage() {
                       checked={privacyConsent}
                       onChange={e => {
                         setFormField('privacyConsent', e.target.checked);
-                        if (privacyError) setPrivacyError(false);
+                        if (privacyError) setPrivacyError('');
                       }}
                       className={styles.checkbox}
-                      autoComplete="new-password"
                     />
                     <FaCheck className={styles.checkboxIcon} aria-hidden />
                   </label>

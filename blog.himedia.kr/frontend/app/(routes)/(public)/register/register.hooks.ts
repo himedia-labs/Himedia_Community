@@ -2,12 +2,16 @@ import { useEffect, useState } from 'react';
 
 import { formatPhone } from './register.handlers';
 import sanitizeEmailInput from '@/app/shared/utils/email';
+import { sessionStorage } from '@/app/shared/utils/session-storage';
 
 import type { RegisterFormCache } from '@/app/shared/types/register';
 
+// 폼 캐시 세션 키
 const FORM_CACHE_KEY = 'registerFormCache';
+// 약관 페이지 이동 시 보존 플래그 키
 const FORM_CACHE_KEEP_KEY = 'registerFormCacheKeep';
 
+// 폼 기본값
 const DEFAULT_FORM_CACHE: RegisterFormCache = {
   name: '',
   email: '',
@@ -19,34 +23,16 @@ const DEFAULT_FORM_CACHE: RegisterFormCache = {
   privacyConsent: false,
 };
 
-// 세션에 저장된 폼 데이터 로드 (파싱 실패 시 기본값)
-const loadCachedForm = (): RegisterFormCache => {
-  if (typeof window === 'undefined') return DEFAULT_FORM_CACHE;
-  const raw = sessionStorage.getItem(FORM_CACHE_KEY);
-  if (!raw) return DEFAULT_FORM_CACHE;
-  try {
-    const cached = JSON.parse(raw) as Partial<RegisterFormCache>;
-    return { ...DEFAULT_FORM_CACHE, ...cached };
-  } catch {
-    return DEFAULT_FORM_CACHE;
-  }
-};
-
 /**
  * 회원가입 폼 상태/캐시/핸들러 훅
  * @description 입력 필드/에러 상태, 전화번호 포맷터, 이메일 입력 필터 제공, 세션스토리지에 폼 값을 저장/복원 (약관 페이지 이동 시만 보존)
  */
 
 export const useRegisterForm = () => {
-  const [form, setForm] = useState<RegisterFormCache>(() => loadCachedForm());
-  const [hasCache, setHasCache] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return !!sessionStorage.getItem(FORM_CACHE_KEY);
-  });
-  const [restoredFromKeep] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    return !!sessionStorage.getItem(FORM_CACHE_KEEP_KEY);
-  });
+  const [form, setForm] = useState<RegisterFormCache>(() => sessionStorage.getItem(FORM_CACHE_KEY, DEFAULT_FORM_CACHE));
+  const [hasCache, setHasCache] = useState(() => sessionStorage.hasItem(FORM_CACHE_KEY));
+  const [restoredFromKeep] = useState<boolean>(() => sessionStorage.hasItem(FORM_CACHE_KEEP_KEY));
+
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -54,7 +40,7 @@ export const useRegisterForm = () => {
   const [phoneError, setPhoneError] = useState('');
   const [roleError, setRoleError] = useState('');
   const [courseError, setCourseError] = useState('');
-  const [privacyError, setPrivacyError] = useState(false);
+  const [privacyError, setPrivacyError] = useState('');
 
   // 폼 필드 업데이트 헬퍼
   const setFormField = <K extends keyof RegisterFormCache>(key: K, value: RegisterFormCache[K]) =>
@@ -65,7 +51,6 @@ export const useRegisterForm = () => {
 
   // 캐시 삭제 + 폼 초기화
   const clearFormCache = () => {
-    if (typeof window === 'undefined') return;
     sessionStorage.removeItem(FORM_CACHE_KEY);
     sessionStorage.removeItem(FORM_CACHE_KEEP_KEY);
     setForm(DEFAULT_FORM_CACHE);
@@ -74,34 +59,28 @@ export const useRegisterForm = () => {
 
   // 세션 스토리지 캐시 저장
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const payload = { ...form };
-    sessionStorage.setItem(FORM_CACHE_KEY, JSON.stringify(payload));
+    sessionStorage.setItem(FORM_CACHE_KEY, form);
   }, [form]);
 
-  // 이전 화면에서 keep 플래그로 돌아온 경우, 플래그는 소비(삭제)
+  /**
+   * - 플래그 생성: 약관 페이지 이동 시 세션 스토리지에 플래그 저장
+   * - 플래그 삭제: 약관에서 돌아올 때 이 플래그 키를 삭제하고, 다른 페이지로 이동 시 플래그가 없으면 폼 캐시 삭제
+   */
   useEffect(() => {
-    if (typeof window === 'undefined') return;
     if (restoredFromKeep) {
       sessionStorage.removeItem(FORM_CACHE_KEEP_KEY);
     }
-  }, [restoredFromKeep]);
 
-  // 페이지 이탈 시 캐시 삭제 (terms/privacy 이동 시에는 keep 플래그로 보존)
-  useEffect(() => {
     return () => {
-      if (typeof window === 'undefined') return;
-      const keep = sessionStorage.getItem(FORM_CACHE_KEEP_KEY);
-      if (!keep) {
+      if (!sessionStorage.hasItem(FORM_CACHE_KEEP_KEY)) {
         sessionStorage.removeItem(FORM_CACHE_KEY);
       }
       setHasCache(false);
     };
-  }, []);
+  }, [restoredFromKeep]);
 
   // 전화번호 포맷 핸들러
   const handlePhoneChange = formatPhone({
-    phone: form.phone,
     setPhone: value => setFormField('phone', value),
     phoneError,
     setPhoneError,
@@ -134,10 +113,7 @@ export const useRegisterForm = () => {
       handlePhoneChange,
       clearFormCache,
       // 약관 페이지 이동 시 캐시 보존 플래그 설정
-      markKeepCache: () => {
-        if (typeof window === 'undefined') return;
-        sessionStorage.setItem(FORM_CACHE_KEEP_KEY, '1');
-      },
+      markKeepCache: () => sessionStorage.setItem(FORM_CACHE_KEEP_KEY, '1'),
       sanitizeEmailInput,
     },
     hasCache,
