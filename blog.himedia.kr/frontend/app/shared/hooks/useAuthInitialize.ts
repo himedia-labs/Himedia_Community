@@ -9,7 +9,7 @@ import { useAuthStore } from '@/app/shared/store/authStore';
  * - 실패 시: 비로그인 상태 확정
  */
 export const useAuthInitialize = () => {
-  const { setAccessToken, setInitialized } = useAuthStore();
+  const { setAccessToken } = useAuthStore();
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -18,19 +18,16 @@ export const useAuthInitialize = () => {
 
         if (response.status === 204 || !response.data?.accessToken) {
           setAccessToken(null);
-          setInitialized(true);
           return;
         }
 
         const { accessToken: newAccessToken } = response.data;
         setAccessToken(newAccessToken);
-        setInitialized(true);
       } catch {
         setAccessToken(null);
-        setInitialized(true);
       }
     };
 
     initializeAuth();
-  }, [setAccessToken, setInitialized]);
+  }, [setAccessToken]);
 };

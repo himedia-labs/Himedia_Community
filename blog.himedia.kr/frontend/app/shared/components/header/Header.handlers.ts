@@ -10,6 +10,7 @@ export const handleLogout = (params: {
   authKeys: { currentUser: readonly string[] };
   showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
   router: AppRouterInstance;
+  onLogoutSuccess?: () => void;
 }) => {
   return async () => {
     params.logoutMutation.mutate(undefined, {
@@ -20,6 +21,7 @@ export const handleLogout = (params: {
         params.queryClient.setQueryData(params.authKeys.currentUser, null);
         params.queryClient.invalidateQueries({ queryKey: params.authKeys.currentUser });
         params.showToast({ message: '로그아웃되었습니다.', type: 'success' });
+        params.onLogoutSuccess?.();
         params.router.push('/');
       },
       // 실패 시

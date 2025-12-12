@@ -1,9 +1,10 @@
 import type { AxiosError } from 'axios';
 import type { QueryClient } from '@tanstack/react-query';
 import type { UseMutationResult } from '@tanstack/react-query';
-import type { LoginRequest, AuthResponse } from '@/app/shared/types/auth';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+
 import { useAuthStore } from '@/app/shared/store/authStore';
+import type { LoginRequest, AuthResponse } from '@/app/shared/types/auth';
 
 // 로그인 로직
 export const authenticateUser = (params: {
@@ -46,9 +47,8 @@ export const authenticateUser = (params: {
         // 로그인 성공 시
         onSuccess: (data: AuthResponse) => {
           // authStore 업데이트
-          const { setAccessToken, setInitialized } = useAuthStore.getState();
+          const { setAccessToken } = useAuthStore.getState();
           setAccessToken(data.accessToken);
-          setInitialized(true);
 
           // 로그인 응답의 사용자 정보를 React Query 캐시에 저장 (GET /auth/me 중복 호출 방지)
           params.queryClient.setQueryData(params.authKeys.currentUser, data.user);

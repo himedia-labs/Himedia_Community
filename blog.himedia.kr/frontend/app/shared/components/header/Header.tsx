@@ -14,11 +14,11 @@ import { useToast } from '@/app/shared/components/toast/toast';
 import { useLogoutMutation } from '@/app/api/auth/auth.mutations';
 import { useAuthStore } from '@/app/shared/store/authStore';
 
-import styles from './Header.module.css';
-
-import { HeaderProps, NavItem } from './Header.types';
 import { HeaderConfig } from './Header.config';
 import { handleLogout as createHandleLogout } from './Header.handlers';
+
+import styles from './Header.module.css';
+import type { HeaderProps, NavItem } from './Header.types';
 
 const NAV_ITEMS: NavItem[] = [
   { label: '알림', Icon: CiBellOn },
@@ -32,7 +32,8 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
   const queryClient = useQueryClient();
   const logoutMutation = useLogoutMutation();
   const [isBellOn, setIsBellOn] = useState(true);
-  const { accessToken, isInitialized } = useAuthStore();
+  const [initialLoginFlag, setInitialLoginFlag] = useState(initialIsLoggedIn);
+  const { accessToken } = useAuthStore();
   const clearAuth = useAuthStore(state => state.clearAuth);
   const { showToast } = useToast();
 
@@ -42,12 +43,12 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
   }
 
   /**
-   * 로그인 상태 계산
-   * @description 로그인 후 "/" 로 이동되었을때 header Icon 변경을 위함
-   * - 초기화 전 (isInitialized = false): 서버에서 전달받은 initialIsLoggedIn 사용
-   * - 초기화 후 (isInitialized = true): accessToken 존재 여부로 실시간 로그인 상태 확인
+   * 로그인 상태
+   * @description 서버 쿠키 기반(initialLoginFlag) 또는 클라이언트 accessToken 중 하나라도 있으면 로그인으로 표시
+   * - initialLoginFlag: 로그인 후 리다이렉트 시 아이콘 변화가 없기에 필수
+   * - accessToken: 새로고침 시 초기화된 상태 복구 용도
    */
-  const isLoggedIn = isInitialized ? !!accessToken : initialIsLoggedIn;
+  const isLoggedIn = !!accessToken || initialLoginFlag;
 
   // 알림 아이콘 토글 (on/off)
   const toggleBell = () => setIsBellOn(prev => !prev);
@@ -60,6 +61,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
     authKeys,
     showToast,
     router,
+    onLogoutSuccess: () => setInitialLoginFlag(false),
   });
 
   return (
