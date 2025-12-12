@@ -11,21 +11,22 @@ const formatSection = (label: string, data: Record<string, unknown>) =>
 /**
  * HttpException에서 에러 메시지 추출
  */
-const extractErrorMessage = (exception: HttpException): ExceptionMessage => {
+const extractErrorMessage = (exception: HttpException): { message: ExceptionMessage; code?: string } => {
   const exceptionResponse = exception.getResponse();
 
   if (typeof exceptionResponse === 'string') {
-    return exceptionResponse;
+    return { message: exceptionResponse };
   }
 
   if (typeof exceptionResponse === 'object' && exceptionResponse !== null && 'message' in exceptionResponse) {
     const messageValue = (exceptionResponse as { message?: unknown }).message;
+    const codeValue = (exceptionResponse as { code?: unknown }).code;
     if (typeof messageValue === 'string' || Array.isArray(messageValue)) {
-      return messageValue;
+      return { message: messageValue, code: typeof codeValue === 'string' ? codeValue : undefined };
     }
   }
 
-  return exception.message;
+  return { message: exception.message };
 };
 
 /**
@@ -49,19 +50,20 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const paramMessage = formatSection('params', params);
     const queryMessage = formatSection('query', query);
     const bodyMessage = formatSection('body', body);
-    const errorMessage = extractErrorMessage(exception);
+    const { message: errorMessage, code } = extractErrorMessage(exception);
 
     // 에러 로그 출력
     this.logger.error(
       `Error to ${request.method} ${request.url} ${paramMessage} ${queryMessage} ${bodyMessage}\n` +
         `statusCode : ${status}\n` +
-        `message : ${JSON.stringify(errorMessage, null, 2)}`,
+        `message : ${JSON.stringify(errorMessage, null, 2)}${code ? `\ncode : ${code}` : ''}`,
     );
 
     // 표준 에러 응답
     const payload: StandardErrorResponse = {
       statusCode: status,
       message: errorMessage,
+      ...(code ? { code } : {}),
       path: request.url,
       timestamp: new Date().toISOString(),
     };

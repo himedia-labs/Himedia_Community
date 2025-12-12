@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 
 import { User } from '../entities/user.entity';
 import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
+import { ERROR_CODES } from '../../constants/error/error-codes';
 
 import type { AuthUserProfile } from '../interfaces/user.interface';
 
@@ -43,7 +44,7 @@ export class UserService {
 
     // 사용자 없음
     if (!user) {
-      throw new UnauthorizedException(AUTH_ERROR_MESSAGES.USER_NOT_FOUND);
+      throw new UnauthorizedException({ message: AUTH_ERROR_MESSAGES.USER_NOT_FOUND, code: ERROR_CODES.AUTH_USER_NOT_FOUND });
     }
 
     return user;
@@ -61,7 +62,10 @@ export class UserService {
 
     // 사용자 없음
     if (!user) {
-      throw new UnauthorizedException(AUTH_ERROR_MESSAGES.EMAIL_NOT_FOUND);
+      throw new UnauthorizedException({
+        message: AUTH_ERROR_MESSAGES.EMAIL_NOT_FOUND,
+        code: ERROR_CODES.AUTH_EMAIL_NOT_FOUND,
+      });
     }
 
     return user;

@@ -18,6 +18,7 @@ import { ResetPasswordWithCodeDto } from '../dto/resetPasswordWithCode.dto';
 import { PASSWORD_CONFIG } from '../../constants/config/password.config';
 import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
 import { PASSWORD_ERROR_MESSAGES, PASSWORD_SUCCESS_MESSAGES } from '../../constants/message/password.messages';
+import { ERROR_CODES } from '../../constants/error/error-codes';
 
 import { comparePassword, hashWithAuthRounds } from '../utils/bcrypt.util';
 
@@ -68,7 +69,10 @@ export class PasswordService {
 
     // 비밀번호 불일치
     if (!isValid) {
-      throw new UnauthorizedException(AUTH_ERROR_MESSAGES.INVALID_CURRENT_PASSWORD);
+      throw new UnauthorizedException({
+        message: AUTH_ERROR_MESSAGES.INVALID_CURRENT_PASSWORD,
+        code: ERROR_CODES.AUTH_INVALID_CURRENT_PASSWORD,
+      });
     }
 
     // 새 비밀번호 해싱
@@ -185,7 +189,10 @@ export class PasswordService {
 
     // 코드 없음
     if (!resetRecords.length) {
-      throw new UnauthorizedException(PASSWORD_ERROR_MESSAGES.INVALID_RESET_CODE);
+      throw new UnauthorizedException({
+        message: PASSWORD_ERROR_MESSAGES.INVALID_RESET_CODE,
+        code: ERROR_CODES.PASSWORD_INVALID_RESET_CODE,
+      });
     }
 
     // 코드 해시 검증
@@ -200,7 +207,10 @@ export class PasswordService {
 
     // 코드 불일치
     if (!resetRecord) {
-      throw new UnauthorizedException(PASSWORD_ERROR_MESSAGES.INVALID_RESET_CODE);
+      throw new UnauthorizedException({
+        message: PASSWORD_ERROR_MESSAGES.INVALID_RESET_CODE,
+        code: ERROR_CODES.PASSWORD_INVALID_RESET_CODE,
+      });
     }
 
     return { user, resetRecord };

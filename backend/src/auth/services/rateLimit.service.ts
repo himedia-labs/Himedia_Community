@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 import { PASSWORD_ERROR_MESSAGES } from '../../constants/message/password.messages';
+import { ERROR_CODES } from '../../constants/error/error-codes';
 import type { RateLimitEntry, RateLimitKey, RateLimitRule } from '../interfaces/rateLimit.interface';
 
 /**
@@ -32,7 +33,10 @@ export class RateLimitService {
 
       // 한도 초과 시 429
       if (entry.count >= rule.limit) {
-        throw new HttpException(PASSWORD_ERROR_MESSAGES.TOO_MANY_REQUESTS, HttpStatus.TOO_MANY_REQUESTS);
+        throw new HttpException(
+          { message: PASSWORD_ERROR_MESSAGES.TOO_MANY_REQUESTS, code: ERROR_CODES.PASSWORD_TOO_MANY_REQUESTS },
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
       }
 
       // 카운트 증가 후 저장
