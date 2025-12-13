@@ -107,7 +107,10 @@ export class AuthService {
 
     // 사용자 없음
     if (!user) {
-      throw new UnauthorizedException(AUTH_ERROR_MESSAGES.INVALID_CREDENTIALS);
+      throw new UnauthorizedException({
+        message: AUTH_ERROR_MESSAGES.INVALID_CREDENTIALS,
+        code: ERROR_CODES.AUTH_EMAIL_NOT_FOUND,
+      });
     }
 
     // 비밀번호 검증
@@ -115,7 +118,10 @@ export class AuthService {
 
     // 비밀번호 불일치
     if (!isMatch) {
-      throw new UnauthorizedException(AUTH_ERROR_MESSAGES.INVALID_CREDENTIALS);
+      throw new UnauthorizedException({
+        message: AUTH_ERROR_MESSAGES.INVALID_CREDENTIALS,
+        code: ERROR_CODES.AUTH_INVALID_CURRENT_PASSWORD,
+      });
     }
 
     // 승인 상태 확인
