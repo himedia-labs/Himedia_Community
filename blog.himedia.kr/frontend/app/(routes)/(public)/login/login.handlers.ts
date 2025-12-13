@@ -52,6 +52,7 @@ export const authenticateUser = (params: {
 
           // 로그인 응답의 사용자 정보를 React Query 캐시에 저장 (GET /auth/me 중복 호출 방지)
           params.queryClient.setQueryData(params.authKeys.currentUser, data.user);
+          params.showToast({ message: '로그인 되었습니다.', type: 'success' });
           params.router.push('/');
         },
         // 로그인 실패 시
