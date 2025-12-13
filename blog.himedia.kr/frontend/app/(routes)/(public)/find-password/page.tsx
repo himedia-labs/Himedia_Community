@@ -71,6 +71,7 @@ export default function ForgotPasswordPage() {
   const isVerifying = verifyCodeMutation.isPending;
   const isResetting = resetPasswordMutation.isPending;
 
+  // 인증번호 만료 타이머 (10분 카운트다운)
   useEffect(() => {
     if (!codeSent || remainingSeconds <= 0) return undefined;
 
@@ -80,6 +81,13 @@ export default function ForgotPasswordPage() {
 
     return () => window.clearTimeout(timerId);
   }, [codeSent, remainingSeconds]);
+
+  // 인증번호 만료 알림
+  useEffect(() => {
+    if (codeSent && remainingSeconds === 0) {
+      showToast({ message: '인증번호가 만료되었습니다. 다시 발송해주세요.', type: 'warning' });
+    }
+  }, [codeSent, remainingSeconds, showToast]);
 
   // 비밀번호 상태 초기화 핸들러
   const handleResetPasswordState = resetPasswordState({
