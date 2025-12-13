@@ -4,6 +4,8 @@ import type { UseMutationResult } from '@tanstack/react-query';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 import { useAuthStore } from '@/app/shared/store/authStore';
+import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth';
+
 import type { LoginRequest, AuthResponse } from '@/app/shared/types/auth';
 
 // 로그인 로직
@@ -27,12 +29,12 @@ export const authenticateUser = (params: {
     let hasError = false;
 
     if (!params.email) {
-      params.setEmailError('이메일을 입력해주세요.');
+      params.setEmailError(LOGIN_MESSAGES.emailRequired);
       hasError = true;
     }
 
     if (!params.password) {
-      params.setPasswordError('비밀번호를 입력해주세요.');
+      params.setPasswordError(LOGIN_MESSAGES.passwordRequired);
       hasError = true;
     }
 
@@ -52,7 +54,7 @@ export const authenticateUser = (params: {
 
           // 로그인 응답의 사용자 정보를 React Query 캐시에 저장 (GET /auth/me 중복 호출 방지)
           params.queryClient.setQueryData(params.authKeys.currentUser, data.user);
-          params.showToast({ message: '로그인 되었습니다.', type: 'success' });
+          params.showToast({ message: LOGIN_MESSAGES.success, type: 'success' });
           params.router.push('/');
         },
         // 로그인 실패 시
@@ -68,7 +70,7 @@ export const authenticateUser = (params: {
           } else if (message) {
             params.showToast({ message, type: 'warning' });
           } else {
-            params.showToast({ message: '로그인에 실패했습니다. 잠시 후 다시 시도해주세요.', type: 'error' });
+            params.showToast({ message: LOGIN_MESSAGES.fallbackError, type: 'error' });
           }
         },
       },

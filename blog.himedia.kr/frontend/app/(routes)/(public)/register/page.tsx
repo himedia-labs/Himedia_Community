@@ -13,6 +13,7 @@ import { register } from './register.handlers';
 import { isValidPassword } from '@/app/shared/utils/password';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
+import { REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth';
 
 import styles from './register.module.css';
 
@@ -196,7 +197,7 @@ export default function RegisterPage() {
                 }}
                 onBlur={() => {
                   if (passwordConfirm && passwordConfirm !== password) {
-                    setPasswordConfirmError('비밀번호가 일치하지 않습니다.');
+                    setPasswordConfirmError(REGISTER_MESSAGES.passwordMismatchFriendly);
                   } else if (passwordConfirmError) {
                     setPasswordConfirmError('');
                   }

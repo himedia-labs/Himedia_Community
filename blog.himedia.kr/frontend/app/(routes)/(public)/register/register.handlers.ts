@@ -3,6 +3,8 @@ import type { UseMutationResult } from '@tanstack/react-query';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 import { isValidPassword } from '@/app/shared/utils/password';
+import { REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth';
+
 import type { RegisterRequest, AuthResponse } from '@/app/shared/types/auth';
 
 /**
@@ -72,53 +74,53 @@ export const register = (params: {
 
     // 유효성 검사
     if (!params.name) {
-      params.setNameError('이름을 입력해주세요.');
+      params.setNameError(REGISTER_MESSAGES.nameRequired);
       hasError = true;
     }
 
     if (!params.email) {
-      params.setEmailError('이메일을 입력해주세요.');
+      params.setEmailError(REGISTER_MESSAGES.emailRequired);
       hasError = true;
     }
 
     if (!params.password) {
-      params.setPasswordError('비밀번호를 입력해주세요.');
+      params.setPasswordError(REGISTER_MESSAGES.passwordRequired);
       hasError = true;
     } else if (!isValidPassword(params.password)) {
-      params.setPasswordError('최소 8자의 영문, 숫자, 특수문자를 입력해주세요.');
+      params.setPasswordError(REGISTER_MESSAGES.passwordInvalid);
       hasError = true;
     }
 
     if (!params.passwordConfirm) {
-      params.setPasswordConfirmError('비밀번호 확인을 입력해주세요.');
+      params.setPasswordConfirmError(REGISTER_MESSAGES.passwordConfirmRequired);
       hasError = true;
     } else if (params.password !== params.passwordConfirm) {
-      params.setPasswordConfirmError('비밀번호가 일치하지 않습니다.');
+      params.setPasswordConfirmError(REGISTER_MESSAGES.passwordMismatch);
       hasError = true;
     }
 
     if (!params.phone) {
-      params.setPhoneError('전화번호를 입력해주세요.');
+      params.setPhoneError(REGISTER_MESSAGES.phoneRequired);
       hasError = true;
     }
 
     if (!params.role) {
-      params.setRoleError('역할을 선택해주세요.');
+      params.setRoleError(REGISTER_MESSAGES.roleRequired);
       hasError = true;
     }
 
     if (!params.course) {
-      params.setCourseError('과정명을 선택해주세요.');
+      params.setCourseError(REGISTER_MESSAGES.courseRequired);
       hasError = true;
     }
 
     if (!params.privacyConsent) {
-      params.setPrivacyError('개인정보 수집 및 이용에 동의해주세요.');
+      params.setPrivacyError(REGISTER_MESSAGES.privacyRequired);
       hasError = true;
     }
 
     if (hasError) {
-      params.showToast({ message: '입력 내용을 한 번만 더 확인해주세요.', type: 'warning' });
+      params.showToast({ message: REGISTER_MESSAGES.validationToast, type: 'warning' });
       return;
     }
 
@@ -143,7 +145,7 @@ export const register = (params: {
         onSuccess: () => {
           params.onSuccessCleanup?.();
           params.showToast({
-            message: '회원가입이 완료되었습니다.\n관리자 승인 후 로그인하실 수 있습니다.',
+            message: REGISTER_MESSAGES.success,
             type: 'success',
             duration: 5000,
           });
