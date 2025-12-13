@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { Repository } from 'typeorm';
 
@@ -120,7 +120,10 @@ export class AuthService {
 
     // 승인 상태 확인
     if (!user.approved) {
-      throw new UnauthorizedException(AUTH_ERROR_MESSAGES.PENDING_APPROVAL);
+      throw new ForbiddenException({
+        message: AUTH_ERROR_MESSAGES.PENDING_APPROVAL,
+        code: ERROR_CODES.AUTH_PENDING_APPROVAL,
+      });
     }
 
     return user;
