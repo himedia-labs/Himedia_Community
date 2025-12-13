@@ -67,6 +67,8 @@ export const authenticateUser = (params: {
             params.setPasswordError(message);
           } else if (message) {
             params.showToast({ message, type: 'warning' });
+          } else {
+            params.showToast({ message: '로그인에 실패했습니다. 잠시 후 다시 시도해주세요.', type: 'error' });
           }
         },
       },
