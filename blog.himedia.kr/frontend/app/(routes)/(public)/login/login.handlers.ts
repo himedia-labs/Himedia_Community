@@ -59,18 +59,29 @@ export const authenticateUser = (params: {
         },
         // 로그인 실패 시
         onError: (error: unknown) => {
-          const axiosError = error as AxiosError<{ message: string }>;
-          const message = axiosError.response?.data?.message;
+          const axiosError = error as AxiosError<{ message?: string; code?: string }>;
+          const { message, code } = axiosError.response?.data || {};
 
-          // 에러 메시지 필드별 처리
-          if (message?.includes('이메일')) {
-            params.setEmailError(message);
-          } else if (message?.includes('비밀번호')) {
-            params.setPasswordError(message);
-          } else if (message) {
-            params.showToast({ message, type: 'warning' });
-          } else {
-            params.showToast({ message: LOGIN_MESSAGES.fallbackError, type: 'error' });
+          switch (code) {
+            case 'AUTH_EMAIL_NOT_FOUND':
+              if (message) {
+                params.setEmailError(message);
+              }
+              break;
+            case 'AUTH_INVALID_CURRENT_PASSWORD':
+              if (message) {
+                params.setPasswordError(message);
+              }
+              break;
+            case 'AUTH_PENDING_APPROVAL':
+              params.showToast({ message: LOGIN_MESSAGES.pendingApproval, type: 'warning' });
+              break;
+            default:
+              if (message) {
+                params.showToast({ message, type: 'warning' });
+              } else {
+                params.showToast({ message: LOGIN_MESSAGES.fallbackError, type: 'error' });
+              }
           }
         },
       },

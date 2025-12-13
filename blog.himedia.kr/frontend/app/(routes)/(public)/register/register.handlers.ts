@@ -153,22 +153,27 @@ export const register = (params: {
         },
         // 실패 시
         onError: (error: unknown) => {
-          const axiosError = error as AxiosError<{ message: string; code?: string }>;
+          const axiosError = error as AxiosError<{ message?: string; code?: string }>;
           const { message, code } = axiosError.response?.data || {};
-
-          if (!message) return;
 
           // 백엔드 에러 코드 기반 처리
           switch (code) {
             case 'AUTH_EMAIL_ALREADY_EXISTS':
-              params.setEmailError(message);
+              if (message) {
+                params.setEmailError(message);
+              }
               break;
             case 'AUTH_PHONE_ALREADY_EXISTS':
-              params.setPhoneError(message);
+              if (message) {
+                params.setPhoneError(message);
+              }
               break;
             default:
-              // 코드가 없거나 알 수 없는 에러는 이메일 필드에 표시
-              params.setEmailError(message);
+              if (message) {
+                params.setEmailError(message);
+              } else {
+                params.showToast({ message: REGISTER_MESSAGES.fallbackError, type: 'error' });
+              }
           }
         },
       },
