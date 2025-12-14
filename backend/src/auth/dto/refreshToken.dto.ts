@@ -1,11 +1,13 @@
 import { IsString, Length } from 'class-validator';
+
 import { TOKEN_CONFIG } from '../../constants/config/token.config';
+import { VALIDATION_MESSAGES } from '../../constants/message/dto.messages';
 
 // 토큰 갱신
 export class RefreshTokenDto {
-  @IsString({ message: '리프레시 토큰은 문자열이어야 합니다.' })
+  @IsString({ message: VALIDATION_MESSAGES.REFRESH_TOKEN_STRING })
   @Length(TOKEN_CONFIG.REFRESH_TOKEN_LENGTH, TOKEN_CONFIG.REFRESH_TOKEN_LENGTH, {
-    message: '유효하지 않은 리프레시 토큰 형식입니다.',
+    message: VALIDATION_MESSAGES.REFRESH_TOKEN_INVALID_FORMAT,
   })
   refreshToken!: string;
 }

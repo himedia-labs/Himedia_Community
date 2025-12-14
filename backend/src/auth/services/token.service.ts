@@ -13,6 +13,7 @@ import { TOKEN_CONFIG } from '../../constants/config/token.config';
 
 import { UserService } from './user.service';
 import { RefreshTokenDto } from '../dto/refreshToken.dto';
+import { ERROR_CODES } from '../../constants/error/error-codes';
 import { comparePassword, hashWithAuthRounds } from '../utils/bcrypt.util';
 import { TOKEN_ERROR_MESSAGES } from '../../constants/message/token.messages';
 
@@ -142,12 +143,18 @@ export class TokenService {
 
     // 토큰 없음 또는 무효화됨
     if (!storedToken || storedToken.revokedAt) {
-      throw new UnauthorizedException(TOKEN_ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
+      throw new UnauthorizedException({
+        message: TOKEN_ERROR_MESSAGES.INVALID_REFRESH_TOKEN,
+        code: ERROR_CODES.TOKEN_INVALID_REFRESH_TOKEN,
+      });
     }
 
     // 토큰 만료
     if (storedToken.expiresAt.getTime() < Date.now()) {
-      throw new UnauthorizedException(TOKEN_ERROR_MESSAGES.EXPIRED_REFRESH_TOKEN);
+      throw new UnauthorizedException({
+        message: TOKEN_ERROR_MESSAGES.EXPIRED_REFRESH_TOKEN,
+        code: ERROR_CODES.TOKEN_EXPIRED_REFRESH_TOKEN,
+      });
     }
 
     // 시크릿 검증
@@ -155,7 +162,10 @@ export class TokenService {
 
     // 시크릿 불일치
     if (!isMatch) {
-      throw new UnauthorizedException(TOKEN_ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
+      throw new UnauthorizedException({
+        message: TOKEN_ERROR_MESSAGES.INVALID_REFRESH_TOKEN,
+        code: ERROR_CODES.TOKEN_INVALID_REFRESH_TOKEN,
+      });
     }
 
     return storedToken;
@@ -227,14 +237,20 @@ export class TokenService {
     const parts = refreshToken.split('.');
 
     if (parts.length !== 2) {
-      throw new UnauthorizedException(TOKEN_ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
+      throw new UnauthorizedException({
+        message: TOKEN_ERROR_MESSAGES.INVALID_REFRESH_TOKEN,
+        code: ERROR_CODES.TOKEN_INVALID_REFRESH_TOKEN,
+      });
     }
 
     const [tokenId, secret] = parts;
 
     // 빈 문자열 체크
     if (!tokenId || !secret) {
-      throw new UnauthorizedException(TOKEN_ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
+      throw new UnauthorizedException({
+        message: TOKEN_ERROR_MESSAGES.INVALID_REFRESH_TOKEN,
+        code: ERROR_CODES.TOKEN_INVALID_REFRESH_TOKEN,
+      });
     }
 
     return { tokenId, secret };

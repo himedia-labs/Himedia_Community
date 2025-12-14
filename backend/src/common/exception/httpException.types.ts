@@ -1,9 +1,10 @@
-export type ExceptionMessage = string | string[];
+export type FieldErrors = Record<string, string[]>;
 
 export interface StandardErrorResponse {
   statusCode: number;
-  message: ExceptionMessage;
+  message: string;
   code?: string;
+  errors?: FieldErrors;
   path: string;
   timestamp: string;
 }

@@ -5,6 +5,7 @@ import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.
 import { isValidPassword } from '@/app/shared/utils/password';
 import { REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth';
 
+import type { ApiErrorResponse } from '@/app/shared/types/error';
 import type { RegisterRequest, AuthResponse } from '@/app/shared/types/auth';
 
 /**
@@ -70,57 +71,19 @@ export const register = (params: {
     params.setCourseError('');
     params.setPrivacyError('');
 
-    let hasError = false;
-
-    // 유효성 검사
-    if (!params.name) {
-      params.setNameError(REGISTER_MESSAGES.nameRequired);
-      hasError = true;
-    }
-
-    if (!params.email) {
-      params.setEmailError(REGISTER_MESSAGES.emailRequired);
-      hasError = true;
-    }
-
-    if (!params.password) {
-      params.setPasswordError(REGISTER_MESSAGES.passwordRequired);
-      hasError = true;
-    } else if (!isValidPassword(params.password)) {
-      params.setPasswordError(REGISTER_MESSAGES.passwordInvalid);
-      hasError = true;
-    }
-
-    if (!params.passwordConfirm) {
-      params.setPasswordConfirmError(REGISTER_MESSAGES.passwordConfirmRequired);
-      hasError = true;
-    } else if (params.password !== params.passwordConfirm) {
-      params.setPasswordConfirmError(REGISTER_MESSAGES.passwordMismatch);
-      hasError = true;
-    }
-
-    if (!params.phone) {
-      params.setPhoneError(REGISTER_MESSAGES.phoneRequired);
-      hasError = true;
-    }
-
-    if (!params.role) {
-      params.setRoleError(REGISTER_MESSAGES.roleRequired);
-      hasError = true;
-    }
-
-    if (!params.course) {
-      params.setCourseError(REGISTER_MESSAGES.courseRequired);
-      hasError = true;
-    }
-
-    if (!params.privacyConsent) {
-      params.setPrivacyError(REGISTER_MESSAGES.privacyRequired);
-      hasError = true;
-    }
-
-    if (hasError) {
-      params.showToast({ message: REGISTER_MESSAGES.validationToast, type: 'warning' });
+    // 클라이언트 검증 (체크만, 메시지는 백엔드에서)
+    if (
+      !params.name ||
+      !params.email ||
+      !params.password ||
+      !isValidPassword(params.password) ||
+      !params.passwordConfirm ||
+      params.password !== params.passwordConfirm ||
+      !params.phone ||
+      !params.role ||
+      !params.course ||
+      !params.privacyConsent
+    ) {
       return;
     }
 
@@ -153,10 +116,22 @@ export const register = (params: {
         },
         // 실패 시
         onError: (error: unknown) => {
-          const axiosError = error as AxiosError<{ message?: string; code?: string }>;
-          const { message, code } = axiosError.response?.data || {};
+          const axiosError = error as AxiosError<ApiErrorResponse>;
+          const { message, code, errors } = axiosError.response?.data || {};
 
-          // 백엔드 에러 코드 기반 처리
+          // DTO 검증 실패 (백엔드 메시지 표시)
+          if (code === 'VALIDATION_FAILED' && errors) {
+            if (errors.name) params.setNameError(errors.name[0]);
+            if (errors.email) params.setEmailError(errors.email[0]);
+            if (errors.password) params.setPasswordError(errors.password[0]);
+            if (errors.phone) params.setPhoneError(errors.phone[0]);
+            if (errors.role) params.setRoleError(errors.role[0]);
+            if (errors.course) params.setCourseError(errors.course[0]);
+            if (errors.privacyConsent) params.setPrivacyError(errors.privacyConsent[0]);
+            return;
+          }
+
+          // 에러 코드별 처리 (백엔드 메시지 표시)
           switch (code) {
             case 'AUTH_EMAIL_ALREADY_EXISTS':
               if (message) {
@@ -170,7 +145,10 @@ export const register = (params: {
               break;
             default:
               if (message) {
-                params.setEmailError(message);
+                params.showToast({
+                  message: message,
+                  type: 'error',
+                });
               } else {
                 params.showToast({ message: REGISTER_MESSAGES.fallbackError, type: 'error' });
               }

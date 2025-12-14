@@ -46,6 +46,10 @@ export const VALIDATION_MESSAGES = {
   PRIVACY_CONSENT_BOOLEAN: '개인정보 동의는 불리언 값이어야 합니다.',
   PRIVACY_CONSENT_REQUIRED: '개인정보 수집 및 이용에 동의가 필요합니다.',
 
+  // 리프레시 토큰
+  REFRESH_TOKEN_STRING: '리프레시 토큰은 문자열이어야 합니다.',
+  REFRESH_TOKEN_INVALID_FORMAT: '유효하지 않은 리프레시 토큰 형식입니다.',
+
   // 공통
   UNKNOWN: '유효하지 않은 요청입니다.',
 } as const;

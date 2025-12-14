@@ -6,6 +6,7 @@ import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth';
 
+import type { ApiErrorResponse } from '@/app/shared/types/error';
 import type { LoginRequest, AuthResponse } from '@/app/shared/types/auth';
 
 // 로그인 로직
@@ -26,19 +27,10 @@ export const authenticateUser = (params: {
     params.setEmailError('');
     params.setPasswordError('');
 
-    let hasError = false;
-
-    if (!params.email) {
-      params.setEmailError(LOGIN_MESSAGES.emailRequired);
-      hasError = true;
+    // 클라이언트 검증 (체크만, 메시지는 백엔드에서)
+    if (!params.email || !params.password) {
+      return;
     }
-
-    if (!params.password) {
-      params.setPasswordError(LOGIN_MESSAGES.passwordRequired);
-      hasError = true;
-    }
-
-    if (hasError) return;
 
     params.loginMutation.mutate(
       {
@@ -59,29 +51,17 @@ export const authenticateUser = (params: {
         },
         // 로그인 실패 시
         onError: (error: unknown) => {
-          const axiosError = error as AxiosError<{ message?: string; code?: string }>;
-          const { message, code } = axiosError.response?.data || {};
+          const axiosError = error as AxiosError<ApiErrorResponse>;
+          const { message } = axiosError.response?.data || {};
 
-          switch (code) {
-            case 'AUTH_EMAIL_NOT_FOUND':
-              if (message) {
-                params.setEmailError(message);
-              }
-              break;
-            case 'AUTH_INVALID_CURRENT_PASSWORD':
-              if (message) {
-                params.setPasswordError(message);
-              }
-              break;
-            case 'AUTH_PENDING_APPROVAL':
-              params.showToast({ message: LOGIN_MESSAGES.pendingApproval, type: 'warning' });
-              break;
-            default:
-              if (message) {
-                params.showToast({ message, type: 'warning' });
-              } else {
-                params.showToast({ message: LOGIN_MESSAGES.fallbackError, type: 'error' });
-              }
+          // 백엔드 메시지 Toast로 표시
+          if (message) {
+            params.showToast({
+              message,
+              type: 'warning',
+            });
+          } else {
+            params.showToast({ message: LOGIN_MESSAGES.fallbackError, type: 'error' });
           }
         },
       },

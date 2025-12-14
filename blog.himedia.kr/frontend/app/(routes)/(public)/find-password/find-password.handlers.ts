@@ -10,6 +10,7 @@ import type {
   ResetPasswordResponse,
   AuthStep,
 } from '@/app/shared/types/auth';
+import type { ApiErrorResponse } from '@/app/shared/types/error';
 
 // 비밀번호 상태 초기화
 export const resetPasswordState = (params: {
@@ -44,8 +45,8 @@ export const sendCode = (params: {
     params.setEmailError('');
     params.setCodeError('');
 
+    // 클라이언트 검증 (체크만, 메시지는 백엔드에서)
     if (!params.email) {
-      params.setEmailError('이메일을 입력해주세요.');
       return;
     }
 
@@ -58,13 +59,40 @@ export const sendCode = (params: {
           params.onSendSuccess?.();
         },
         onError: (error: unknown) => {
-          const axiosError = error as AxiosError<{ message: string }>;
-          const message = axiosError.response?.data?.message;
+          const axiosError = error as AxiosError<ApiErrorResponse>;
+          const data = axiosError.response?.data;
+          const code = data?.code;
+          const message = data?.message;
 
-          if (message?.includes('이메일')) {
-            params.setEmailError(message);
-          } else if (message) {
-            params.showToast({ message, type: 'error' });
+          switch (code) {
+            case 'VALIDATION_FAILED': {
+              const emailMessage = data?.errors?.email?.[0] ?? message;
+              if (emailMessage) {
+                params.setEmailError(emailMessage);
+              }
+              break;
+            }
+            case 'AUTH_EMAIL_NOT_FOUND':
+              if (message) {
+                params.setEmailError(message);
+              }
+              break;
+            case 'PASSWORD_TOO_MANY_REQUESTS':
+              params.showToast({
+                message: message ?? '인증번호 요청이 많습니다. 잠시 후 다시 시도해주세요.',
+                type: 'warning',
+              });
+              break;
+            case 'EMAIL_SEND_FAILED':
+              params.showToast({
+                message: message ?? '인증 메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.',
+                type: 'error',
+              });
+              break;
+            default:
+              if (message) {
+                params.showToast({ message, type: 'error' });
+              }
           }
         },
       },
@@ -88,13 +116,8 @@ export const verifyCode = (params: {
     params.setEmailError('');
     params.setCodeError('');
 
-    if (!params.email) {
-      params.setEmailError('이메일을 입력해주세요.');
-      return;
-    }
-
-    if (!params.code) {
-      params.setCodeError('인증번호를 입력해주세요.');
+    // 클라이언트 검증 (체크만, 메시지는 백엔드에서)
+    if (!params.email || !params.code) {
       return;
     }
 
@@ -106,15 +129,34 @@ export const verifyCode = (params: {
           params.setStep('password');
         },
         onError: (error: unknown) => {
-          const axiosError = error as AxiosError<{ message: string }>;
-          const message = axiosError.response?.data?.message;
+          const axiosError = error as AxiosError<ApiErrorResponse>;
+          const data = axiosError.response?.data;
+          const code = data?.code;
+          const message = data?.message;
 
-          if (message?.includes('인증번호')) {
-            params.setCodeError(message);
-          } else if (message?.includes('이메일')) {
-            params.setEmailError(message);
-          } else if (message) {
-            params.showToast({ message, type: 'warning' });
+          switch (code) {
+            case 'VALIDATION_FAILED':
+              if (data?.errors?.email?.[0]) {
+                params.setEmailError(data.errors.email[0]);
+              }
+              if (data?.errors?.code?.[0]) {
+                params.setCodeError(data.errors.code[0]);
+              }
+              break;
+            case 'AUTH_EMAIL_NOT_FOUND':
+              if (message) {
+                params.setEmailError(message);
+              }
+              break;
+            case 'PASSWORD_INVALID_RESET_CODE':
+              if (message) {
+                params.setCodeError(message);
+              }
+              break;
+            default:
+              if (message) {
+                params.showToast({ message, type: 'warning' });
+              }
           }
         },
       },
@@ -142,25 +184,15 @@ export const resetPassword = (params: {
     params.setNewPasswordError('');
     params.setConfirmPasswordError('');
 
-    let hasError = false;
-
-    if (!params.newPassword) {
-      params.setNewPasswordError('새 비밀번호를 입력해주세요.');
-      hasError = true;
-    } else if (!params.isValidPassword(params.newPassword)) {
-      params.setNewPasswordError('최소 8자의 영문, 숫자, 특수문자를 입력해주세요.');
-      hasError = true;
+    // 클라이언트 검증 (체크만, 메시지는 백엔드에서)
+    if (
+      !params.newPassword ||
+      !params.isValidPassword(params.newPassword) ||
+      !params.confirmPassword ||
+      params.newPassword !== params.confirmPassword
+    ) {
+      return;
     }
-
-    if (!params.confirmPassword) {
-      params.setConfirmPasswordError('비밀번호 확인을 입력해주세요.');
-      hasError = true;
-    } else if (params.newPassword !== params.confirmPassword) {
-      params.setConfirmPasswordError('비밀번호가 일치하지 않습니다.');
-      hasError = true;
-    }
-
-    if (hasError) return;
 
     params.resetPasswordMutation.mutate(
       { email: params.email, code: params.code, newPassword: params.newPassword },
@@ -170,15 +202,34 @@ export const resetPassword = (params: {
           params.router.push('/login');
         },
         onError: (error: unknown) => {
-          const axiosError = error as AxiosError<{ message: string }>;
-          const message = axiosError.response?.data?.message;
+          const axiosError = error as AxiosError<ApiErrorResponse>;
+          const data = axiosError.response?.data;
+          const code = data?.code;
+          const message = data?.message;
 
-          if (message?.includes('비밀번호')) {
-            params.setNewPasswordError(message);
-          } else if (message?.includes('인증번호')) {
-            params.setCodeError(message);
-          } else if (message) {
-            params.showToast({ message, type: 'warning' });
+          switch (code) {
+            case 'VALIDATION_FAILED':
+              if (data?.errors?.newPassword?.[0]) {
+                params.setNewPasswordError(data.errors.newPassword[0]);
+              }
+              if (data?.errors?.code?.[0]) {
+                params.setCodeError(data.errors.code[0]);
+              }
+              break;
+            case 'PASSWORD_INVALID_RESET_CODE':
+              if (message) {
+                params.setCodeError(message);
+              }
+              break;
+            case 'AUTH_EMAIL_NOT_FOUND':
+              if (message) {
+                params.showToast({ message, type: 'warning' });
+              }
+              break;
+            default:
+              if (message) {
+                params.showToast({ message, type: 'warning' });
+              }
           }
         },
       },

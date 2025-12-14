@@ -1,6 +1,17 @@
+/**
+ * HTTP 예외 필터 구현
+ * @description 모든 HttpException을 잡아 표준 형식으로 응답하고, 에러 로그를 출력합니다.
+ *
+ * @example
+ * - statusCode: HTTP 상태 코드
+ * - path: 요청 경로
+ * - timestamp: 발생 시각
+ */
+
 import { Catch, ArgumentsHost, HttpException, ExceptionFilter, Logger, INestApplication } from '@nestjs/common';
+
 import type { Request, Response } from 'express';
-import type { ExceptionMessage, StandardErrorResponse } from './httpException.types';
+import type { FieldErrors, StandardErrorResponse } from './httpException.types';
 
 /**
  * 요청 데이터를 로그용 문자열로 변환
@@ -11,7 +22,17 @@ const formatSection = (label: string, data: Record<string, unknown>) =>
 /**
  * HttpException에서 에러 메시지 추출
  */
-const extractErrorMessage = (exception: HttpException): { message: ExceptionMessage; code?: string } => {
+const isFieldErrors = (value: unknown): value is FieldErrors => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  return Object.values(value as Record<string, unknown>).every(
+    v => Array.isArray(v) && v.every(item => typeof item === 'string'),
+  );
+};
+
+/**
+ * HttpException에서 메시지, 코드, 필드별 에러 추출
+ */
+const extractErrorMessage = (exception: HttpException): { message: string; code?: string; errors?: FieldErrors } => {
   const exceptionResponse = exception.getResponse();
 
   if (typeof exceptionResponse === 'string') {
@@ -21,8 +42,13 @@ const extractErrorMessage = (exception: HttpException): { message: ExceptionMess
   if (typeof exceptionResponse === 'object' && exceptionResponse !== null && 'message' in exceptionResponse) {
     const messageValue = (exceptionResponse as { message?: unknown }).message;
     const codeValue = (exceptionResponse as { code?: unknown }).code;
-    if (typeof messageValue === 'string' || Array.isArray(messageValue)) {
-      return { message: messageValue, code: typeof codeValue === 'string' ? codeValue : undefined };
+    const errorsValue = (exceptionResponse as { errors?: unknown }).errors;
+    if (typeof messageValue === 'string') {
+      return {
+        message: messageValue,
+        ...(typeof codeValue === 'string' ? { code: codeValue } : {}),
+        ...(isFieldErrors(errorsValue) ? { errors: errorsValue } : {}),
+      };
     }
   }
 
@@ -50,7 +76,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const paramMessage = formatSection('params', params);
     const queryMessage = formatSection('query', query);
     const bodyMessage = formatSection('body', body);
-    const { message: errorMessage, code } = extractErrorMessage(exception);
+    const { message: errorMessage, code, errors } = extractErrorMessage(exception);
 
     // 에러 로그 출력
     this.logger.error(
@@ -64,6 +90,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       statusCode: status,
       message: errorMessage,
       ...(code ? { code } : {}),
+      ...(errors ? { errors } : {}),
       path: request.url,
       timestamp: new Date().toISOString(),
     };

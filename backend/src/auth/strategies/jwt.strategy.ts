@@ -1,13 +1,14 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import type { ConfigType } from '@nestjs/config';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 
 import { Strategy, ExtractJwt } from 'passport-jwt';
 
-import { UserService } from '../services/user.service';
-import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
 import appConfig from '../../common/config/app.config';
+import { UserService } from '../services/user.service';
+import { ERROR_CODES } from '../../constants/error/error-codes';
+import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
 
+import type { ConfigType } from '@nestjs/config';
 import type { JwtPayload } from '../interfaces/jwt.interface';
 
 /**
@@ -39,7 +40,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     // 승인되지 않은 사용자
     if (!user.approved) {
-      throw new UnauthorizedException(AUTH_ERROR_MESSAGES.PENDING_APPROVAL);
+      throw new ForbiddenException({
+        message: AUTH_ERROR_MESSAGES.PENDING_APPROVAL,
+        code: ERROR_CODES.AUTH_PENDING_APPROVAL,
+      });
     }
 
     // 최신 권한 정보 반환
