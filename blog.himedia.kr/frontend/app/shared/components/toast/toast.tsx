@@ -20,6 +20,7 @@ const iconStyles: Record<ToastType, { bg: string; color: string }> = {
 
 const exitDuration = 200;
 const defaultDuration: number | null = 3000;
+const MAX_TOASTS = 3;
 
 const iconMap: Record<ToastType, IconType> = {
   info: AiOutlineInfo,
@@ -75,7 +76,11 @@ export default function ToastProvider({ children }: { children: ReactNode }) {
           ? crypto.randomUUID()
           : `${Date.now()}-${Math.random()}`;
 
-      setToasts(prev => [...prev, { id, message, type, duration }]);
+      setToasts(prev => {
+        // 이전 토스트 중 가장 오래된 것을 제거해 최대 MAX_TOASTS 유지
+        const trimmed = prev.slice(-(MAX_TOASTS - 1));
+        return [...trimmed, { id, message, type, duration }];
+      });
 
       if (typeof duration === 'number' && duration > 0) {
         window.setTimeout(() => {
