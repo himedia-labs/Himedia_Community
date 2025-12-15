@@ -16,6 +16,18 @@ export const LOGIN_MESSAGES = {
 export const REGISTER_MESSAGES = {
   success: '회원가입이 완료되었습니다.\n관리자 승인 후 로그인하실 수 있습니다.',
   fallbackError: '회원가입에 실패했습니다. 잠시 후 다시 시도해주세요.',
+  // Input Form
+  missingName: '이름을 입력해주세요.',
+  missingEmail: '이메일을 입력해주세요.',
+  missingPassword: '비밀번호를 입력해주세요.',
+  invalidPassword: '비밀번호는 영문, 숫자, 특수문자를 포함해 8자 이상이어야 합니다.',
+  missingPasswordConfirm: '비밀번호 확인을 입력해주세요.',
+  passwordMismatch: '비밀번호가 일치하지 않습니다.',
+  missingPhone: '전화번호를 입력해주세요.',
+  missingRole: '역할을 선택해주세요.',
+  missingCourse: '수강 과정을 입력해주세요.',
+  missingPrivacyConsent: '개인정보 수집 및 이용에 동의해주세요.',
+  missingRequired: '필수 정보를 모두 입력해주세요.',
 } as const;
 
 // 비밀번호 찾기 / 변경 관련 메시지

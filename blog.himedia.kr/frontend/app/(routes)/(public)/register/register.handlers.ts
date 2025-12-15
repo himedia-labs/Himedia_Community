@@ -72,18 +72,48 @@ export const register = (params: {
     params.setPrivacyError('');
 
     // 클라이언트 검증 (체크만, 메시지는 백엔드에서)
-    if (
-      !params.name ||
-      !params.email ||
-      !params.password ||
-      !isValidPassword(params.password) ||
-      !params.passwordConfirm ||
-      params.password !== params.passwordConfirm ||
-      !params.phone ||
-      !params.role ||
-      !params.course ||
-      !params.privacyConsent
-    ) {
+    let hasError = false;
+    if (!params.name) {
+      params.setNameError(REGISTER_MESSAGES.missingName);
+      hasError = true;
+    }
+    if (!params.email) {
+      params.setEmailError(REGISTER_MESSAGES.missingEmail);
+      hasError = true;
+    }
+    if (!params.password) {
+      params.setPasswordError(REGISTER_MESSAGES.missingPassword);
+      hasError = true;
+    } else if (!isValidPassword(params.password)) {
+      params.setPasswordError(REGISTER_MESSAGES.invalidPassword);
+      hasError = true;
+    }
+    if (!params.passwordConfirm) {
+      params.setPasswordConfirmError(REGISTER_MESSAGES.missingPasswordConfirm);
+      hasError = true;
+    } else if (params.password !== params.passwordConfirm) {
+      params.setPasswordConfirmError(REGISTER_MESSAGES.passwordMismatch);
+      hasError = true;
+    }
+    if (!params.phone) {
+      params.setPhoneError(REGISTER_MESSAGES.missingPhone);
+      hasError = true;
+    }
+    if (!params.role) {
+      params.setRoleError(REGISTER_MESSAGES.missingRole);
+      hasError = true;
+    }
+    if (!params.course) {
+      params.setCourseError(REGISTER_MESSAGES.missingCourse);
+      hasError = true;
+    }
+    if (!params.privacyConsent) {
+      params.setPrivacyError(REGISTER_MESSAGES.missingPrivacyConsent);
+      hasError = true;
+    }
+
+    if (hasError) {
+      params.showToast({ message: REGISTER_MESSAGES.missingRequired, type: 'warning' });
       return;
     }
 
