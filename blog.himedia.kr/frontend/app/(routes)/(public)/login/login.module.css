@@ -113,6 +113,10 @@
   letter-spacing: 0.25em;
 }
 
+.passwordInput::placeholder {
+  letter-spacing: 0.5;
+}
+
 .errorMessage {
   margin: 0;
   font-size: 0.875rem;
