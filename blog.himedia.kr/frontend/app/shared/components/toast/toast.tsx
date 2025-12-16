@@ -6,7 +6,7 @@ import { TbExclamationMark } from 'react-icons/tb';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import styles from './toast.module.css';
-import type { ToastContextValue, ToastItem, ToastOptions, ToastType } from './toast.types';
+import type { ToastContextValue, ToastItem, ToastOptions, ToastType } from '../../types/toast';
 
 // 토스트 표시/닫기를 제공하는 컨텍스트
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
