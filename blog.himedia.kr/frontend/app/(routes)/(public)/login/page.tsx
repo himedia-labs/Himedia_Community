@@ -102,11 +102,11 @@ export default function LoginPage() {
 
             <div className={styles.footer}>
               <div className={styles.links}>
-                <Link href="/register" className={styles.link}>
+                <Link href="/register" className={styles.link} tabIndex={-1}>
                   회원가입
                 </Link>
                 <span className={styles.separator}>|</span>
-                <Link href="/find-password" className={styles.link}>
+                <Link href="/find-password" className={styles.link} tabIndex={-1}>
                   비밀번호 찾기
                 </Link>
               </div>
