@@ -26,6 +26,9 @@
 **/backend/pids
 **/backend/report.*.json
 
+# ============ scripts ============
+**/scripts/.env
+
 # ============== shared ==============
 
 # IDE 및 에디터 설정 파일
