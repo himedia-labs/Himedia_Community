@@ -184,7 +184,11 @@ export default function RegisterPage() {
                     setPasswordError('');
                   }
                 }}
-                className={passwordError ? `${styles.input} ${styles.error}` : styles.input}
+                className={
+                  passwordError
+                    ? `${styles.input} ${styles.passwordInput} ${styles.error}`
+                    : `${styles.input} ${styles.passwordInput}`
+                }
                 autoComplete="new-password"
               />
               {passwordError && <p className={styles.errorMessage}>{passwordError}</p>}
@@ -208,7 +212,11 @@ export default function RegisterPage() {
                     setPasswordConfirmError('');
                   }
                 }}
-                className={passwordConfirmError ? `${styles.input} ${styles.error}` : styles.input}
+                className={
+                  passwordConfirmError
+                    ? `${styles.input} ${styles.passwordInput} ${styles.error}`
+                    : `${styles.input} ${styles.passwordInput}`
+                }
                 autoComplete="new-password"
               />
               {passwordConfirmError && <p className={styles.errorMessage}>{passwordConfirmError}</p>}

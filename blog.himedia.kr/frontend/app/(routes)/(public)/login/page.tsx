@@ -95,7 +95,11 @@ export default function LoginPage() {
                   setPassword(e.target.value);
                   if (passwordError) setPasswordError('');
                 }}
-                className={passwordError ? `${styles.input} ${styles.error}` : styles.input}
+                className={
+                  passwordError
+                    ? `${styles.input} ${styles.passwordInput} ${styles.error}`
+                    : `${styles.input} ${styles.passwordInput}`
+                }
                 autoComplete="current-password"
               />
               {passwordError && <p className={styles.errorMessage}>{passwordError}</p>}

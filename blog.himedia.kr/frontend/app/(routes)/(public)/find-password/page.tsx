@@ -270,7 +270,11 @@ export default function ForgotPasswordPage() {
                       setNewPasswordError('');
                     }
                   }}
-                  className={newPasswordError ? `${styles.input} ${styles.error}` : styles.input}
+                  className={
+                    newPasswordError
+                      ? `${styles.input} ${styles.passwordInput} ${styles.error}`
+                      : `${styles.input} ${styles.passwordInput}`
+                  }
                   disabled={isResetting}
                   placeholder="최소 8자 이상"
                   autoComplete="new-password"
@@ -290,7 +294,11 @@ export default function ForgotPasswordPage() {
                     setConfirmPassword(e.target.value);
                     if (confirmPasswordError) setConfirmPasswordError('');
                   }}
-                  className={confirmPasswordError ? `${styles.input} ${styles.error}` : styles.input}
+                  className={
+                    confirmPasswordError
+                      ? `${styles.input} ${styles.passwordInput} ${styles.error}`
+                      : `${styles.input} ${styles.passwordInput}`
+                  }
                   disabled={isResetting}
                   placeholder="비밀번호 재입력"
                   autoComplete="new-password"
