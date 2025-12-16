@@ -3,7 +3,7 @@ import { IconType } from 'react-icons';
 import { IoMdCheckmark } from 'react-icons/io';
 import { AiOutlineInfo } from 'react-icons/ai';
 import { TbExclamationMark } from 'react-icons/tb';
-import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import styles from './toast.module.css';
 import type { ToastContextValue, ToastItem, ToastOptions, ToastType } from './toast.types';
@@ -56,8 +56,9 @@ function ToastCard({ toast, onClose }: { toast: ToastItem; onClose: (id: string)
 // 토스트 컨텍스트 제공 및 큐 관리
 export default function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
-
-  const hideToast = useCallback((id: string) => {
+  const startExitRef = useRef<(id: string) => void>(() => {});
+  // 토스트 퇴장 처리: leaving 플래그 후 애니메이션 끝에 제거 + 큐에서 하나 추가
+  const startExit = useCallback((id: string) => {
     setToasts(prev => {
       const target = prev.find(toast => toast.id === id);
       if (!target || target.leaving) return prev;
@@ -74,31 +75,34 @@ export default function ToastProvider({ children }: { children: ReactNode }) {
       const id =
         typeof crypto !== 'undefined' && 'randomUUID' in crypto
           ? crypto.randomUUID()
-          : `${Date.now()}-${Math.random()}`;
+          : `toast-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const newToast = { id, message, type, duration };
 
       setToasts(prev => {
-        // 이전 토스트 중 가장 오래된 것을 제거해 최대 MAX_TOASTS 유지
-        const trimmed = prev.slice(-(MAX_TOASTS - 1));
-        return [...trimmed, { id, message, type, duration }];
-      });
+        if (prev.length >= MAX_TOASTS) return prev;
 
-      if (typeof duration === 'number' && duration > 0) {
-        window.setTimeout(() => {
-          hideToast(id);
-        }, duration);
-      }
+        if (typeof duration === 'number' && duration > 0) {
+          window.setTimeout(() => startExitRef.current?.(id), duration);
+        }
+        return [...prev, newToast];
+      });
     },
-    [hideToast],
+    [startExit],
   );
 
-  const contextValue = useMemo(() => ({ showToast, hideToast }), [showToast, hideToast]);
+  const contextValue = useMemo(() => ({ showToast, hideToast: startExit }), [showToast, startExit]);
+
+  // startExit 최신 참조 저장
+  useEffect(() => {
+    startExitRef.current = startExit;
+  }, [startExit]);
 
   return (
     <ToastContext.Provider value={contextValue}>
       {children}
       <div className={styles.container} aria-live="polite" aria-atomic="true">
         {toasts.map(toast => (
-          <ToastCard key={toast.id} toast={toast} onClose={hideToast} />
+          <ToastCard key={toast.id} toast={toast} onClose={startExit} />
         ))}
       </div>
     </ToastContext.Provider>
