@@ -2,13 +2,13 @@
 .idx/
 
 # ============ FrontEnd ============
-*/frontend/.env
-*/frontend/.env.*
-*/frontend/.next
-*/frontend/.vscode
-*/frontend/node_modules
-*/frontend/docs
-*/frontend/next-env.d.ts
+**/frontend/.env
+**/frontend/.env.*
+**/frontend/.next
+**/frontend/.vscode
+**/frontend/node_modules
+**/frontend/docs
+**/frontend/next-env.d.ts
 
 # ============ BackEnd ============
 **/backend/.env
