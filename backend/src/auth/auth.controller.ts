@@ -15,6 +15,7 @@ import { PasswordService } from './services/password.service';
 
 import { JwtGuard } from './guards/jwt.guard';
 import { LocalGuard } from './guards/local.guard';
+import { LoginRateLimitGuard } from './guards/loginRateLimit.guard';
 
 import appConfig from '../common/config/app.config';
 
@@ -45,7 +46,7 @@ export class AuthController {
    * 로그인
    * @description 이메일 & 비밀번호로 로그인 후 토큰 발급
    */
-  @UseGuards(LocalGuard)
+  @UseGuards(LoginRateLimitGuard, LocalGuard)
   @Post('login')
   async login(
     @Body() _loginDto: LoginDto,

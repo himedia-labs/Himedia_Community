@@ -23,6 +23,7 @@ import { EmailModule } from '../email/email.module';
 import appConfig from '../common/config/app.config';
 import { SnowflakeService } from '../common/services/snowflake.service';
 import { PasswordRateLimitGuard } from './guards/passwordRateLimit.guard';
+import { LoginRateLimitGuard } from './guards/loginRateLimit.guard';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { PasswordRateLimitGuard } from './guards/passwordRateLimit.guard';
     LocalStrategy,
     JwtStrategy,
     PasswordRateLimitGuard,
+    LoginRateLimitGuard,
   ],
 })
 export class AuthModule {}
