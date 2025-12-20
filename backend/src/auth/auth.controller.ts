@@ -57,7 +57,7 @@ export class AuthController {
   ) {
     const authResponse = await this.authService.login(req.user, userAgent, ipAddress);
     setCookies(res, authResponse.refreshToken, this.config);
-    return res.json({ accessToken: authResponse.accessToken, user: authResponse.user });
+    return res.status(200).json({ accessToken: authResponse.accessToken, user: authResponse.user });
   }
 
   /**
@@ -88,7 +88,7 @@ export class AuthController {
 
     const authResponse = await this.tokenService.refreshTokens({ refreshToken }, userAgent, ipAddress);
     setCookies(res, authResponse.refreshToken, this.config);
-    return res.json({ accessToken: authResponse.accessToken, user: authResponse.user });
+    return res.status(200).json({ accessToken: authResponse.accessToken, user: authResponse.user });
   }
 
   /**
@@ -102,7 +102,7 @@ export class AuthController {
       await this.tokenService.logout({ refreshToken });
     }
     clearCookies(res, this.config);
-    return res.json({ success: true });
+    return res.status(200).json({ success: true });
   }
 
   /**
