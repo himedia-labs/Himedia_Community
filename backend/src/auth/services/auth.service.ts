@@ -10,6 +10,7 @@ import { ERROR_CODES } from '../../constants/error/error-codes';
 import { SnowflakeService } from '../../common/services/snowflake.service';
 import { comparePassword, hashWithAuthRounds } from '../utils/bcrypt.util';
 import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
+import { formatPhoneNumber, normalizePhoneNumber } from '../utils/phone.util';
 
 import type { AuthResponse } from '../interfaces/auth.interface';
 
@@ -41,8 +42,12 @@ export class AuthService {
    */
   async register(registerDto: RegisterDto): Promise<void> {
     // 이메일 중복 확인
+    const { role: requestedRole, phone, ...registerData } = registerDto;
+    const normalizedPhone = normalizePhoneNumber(phone);
+    const formattedPhone = formatPhoneNumber(normalizedPhone);
+
     const existingUser = await this.usersRepository.findOne({
-      where: [{ email: registerDto.email }, { phone: registerDto.phone }],
+      where: [{ email: registerData.email }, { phone: normalizedPhone }, { phone: formattedPhone }],
     });
 
     if (existingUser) {
@@ -62,8 +67,6 @@ export class AuthService {
 
     // 비밀번호 해싱
     const password = await hashWithAuthRounds(registerDto.password);
-    const { role: requestedRole, ...registerData } = registerDto;
-
     // Snowflake ID 생성
     const id = this.snowflakeService.generate();
 
@@ -72,6 +75,7 @@ export class AuthService {
       id,
       ...registerData,
       password,
+      phone: formattedPhone,
       role: UserRole.TRAINEE,
       requestedRole,
     });
