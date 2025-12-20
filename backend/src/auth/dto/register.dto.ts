@@ -1,6 +1,7 @@
 import { IsEmail, IsBoolean, IsOptional, IsString, IsIn, MaxLength, MinLength, Equals, Matches } from 'class-validator';
 
 import { UserRole } from '../entities/user.entity';
+import { PHONE_CONFIG } from '../../constants/config/phone.config';
 import { VALIDATION_MESSAGES } from '../../constants/message/dto.messages';
 
 // 회원가입
@@ -22,7 +23,7 @@ export class RegisterDto {
   password!: string;
 
   @IsString({ message: VALIDATION_MESSAGES.PHONE_STRING })
-  @MaxLength(20, { message: VALIDATION_MESSAGES.PHONE_MAX_LENGTH })
+  @MaxLength(PHONE_CONFIG.MAX_LENGTH, { message: VALIDATION_MESSAGES.PHONE_MAX_LENGTH })
   phone!: string;
 
   @IsIn([UserRole.TRAINEE, UserRole.MENTOR, UserRole.INSTRUCTOR], { message: VALIDATION_MESSAGES.ROLE_ENUM })

@@ -11,9 +11,10 @@ import { TbExternalLink } from 'react-icons/tb';
 import useRegisterForm from './register.hooks';
 import { register } from './register.handlers';
 import { isValidPassword } from '@/app/shared/utils/password';
-import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
-import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
+import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
+import { PHONE_CONFIG } from '@/app/shared/constants/config/phone.config';
+import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 
 import styles from './register.module.css';
 
@@ -233,7 +234,7 @@ export default function RegisterPage() {
                 onChange={handlePhoneChange}
                 className={phoneError ? `${styles.input} ${styles.error}` : styles.input}
                 placeholder="010 1234 5678"
-                maxLength={13}
+                maxLength={PHONE_CONFIG.FORMATTED_MAX_LENGTH}
                 autoComplete="tel"
               />
               {phoneError && <p className={styles.errorMessage}>{phoneError}</p>}

@@ -4,6 +4,7 @@ import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.
 
 import { isValidPassword } from '@/app/shared/utils/password';
 import { REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
+import { PHONE_CONFIG } from '@/app/shared/constants/config/phone.config';
 
 import type { ApiErrorResponse } from '@/app/shared/types/error';
 import type { RegisterRequest } from '@/app/shared/types/auth';
@@ -18,7 +19,7 @@ export const formatPhone = (params: {
   setPhoneError: (value: string) => void;
 }) => {
   return (e: React.ChangeEvent<HTMLInputElement>) => {
-    const digits = e.target.value.replace(/[^0-9]/g, '').slice(0, 11);
+    const digits = e.target.value.replace(/[^0-9]/g, '').slice(0, PHONE_CONFIG.DIGIT_MAX_LENGTH);
 
     let formatted = digits;
     if (digits.length > 3 && digits.length <= 7) {

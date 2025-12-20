@@ -33,7 +33,7 @@ export const VALIDATION_MESSAGES = {
 
   // 전화번호
   PHONE_STRING: '전화번호는 문자열이어야 합니다.',
-  PHONE_MAX_LENGTH: '전화번호는 20자 이하여야 합니다.',
+  PHONE_MAX_LENGTH: '전화번호는 11자 이하여야 합니다.',
 
   // 역할
   ROLE_ENUM: '유효한 역할을 선택해주세요.',
