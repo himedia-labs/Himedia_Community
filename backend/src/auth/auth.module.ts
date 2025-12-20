@@ -19,11 +19,13 @@ import { PasswordReset } from './entities/passwordReset.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 
+import { LoginRateLimitGuard } from './guards/loginRateLimit.guard';
+import { LoginValidationGuard } from './guards/loginValidation.guard';
+import { PasswordRateLimitGuard } from './guards/passwordRateLimit.guard';
+
 import { EmailModule } from '../email/email.module';
 import appConfig from '../common/config/app.config';
 import { SnowflakeService } from '../common/services/snowflake.service';
-import { PasswordRateLimitGuard } from './guards/passwordRateLimit.guard';
-import { LoginRateLimitGuard } from './guards/loginRateLimit.guard';
 
 @Module({
   imports: [
@@ -56,6 +58,7 @@ import { LoginRateLimitGuard } from './guards/loginRateLimit.guard';
     JwtStrategy,
     PasswordRateLimitGuard,
     LoginRateLimitGuard,
+    LoginValidationGuard,
   ],
 })
 export class AuthModule {}
