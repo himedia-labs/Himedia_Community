@@ -115,7 +115,7 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException({
         message: AUTH_ERROR_MESSAGES.INVALID_CREDENTIALS,
-        code: ERROR_CODES.AUTH_EMAIL_NOT_FOUND,
+        code: ERROR_CODES.AUTH_INVALID_CREDENTIALS,
       });
     }
 
@@ -126,7 +126,7 @@ export class AuthService {
     if (!isMatch) {
       throw new UnauthorizedException({
         message: AUTH_ERROR_MESSAGES.INVALID_CREDENTIALS,
-        code: ERROR_CODES.AUTH_INVALID_CURRENT_PASSWORD,
+        code: ERROR_CODES.AUTH_INVALID_CREDENTIALS,
       });
     }
 

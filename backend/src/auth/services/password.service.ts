@@ -94,8 +94,11 @@ export class PasswordService {
    * @description 이메일로 8자리 인증 코드 발송 (10분 유효)
    */
   async sendPasswordResetCode(dto: ForgotPasswordDto): Promise<{ success: true; message: string }> {
-    // 사용자 조회
-    const user = await this.userService.getUserByEmailOrThrow(dto.email);
+    // 사용자 조회 (존재하지 않아도 동일 응답으로 처리해 열거 방지)
+    const user = await this.userService.findUserByEmail(dto.email);
+    if (!user) {
+      return { success: true, message: PASSWORD_SUCCESS_MESSAGES.RESET_CODE_SENT };
+    }
     const now = new Date();
 
     // 이전에 발급된 미사용 코드가 있다면 모두 무효화
@@ -184,8 +187,14 @@ export class PasswordService {
    * @description 이메일과 코드로 유효성 확인
    */
   private async validatePasswordResetCode(email: string, code: string): Promise<PasswordResetValidation> {
-    // 사용자 조회
-    const user = await this.userService.getUserByEmailOrThrow(email);
+    // 사용자 조회 (존재하지 않으면 동일 에러로 응답)
+    const user = await this.userService.findUserByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException({
+        message: PASSWORD_ERROR_MESSAGES.INVALID_RESET_CODE,
+        code: ERROR_CODES.PASSWORD_INVALID_RESET_CODE,
+      });
+    }
     const now = new Date();
 
     // 만료된 코드 사용 처리

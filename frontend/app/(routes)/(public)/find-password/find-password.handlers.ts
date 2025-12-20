@@ -71,11 +71,6 @@ export const sendCode = (params: {
               }
               break;
             }
-            case 'AUTH_EMAIL_NOT_FOUND':
-              if (message) {
-                params.setEmailError(message);
-              }
-              break;
             case 'PASSWORD_TOO_MANY_REQUESTS':
               params.showToast({
                 message: message ?? '인증번호 요청이 많습니다. 잠시 후 다시 시도해주세요.',
@@ -139,11 +134,6 @@ export const verifyCode = (params: {
               }
               if (data?.errors?.code?.[0]) {
                 params.setCodeError(data.errors.code[0]);
-              }
-              break;
-            case 'AUTH_EMAIL_NOT_FOUND':
-              if (message) {
-                params.setEmailError(message);
               }
               break;
             case 'PASSWORD_INVALID_RESET_CODE':
@@ -216,11 +206,6 @@ export const resetPassword = (params: {
             case 'PASSWORD_INVALID_RESET_CODE':
               if (message) {
                 params.setCodeError(message);
-              }
-              break;
-            case 'AUTH_EMAIL_NOT_FOUND':
-              if (message) {
-                params.showToast({ message, type: 'warning' });
               }
               break;
             default:
