@@ -9,7 +9,8 @@ import { AuthController } from './auth.controller';
 import { UserService } from './services/user.service';
 import { AuthService } from './services/auth.service';
 import { TokenService } from './services/token.service';
-import { PasswordService } from './services/password.service';
+import { PasswordChangeService } from './services/password-change.service';
+import { PasswordResetService } from './services/password-reset.service';
 import { RateLimitService } from './services/rateLimit.service';
 
 import { User } from './entities/user.entity';
@@ -50,7 +51,8 @@ import { SnowflakeService } from '../common/services/snowflake.service';
   providers: [
     AuthService,
     TokenService,
-    PasswordService,
+    PasswordChangeService,
+    PasswordResetService,
     RateLimitService,
     UserService,
     SnowflakeService,

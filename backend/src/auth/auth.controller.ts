@@ -23,7 +23,8 @@ import { ResetPasswordWithCodeDto } from './dto/resetPasswordWithCode.dto';
 import { UserService } from './services/user.service';
 import { AuthService } from './services/auth.service';
 import { TokenService } from './services/token.service';
-import { PasswordService } from './services/password.service';
+import { PasswordResetService } from './services/password-reset.service';
+import { PasswordChangeService } from './services/password-change.service';
 
 import { JwtGuard } from './guards/jwt.guard';
 import { LocalGuard } from './guards/local.guard';
@@ -49,7 +50,8 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly tokenService: TokenService,
-    private readonly passwordService: PasswordService,
+    private readonly passwordResetService: PasswordResetService,
+    private readonly passwordChangeService: PasswordChangeService,
     private readonly userService: UserService,
     @Inject(appConfig.KEY)
     private readonly config: ConfigType<typeof appConfig>,
@@ -136,7 +138,7 @@ export class AuthController {
   @Post('password/send-code')
   @HttpCode(200)
   sendPasswordResetCode(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    return this.passwordService.sendPasswordResetCode(forgotPasswordDto);
+    return this.passwordResetService.sendPasswordResetCode(forgotPasswordDto);
   }
 
   /**
@@ -146,7 +148,7 @@ export class AuthController {
   @Post('password/verify-code')
   @HttpCode(200)
   verifyResetCode(@Body() verifyResetCodeDto: VerifyResetCodeDto) {
-    return this.passwordService.verifyResetCode(verifyResetCodeDto);
+    return this.passwordResetService.verifyResetCode(verifyResetCodeDto);
   }
 
   /**
@@ -156,7 +158,7 @@ export class AuthController {
   @Post('password/reset-with-code')
   @HttpCode(200)
   resetPasswordWithCode(@Body() resetPasswordDto: ResetPasswordWithCodeDto) {
-    return this.passwordService.resetPasswordWithCode(resetPasswordDto);
+    return this.passwordResetService.resetPasswordWithCode(resetPasswordDto);
   }
 
   /**
@@ -172,6 +174,6 @@ export class AuthController {
     @Headers('user-agent') userAgent?: string,
     @Ip() ipAddress?: string,
   ) {
-    return this.passwordService.changePassword(req.user.sub, changePasswordDto, userAgent, ipAddress);
+    return this.passwordChangeService.changePassword(req.user.sub, changePasswordDto, userAgent, ipAddress);
   }
 }

@@ -1,7 +1,7 @@
 import { randomInt } from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LessThan, MoreThanOrEqual, Repository } from 'typeorm';
-import { Injectable, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 
 import { UserService } from './user.service';
 import { TokenService } from './token.service';
@@ -10,7 +10,6 @@ import { EmailService } from '../../email/email.service';
 import { User } from '../entities/user.entity';
 import { PasswordReset } from '../entities/passwordReset.entity';
 
-import { ChangePasswordDto } from '../dto/changePassword.dto';
 import { ForgotPasswordDto } from '../dto/forgotPassword.dto';
 import { VerifyResetCodeDto } from '../dto/verifyResetCode.dto';
 import { ResetPasswordWithCodeDto } from '../dto/resetPasswordWithCode.dto';
@@ -19,18 +18,16 @@ import { ERROR_CODES } from '../../constants/error/error-codes';
 import { SnowflakeService } from '../../common/services/snowflake.service';
 import { PASSWORD_CONFIG } from '../../constants/config/password.config';
 import { comparePassword, hashWithAuthRounds } from '../utils/bcrypt.util';
-import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
 import { PASSWORD_ERROR_MESSAGES, PASSWORD_SUCCESS_MESSAGES } from '../../constants/message/password.messages';
 
-import type { AuthResponse } from '../interfaces/auth.interface';
 import type { PasswordResetValidation } from '../interfaces/password.interface';
 
 /**
- * 비밀번호 관리 서비스
- * @description 비밀번호 변경, 재설정 코드 발송 및 검증 처리
+ * 비밀번호 재설정 서비스
+ * @description 인증번호 발송/검증 및 코드로 비밀번호 재설정
  */
 @Injectable()
-export class PasswordService {
+export class PasswordResetService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
@@ -42,52 +39,6 @@ export class PasswordService {
     private readonly userService: UserService,
     private readonly snowflakeService: SnowflakeService,
   ) {}
-
-  /**
-   * 8자리 인증 코드 생성 + 해시 생성 헬퍼 함수
-   */
-  private async generateAndHashResetCode(): Promise<{ code: string; hashedCode: string }> {
-    const code = this.generateResetCode();
-    const hashedCode = await hashWithAuthRounds(code);
-    return { code, hashedCode };
-  }
-
-  /**
-   * 비밀번호 변경
-   * @description 현재 비밀번호 검증 후 새 비밀번호로 변경하고 모든 토큰 무효화
-   */
-  async changePassword(
-    userId: string,
-    dto: ChangePasswordDto,
-    userAgent?: string,
-    ipAddress?: string,
-  ): Promise<AuthResponse> {
-    // 사용자 조회
-    const user = await this.userService.getUserByIdOrThrow(userId);
-
-    // 현재 비밀번호 검증
-    const isValid = await comparePassword(dto.currentPassword, user.password);
-
-    // 비밀번호 불일치
-    if (!isValid) {
-      throw new UnauthorizedException({
-        message: AUTH_ERROR_MESSAGES.INVALID_CURRENT_PASSWORD,
-        code: ERROR_CODES.AUTH_INVALID_CURRENT_PASSWORD,
-      });
-    }
-
-    // 새 비밀번호 해싱
-    user.password = await hashWithAuthRounds(dto.newPassword);
-
-    // DB 저장
-    await this.usersRepository.save(user);
-
-    // 모든 토큰 무효화
-    await this.tokenService.revokeAllUserTokens(user.id);
-
-    // 새 토큰 및 프로필 반환
-    return this.tokenService.buildAuthResponseForUser(user, userAgent, ipAddress);
-  }
 
   /**
    * 비밀번호 재설정 코드 전송
@@ -180,6 +131,15 @@ export class PasswordService {
     await this.tokenService.revokeAllUserTokens(user.id);
 
     return { success: true, message: PASSWORD_SUCCESS_MESSAGES.PASSWORD_CHANGED };
+  }
+
+  /**
+   * 8자리 인증 코드 생성 + 해시 생성 헬퍼 함수
+   */
+  private async generateAndHashResetCode(): Promise<{ code: string; hashedCode: string }> {
+    const code = this.generateResetCode();
+    const hashedCode = await hashWithAuthRounds(code);
+    return { code, hashedCode };
   }
 
   /**
