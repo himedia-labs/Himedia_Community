@@ -141,8 +141,17 @@ export class TokenService {
       where: { id: parsed.tokenId },
     });
 
-    // 토큰 없음 또는 무효화됨
-    if (!storedToken || storedToken.revokedAt) {
+    // 토큰 없음
+    if (!storedToken) {
+      throw new UnauthorizedException({
+        message: TOKEN_ERROR_MESSAGES.INVALID_REFRESH_TOKEN,
+        code: ERROR_CODES.TOKEN_INVALID_REFRESH_TOKEN,
+      });
+    }
+
+    // 이미 무효화된 토큰 재사용 감지
+    if (storedToken.revokedAt) {
+      await this.revokeAllUserTokens(storedToken.userId);
       throw new UnauthorizedException({
         message: TOKEN_ERROR_MESSAGES.INVALID_REFRESH_TOKEN,
         code: ERROR_CODES.TOKEN_INVALID_REFRESH_TOKEN,
