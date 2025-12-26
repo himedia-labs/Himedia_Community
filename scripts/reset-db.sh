@@ -55,6 +55,7 @@ readonly PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 readonly DEFAULT_DB_NAME="himedia"
 readonly DEFAULT_WAIT_TIMEOUT="60"
 readonly DEFAULT_SCHEMA_FILE="$PROJECT_ROOT/database/schema.sql"
+readonly DEFAULT_SEED_FILE="$PROJECT_ROOT/database/seed.sql"
 
 # 오직 script/.env만 로드합니다. 이미 설정된 환경변수는 덮어쓰지 않습니다.
 maybe_source_env() {
@@ -121,6 +122,7 @@ init_config() {
   DB_USER="${DB_USERNAME:-${DB_USER}}"
   DB_NAME="${DB_NAME}"
   SCHEMA_FILE="${SCHEMA_FILE:-$DEFAULT_SCHEMA_FILE}"
+  SEED_FILE="${SEED_FILE:-$DEFAULT_SEED_FILE}"
   WAIT_TIMEOUT="${WAIT_TIMEOUT:-$DEFAULT_WAIT_TIMEOUT}"
 
   # 상대 경로 스키마 파일은 프로젝트 루트를 기준으로 시도합니다.
@@ -128,6 +130,13 @@ init_config() {
     local project_candidate="$PROJECT_ROOT/$SCHEMA_FILE"
     if [ -f "$project_candidate" ]; then
       SCHEMA_FILE="$project_candidate"
+    fi
+  fi
+
+  if [[ "$SEED_FILE" != /* ]]; then
+    local seed_candidate="$PROJECT_ROOT/$SEED_FILE"
+    if [ -f "$seed_candidate" ]; then
+      SEED_FILE="$seed_candidate"
     fi
   fi
 }
@@ -234,7 +243,7 @@ print_config() {
   else
     log_info "PGPASSWORD=<unset>"
   fi
-  log_info "SCHEMA_FILE=$SCHEMA_FILE WAIT_TIMEOUT=$WAIT_TIMEOUT"
+  log_info "SCHEMA_FILE=$SCHEMA_FILE SEED_FILE=$SEED_FILE WAIT_TIMEOUT=$WAIT_TIMEOUT"
 }
 
  
@@ -317,6 +326,16 @@ apply_schema_only() {
   log_success "스키마 적용 완료."
 }
 
+apply_seed() {
+  if [ ! -f "$SEED_FILE" ]; then
+    log_warning "시드 파일 '$SEED_FILE'을 찾을 수 없습니다. 시드 적용을 건너뜁니다."
+    return 0
+  fi
+  log_info "시드 파일 '$SEED_FILE' 적용 중..."
+  psql_db "$DB_NAME" -v ON_ERROR_STOP=1 -f "$SEED_FILE" > /dev/null
+  log_success "시드 적용 완료."
+}
+
 main() {
   init_config
   prepare_psql
@@ -324,21 +343,23 @@ main() {
   wait_for_ready
 
   log_info "데이터베이스 '$DB_NAME'를 초기화합니다..."
-  log_info "(1/4) 기존 '$DB_NAME' 데이터베이스의 모든 연결을 종료합니다."
+  log_info "(1/5) 기존 '$DB_NAME' 데이터베이스의 모든 연결을 종료합니다."
   terminate_db_sessions
   wait_until_no_sessions
 
-  log_info "(2/4) 기존 '$DB_NAME' 데이터베이스를 삭제합니다."
+  log_info "(2/5) 기존 '$DB_NAME' 데이터베이스를 삭제합니다."
   if ! dropdb --if-exists "${PSQL_OPTS[@]}" "$DB_NAME"; then
     log_error "데이터베이스 삭제 실패: 활성 세션이 남아있을 수 있습니다. 다른 애플리케이션 연결을 종료한 뒤 다시 시도하세요."
     exit 1
   fi
 
-  log_info "(3/4) 새 '$DB_NAME' 데이터베이스를 생성합니다."
+  log_info "(3/5) 새 '$DB_NAME' 데이터베이스를 생성합니다."
   createdb "${PSQL_OPTS[@]}" "$DB_NAME"
-  log_info "(4/4) 스키마를 적용합니다."
+  log_info "(4/5) 스키마를 적용합니다."
 
   apply_schema_only
+  log_info "(5/5) 시드를 적용합니다."
+  apply_seed
 
   echo ""
   log_success "모든 작업이 성공적으로 완료되었습니다!"
