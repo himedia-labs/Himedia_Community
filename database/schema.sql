@@ -56,6 +56,7 @@ CREATE TABLE posts (
     like_count INTEGER NOT NULL DEFAULT 0,
     status VARCHAR(20) NOT NULL DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'PUBLISHED')),
     published_at TIMESTAMP,
+    CONSTRAINT chk_posts_published_at CHECK (status <> 'PUBLISHED' OR published_at IS NOT NULL),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -105,13 +106,18 @@ CREATE TABLE comments (
     post_id BIGINT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
     author_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
-    parent_id BIGINT REFERENCES comments(id) ON DELETE CASCADE,
+    parent_id BIGINT,
     depth INTEGER NOT NULL DEFAULT 0,
     like_count INTEGER NOT NULL DEFAULT 0,
     dislike_count INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP
+    deleted_at TIMESTAMP,
+    CONSTRAINT uq_comments_id_post_id UNIQUE (id, post_id),
+    CONSTRAINT fk_comments_parent_same_post
+        FOREIGN KEY (parent_id, post_id)
+        REFERENCES comments(id, post_id)
+        ON DELETE CASCADE
 );
 
 -- 인덱스

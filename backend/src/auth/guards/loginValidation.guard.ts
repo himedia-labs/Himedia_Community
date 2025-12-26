@@ -4,7 +4,7 @@ import { validate } from 'class-validator';
 
 import { LoginDto } from '../dto/login.dto';
 import { ERROR_CODES } from '../../constants/error/error-codes';
-import { VALIDATION_MESSAGES } from '../../constants/message/dto.messages';
+import { COMMON_VALIDATION_MESSAGES } from '../../constants/message/common.messages';
 
 import type { ValidationError } from 'class-validator';
 import type { Request } from 'express';
@@ -32,7 +32,7 @@ export class LoginValidationGuard implements CanActivate {
 
     const messages = Object.values(fieldErrors).flat();
     throw new BadRequestException({
-      message: messages.length ? messages.join(', ') : VALIDATION_MESSAGES.UNKNOWN,
+      message: messages.length ? messages.join(', ') : COMMON_VALIDATION_MESSAGES.UNKNOWN,
       code: ERROR_CODES.VALIDATION_FAILED,
       errors: fieldErrors,
     });

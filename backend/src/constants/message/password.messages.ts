@@ -11,3 +11,18 @@ export const PASSWORD_SUCCESS_MESSAGES = {
   RESET_CODE_VERIFIED: '인증번호가 확인되었습니다.',
   PASSWORD_CHANGED: '비밀번호가 성공적으로 변경되었습니다.',
 } as const;
+
+export const PASSWORD_VALIDATION_MESSAGES = {
+  PASSWORD_STRING: '비밀번호는 문자열이어야 합니다.',
+  PASSWORD_MIN_LENGTH: '비밀번호는 최소 8자 이상이어야 합니다.',
+  PASSWORD_MAX_LENGTH: '비밀번호는 255자 이하여야 합니다.',
+  PASSWORD_PATTERN: '최소 8자의 영문, 숫자, 특수문자를 입력해주세요.',
+  CURRENT_PASSWORD_STRING: '현재 비밀번호는 문자열이어야 합니다.',
+  CURRENT_PASSWORD_MIN_LENGTH: '현재 비밀번호는 최소 8자 이상이어야 합니다.',
+  CURRENT_PASSWORD_MAX_LENGTH: '현재 비밀번호는 255자 이하여야 합니다.',
+  NEW_PASSWORD_STRING: '새 비밀번호는 문자열이어야 합니다.',
+  NEW_PASSWORD_MIN_LENGTH: '새 비밀번호는 최소 8자 이상이어야 합니다.',
+  NEW_PASSWORD_MAX_LENGTH: '새 비밀번호는 255자 이하여야 합니다.',
+  CODE_STRING: '인증번호는 문자열이어야 합니다.',
+  CODE_LENGTH: '인증번호는 8자리여야 합니다.',
+} as const;

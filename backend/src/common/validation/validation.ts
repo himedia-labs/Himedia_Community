@@ -11,7 +11,7 @@
 import { BadRequestException, INestApplication, ValidationPipe } from '@nestjs/common';
 
 import { ERROR_CODES } from '../../constants/error/error-codes';
-import { VALIDATION_MESSAGES } from '../../constants/message/dto.messages';
+import { COMMON_VALIDATION_MESSAGES } from '../../constants/message/common.messages';
 
 import type { ValidationError } from 'class-validator';
 
@@ -33,7 +33,7 @@ export const setupValidation = (app: INestApplication): void => {
         const messages = Object.values(fieldErrors).flat();
 
         return new BadRequestException({
-          message: messages.length ? messages.join(', ') : VALIDATION_MESSAGES.UNKNOWN,
+          message: messages.length ? messages.join(', ') : COMMON_VALIDATION_MESSAGES.UNKNOWN,
           code: ERROR_CODES.VALIDATION_FAILED,
           errors: fieldErrors,
         });
