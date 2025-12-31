@@ -9,6 +9,8 @@ import {
   OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
+  BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm';
 
 import { User } from '../../auth/entities/user.entity';
@@ -46,6 +48,9 @@ export class Post {
   @Column({ type: 'text' })
   content!: string;
 
+  @Column({ name: 'thumbnail_url', type: 'varchar', length: 500, nullable: true })
+  thumbnailUrl!: string | null;
+
   @Column({ name: 'view_count', type: 'int', default: 0 })
   viewCount!: number;
 
@@ -80,4 +85,18 @@ export class Post {
 
   @OneToMany(() => Comment, comment => comment.post)
   comments!: Comment[];
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  private syncThumbnailUrl() {
+    if (this.thumbnailUrl) return;
+    const content = this.content ?? '';
+    const htmlMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (htmlMatch?.[1]) {
+      this.thumbnailUrl = htmlMatch[1];
+      return;
+    }
+    const markdownMatch = content.match(/!\[[^\]]*]\(([^)]+)\)/);
+    this.thumbnailUrl = markdownMatch?.[1] ?? null;
+  }
 }

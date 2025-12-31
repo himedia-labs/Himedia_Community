@@ -48,6 +48,8 @@ export class PostsService {
       items: posts.map(post => ({
         id: post.id,
         title: post.title,
+        content: post.content,
+        thumbnailUrl: post.thumbnailUrl,
         status: post.status,
         viewCount: post.viewCount,
         likeCount: post.likeCount,
@@ -87,6 +89,7 @@ export class PostsService {
       id: post.id,
       title: post.title,
       content: post.content,
+      thumbnailUrl: post.thumbnailUrl,
       status: post.status,
       viewCount: post.viewCount,
       likeCount: post.likeCount,
