@@ -1,86 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import { CiCalendar, CiGrid41 } from 'react-icons/ci';
 import { FiEye } from 'react-icons/fi';
 import { PiList } from 'react-icons/pi';
 
-import { usePostsQuery } from '@/app/api/posts/posts.queries';
-import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
-
+import usePostList from './postList.hooks';
 import styles from './postList.module.css';
-import type { Post, PostListItem, TopPost, ViewMode } from '@/app/shared/types/post';
-
-// 날짜 문자열을 화면 포맷으로 변환
-const formatDate = (value?: string | null) => {
-  if (!value) return '--';
-  // 날짜 문자열을 Date로 변환
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '--';
-  // 출력에 사용할 연도
-  const year = date.getFullYear();
-  // 출력에 사용할 월(2자리)
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  // 출력에 사용할 일(2자리)
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}.${month}.${day}`;
-};
-
-// 본문에서 첫 이미지 링크 추출
-const extractImageUrl = (content?: string) => {
-  if (!content) return undefined;
-  // HTML img 태그에서 추출한 결과
-  const htmlMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
-  if (htmlMatch?.[1]) return htmlMatch[1];
-  // Markdown 이미지 링크에서 추출한 결과
-  const markdownMatch = content.match(/!\[[^\]]*]\(([^)]+)\)/);
-  if (markdownMatch?.[1]) return markdownMatch[1];
-  return undefined;
-};
-
-// 본문에서 요약 문구 생성
-const buildSummary = (content?: string) => {
-  if (!content) return '';
-  // 앞뒤 공백 제거된 본문
-  const trimmed = content.trim();
-  if (!trimmed) return '';
-  return trimmed.length > 140 ? `${trimmed.slice(0, 140)}...` : trimmed;
-};
-
-// 게시글 업로드 시점 기준 경과 시간 계산
-const buildRelativeTime = (value?: string | null) => {
-  if (!value) return '--';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '--';
-  const diffMs = Date.now() - date.getTime();
-  if (diffMs < 60000) return '방금 전';
-  const minutes = Math.floor(diffMs / 60000);
-  if (minutes < 60) return `${minutes}분 전`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}시간 전`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}일 전`;
-  const months = Math.floor(days / 30);
-  if (months < 12) return `${months}개월 전`;
-  const years = Math.floor(days / 365);
-  return `${years}년 전`;
-};
-
-// API 응답을 화면용 Post로 변환
-const toViewPost = (item: PostListItem): Post => {
-  // 본문에서 추출한 썸네일 URL
-  const imageUrl = item.thumbnailUrl ?? extractImageUrl(item.content);
-  return {
-    id: item.id,
-    title: item.title,
-    summary: buildSummary(item.content),
-    imageUrl,
-    category: item.category?.name ?? 'ALL',
-    date: formatDate(item.publishedAt ?? item.createdAt),
-    timeAgo: buildRelativeTime(item.publishedAt ?? item.createdAt),
-    views: item.viewCount,
-  };
-};
+import type { TopPost } from '@/app/shared/types/post';
 
 // 사이드바 상위 인기글(임시)
 const TOP_POSTS: TopPost[] = [
@@ -92,25 +18,7 @@ const TOP_POSTS: TopPost[] = [
 ];
 
 export default function PostListSection() {
-  // 현재 보기 모드 상태
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
-  // 선택된 카테고리 상태
-  const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
-  // 카테고리 목록 API 응답
-  const { data: categories } = useCategoriesQuery();
-  // 선택된 카테고리의 ID
-  const selectedCategoryId = categories?.find(category => category.name === selectedCategory)?.id;
-  // 게시글 목록 API 응답
-  const { data } = usePostsQuery({
-    status: 'PUBLISHED',
-    categoryId: selectedCategory === 'ALL' ? undefined : selectedCategoryId,
-  });
-  // 화면에 노출할 카테고리 이름 목록
-  const categoryNames = ['ALL', ...(categories ?? []).map(category => category.name)];
-  // 화면 렌더링용 게시글 목록
-  const posts = (data?.items ?? []).map(item => toViewPost(item));
-  // 선택 카테고리로 필터된 목록
-  const filteredPosts = selectedCategory === 'ALL' ? posts : posts.filter(post => post.category === selectedCategory);
+  const { viewMode, setViewMode, selectedCategory, setSelectedCategory, categoryNames, filteredPosts } = usePostList();
 
   return (
     <section className={styles.container} aria-label="포스트 하이라이트">
