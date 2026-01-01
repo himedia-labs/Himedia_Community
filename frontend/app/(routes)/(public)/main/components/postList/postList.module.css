@@ -64,6 +64,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) 220px;
   gap: 32px;
+  min-height: 150px;
   padding-bottom: 3rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
