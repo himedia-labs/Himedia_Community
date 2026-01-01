@@ -7,7 +7,7 @@ export type Post = {
   imageUrl?: string;
   category: string;
   date: string;
-  readTime: string;
+  timeAgo: string;
   views: number;
 };
 
