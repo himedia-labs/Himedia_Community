@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsOrder, FindOptionsWhere, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 import { Post, PostStatus } from './entities/post.entity';
 import { ERROR_CODES } from '../constants/error/error-codes';
@@ -21,28 +21,25 @@ export class PostsService {
     const sort = query.sort ?? PostSortOption.CREATED_AT;
     const order = query.order ?? SortOrder.DESC;
 
-    const where: FindOptionsWhere<Post> = {};
+    const status = query.status ?? PostStatus.PUBLISHED;
+    const queryBuilder = this.postsRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.category', 'category')
+      .leftJoinAndSelect('post.author', 'author')
+      .loadRelationCountAndMap('post.commentCount', 'post.comments', 'comment', qb =>
+        qb.andWhere('comment.deletedAt IS NULL'),
+      )
+      .where('post.status = :status', { status });
+
     if (query.categoryId) {
-      where.categoryId = query.categoryId;
-    }
-    if (query.status) {
-      where.status = query.status;
-    } else {
-      where.status = PostStatus.PUBLISHED;
+      queryBuilder.andWhere('post.categoryId = :categoryId', { categoryId: query.categoryId });
     }
 
-    const orderBy = { [sort]: order } as FindOptionsOrder<Post>;
-
-    const [posts, total] = await this.postsRepository.findAndCount({
-      where,
-      order: orderBy,
-      skip: (page - 1) * limit,
-      take: limit,
-      relations: {
-        category: true,
-        author: true,
-      },
-    });
+    const [posts, total] = await queryBuilder
+      .orderBy(`post.${sort}`, order)
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
 
     return {
       items: posts.map(post => ({
@@ -53,6 +50,7 @@ export class PostsService {
         status: post.status,
         viewCount: post.viewCount,
         likeCount: post.likeCount,
+        commentCount: post.commentCount ?? 0,
         createdAt: post.createdAt,
         publishedAt: post.publishedAt,
         category: post.category ? { id: post.category.id, name: post.category.name } : null,

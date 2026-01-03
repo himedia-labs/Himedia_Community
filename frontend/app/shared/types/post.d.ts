@@ -9,6 +9,8 @@ export type Post = {
   date: string;
   timeAgo: string;
   views: number;
+  likeCount: number;
+  commentCount: number;
 };
 
 export type TopPost = {
@@ -54,6 +56,7 @@ export interface PostListItem {
   status: PostStatus;
   viewCount: number;
   likeCount: number;
+  commentCount: number;
   createdAt: string;
   publishedAt: string | null;
   category: PostCategoryRef | null;

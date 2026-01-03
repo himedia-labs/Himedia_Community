@@ -1,7 +1,7 @@
 'use client';
 
 import { CiCalendar, CiGrid41 } from 'react-icons/ci';
-import { FiEye } from 'react-icons/fi';
+import { FiEye, FiHeart, FiMessageCircle } from 'react-icons/fi';
 import { PiList } from 'react-icons/pi';
 
 import usePostList from './postList.hooks';
@@ -43,19 +43,32 @@ export default function PostListSection() {
                     <h3>{post.title}</h3>
                     <p className={styles.summary}>{post.summary}</p>
                     <div className={styles.meta}>
-                      <span className={styles.metaItem}>
-                        <CiCalendar aria-hidden="true" /> {post.date}
+                      <span className={styles.metaGroup}>
+                        <span className={styles.metaItem}>
+                          <CiCalendar aria-hidden="true" /> {post.date}
+                        </span>
+                        <span className={styles.separator} aria-hidden="true">
+                          |
+                        </span>
+                        <span className={styles.metaItem}>{post.timeAgo}</span>
                       </span>
-                      <span className={styles.separator} aria-hidden="true">
-                        |
+                      <span className={styles.metaGroup}>
+                        <span className={styles.metaItem}>
+                          <FiEye aria-hidden="true" /> {post.views.toLocaleString()}
+                        </span>
+                        <span className={styles.separator} aria-hidden="true">
+                          |
+                        </span>
+                        <span className={styles.metaItem}>
+                          <FiHeart aria-hidden="true" /> {post.likeCount.toLocaleString()}
+                        </span>
+                        <span className={styles.separator} aria-hidden="true">
+                          |
+                        </span>
+                        <span className={styles.metaItem}>
+                          <FiMessageCircle aria-hidden="true" /> {post.commentCount.toLocaleString()}
+                        </span>
                       </span>
-                      <span className={styles.metaItem}>
-                        <FiEye aria-hidden="true" /> {post.views.toLocaleString()}
-                      </span>
-                      <span className={styles.separator} aria-hidden="true">
-                        |
-                      </span>
-                      <span className={styles.metaItem}>{post.timeAgo}</span>
                     </div>
                   </div>
                   {post.imageUrl ? (

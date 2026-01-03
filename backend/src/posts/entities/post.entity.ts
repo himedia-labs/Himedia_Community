@@ -86,6 +86,8 @@ export class Post {
   @OneToMany(() => Comment, comment => comment.post)
   comments!: Comment[];
 
+  commentCount?: number;
+
   @BeforeInsert()
   @BeforeUpdate()
   private syncThumbnailUrl() {

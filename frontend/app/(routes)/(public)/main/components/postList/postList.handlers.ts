@@ -60,5 +60,7 @@ export const toViewPost = (item: PostListItem): Post => {
     date: formatDate(item.publishedAt ?? item.createdAt),
     timeAgo: buildRelativeTime(item.publishedAt ?? item.createdAt),
     views: item.viewCount,
+    likeCount: item.likeCount,
+    commentCount: item.commentCount ?? 0,
   };
 };
