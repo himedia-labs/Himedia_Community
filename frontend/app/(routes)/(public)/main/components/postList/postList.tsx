@@ -182,6 +182,7 @@ export default function PostListSection() {
                 </li>
               ))}
         </ol>
+        <div className={styles.sidebarDivider} aria-hidden="true" />
 
         <div className={styles.categorySection}>
           <div className={styles.sidebarHeader}>
