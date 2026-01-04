@@ -11,9 +11,9 @@ import type { TopPost, ViewMode } from '@/app/shared/types/post';
 export const usePostList = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
-  const { data: categories } = useCategoriesQuery();
+  const { data: categories, isLoading: isCategoriesLoading } = useCategoriesQuery();
   const selectedCategoryId = categories?.find(category => category.name === selectedCategory)?.id;
-  const { data } = usePostsQuery({
+  const { data, isLoading } = usePostsQuery({
     status: 'PUBLISHED',
     categoryId: selectedCategory === 'ALL' ? undefined : selectedCategoryId,
   });
@@ -33,6 +33,8 @@ export const usePostList = () => {
     categoryNames,
     filteredPosts,
     topPosts,
+    isLoading,
+    isCategoriesLoading,
   };
 };
 

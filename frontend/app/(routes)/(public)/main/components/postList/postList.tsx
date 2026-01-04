@@ -3,13 +3,28 @@
 import { CiCalendar, CiGrid41 } from 'react-icons/ci';
 import { FiEye, FiHeart, FiMessageCircle } from 'react-icons/fi';
 import { PiList } from 'react-icons/pi';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 import usePostList from './postList.hooks';
 import styles from './postList.module.css';
 
 export default function PostListSection() {
-  const { viewMode, setViewMode, selectedCategory, setSelectedCategory, categoryNames, filteredPosts, topPosts } =
-    usePostList();
+  const {
+    viewMode,
+    setViewMode,
+    selectedCategory,
+    setSelectedCategory,
+    categoryNames,
+    filteredPosts,
+    topPosts,
+    isLoading,
+    isCategoriesLoading,
+  } = usePostList();
+  const listSkeletons = Array.from({ length: 5 });
+  const cardSkeletons = Array.from({ length: 6 });
+  const topSkeletons = Array.from({ length: 5 });
+  const categorySkeletons = Array.from({ length: 8 });
 
   return (
     <section className={styles.container} aria-label="포스트 하이라이트">
@@ -27,80 +42,115 @@ export default function PostListSection() {
 
         {viewMode === 'list' ? (
           <ul className={styles.listView}>
-            {filteredPosts.map(post => (
-              <li key={post.id}>
-                <article className={styles.listItem}>
-                  <div className={styles.listBody}>
-                    <h3>{post.title}</h3>
-                    <p className={styles.summary}>{post.summary}</p>
-                    <div className={styles.meta}>
-                      <span className={styles.metaGroup}>
-                        <span className={styles.metaItem}>
-                          <CiCalendar aria-hidden="true" /> {post.date}
-                        </span>
-                        <span className={styles.separator} aria-hidden="true">
-                          |
-                        </span>
-                        <span className={styles.metaItem}>{post.timeAgo}</span>
-                      </span>
-                      <span className={styles.metaGroup}>
-                        <span className={styles.metaItem}>
-                          <FiEye aria-hidden="true" /> {post.views.toLocaleString()}
-                        </span>
-                        <span className={styles.separator} aria-hidden="true">
-                          |
-                        </span>
-                        <span className={styles.metaItem}>
-                          <FiHeart aria-hidden="true" /> {post.likeCount.toLocaleString()}
-                        </span>
-                        <span className={styles.separator} aria-hidden="true">
-                          |
-                        </span>
-                        <span className={styles.metaItem}>
-                          <FiMessageCircle aria-hidden="true" /> {post.commentCount.toLocaleString()}
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-                  {post.imageUrl ? (
-                    <div
-                      className={styles.listThumb}
-                      style={{
-                        backgroundImage: `url(${post.imageUrl})`,
-                      }}
-                      aria-hidden="true"
-                    />
-                  ) : null}
-                </article>
-              </li>
-            ))}
+            {isLoading
+              ? listSkeletons.map((_, index) => (
+                  <li key={`list-skeleton-${index}`}>
+                    <article className={styles.listItem} aria-hidden="true">
+                      <div className={styles.listBody}>
+                        <Skeleton height={26} width="70%" />
+                        <Skeleton count={2} height={16} style={{ marginBottom: '6px' }} />
+                        <div className={styles.meta}>
+                          <span className={styles.metaGroup}>
+                            <Skeleton width={140} height={12} />
+                          </span>
+                          <span className={styles.metaGroup}>
+                            <Skeleton width={160} height={12} />
+                          </span>
+                        </div>
+                      </div>
+                      <Skeleton height={150} width="100%" borderRadius={12} />
+                    </article>
+                  </li>
+                ))
+              : filteredPosts.map(post => (
+                  <li key={post.id}>
+                    <article className={styles.listItem}>
+                      <div className={styles.listBody}>
+                        <h3>{post.title}</h3>
+                        <p className={styles.summary}>{post.summary}</p>
+                        <div className={styles.meta}>
+                          <span className={styles.metaGroup}>
+                            <span className={styles.metaItem}>
+                              <CiCalendar aria-hidden="true" /> {post.date}
+                            </span>
+                            <span className={styles.separator} aria-hidden="true">
+                              |
+                            </span>
+                            <span className={styles.metaItem}>{post.timeAgo}</span>
+                          </span>
+                          <span className={styles.metaGroup}>
+                            <span className={styles.metaItem}>
+                              <FiEye aria-hidden="true" /> {post.views.toLocaleString()}
+                            </span>
+                            <span className={styles.separator} aria-hidden="true">
+                              |
+                            </span>
+                            <span className={styles.metaItem}>
+                              <FiHeart aria-hidden="true" /> {post.likeCount.toLocaleString()}
+                            </span>
+                            <span className={styles.separator} aria-hidden="true">
+                              |
+                            </span>
+                            <span className={styles.metaItem}>
+                              <FiMessageCircle aria-hidden="true" /> {post.commentCount.toLocaleString()}
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+                      {post.imageUrl ? (
+                        <div
+                          className={styles.listThumb}
+                          style={{
+                            backgroundImage: `url(${post.imageUrl})`,
+                          }}
+                          aria-hidden="true"
+                        />
+                      ) : null}
+                    </article>
+                  </li>
+                ))}
           </ul>
         ) : (
           <ul className={styles.cardGrid}>
-            {filteredPosts.map(post => (
-              <li key={post.id}>
-                <article className={styles.cardItem}>
-                  {post.imageUrl ? (
-                    <div
-                      className={styles.cardThumb}
-                      style={{
-                        backgroundImage: `url(${post.imageUrl})`,
-                      }}
-                      aria-hidden="true"
-                    />
-                  ) : null}
-                  <div className={styles.cardBody}>
-                    <h3>{post.title}</h3>
-                    <p className={styles.summary}>{post.summary}</p>
-                  </div>
-                  <div className={styles.cardFooter}>
-                    <span>{post.date}</span>
-                    <span>·</span>
-                    <span>{post.timeAgo}</span>
-                  </div>
-                </article>
-              </li>
-            ))}
+            {isLoading
+              ? cardSkeletons.map((_, index) => (
+                  <li key={`card-skeleton-${index}`}>
+                    <article className={styles.cardItem} aria-hidden="true">
+                      <Skeleton className={styles.cardThumb} />
+                      <div className={styles.cardBody}>
+                        <Skeleton height={18} width="75%" />
+                        <Skeleton count={2} height={14} style={{ marginBottom: '6px' }} />
+                      </div>
+                      <div className={styles.cardFooter}>
+                        <Skeleton width={140} height={12} />
+                      </div>
+                    </article>
+                  </li>
+                ))
+              : filteredPosts.map(post => (
+                  <li key={post.id}>
+                    <article className={styles.cardItem}>
+                      {post.imageUrl ? (
+                        <div
+                          className={styles.cardThumb}
+                          style={{
+                            backgroundImage: `url(${post.imageUrl})`,
+                          }}
+                          aria-hidden="true"
+                        />
+                      ) : null}
+                      <div className={styles.cardBody}>
+                        <h3>{post.title}</h3>
+                        <p className={styles.summary}>{post.summary}</p>
+                      </div>
+                      <div className={styles.cardFooter}>
+                        <span>{post.date}</span>
+                        <span>·</span>
+                        <span>{post.timeAgo}</span>
+                      </div>
+                    </article>
+                  </li>
+                ))}
           </ul>
         )}
       </div>
@@ -112,12 +162,23 @@ export default function PostListSection() {
           </p>
         </div>
         <ol className={styles.topList}>
-          {topPosts.map((item, index) => (
-            <li key={item.id}>
-              <span className={styles.rank}>{index + 1}</span>
-              <span className={styles.topTitle}>{item.title}</span>
-            </li>
-          ))}
+          {isLoading
+            ? topSkeletons.map((_, index) => (
+                <li key={`top-skeleton-${index}`} aria-hidden="true">
+                  <span className={styles.rank}>
+                    <Skeleton width="1.2ch" height={14} />
+                  </span>
+                  <span className={styles.topTitle}>
+                    <Skeleton height={14} width="80%" />
+                  </span>
+                </li>
+              ))
+            : topPosts.map((item, index) => (
+                <li key={item.id}>
+                  <span className={styles.rank}>{index + 1}</span>
+                  <span className={styles.topTitle}>{item.title}</span>
+                </li>
+              ))}
         </ol>
 
         <div className={styles.categorySection}>
@@ -127,18 +188,22 @@ export default function PostListSection() {
             </p>
           </div>
           <div className={styles.categoryList}>
-            {categoryNames.map(category => (
-              <button
-                key={category}
-                type="button"
-                className={
-                  selectedCategory === category ? `${styles.categoryButton} ${styles.active}` : styles.categoryButton
-                }
-                onClick={() => setSelectedCategory(category)}
-              >
-                {category}
-              </button>
-            ))}
+            {isCategoriesLoading
+              ? categorySkeletons.map((_, index) => (
+                  <Skeleton key={`category-skeleton-${index}`} height={32} width={80} borderRadius={20} />
+                ))
+              : categoryNames.map(category => (
+                  <button
+                    key={category}
+                    type="button"
+                    className={
+                      selectedCategory === category ? `${styles.categoryButton} ${styles.active}` : styles.categoryButton
+                    }
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {category}
+                  </button>
+                ))}
           </div>
         </div>
       </aside>
