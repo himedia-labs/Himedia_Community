@@ -184,30 +184,28 @@ export default function PostListSection() {
         </ol>
         <div className={styles.sidebarDivider} aria-hidden="true" />
 
-        <div className={styles.categorySection}>
-          <div className={styles.sidebarHeader}>
-            <p className={styles.sidebarLabel}>
-              CATEGORY <span className={styles.sidebarSubLabel}>(카테고리)</span>
-            </p>
-          </div>
-          <div className={styles.categoryList}>
-            {isCategoriesLoading
-              ? categorySkeletons.map((_, index) => (
-                  <Skeleton key={`category-skeleton-${index}`} height={32} width={80} borderRadius={20} />
-                ))
-              : categoryNames.map(category => (
-                  <button
-                    key={category}
-                    type="button"
-                    className={
-                      selectedCategory === category ? `${styles.categoryButton} ${styles.active}` : styles.categoryButton
-                    }
-                    onClick={() => setSelectedCategory(category)}
-                  >
-                    {category}
-                  </button>
-                ))}
-          </div>
+        <div className={styles.sidebarHeader}>
+          <p className={styles.sidebarLabel}>
+            CATEGORY <span className={styles.sidebarSubLabel}>(카테고리)</span>
+          </p>
+        </div>
+        <div className={styles.categoryList}>
+          {isCategoriesLoading
+            ? categorySkeletons.map((_, index) => (
+                <Skeleton key={`category-skeleton-${index}`} height={32} width={80} borderRadius={20} />
+              ))
+            : categoryNames.map(category => (
+                <button
+                  key={category}
+                  type="button"
+                  className={
+                    selectedCategory === category ? `${styles.categoryButton} ${styles.active}` : styles.categoryButton
+                  }
+                  onClick={() => setSelectedCategory(category)}
+                >
+                  {category}
+                </button>
+              ))}
         </div>
       </aside>
     </section>
