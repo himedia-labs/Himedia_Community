@@ -10,7 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { CiBellOff, CiBellOn, CiMenuBurger, CiSearch, CiUser } from 'react-icons/ci';
 
 import { authKeys } from '@/app/api/auth/auth.keys';
-import { useScroll } from '@/app/shared/hooks/useScroll';
+// import { useScroll } from '@/app/shared/hooks/useScroll';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useLogoutMutation } from '@/app/api/auth/auth.mutations';
 import { useAuthStore } from '@/app/shared/store/authStore';
@@ -32,7 +32,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const logoutMutation = useLogoutMutation();
-  const isScrolled = useScroll(0);
+  // const isScrolled = useScroll(0);
   const [isBellOn, setIsBellOn] = useState(true);
   const [initialLoginFlag, setInitialLoginFlag] = useState(initialIsLoggedIn);
   const { accessToken } = useAuthStore();
@@ -67,7 +67,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
   });
 
   return (
-    <header className={`${styles.container} ${isScrolled ? styles.scrolled : ''}`}>
+    <header className={styles.container}>
       <div className={styles.wrap}>
         <Link href="/" className={styles.logo}>
           <span className={styles.logoMark}>
