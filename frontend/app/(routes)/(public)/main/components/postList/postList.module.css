@@ -41,6 +41,34 @@
   cursor: pointer;
 }
 
+.createButton {
+  position: fixed;
+  bottom: 6rem;
+  right: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 24px;
+  background-color: rgba(247, 247, 248, 0.9);
+  box-shadow: rgba(255, 255, 255, 0.2) 0 0 0 1px inset, rgba(0, 0, 0, 0.1) 0 4px 6px, rgba(0, 0, 0, 0.15) 0 8px 30px;
+  color: #555;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.createButton:focus-visible {
+  outline: 2px solid rgba(0, 0, 0, 0.2);
+  outline-offset: 4px;
+}
+
+.createButton:active {
+  transform: translateY(1px) scale(0.92);
+}
+
 .toggleButton:focus-visible {
   outline: 2px solid rgba(0, 0, 0, 0.2);
   outline-offset: 4px;

@@ -3,6 +3,7 @@
 import { CiCalendar, CiGrid41 } from 'react-icons/ci';
 import { FiEye, FiHeart, FiMessageCircle } from 'react-icons/fi';
 import { PiList } from 'react-icons/pi';
+import { FiPlus } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
@@ -32,6 +33,13 @@ export default function PostListSection() {
     <section className={styles.container} aria-label="포스트 하이라이트">
       <div className={styles.main}>
         <div className={styles.header}>
+          <button
+            type="button"
+            className={styles.createButton}
+            aria-label="게시물 작성"
+          >
+            <FiPlus />
+          </button>
           <button
             type="button"
             className={styles.toggleButton}
