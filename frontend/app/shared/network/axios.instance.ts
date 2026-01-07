@@ -1,10 +1,37 @@
-import { AxiosError } from 'axios';
+import { AxiosError, isAxiosError } from 'axios';
 
 import { useAuthStore } from '../store/authStore';
 import { axiosBare, axiosInstance } from './axios.config';
 import { PUBLIC_AUTH_PATHS } from '../constants/config/publicPaths.config';
 
 import type { RetriableConfig } from '../types/axios';
+
+let refreshPromise: Promise<string | null> | null = null;
+
+const refreshAccessToken = async (): Promise<string | null> => {
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      try {
+        const refreshResponse = await axiosBare.post('/auth/refresh');
+        if (refreshResponse.status === 204) return null;
+        return (refreshResponse.data as { accessToken?: string })?.accessToken ?? null;
+      } catch (error) {
+        if (isAxiosError(error) && error.response?.status === 401) {
+          try {
+            await axiosBare.post('/auth/logout');
+          } catch {
+            // 쿠키 정리 실패는 무시
+          }
+        }
+        return null;
+      } finally {
+        refreshPromise = null;
+      }
+    })();
+  }
+
+  return refreshPromise;
+};
 
 /**
  * Request 인터셉터
@@ -47,23 +74,21 @@ axiosInstance.interceptors.response.use(
 
       originalRequest._retry = true;
 
-      try {
-        const refreshResponse = await axiosBare.post('/auth/refresh');
-        const newAccessToken = (refreshResponse.data as { accessToken?: string })?.accessToken;
+      const newAccessToken = await refreshAccessToken();
 
-        if (newAccessToken) {
-          setAccessToken(newAccessToken);
-        }
-
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        return Promise.reject(refreshError);
+      if (!newAccessToken) {
+        setAccessToken(null);
+        return Promise.reject(error);
       }
+
+      setAccessToken(newAccessToken);
+      return axiosInstance(originalRequest);
     }
 
     return Promise.reject(error);
   },
 );
 
+export { refreshAccessToken };
 export { axiosInstance };
 export default axiosInstance;

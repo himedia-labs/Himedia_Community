@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { CiLogin } from 'react-icons/ci';
@@ -35,14 +35,9 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
   // const isScrolled = useScroll(0);
   const [isBellOn, setIsBellOn] = useState(true);
   const [initialLoginFlag, setInitialLoginFlag] = useState(initialIsLoggedIn);
-  const { accessToken } = useAuthStore();
+  const { accessToken, isInitialized } = useAuthStore();
   const clearAuth = useAuthStore(state => state.clearAuth);
   const { showToast } = useToast();
-
-  // 특정 경로에서는 Header 숨김
-  if (HeaderConfig.hidePaths.includes(pathname)) {
-    return null;
-  }
 
   /**
    * 로그인 상태
@@ -50,7 +45,19 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
    * - initialLoginFlag: 로그인 후 리다이렉트 시 아이콘 변화가 없기에 필수
    * - accessToken: 새로고침 시 초기화된 상태 복구 용도
    */
-  const isLoggedIn = !!accessToken || initialLoginFlag;
+  const isLoggedIn = isInitialized ? !!accessToken : !!accessToken || initialLoginFlag;
+
+  useEffect(() => {
+    if (!isInitialized) return;
+    if (!accessToken) {
+      setInitialLoginFlag(false);
+    }
+  }, [isInitialized, accessToken]);
+
+  // 특정 경로에서는 Header 숨김
+  if (HeaderConfig.hidePaths.includes(pathname)) {
+    return null;
+  }
 
   // 알림 아이콘 토글 (on/off)
   const toggleBell = () => setIsBellOn(prev => !prev);

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { axiosInstance } from '../network/axios.instance';
+import { refreshAccessToken } from '../network/axios.instance';
 import { useAuthStore } from '@/app/shared/store/authStore';
 
 /**
@@ -9,25 +9,15 @@ import { useAuthStore } from '@/app/shared/store/authStore';
  * - 실패 시: 비로그인 상태 확정
  */
 export const useAuthInitialize = () => {
-  const { setAccessToken } = useAuthStore();
+  const { setAccessToken, setInitialized } = useAuthStore();
 
   useEffect(() => {
     const initializeAuth = async () => {
-      try {
-        const response = await axiosInstance.post('/auth/refresh');
-
-        if (response.status === 204 || !response.data?.accessToken) {
-          setAccessToken(null);
-          return;
-        }
-
-        const { accessToken: newAccessToken } = response.data;
-        setAccessToken(newAccessToken);
-      } catch {
-        setAccessToken(null);
-      }
+      const newAccessToken = await refreshAccessToken();
+      setAccessToken(newAccessToken);
+      setInitialized(true);
     };
 
     initializeAuth();
-  }, [setAccessToken]);
+  }, [setAccessToken, setInitialized]);
 };

@@ -9,6 +9,7 @@ import {
   Post,
   Request,
   Response,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
@@ -102,9 +103,17 @@ export class AuthController {
       return res.status(204).send();
     }
 
-    const authResponse = await this.tokenService.refreshTokens({ refreshToken }, userAgent, ipAddress);
-    setCookies(res, authResponse.refreshToken, this.config);
-    return res.status(200).json({ accessToken: authResponse.accessToken, user: authResponse.user });
+    try {
+      const authResponse = await this.tokenService.refreshTokens({ refreshToken }, userAgent, ipAddress);
+      setCookies(res, authResponse.refreshToken, this.config);
+      return res.status(200).json({ accessToken: authResponse.accessToken, user: authResponse.user });
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        clearCookies(res, this.config);
+        return res.status(204).send();
+      }
+      throw error;
+    }
   }
 
   /**
