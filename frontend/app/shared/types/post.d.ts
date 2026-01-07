@@ -25,6 +25,14 @@ export interface Category {
 
 export type CategoryListResponse = Category[];
 
+export interface TagSuggestion {
+  id: string;
+  name: string;
+  postCount: number;
+}
+
+export type TagSuggestionResponse = TagSuggestion[];
+
 export type PostStatus = 'DRAFT' | 'PUBLISHED';
 export type PostSortOption = 'createdAt' | 'publishedAt' | 'viewCount' | 'likeCount';
 export type SortOrder = 'ASC' | 'DESC';
@@ -69,4 +77,33 @@ export interface PostListResponse {
   limit: number;
   total: number;
   totalPages: number;
+}
+
+export type MutableRef<T> = {
+  current: T;
+};
+
+export type TagCommit = (value: string) => boolean;
+
+export type SelectionRange = {
+  start: number;
+  end: number;
+};
+
+export type InlinePattern = {
+  type: 'code' | 'image' | 'link' | 'autolink' | 'bold' | 'strike' | 'underline' | 'italic';
+  regex: RegExp;
+};
+
+export interface CreatePostRequest {
+  title: string;
+  content: string;
+  categoryId: string;
+  status?: PostStatus;
+  thumbnailUrl?: string;
+  tags?: string[];
+}
+
+export interface CreatePostResponse {
+  id: string;
 }
