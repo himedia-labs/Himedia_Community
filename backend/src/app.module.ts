@@ -6,6 +6,7 @@ import { EmailModule } from './email/email.module';
 import { AuthModule } from './auth/auth.module';
 import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
+import { UploadsModule } from './uploads/uploads.module';
 import appConfig from './common/config/app.config';
 
 @Module({
@@ -20,6 +21,7 @@ import appConfig from './common/config/app.config';
     AuthModule,
     PostsModule,
     CommentsModule,
+    UploadsModule,
   ],
   controllers: [],
   providers: [],
