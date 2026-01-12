@@ -10,7 +10,6 @@ export class SnowflakeService {
   private readonly snowflake: Snowflake;
 
   constructor() {
-    // Epoch: 2024-01-01 00:00:00 UTC (1704067200000ms)
     const epoch = 1704067200000n;
     this.snowflake = new Snowflake(epoch);
   }
