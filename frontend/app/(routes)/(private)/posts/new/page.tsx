@@ -8,7 +8,6 @@ import { RxWidth } from 'react-icons/rx';
 
 import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
 
-import DraftNoticeModal from './DraftNoticeModal';
 import { EditorToolbar, PostPreview, PostDetailsForm } from './components';
 import { renderMarkdownPreview, formatDateLabel } from './postCreate.utils';
 import { usePostForm, useTagInput, useThumbnailUpload, useDraftManager, useMarkdownEditor } from './hooks';
@@ -59,9 +58,7 @@ export default function PostCreatePage() {
 
   // Draft 관리
   const {
-    state: { showDraftModal },
     data: { draftList },
-    setters: { setShowDraftModal },
     handlers: { saveDraft, publishPost, openDraftList },
   } = useDraftManager({ title, categoryId, thumbnailUrl, content, tags }, applyDraftData);
 
@@ -242,7 +239,6 @@ export default function PostCreatePage() {
           <CiImport aria-hidden="true" />
         </button>
       </footer>
-      {showDraftModal && <DraftNoticeModal onClose={() => setShowDraftModal(false)} />}
     </section>
   );
 }

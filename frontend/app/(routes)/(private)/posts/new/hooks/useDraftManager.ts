@@ -86,7 +86,6 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
 
   // State
   const draftNoticeShownRef = useRef(false);
-  const [showDraftModal, setShowDraftModal] = useState(false);
   const [prevSearchDraftId, setPrevSearchDraftId] = useState<string | null>(searchDraftId);
   const [manualSaveTimestamp, setManualSaveTimestamp] = useState<string | null>(null);
   const [localDraftId, setLocalDraftId] = useState<string | null>(null);
@@ -249,13 +248,9 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
   return {
     state: {
       lastSavedAt,
-      showDraftModal,
     },
     data: {
       draftList,
-    },
-    setters: {
-      setShowDraftModal,
     },
     handlers: {
       saveDraft,
