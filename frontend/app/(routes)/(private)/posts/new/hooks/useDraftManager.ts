@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { FiCircle } from 'react-icons/fi';
 import { IoMdClose } from 'react-icons/io';
@@ -86,36 +86,17 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
 
   // State
   const draftNoticeShownRef = useRef(false);
-  const [prevSearchDraftId, setPrevSearchDraftId] = useState<string | null>(searchDraftId);
-  const [manualSaveTimestamp, setManualSaveTimestamp] = useState<string | null>(null);
-  const [localDraftId, setLocalDraftId] = useState<string | null>(null);
+  const prevSearchDraftIdRef = useRef<string | null>(searchDraftId);
 
   // Queries
   const isAuthenticated = !!accessToken;
   const { data: draftList } = useDraftsQuery({ limit: 20 }, { enabled: isAuthenticated });
 
   // 파생 상태
-  const draftId = localDraftId ?? searchDraftId;
+  const draftId = searchDraftId ?? null;
   const { data: draftDetail } = useDraftDetailQuery(draftId ?? undefined, { enabled: isAuthenticated });
   const hasDrafts = (draftList?.items?.length ?? 0) > 0;
-  const lastSavedAt = manualSaveTimestamp ?? draftDetail?.updatedAt ?? null;
-
-  // draftId 변경 시 상태 초기화 (렌더링 중 처리)
-  if (prevSearchDraftId !== searchDraftId) {
-    setPrevSearchDraftId(searchDraftId);
-    setLocalDraftId(null);
-    setManualSaveTimestamp(null);
-
-    if (!searchDraftId || prevSearchDraftId) {
-      setFormData({
-        title: '',
-        categoryId: '',
-        thumbnailUrl: '',
-        content: '',
-        tags: [],
-      });
-    }
-  }
+  const lastSavedAt = draftDetail?.updatedAt ?? null;
 
   // draft 불러오기
   useEffect(() => {
@@ -128,6 +109,23 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
       tags: draftDetail.tags?.map(tag => tag.name) ?? [],
     });
   }, [draftDetail, setFormData]);
+
+  // draftId 변경 시 폼 초기화
+  useEffect(() => {
+    if (prevSearchDraftIdRef.current === searchDraftId) return;
+    const previousDraftId = prevSearchDraftIdRef.current;
+    prevSearchDraftIdRef.current = searchDraftId;
+
+    if (!searchDraftId || previousDraftId) {
+      setFormData({
+        title: '',
+        categoryId: '',
+        thumbnailUrl: '',
+        content: '',
+        tags: [],
+      });
+    }
+  }, [searchDraftId, setFormData]);
 
   // draft 알림 표시
   useEffect(() => {
@@ -193,11 +191,9 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
       } else {
         const response = await createPostMutation.mutateAsync(payload);
         savedDraftId = response.id;
-        setLocalDraftId(response.id);
         router.replace(`/posts/new?draftId=${response.id}`);
       }
 
-      setManualSaveTimestamp(new Date().toISOString());
       queryClient.invalidateQueries({ queryKey: postsKeys.drafts(), exact: false });
       if (savedDraftId) {
         queryClient.invalidateQueries({ queryKey: postsKeys.draft(savedDraftId) });
@@ -229,7 +225,6 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
         await createPostMutation.mutateAsync(payload);
       }
 
-      setManualSaveTimestamp(null);
       showToast({ message: TOAST_SAVE_SUCCESS_MESSAGE, type: 'success' });
       router.replace('/');
     } catch (error) {
