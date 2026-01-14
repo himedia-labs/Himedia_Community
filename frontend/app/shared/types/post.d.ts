@@ -1,3 +1,6 @@
+import type { ChangeEvent, CompositionEvent, FocusEvent, KeyboardEvent, MouseEvent, ReactNode, RefObject } from 'react';
+import type { IconType } from 'react-icons';
+
 export type ViewMode = 'list' | 'card';
 
 export type Post = {
@@ -142,3 +145,81 @@ export interface PostDetailResponse {
   author: PostAuthorRef | null;
   tags: PostTagRef[];
 }
+
+// Draft 관련
+export type DraftData = {
+  title: string;
+  categoryId: string;
+  thumbnailUrl: string;
+  content: string;
+  tags: string[];
+};
+
+// 컴포넌트 Props
+export type DraftNoticeModalProps = {
+  onClose: () => void;
+};
+
+export type PostDetailsFormProps = {
+  categoryId: string;
+  categories: Array<{ id: string; name: string }> | undefined;
+  isLoading: boolean;
+  onCategoryChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+  thumbnailUrl: string;
+  thumbnailInputRef: RefObject<HTMLInputElement | null>;
+  isThumbnailUploading: boolean;
+  onThumbnailChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onThumbnailFileClick: () => void;
+  onThumbnailFileSelect: (event: ChangeEvent<HTMLInputElement>) => void;
+  tagInput: string;
+  tags: string[];
+  tagLengthError: boolean;
+  hasTagSuggestions: boolean;
+  tagSuggestions: TagSuggestion[];
+  onTagChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onTagKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
+  onTagBlur: (event: FocusEvent<HTMLInputElement>) => void;
+  onTagCompositionStart: () => void;
+  onTagCompositionEnd: (event: CompositionEvent<HTMLInputElement>) => void;
+  onRemoveTag: (tag: string) => void;
+  onTagSuggestionMouseDown: (tagName: string) => (event: MouseEvent<HTMLButtonElement>) => void;
+};
+
+export type ToolbarButton = {
+  id: string;
+  icon: IconType;
+  label: string;
+  title: string;
+  onClick: () => void;
+};
+
+export type ToolbarItem = ToolbarButton | 'separator';
+
+export type EditorToolbarProps = {
+  onHeading: (level: 1 | 2 | 3) => void;
+  onBold: () => void;
+  onItalic: () => void;
+  onUnderline: () => void;
+  onStrike: () => void;
+  onQuote: () => void;
+  onCode: () => void;
+  onLink: () => void;
+  onImage: () => void;
+  onBullet: () => void;
+  onNumbered: () => void;
+};
+
+export type PostPreviewProps = {
+  title: string;
+  categoryName: string;
+  authorName: string;
+  dateLabel: string;
+  previewStats: {
+    views: number;
+    likeCount: number;
+    commentCount: number;
+  };
+  thumbnailUrl: string;
+  content: ReactNode;
+  tags: string[];
+};

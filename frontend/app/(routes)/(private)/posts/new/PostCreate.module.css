@@ -617,7 +617,7 @@ select.metaControl {
   height: 16px;
 }
 
-.previewCard {
+.postPreview {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -877,7 +877,14 @@ select.metaControl {
 .actionFooter {
   position: sticky;
   bottom: 0;
-  padding: 0 0 5rem;
+  width: 100%;
+  height: 72px;
+  padding: 0 1.5rem;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
   background: transparent;
   z-index: 2;
@@ -891,6 +898,10 @@ select.metaControl {
   background: #fff;
   color: #1f1f1f;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
@@ -898,6 +909,43 @@ select.metaControl {
 .actionButton:hover {
   background: #f2f2f2;
   border-color: rgba(0, 0, 0, 0.18);
+}
+
+.footerDivider {
+  color: #bfbfbf;
+}
+
+.footerCount {
+  color: #1f1f1f;
+  font-variant-numeric: tabular-nums;
+}
+
+.draftListButton {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 24px;
+  background-color: rgba(247, 247, 248, 0.9);
+  box-shadow: rgba(255, 255, 255, 0.2) 0 0 0 1px inset, rgba(0, 0, 0, 0.1) 0 4px 6px, rgba(0, 0, 0, 0.15) 0 8px 30px;
+  color: #555;
+  font-size: 22px;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.draftListButton:focus-visible {
+  outline: 2px solid rgba(0, 0, 0, 0.2);
+  outline-offset: 4px;
+}
+
+.draftListButton:active {
+  transform: translateY(1px) scale(0.92);
 }
 @media (width <= 900px) {
   .container {

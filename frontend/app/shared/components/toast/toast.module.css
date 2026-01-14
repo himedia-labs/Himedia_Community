@@ -16,8 +16,8 @@
 .toast {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
+  min-height: 30px;
+  padding: 12px 16px;
   background: #ffffff;
   border-radius: 14px;
   box-shadow: 0 18px 44px rgba(17, 24, 39, 0.12), 0 4px 14px rgba(17, 24, 39, 0.08);
@@ -39,38 +39,86 @@
   height: 16px;
   border-radius: 50%;
   flex-shrink: 0;
+  margin-right: 10px;
 }
 
 .icon svg {
   width: 12px;
   height: 12px;
-
   font-weight: bold;
 }
 
 .message {
   flex: 1;
   font-size: 0.95rem;
-  font-weight: 400;
-  line-height: 1.45;
+  line-height: 1;
+  padding: 0;
   color: #3a414d;
   white-space: pre-line;
+  transform: translateY(1px);
+  text-align: left;
 }
 
-.close {
-  border: none;
+.multiline {
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.multiline .icon {
+  margin-right: 6px;
+  margin-top: 2px;
+}
+
+.multiline .message {
+  line-height: 1.4;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-left: 12px;
+  align-items: center;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
   background: transparent;
-  color: #9ca3af;
-  font-size: 1.05rem;
-  padding: 4px;
-  line-height: 1;
-  border-radius: 50%;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #3a414d;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.close:hover {
-  background-color: #f3f4f6;
-  color: #4b5563;
+.actionButton:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.actionButton.action {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+.actionButton.action:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.actionButton.close {
+  padding: 4px 8px;
+  border: none;
+  color: #6b7280;
+}
+
+.actionButton.close:hover {
+  background: #f3f4f6;
+  color: #374151;
 }
 
 @keyframes popIn {
