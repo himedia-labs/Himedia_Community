@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { CiImport } from 'react-icons/ci';
 import { FiSend } from 'react-icons/fi';
@@ -90,6 +90,7 @@ export default function PostCreatePage() {
   const previewStats = DEFAULT_PREVIEW_STATS;
   const authorName = DEFAULT_AUTHOR_NAME;
   const draftCount = draftList?.items?.length ?? 0;
+  const previewContent = useMemo(() => renderMarkdownPreview(content), [content]);
 
   return (
     <section className={styles.container} aria-label="게시물 작성">
@@ -212,11 +213,7 @@ export default function PostCreatePage() {
             previewStats={previewStats}
             thumbnailUrl={thumbnailUrl}
             content={
-              content ? (
-                renderMarkdownPreview(content)
-              ) : (
-                <p className={styles.previewSummary}>본문을 입력하면 요약이 여기에 표시됩니다.</p>
-              )
+              content ? previewContent : <p className={styles.previewSummary}>본문을 입력하면 요약이 여기에 표시됩니다.</p>
             }
             tags={tags}
           />
