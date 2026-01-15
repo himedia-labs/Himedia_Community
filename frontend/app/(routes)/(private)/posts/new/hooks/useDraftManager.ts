@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { postsKeys } from '@/app/api/posts/posts.keys';
+import { buildPostPayload } from '@/app/api/posts/posts.payload';
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useDraftDetailQuery, useDraftsQuery } from '@/app/api/posts/posts.queries';
@@ -58,16 +59,6 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
     }
     return true;
   };
-
-  // payload 생성
-  const createPostPayload = (validated: ReturnType<typeof getValidatedFormData>, status: 'DRAFT' | 'PUBLISHED') => ({
-    status,
-    tags: validated.tags,
-    title: validated.title,
-    content: formData.content,
-    categoryId: validated.categoryId,
-    thumbnailUrl: draftId ? validated.thumbnail : validated.thumbnail || undefined,
-  });
 
   // 에러 핸들링
   const handleApiError = (error: unknown) => {
@@ -183,7 +174,17 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
     if (createPostMutation.isPending || updatePostMutation.isPending) return;
 
     try {
-      const payload = createPostPayload(validated, 'DRAFT');
+      const payload = buildPostPayload(
+        {
+          tags: validated.tags,
+          title: validated.title,
+          content: formData.content,
+          categoryId: validated.categoryId,
+          thumbnailUrl: validated.thumbnail,
+        },
+        'DRAFT',
+        { includeEmptyThumbnail: Boolean(draftId) },
+      );
 
       let savedDraftId = draftId;
       if (draftId) {
@@ -217,7 +218,17 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
     if (createPostMutation.isPending || updatePostMutation.isPending) return;
 
     try {
-      const payload = createPostPayload(validated, 'PUBLISHED');
+      const payload = buildPostPayload(
+        {
+          tags: validated.tags,
+          title: validated.title,
+          content: formData.content,
+          categoryId: validated.categoryId,
+          thumbnailUrl: validated.thumbnail,
+        },
+        'PUBLISHED',
+        { includeEmptyThumbnail: Boolean(draftId) },
+      );
 
       if (draftId) {
         await updatePostMutation.mutateAsync({ id: draftId, ...payload });

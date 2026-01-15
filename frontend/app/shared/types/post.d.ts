@@ -98,6 +98,16 @@ export type InlinePattern = {
   regex: RegExp;
 };
 
+export type PostPayloadInput = {
+  title: string;
+  content: string;
+  categoryId: string | null;
+  thumbnailUrl: string;
+  tags: string[];
+};
+
+export type PostPayloadStatus = 'DRAFT' | 'PUBLISHED';
+
 export interface CreatePostRequest {
   title: string;
   content: string;
