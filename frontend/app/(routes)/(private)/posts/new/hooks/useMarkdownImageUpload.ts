@@ -1,4 +1,4 @@
-import { type ChangeEvent, useRef } from 'react';
+import { type ChangeEvent, type ClipboardEvent, useRef } from 'react';
 
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useAuthStore } from '@/app/shared/store/authStore';
@@ -54,12 +54,8 @@ export const useMarkdownImageUpload = (params: MarkdownImageUploadParams) => {
     imageInputRef.current?.click();
   };
 
-  // 이미지 선택 후 마크다운 삽입
-  const handleImageSelect = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = '';
-    if (!file) return;
-
+  // 이미지 업로드 처리
+  const handleImageFile = async (file: File) => {
     if (!accessToken) {
       showToast({ message: '로그인 후 이용해주세요.', type: 'warning' });
       return;
@@ -99,12 +95,29 @@ export const useMarkdownImageUpload = (params: MarkdownImageUploadParams) => {
     }
   };
 
+  // 이미지 선택 후 마크다운 삽입
+  const handleImageSelect = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    await handleImageFile(file);
+  };
+
+  // 이미지 붙여넣기 처리
+  const handleImagePaste = async (event: ClipboardEvent<HTMLTextAreaElement>) => {
+    const file = event.clipboardData?.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    event.preventDefault();
+    await handleImageFile(file);
+  };
+
   return {
     refs: {
       imageInputRef,
     },
     handlers: {
       handleImageClick,
+      handleImagePaste,
       handleImageSelect,
     },
   };

@@ -109,7 +109,7 @@ export const useMarkdownEditor = (params: MarkdownEditorParams) => {
 
   const {
     refs: { imageInputRef },
-    handlers: { handleImageClick, handleImageSelect },
+    handlers: { handleImageClick, handleImagePaste, handleImageSelect },
   } = useMarkdownImageUpload({ content, contentRef, setContentValue, setContentAndSelection });
 
   // 제목 마크다운 적용
@@ -131,6 +131,7 @@ export const useMarkdownEditor = (params: MarkdownEditorParams) => {
     handleBulletClick,
     handleNumberedClick,
     handleImageClick,
+    handleImagePaste,
     handleImageSelect,
   };
 

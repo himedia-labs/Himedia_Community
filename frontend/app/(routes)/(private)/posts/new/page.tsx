@@ -77,6 +77,7 @@ export default function PostCreatePage() {
       handleBulletClick,
       handleNumberedClick,
       handleImageClick,
+      handleImagePaste,
       handleImageSelect,
     },
   } = useMarkdownEditor({ content, setContentValue: setContent });
@@ -182,6 +183,7 @@ export default function PostCreatePage() {
               placeholder="본문 내용을 입력하세요"
               value={content}
               ref={contentRef}
+              onPaste={handleImagePaste}
               onChange={handleContentChange}
             />
           </div>
