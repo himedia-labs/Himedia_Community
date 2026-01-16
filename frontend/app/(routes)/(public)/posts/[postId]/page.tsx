@@ -7,6 +7,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { FiEye, FiHeart, FiShare2 } from 'react-icons/fi';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 import { useSharePostMutation } from '@/app/api/posts/posts.mutations';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
@@ -93,7 +95,40 @@ export default function PostDetailPage() {
   if (isLoading) {
     return (
       <section className={styles.container} aria-label="게시물 상세">
-        <div className={styles.loading}>게시물을 불러오는 중입니다...</div>
+        <aside className={styles.actions} aria-label="게시물 반응">
+          <div className={styles.actionsInner}>
+            <div className={styles.actionButton} aria-hidden="true">
+              <Skeleton circle height={18} width={18} />
+              <Skeleton height={10} width={24} />
+            </div>
+            <div className={styles.actionButton} aria-hidden="true">
+              <Skeleton circle height={18} width={18} />
+              <Skeleton height={10} width={24} />
+            </div>
+            <div className={styles.actionButton} aria-hidden="true">
+              <Skeleton circle height={18} width={18} />
+              <Skeleton height={10} width={24} />
+            </div>
+          </div>
+        </aside>
+        <div className={styles.header}>
+          <Skeleton width={120} height={12} />
+          <Skeleton width="70%" height={42} />
+          <Skeleton width={220} height={14} />
+        </div>
+        <div className={styles.body}>
+          <div className={styles.mainContent}>
+            <div className={styles.thumbnail}>
+              <Skeleton height={700} borderRadius={16} />
+            </div>
+            <div className={styles.content}>
+              <Skeleton height={16} />
+              <Skeleton height={16} />
+              <Skeleton height={16} />
+              <Skeleton height={16} />
+            </div>
+          </div>
+        </div>
       </section>
     );
   }

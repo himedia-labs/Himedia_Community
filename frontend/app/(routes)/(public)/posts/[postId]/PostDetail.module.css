@@ -180,7 +180,6 @@
   background: rgba(0, 0, 0, 0.02);
 }
 
-.loading,
 .error {
   color: #7a7a7a;
   font-size: 1rem;
@@ -228,4 +227,5 @@
   .actionButton {
     width: 72px;
   }
+
 }
