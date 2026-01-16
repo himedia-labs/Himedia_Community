@@ -15,10 +15,11 @@ import { PostLike } from './entities/postLike.entity';
 import { PostTag } from './entities/postTag.entity';
 import { PostShareLog } from './entities/postShareLog.entity';
 import { Tag } from './entities/tag.entity';
+import { OptionalJwtGuard } from '../auth/guards/optional-jwt.guard';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Post, Category, Tag, PostTag, PostLike, PostImage, PostShareLog])],
   controllers: [PostsController, CategoriesController, TagsController],
-  providers: [PostsService, CategoriesService, TagsService, SnowflakeService],
+  providers: [PostsService, CategoriesService, TagsService, SnowflakeService, OptionalJwtGuard],
 })
 export class PostsModule {}
