@@ -31,3 +31,11 @@ export const useDraftDetailQuery = (postId?: string, options?: QueryOptions) => 
     enabled: Boolean(postId) && (options?.enabled ?? true),
   });
 };
+
+export const usePostDetailQuery = (postId?: string, options?: QueryOptions) => {
+  return useQuery<PostDetailResponse, Error>({
+    queryKey: postsKeys.detail(postId),
+    queryFn: () => postsApi.getPostDetail(postId ?? ''),
+    enabled: Boolean(postId) && (options?.enabled ?? true),
+  });
+};

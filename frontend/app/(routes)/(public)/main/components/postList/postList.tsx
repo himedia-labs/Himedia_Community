@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { PiList } from 'react-icons/pi';
@@ -81,10 +82,11 @@ export default function PostListSection() {
                 ))
               : filteredPosts.map(post => (
                   <li key={post.id}>
-                    <article className={styles.listItem}>
-                      <div className={styles.listBody}>
-                        <h3>{post.title}</h3>
-                        <p className={styles.summary}>{post.summary}</p>
+                    <Link className={styles.postLink} href={`/posts/${post.id}`}>
+                      <article className={styles.listItem}>
+                        <div className={styles.listBody}>
+                          <h3>{post.title}</h3>
+                          <p className={styles.summary}>{post.summary}</p>
                         <div className={styles.meta}>
                           <span className={styles.metaGroup}>
                             <span className={styles.metaItem}>
@@ -123,7 +125,8 @@ export default function PostListSection() {
                           aria-hidden="true"
                         />
                       ) : null}
-                    </article>
+                      </article>
+                    </Link>
                   </li>
                 ))}
           </ul>
@@ -146,7 +149,8 @@ export default function PostListSection() {
                 ))
               : filteredPosts.map(post => (
                   <li key={post.id}>
-                    <article className={styles.cardItem}>
+                    <Link className={styles.postLink} href={`/posts/${post.id}`}>
+                      <article className={styles.cardItem}>
                       {post.imageUrl ? (
                         <div
                           className={styles.cardThumb}
@@ -165,7 +169,8 @@ export default function PostListSection() {
                         <span>·</span>
                         <span>{post.timeAgo}</span>
                       </div>
-                    </article>
+                      </article>
+                    </Link>
                   </li>
                 ))}
           </ul>
@@ -193,7 +198,9 @@ export default function PostListSection() {
             : topPosts.map((item, index) => (
                 <li key={item.id}>
                   <span className={styles.rank}>{index + 1}</span>
-                  <span className={styles.topTitle}>{item.title}</span>
+                  <Link className={styles.topTitle} href={`/posts/${item.id}`}>
+                    {item.title}
+                  </Link>
                 </li>
               ))}
         </ol>

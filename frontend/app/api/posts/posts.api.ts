@@ -32,6 +32,12 @@ const getDraftDetail = async (postId: string): Promise<PostDetailResponse> => {
   return res.data;
 };
 
+// 게시물 상세 조회
+const getPostDetail = async (postId: string): Promise<PostDetailResponse> => {
+  const res = await axiosInstance.get<PostDetailResponse>(`/posts/${postId}`);
+  return res.data;
+};
+
 // 게시물 수정
 const updatePost = async (payload: UpdatePostRequest): Promise<UpdatePostResponse> => {
   const { id, ...body } = payload;
@@ -44,5 +50,6 @@ export const postsApi = {
   createPost,
   getDrafts,
   getDraftDetail,
+  getPostDetail,
   updatePost,
 };
