@@ -113,7 +113,7 @@ export const useMarkdownEditor = (params: MarkdownEditorParams) => {
   } = useMarkdownImageUpload({ content, contentRef, setContentValue, setContentAndSelection });
 
   // 제목 마크다운 적용
-  const handleHeadingClick = (level: 1 | 2 | 3) => () => applyLinePrefix(`${'#'.repeat(level)} `);
+  const handleHeadingClick = (level: 1 | 2 | 3) => applyLinePrefix(`${'#'.repeat(level)} `);
   // 인용 마크다운 적용
   const handleQuoteClick = () => applyLinePrefix('> ');
   // 불릿 리스트 마크다운 적용
