@@ -199,6 +199,11 @@ export interface PostViewResponse {
   viewCount: number;
 }
 
+export type PostDetailActionsParams = {
+  data?: PostDetailResponse | null;
+  postId: string;
+};
+
 // Draft 관련
 export type DraftData = {
   title: string;

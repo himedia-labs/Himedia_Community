@@ -215,7 +215,11 @@ export default function PostCreatePage() {
             previewStats={previewStats}
             thumbnailUrl={thumbnailUrl}
             content={
-              content ? previewContent : <p className={styles.previewSummary}>본문을 입력하면 요약이 여기에 표시됩니다.</p>
+              content ? (
+                previewContent
+              ) : (
+                <p className={styles.previewSummary}>본문을 입력하면 요약이 여기에 표시됩니다.</p>
+              )
             }
             tags={tags}
           />
