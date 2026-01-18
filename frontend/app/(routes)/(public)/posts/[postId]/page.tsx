@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
@@ -8,17 +8,17 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { FiEye, FiHeart, FiShare2 } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
 
-import { useSharePostMutation } from '@/app/api/posts/posts.mutations';
+import { useSharePostMutation, useViewPostMutation } from '@/app/api/posts/posts.mutations';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
 import { postsKeys } from '@/app/api/posts/posts.keys';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { POST_DETAIL_MESSAGES } from '@/app/shared/constants/messages/postDetail.message';
 import { renderMarkdownPreview } from '@/app/shared/utils/markdownPreview';
-import type { PostDetailResponse } from '@/app/shared/types/post';
 
+import 'react-loading-skeleton/dist/skeleton.css';
 import styles from './PostDetail.module.css';
+import type { PostDetailResponse } from '@/app/shared/types/post';
 
 const formatDate = (value?: string | null) => {
   if (!value) return '--';
@@ -56,6 +56,9 @@ export default function PostDetailPage() {
   // shared hooks
   const { showToast } = useToast();
   const queryClient = useQueryClient();
+  const viewTimerRef = useRef<number | null>(null);
+  const viewedPostIdRef = useRef<string | null>(null);
+  const { mutateAsync: viewPost } = useViewPostMutation();
   const { mutateAsync: sharePost } = useSharePostMutation();
 
   // route data
@@ -83,7 +86,7 @@ export default function PostDetailPage() {
 
     try {
       const response = await sharePost(postId);
-      queryClient.setQueryData<PostDetailResponse>(postsKeys.detail(postId), previous => {
+      queryClient.setQueryData<PostDetailResponse | undefined>(postsKeys.detail(postId), previous => {
         if (!previous) return previous;
         return { ...previous, shareCount: response.shareCount };
       });
@@ -91,6 +94,35 @@ export default function PostDetailPage() {
       showToast({ message: POST_DETAIL_MESSAGES.SHARE_COUNT_FAILURE, type: 'warning' });
     }
   }, [postId, queryClient, sharePost, showToast]);
+
+  useEffect(() => {
+    if (!postId || !data) return;
+    if (viewedPostIdRef.current === postId) return;
+
+    if (viewTimerRef.current) {
+      window.clearTimeout(viewTimerRef.current);
+    }
+
+    viewTimerRef.current = window.setTimeout(() => {
+      if (viewedPostIdRef.current === postId) return;
+      viewedPostIdRef.current = postId;
+
+      viewPost(postId)
+        .then(response => {
+          queryClient.setQueryData<PostDetailResponse | undefined>(postsKeys.detail(postId), previous => {
+            if (!previous) return previous;
+            return { ...previous, viewCount: response.viewCount };
+          });
+        })
+        .catch(() => null);
+    }, 10000);
+
+    return () => {
+      if (viewTimerRef.current) {
+        window.clearTimeout(viewTimerRef.current);
+      }
+    };
+  }, [data, postId, queryClient, viewPost]);
 
   if (isLoading) {
     return (

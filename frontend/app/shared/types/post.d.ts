@@ -195,6 +195,10 @@ export interface PostShareResponse {
   shareCount: number;
 }
 
+export interface PostViewResponse {
+  viewCount: number;
+}
+
 // Draft 관련
 export type DraftData = {
   title: string;

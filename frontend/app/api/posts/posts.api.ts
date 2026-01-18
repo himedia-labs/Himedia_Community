@@ -6,6 +6,7 @@ import type {
   PostListQuery,
   PostListResponse,
   PostShareResponse,
+  PostViewResponse,
   UpdatePostRequest,
   UpdatePostResponse,
 } from '@/app/shared/types/post';
@@ -45,6 +46,12 @@ const sharePost = async (postId: string): Promise<PostShareResponse> => {
   return res.data;
 };
 
+// 게시물 조회수 증가
+const viewPost = async (postId: string): Promise<PostViewResponse> => {
+  const res = await axiosInstance.post<PostViewResponse>(`/posts/${postId}/view`);
+  return res.data;
+};
+
 // 게시물 수정
 const updatePost = async (payload: UpdatePostRequest): Promise<UpdatePostResponse> => {
   const { id, ...body } = payload;
@@ -59,5 +66,6 @@ export const postsApi = {
   getDraftDetail,
   getPostDetail,
   sharePost,
+  viewPost,
   updatePost,
 };
