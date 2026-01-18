@@ -100,6 +100,19 @@ CREATE TABLE post_share_logs (
 CREATE INDEX idx_post_share_logs_user ON post_share_logs(post_id, user_id, created_at);
 CREATE INDEX idx_post_share_logs_lookup ON post_share_logs(post_id, ip, user_agent, created_at);
 
+-- 게시글 조회 로그 테이블
+CREATE TABLE post_view_logs (
+    id BIGINT PRIMARY KEY,
+    post_id BIGINT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    anonymous_id VARCHAR(64),
+    ip VARCHAR(64) NOT NULL,
+    user_agent VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 인덱스
+CREATE INDEX idx_post_view_logs_lookup ON post_view_logs(post_id, anonymous_id, ip, user_agent, created_at);
+
 -- 태그 테이블
 CREATE TABLE tags (
     id BIGINT PRIMARY KEY,
@@ -244,6 +257,14 @@ COMMENT ON COLUMN post_share_logs.user_id IS '공유 요청 사용자 ID';
 COMMENT ON COLUMN post_share_logs.ip IS '공유 요청 IP';
 COMMENT ON COLUMN post_share_logs.user_agent IS '공유 요청 User-Agent';
 COMMENT ON COLUMN post_share_logs.created_at IS '공유 로그 생성 일시';
+
+COMMENT ON TABLE post_view_logs IS '게시글 조회 로그 테이블';
+COMMENT ON COLUMN post_view_logs.id IS '조회 로그 고유 ID (Snowflake ID)';
+COMMENT ON COLUMN post_view_logs.post_id IS '게시글 ID';
+COMMENT ON COLUMN post_view_logs.anonymous_id IS '조회 요청 익명 ID';
+COMMENT ON COLUMN post_view_logs.ip IS '조회 요청 IP';
+COMMENT ON COLUMN post_view_logs.user_agent IS '조회 요청 User-Agent';
+COMMENT ON COLUMN post_view_logs.created_at IS '조회 로그 생성 일시';
 
 COMMENT ON TABLE tags IS '태그 테이블';
 COMMENT ON COLUMN tags.id IS '태그 고유 ID (Snowflake ID)';

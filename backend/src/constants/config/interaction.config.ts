@@ -1,0 +1,4 @@
+export const INTERACTION_CONFIG = {
+  ANONYMOUS_COOKIE_NAME: 'anonymousId',
+  ANONYMOUS_COOKIE_MAX_AGE_DAYS: 365,
+} as const;

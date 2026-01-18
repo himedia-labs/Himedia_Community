@@ -7,6 +7,7 @@ import { Tag } from './entities/tag.entity';
 import { PostTag } from './entities/postTag.entity';
 import { PostImage, PostImageType } from './entities/postImage.entity';
 import { PostShareLog } from './entities/postShareLog.entity';
+import { PostViewLog } from './entities/postViewLog.entity';
 import { ERROR_CODES } from '../constants/error/error-codes';
 import type { ErrorCode } from '../constants/error/error-codes';
 import { POST_ERROR_MESSAGES, POST_VALIDATION_MESSAGES } from '../constants/message/post.messages';
@@ -29,6 +30,7 @@ const ensurePublishFields = (fields: { title?: string | null; content?: string |
   }
 };
 
+const VIEW_WINDOW_HOURS = 24;
 const SHARE_WINDOW_MINUTES = 10;
 const IMAGE_URL_MAX_LENGTH = 500;
 
@@ -62,6 +64,8 @@ export class PostsService {
     private readonly postsRepository: Repository<Post>,
     @InjectRepository(PostShareLog)
     private readonly postShareLogRepository: Repository<PostShareLog>,
+    @InjectRepository(PostViewLog)
+    private readonly postViewLogRepository: Repository<PostViewLog>,
     private readonly snowflakeService: SnowflakeService,
   ) {}
 
@@ -466,7 +470,12 @@ export class PostsService {
   }
 
   // 공유 카운트 증가
-  async incrementShareCount(postId: string, ip: string, userAgent: string, userId?: string | null) {
+  async incrementShareCount(
+    postId: string,
+    ip: string,
+    userAgent: string,
+    userId?: string | null,
+  ): Promise<{ shareCount: number }> {
     const now = Date.now();
     const windowStart = new Date(now - SHARE_WINDOW_MINUTES * 60 * 1000);
     const safeIp = ip?.trim() || 'unknown';
@@ -526,6 +535,77 @@ export class PostsService {
 
     return {
       shareCount: post?.shareCount ?? 0,
+    };
+  }
+
+  // 조회수 증가
+  async incrementViewCount(
+    postId: string,
+    ip: string,
+    userAgent: string,
+    anonymousId: string,
+  ): Promise<{ viewCount: number }> {
+    const now = Date.now();
+    const windowStart = new Date(now - VIEW_WINDOW_HOURS * 60 * 60 * 1000);
+    const safeIp = ip?.trim() || 'unknown';
+    const safeUserAgent = userAgent?.trim() || 'unknown';
+    const safeAnonymousId = anonymousId?.trim() || 'unknown';
+
+    const existingLog = await this.postViewLogRepository.findOne({
+      where: {
+        postId,
+        anonymousId: safeAnonymousId,
+        ip: safeIp,
+        userAgent: safeUserAgent,
+        createdAt: MoreThan(windowStart),
+      },
+    });
+
+    if (!existingLog) {
+      const result = await this.postsRepository.increment(
+        { id: postId, status: PostStatus.PUBLISHED },
+        'viewCount',
+        1,
+      );
+
+      if (!result.affected) {
+        const code = ERROR_CODES.POST_NOT_FOUND as ErrorCode;
+        throw new NotFoundException({
+          message: POST_ERROR_MESSAGES.POST_NOT_FOUND,
+          code,
+        });
+      }
+
+      const log = this.postViewLogRepository.create({
+        id: this.snowflakeService.generate(),
+        postId,
+        anonymousId: safeAnonymousId,
+        ip: safeIp.slice(0, 64),
+        userAgent: safeUserAgent.slice(0, 255),
+      });
+      await this.postViewLogRepository.save(log);
+    } else {
+      const postExists = await this.postsRepository.findOne({
+        where: { id: postId, status: PostStatus.PUBLISHED },
+        select: { id: true },
+      });
+
+      if (!postExists) {
+        const code = ERROR_CODES.POST_NOT_FOUND as ErrorCode;
+        throw new NotFoundException({
+          message: POST_ERROR_MESSAGES.POST_NOT_FOUND,
+          code,
+        });
+      }
+    }
+
+    const post = await this.postsRepository.findOne({
+      where: { id: postId },
+      select: { id: true, viewCount: true },
+    });
+
+    return {
+      viewCount: post?.viewCount ?? 0,
     };
   }
 }
