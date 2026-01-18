@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from 'react';
 
+import { useRouter } from 'next/navigation';
 import { CiImport } from 'react-icons/ci';
 import { FiSend } from 'react-icons/fi';
 import { RxWidth } from 'react-icons/rx';
@@ -21,6 +22,9 @@ import styles from './PostCreate.module.css';
 import type { DraftData } from '@/app/shared/types/post';
 
 export default function PostCreatePage() {
+  // 라우트 훅
+  const router = useRouter();
+
   // 기본 폼 상태
   const { state: formState, setters: formSetters, handlers: formHandlers } = usePostForm();
   const { title, categoryId, thumbnailUrl, content, titleLengthError } = formState;
@@ -226,6 +230,13 @@ export default function PostCreatePage() {
         </aside>
       </div>
       <footer className={styles.actionFooter}>
+        <button
+          type="button"
+          className={`${styles.actionButton} ${styles.actionButtonExit}`}
+          onClick={() => router.push('/')}
+        >
+          <span>나가기</span>
+        </button>
         <button
           type="button"
           className={styles.actionButton}

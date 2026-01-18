@@ -908,6 +908,10 @@ select.metaControl {
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
+.actionButtonExit {
+  margin-right: auto;
+}
+
 .actionButton:hover {
   background: #f2f2f2;
   border-color: rgba(0, 0, 0, 0.18);
