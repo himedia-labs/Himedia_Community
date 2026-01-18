@@ -1,31 +1,41 @@
 'use client';
 
-import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
+
 import Image from 'next/image';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { authKeys } from '@/app/api/auth/auth.keys';
-import { authenticateUser } from './login.handlers';
-import { useToast } from '@/app/shared/components/toast/toast';
 import { useLoginMutation } from '@/app/api/auth/auth.mutations';
-import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
+import { useToast } from '@/app/shared/components/toast/toast';
+import { EMAIL_MESSAGES, LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
+
+import { authenticateUser } from './login.handlers';
 
 import styles from './login.module.css';
 
 export default function LoginPage() {
-  // Hooks & Mutations
+  // 라우트/쿼리
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const reason = searchParams.get('reason');
+  const redirectParam = searchParams.get('redirect');
+  const redirectTo = redirectParam?.startsWith('/') ? redirectParam : '/';
+
+  // 공통 훅
+  const { showToast } = useToast();
   const queryClient = useQueryClient();
   const loginMutation = useLoginMutation();
-  const { showToast } = useToast();
+  const authToastShownRef = useRef(false);
 
-  // Form
+  // 폼 상태
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // Error
+  // 에러 상태
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
@@ -35,12 +45,21 @@ export default function LoginPage() {
     password,
     setEmailError,
     setPasswordError,
+    redirectTo,
     loginMutation,
     showToast,
     queryClient,
     authKeys,
     router,
   });
+
+  // 리다이렉트 안내
+  useEffect(() => {
+    if (authToastShownRef.current) return;
+    if (reason !== 'auth') return;
+    showToast({ message: LOGIN_MESSAGES.requireAuth, type: 'warning' });
+    authToastShownRef.current = true;
+  }, [reason, showToast]);
 
   return (
     <div className={styles.container}>

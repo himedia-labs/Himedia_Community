@@ -15,6 +15,7 @@ export const authenticateUser = (params: {
   password: string;
   setEmailError: (value: string) => void;
   setPasswordError: (value: string) => void;
+  redirectTo?: string | null;
   loginMutation: UseMutationResult<AuthResponse, Error, LoginRequest>;
   showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
   queryClient: QueryClient;
@@ -55,7 +56,7 @@ export const authenticateUser = (params: {
           // 로그인 응답의 사용자 정보를 React Query 캐시에 저장 (GET /auth/me 중복 호출 방지)
           params.queryClient.setQueryData(params.authKeys.currentUser, data.user);
           params.showToast({ message: LOGIN_MESSAGES.success, type: 'success' });
-          params.router.push('/');
+          params.router.push(params.redirectTo ?? '/');
         },
         // 로그인 실패 시
         onError: (error: unknown) => {
