@@ -9,11 +9,11 @@ import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import { POST_DETAIL_MESSAGES } from '@/app/shared/constants/messages/post.message';
 import { VIEW_DELAY_MS } from '@/app/shared/constants/config/post.config';
 import { useAuthStore } from '@/app/shared/store/authStore';
-import { renderMarkdownPreview } from '@/app/shared/utils/markdownPreview';
+import { extractMarkdownHeadings, renderMarkdownPreview } from '@/app/shared/utils/markdownPreview';
 
 import { copyToClipboard } from './postDetail.utils';
 
-import type { PostDetailActionsParams, PostDetailResponse } from '@/app/shared/types/post';
+import type { PostDetailActionsParams, PostDetailResponse, PostTocItem } from '@/app/shared/types/post';
 
 /**
  * 게시물 상세 액션 훅
@@ -90,6 +90,7 @@ export const usePostDetailActions = ({ data, postId }: PostDetailActionsParams) 
 
   // 프리뷰 컨텐츠
   const previewContent = useMemo(() => renderMarkdownPreview(data?.content ?? ''), [data?.content]);
+  const tocItems = useMemo<PostTocItem[]>(() => extractMarkdownHeadings(data?.content ?? ''), [data?.content]);
 
   // 좋아요 클릭
   const handleLikeClick = useCallback(() => {
@@ -97,5 +98,5 @@ export const usePostDetailActions = ({ data, postId }: PostDetailActionsParams) 
     showToast({ message: LOGIN_MESSAGES.requireAuth, type: 'warning' });
   }, [accessToken, showToast]);
 
-  return { handleShareCopy, handleLikeClick, previewContent };
+  return { handleShareCopy, handleLikeClick, previewContent, tocItems };
 };

@@ -13,6 +13,7 @@ import { usePostDetailActions } from './postDetail.hooks';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from './PostDetail.module.css';
+import type { MouseEvent } from 'react';
 
 /**
  * 게시물 상세 페이지
@@ -28,7 +29,14 @@ export default function PostDetailPage() {
   const shareCount = data?.shareCount ?? 0;
   const thumbnailUrl = data?.thumbnailUrl ?? null;
   const hasThumbnail = Boolean(thumbnailUrl);
-  const { handleShareCopy, handleLikeClick, previewContent } = usePostDetailActions({ data, postId });
+  const { handleShareCopy, handleLikeClick, previewContent, tocItems } = usePostDetailActions({ data, postId });
+  const handleTocClick = (id: string) => (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    const target = document.getElementById(id);
+    if (!target) return;
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.history.replaceState(null, '', `#${id}`);
+  };
 
   if (isLoading) {
     return (
@@ -105,6 +113,28 @@ export default function PostDetailPage() {
           </button>
         </div>
       </aside>
+      {tocItems.length > 0 ? (
+        <aside className={styles.toc} aria-label="본문 목차">
+          <div className={styles.tocInner}>
+            <div className={styles.tocTitle}>목차</div>
+            <ul className={styles.tocList}>
+              {tocItems.map(item => (
+                <li key={item.id} className={styles.tocItem}>
+                  <a
+                    href={`#${item.id}`}
+                    onClick={handleTocClick(item.id)}
+                    className={`${styles.tocLink} ${
+                      item.level === 2 ? styles.tocLevel2 : item.level === 3 ? styles.tocLevel3 : ''
+                    }`}
+                  >
+                    {item.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </aside>
+      ) : null}
 
       <div className={styles.header}>
         <div className={styles.category}>{data.category?.name ?? 'ALL'}</div>
