@@ -3,6 +3,10 @@ import { FaReact } from 'react-icons/fa';
 
 import styles from './banner.module.css';
 
+/**
+ * 메인 배너
+ * @description 배너 이미지와 데코 아이콘을 렌더링합니다.
+ */
 export default function Banner() {
   return (
     <section className={styles.banner} aria-label="하이미디어 배너">
