@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 
 import { useToast } from '@/app/shared/components/toast/toast';
-import { TITLE_MAX_LENGTH } from '@/app/shared/constants/limits/postCreate.limit';
+import { TITLE_MAX_LENGTH } from '@/app/shared/constants/config/post.config';
 
 import type { ChangeEvent } from 'react';
 import type { DraftData } from '@/app/shared/types/post';

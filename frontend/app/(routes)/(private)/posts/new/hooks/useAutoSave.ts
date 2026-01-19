@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-import { AUTO_SAVE_DELAY_MS } from '@/app/shared/constants/limits/postCreate.limit';
+import { AUTO_SAVE_DELAY_MS } from '@/app/shared/constants/config/post.config';
 
 import type { AutoSaveParams } from '@/app/shared/types/post';
 

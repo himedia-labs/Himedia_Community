@@ -1,35 +1,26 @@
 import { useEffect, useState } from 'react';
 
-import { formatPhone } from './register.handlers';
 import { sessionStorage } from '@/app/shared/utils/session-storage';
+import {
+  REGISTER_FORM_CACHE_KEY,
+  REGISTER_FORM_CACHE_KEEP_KEY,
+  REGISTER_FORM_DEFAULT,
+} from '@/app/shared/constants/config/register.config';
+
+import { formatPhone } from './register.handlers';
 
 import type { RegisterFormCache } from '@/app/shared/types/register';
-
-// 폼 캐시 세션 키
-const FORM_CACHE_KEY = 'registerFormCache';
-// 약관 페이지 이동 시 보존 플래그 키
-const FORM_CACHE_KEEP_KEY = 'registerFormCacheKeep';
-
-// 폼 기본값
-const DEFAULT_FORM_CACHE: RegisterFormCache = {
-  name: '',
-  email: '',
-  password: '',
-  passwordConfirm: '',
-  phone: '',
-  role: '',
-  course: '',
-  privacyConsent: false,
-};
 
 /**
  * 회원가입 폼 훅
  * @description 폼 상태와 캐시 동기화를 관리
  */
 export const useRegisterForm = () => {
-  const [form, setForm] = useState<RegisterFormCache>(() => sessionStorage.getItem(FORM_CACHE_KEY, DEFAULT_FORM_CACHE));
-  const [hasCache, setHasCache] = useState(() => sessionStorage.hasItem(FORM_CACHE_KEY));
-  const [restoredFromKeep] = useState<boolean>(() => sessionStorage.hasItem(FORM_CACHE_KEEP_KEY));
+  const [form, setForm] = useState<RegisterFormCache>(() =>
+    sessionStorage.getItem(REGISTER_FORM_CACHE_KEY, REGISTER_FORM_DEFAULT),
+  );
+  const [hasCache, setHasCache] = useState(() => sessionStorage.hasItem(REGISTER_FORM_CACHE_KEY));
+  const [restoredFromKeep] = useState<boolean>(() => sessionStorage.hasItem(REGISTER_FORM_CACHE_KEEP_KEY));
 
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -49,26 +40,26 @@ export const useRegisterForm = () => {
 
   // 캐시 삭제 + 폼 초기화
   const clearFormCache = () => {
-    sessionStorage.removeItem(FORM_CACHE_KEY);
-    sessionStorage.removeItem(FORM_CACHE_KEEP_KEY);
-    setForm(DEFAULT_FORM_CACHE);
+    sessionStorage.removeItem(REGISTER_FORM_CACHE_KEY);
+    sessionStorage.removeItem(REGISTER_FORM_CACHE_KEEP_KEY);
+    setForm(REGISTER_FORM_DEFAULT);
     setHasCache(false);
   };
 
   // 세션 스토리지 캐시 저장
   useEffect(() => {
-    sessionStorage.setItem(FORM_CACHE_KEY, form);
+    sessionStorage.setItem(REGISTER_FORM_CACHE_KEY, form);
   }, [form]);
 
   // 약관 페이지 이동 시 플래그 저장, 이탈 시 캐시 정리
   useEffect(() => {
     if (restoredFromKeep) {
-      sessionStorage.removeItem(FORM_CACHE_KEEP_KEY);
+      sessionStorage.removeItem(REGISTER_FORM_CACHE_KEEP_KEY);
     }
 
     return () => {
-      if (!sessionStorage.hasItem(FORM_CACHE_KEEP_KEY)) {
-        sessionStorage.removeItem(FORM_CACHE_KEY);
+      if (!sessionStorage.hasItem(REGISTER_FORM_CACHE_KEEP_KEY)) {
+        sessionStorage.removeItem(REGISTER_FORM_CACHE_KEY);
       }
       setHasCache(false);
     };
@@ -108,7 +99,7 @@ export const useRegisterForm = () => {
       handlePhoneChange,
       clearFormCache,
       // 약관 페이지 이동 시 캐시 보존 플래그 설정
-      markKeepCache: () => sessionStorage.setItem(FORM_CACHE_KEEP_KEY, '1'),
+      markKeepCache: () => sessionStorage.setItem(REGISTER_FORM_CACHE_KEEP_KEY, '1'),
     },
     hasCache,
     restoredFromKeep,

@@ -12,7 +12,7 @@ import {
   DEFAULT_AUTHOR_NAME,
   DEFAULT_CATEGORY_LABEL,
   DEFAULT_PREVIEW_STATS,
-} from '@/app/shared/constants/ui/postCreate.ui';
+} from '@/app/shared/constants/config/post.config';
 
 import { EditorToolbar, PostPreview, PostDetailsForm } from './components';
 import { renderMarkdownPreview, formatDateLabel } from './postCreate.utils';

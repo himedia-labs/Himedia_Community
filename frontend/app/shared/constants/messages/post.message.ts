@@ -1,4 +1,10 @@
-// 토스트 메시지
+// 게시물 관련 메시지
+export const POST_DETAIL_MESSAGES = {
+  SHARE_COPY_FAILURE: '링크 복사에 실패했습니다.',
+  SHARE_COPY_SUCCESS: '링크가 복사되었습니다.',
+  SHARE_COUNT_FAILURE: '공유 수 업데이트에 실패했습니다.',
+} as const;
+
 export const TOAST_DRAFT_SAVED_MESSAGE = '임시저장 완료';
 export const TOAST_TITLE_REQUIRED_MESSAGE = '제목을 입력해주세요.';
 export const TOAST_CATEGORY_REQUIRED_MESSAGE = '카테고리를 선택해주세요.';

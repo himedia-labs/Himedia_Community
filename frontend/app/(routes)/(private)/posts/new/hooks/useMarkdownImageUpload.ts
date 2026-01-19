@@ -3,13 +3,13 @@ import { useRef } from 'react';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { useUploadImageMutation } from '@/app/api/uploads/uploads.mutations';
-import { THUMBNAIL_MAX_SIZE } from '@/app/shared/constants/limits/postCreate.limit';
+import { THUMBNAIL_MAX_SIZE } from '@/app/shared/constants/config/post.config';
 import {
   TOAST_IMAGE_UPLOAD_FAILURE_MESSAGE,
   TOAST_IMAGE_UPLOAD_SIZE_MESSAGE,
   TOAST_IMAGE_UPLOAD_SUCCESS_MESSAGE,
   TOAST_IMAGE_UPLOAD_TYPE_MESSAGE,
-} from '@/app/shared/constants/messages/postCreate.message';
+} from '@/app/shared/constants/messages/post.message';
 
 import type { AxiosError } from 'axios';
 import type { ChangeEvent, ClipboardEvent } from 'react';

@@ -5,8 +5,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { postsKeys } from '@/app/api/posts/posts.keys';
 import { useSharePostMutation, useViewPostMutation } from '@/app/api/posts/posts.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
-import { POST_DETAIL_MESSAGES } from '@/app/shared/constants/messages/postDetail.message';
-import { VIEW_DELAY_MS } from '@/app/shared/constants/limits/postDetail.limit';
+import { POST_DETAIL_MESSAGES } from '@/app/shared/constants/messages/post.message';
+import { VIEW_DELAY_MS } from '@/app/shared/constants/config/post.config';
 import { renderMarkdownPreview } from '@/app/shared/utils/markdownPreview';
 
 import { copyToClipboard } from './postDetail.utils';

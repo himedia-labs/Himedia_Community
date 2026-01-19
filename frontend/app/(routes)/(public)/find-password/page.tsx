@@ -12,9 +12,8 @@ import {
   useVerifyResetCodeMutation,
 } from '@/app/api/auth/auth.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
-import { EMAIL_REGEX } from '@/app/shared/constants/limits/auth.limit';
+import { EMAIL_REGEX, RESET_CODE_EXPIRY_SECONDS } from '@/app/shared/constants/config/auth.config';
 import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
-import { RESET_CODE_EXPIRY_SECONDS } from '@/app/shared/constants/limits/passwordReset.limit';
 
 import { resetPasswordState, resetPassword, sendCode, verifyCode } from './find-password.handlers';
 import { formatCode, formatRemainingTime, isValidPassword } from './find-password.utils';

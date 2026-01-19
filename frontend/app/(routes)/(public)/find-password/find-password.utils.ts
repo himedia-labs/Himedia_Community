@@ -1,4 +1,4 @@
-import { PASSWORD_PATTERN } from '@/app/shared/constants/limits/passwordReset.limit';
+import { PASSWORD_PATTERN } from '@/app/shared/constants/config/auth.config';
 
 /**
  * 비밀번호 검증

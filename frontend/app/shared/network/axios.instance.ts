@@ -2,7 +2,7 @@ import { AxiosError, isAxiosError } from 'axios';
 
 import { useAuthStore } from '../store/authStore';
 import { axiosBare, axiosInstance } from './axios.config';
-import { PUBLIC_AUTH_PATHS } from '../constants/config/publicPaths.config';
+import { PUBLIC_AUTH_PATHS } from '../constants/config/auth.config';
 
 import type { RetriableConfig } from '../types/axios';
 

@@ -10,7 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { authKeys } from '@/app/api/auth/auth.keys';
 import { useLoginMutation } from '@/app/api/auth/auth.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
-import { EMAIL_REGEX } from '@/app/shared/constants/limits/auth.limit';
+import { EMAIL_REGEX } from '@/app/shared/constants/config/auth.config';
 import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 
 import { authenticateUser } from './login.handlers';

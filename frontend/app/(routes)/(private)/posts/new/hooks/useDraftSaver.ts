@@ -12,8 +12,8 @@ import {
   TOAST_SAVE_FAILURE_MESSAGE,
   TOAST_SAVE_SUCCESS_MESSAGE,
   TOAST_TITLE_REQUIRED_MESSAGE,
-} from '@/app/shared/constants/messages/postCreate.message';
-import { DRAFT_TOAST_DURATION_MS } from '@/app/shared/constants/limits/postCreate.limit';
+} from '@/app/shared/constants/messages/post.message';
+import { DRAFT_TOAST_DURATION_MS } from '@/app/shared/constants/config/post.config';
 
 import type { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/app/shared/types/error';

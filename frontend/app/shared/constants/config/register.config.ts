@@ -12,3 +12,27 @@ export const COURSE_OPTIONS = [
   '데이터 분석 양성과정 2기',
   '기타',
 ] as const;
+
+// 폼 캐시 키
+export const REGISTER_FORM_CACHE_KEY = 'registerFormCache';
+
+// 폼 캐시 보존 플래그 키
+export const REGISTER_FORM_CACHE_KEEP_KEY = 'registerFormCacheKeep';
+
+// 폼 기본값
+export const REGISTER_FORM_DEFAULT = {
+  name: '',
+  email: '',
+  password: '',
+  passwordConfirm: '',
+  phone: '',
+  role: '',
+  course: '',
+  privacyConsent: false,
+};
+
+// 전화번호 입력 설정
+export const PHONE_CONFIG = {
+  DIGIT_MAX_LENGTH: 11,
+  DISPLAY_FORMAT: 'XXX XXXX XXXX',
+};

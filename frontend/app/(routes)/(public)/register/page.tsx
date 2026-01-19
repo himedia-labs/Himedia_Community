@@ -13,10 +13,9 @@ import { register } from './register.handlers';
 import { isValidPassword } from '@/app/shared/utils/password';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
-import { PHONE_CONFIG } from '@/app/shared/constants/config/phone.config';
-import { EMAIL_REGEX } from '@/app/shared/constants/limits/auth.limit';
+import { EMAIL_REGEX } from '@/app/shared/constants/config/auth.config';
 import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
-import { COURSE_OPTIONS } from '@/app/shared/constants/ui/register.ui';
+import { COURSE_OPTIONS, PHONE_CONFIG } from '@/app/shared/constants/config/register.config';
 
 import styles from './register.module.css';
 
