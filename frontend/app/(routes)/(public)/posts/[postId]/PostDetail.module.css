@@ -34,8 +34,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #7a7a7a;
-  font-size: 0.9rem;
+  color: #a5a5a5;
+  font-size: 1rem;
 }
 
 .metaDivider {
@@ -56,6 +56,14 @@
   pointer-events: none;
 }
 
+.toc {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  pointer-events: none;
+}
+
 .actionsInner {
   display: flex;
   flex-direction: column;
@@ -66,6 +74,20 @@
   left: calc(50% - 622px);
   height: max-content;
   width: 60px;
+  pointer-events: auto;
+}
+
+.tocInner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: sticky;
+  top: 17.8rem;
+  right: 50%;
+  left: auto;
+  transform: translateX(72.5rem);
+  height: max-content;
+  width: 220px;
   pointer-events: auto;
 }
 
@@ -133,6 +155,7 @@
 .content h3 {
   margin: 0;
   color: #1f1f1f;
+  scroll-margin-top: 10rem;
 }
 
 .content h1 {
@@ -186,6 +209,56 @@
   background: rgba(0, 0, 0, 0.02);
 }
 
+.tocTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f1f1f;
+}
+
+.tocList {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  position: relative;
+}
+
+.tocList::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(0, 0, 0, 0.12);
+  left: 0.8rem;
+}
+
+.tocItem {
+  margin: 0;
+}
+
+.tocLink {
+  color: #4a4a4a;
+  text-decoration: none;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  display: block;
+}
+
+.tocLink:hover {
+  color: #1f1f1f;
+}
+
+.tocLevel2 {
+  padding-left: 0.85rem;
+}
+
+.tocLevel3 {
+  padding-left: 1.6rem;
+}
+
 .error {
   color: #7a7a7a;
   font-size: 1rem;
@@ -228,6 +301,10 @@
     flex-direction: row;
     justify-content: flex-start;
     margin-top: 0;
+  }
+
+  .toc {
+    display: none;
   }
 
   .actionButton {
