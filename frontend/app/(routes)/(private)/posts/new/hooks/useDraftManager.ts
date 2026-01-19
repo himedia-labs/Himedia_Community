@@ -12,6 +12,10 @@ import { mapDraftToForm } from '../postCreate.utils';
 
 import type { DraftData } from '@/app/shared/types/post';
 
+/**
+ * 임시저장 관리
+ * @description 임시저장 불러오기, 저장, 발행 및 자동저장을 통합 관리합니다.
+ */
 export const useDraftManager = (formData: DraftData, setFormData: (data: Partial<DraftData>) => void) => {
   // 라우터 및 유틸리티
   const router = useRouter();
@@ -22,17 +26,17 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
   const searchDraftId = searchParams.get('draftId');
 
   // State
-  const prevSearchDraftIdRef = useRef<string | null>(searchDraftId);
+  const prevSearchDraftIdRef = useRef<string>(searchDraftId);
 
   // Queries
   const isAuthenticated = !!accessToken;
   const { data: draftList } = useDraftsQuery({ limit: 20 }, { enabled: isAuthenticated });
 
   // 파생 상태
-  const draftId = searchDraftId ?? null;
+  const draftId = searchDraftId;
   const { data: draftDetail } = useDraftDetailQuery(draftId ?? undefined, { enabled: isAuthenticated });
   const hasDrafts = (draftList?.items?.length ?? 0) > 0;
-  const lastSavedAt = draftDetail?.updatedAt ?? null;
+  const lastSavedAt = draftDetail?.updatedAt;
 
   // draft 불러오기
   useEffect(() => {
@@ -46,7 +50,7 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
     const previousDraftId = prevSearchDraftIdRef.current;
     prevSearchDraftIdRef.current = searchDraftId;
 
-    if (!searchDraftId || previousDraftId) {
+    if (!searchDraftId) {
       setFormData({
         title: '',
         categoryId: '',

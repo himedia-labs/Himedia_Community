@@ -1,35 +1,31 @@
-import {
-  type ChangeEvent,
-  type CompositionEvent,
-  type Dispatch,
-  type FocusEvent,
-  type KeyboardEvent,
-  type MouseEvent,
-  type SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useTagSuggestionsQuery } from '@/app/api/tags/tags.queries';
 import { TAG_MAX_COUNT, TAG_MAX_LENGTH } from '@/app/shared/constants/limits/postCreate.limit';
 
-import { createAddTagsFromInput, createCommitTagInput } from '../postCreate.handlers';
 import { getTagQueryFromInput } from '../postCreate.utils';
+import { createAddTagsFromInput, createCommitTagInput } from '../postCreate.handlers';
 
-// 태그 입력 관리 hook
+import type { ChangeEvent, CompositionEvent, FocusEvent, KeyboardEvent, MouseEvent } from 'react';
+
+// 태그 커밋 트리거 키
+const COMMIT_KEYS = ['Enter', ' ', ','];
+
+/**
+ * 태그 입력 관리
+ * @description 태그 입력, 추천, 자동완성 및 한글 조합 처리를 관리합니다.
+ */
 export const useTagInput = () => {
   const { showToast } = useToast();
-  const [tagInput, setTagInput] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
-  const [tagLengthError, setTagLengthError] = useState(false);
   const [tagQuery, setTagQuery] = useState('');
-  const shouldCommitAfterComposition = useRef(false);
+  const [tagInput, setTagInput] = useState('');
   const isComposingRef = useRef(false);
+  const [tags, setTags] = useState<string[]>([]);
   const pendingBlurCommitRef = useRef(false);
   const tagLimitNotifiedRef = useRef(false);
+  const [tagLengthError, setTagLengthError] = useState(false);
+  const shouldCommitAfterComposition = useRef(false);
 
   const { data: tagSuggestions = [] } = useTagSuggestionsQuery(tagQuery);
   const hasTagSuggestions = tagQuery.length > 0 && tagSuggestions.length > 0;
@@ -46,13 +42,13 @@ export const useTagInput = () => {
   const handleTagKeyDown = useCallback(
     (event: KeyboardEvent<HTMLInputElement>) => {
       if ('isComposing' in event.nativeEvent && event.nativeEvent.isComposing) {
-        if (event.key === 'Enter' || event.key === ' ' || event.key === ',') {
+        if (COMMIT_KEYS.includes(event.key)) {
           shouldCommitAfterComposition.current = true;
         }
         return;
       }
 
-      if (event.key === 'Enter' || event.key === ' ' || event.key === ',') {
+      if (COMMIT_KEYS.includes(event.key)) {
         event.preventDefault();
         commitTagInput(tagInput);
         return;

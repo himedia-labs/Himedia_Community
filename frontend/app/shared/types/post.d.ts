@@ -223,6 +223,12 @@ export type DraftSaverParams = {
   isAuthenticated: boolean;
 };
 
+export type AutoSaveParams = {
+  formData: DraftData;
+  isAuthenticated: boolean;
+  saveDraft: (options?: { silent?: boolean }) => Promise<void>;
+};
+
 // 컴포넌트 Props
 export type DraftNoticeModalProps = {
   onClose: () => void;

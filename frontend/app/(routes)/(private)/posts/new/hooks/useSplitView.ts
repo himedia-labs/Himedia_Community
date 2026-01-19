@@ -1,10 +1,14 @@
-import { type PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { DEFAULT_SPLIT_LEFT, SPLIT_MAX, SPLIT_MIN } from '@/app/shared/constants/limits/postCreate.limit';
 
+import type { PointerEvent as ReactPointerEvent } from 'react';
 import type { SplitViewOptions } from '@/app/shared/types/post';
 
-// 분할 뷰 드래그 관리 hook
+/**
+ * 분할 뷰 드래그 관리
+ * @description 에디터와 프리뷰를 나누는 분할선 드래그 기능을 제공합니다.
+ */
 export const useSplitView = (options: SplitViewOptions = {}) => {
   const { defaultValue = DEFAULT_SPLIT_LEFT, min = SPLIT_MIN, max = SPLIT_MAX } = options;
   const splitRef = useRef<HTMLDivElement | null>(null);
@@ -25,7 +29,6 @@ export const useSplitView = (options: SplitViewOptions = {}) => {
     const rect = container.getBoundingClientRect();
     const nextValue = ((clientX - rect.left) / rect.width) * 100;
     const clamped = Math.min(max, Math.max(min, nextValue));
-    container.style.setProperty('--split-left', `${clamped}%`);
     setSplitLeft(clamped);
   };
 

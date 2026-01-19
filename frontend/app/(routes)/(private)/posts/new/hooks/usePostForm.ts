@@ -1,19 +1,23 @@
-import { type ChangeEvent, useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import { useToast } from '@/app/shared/components/toast/toast';
 import { TITLE_MAX_LENGTH } from '@/app/shared/constants/limits/postCreate.limit';
 
+import type { ChangeEvent } from 'react';
 import type { DraftData } from '@/app/shared/types/post';
 
-// 기본 폼 상태 관리 hook
+/**
+ * 게시물 폼 상태 관리
+ * @description 제목, 카테고리, 썸네일, 본문의 기본 폼 상태를 관리합니다.
+ */
 export const usePostForm = () => {
   const { showToast } = useToast();
   const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [thumbnailUrl, setThumbnailUrl] = useState('');
-  const [content, setContent] = useState('');
-  const [titleLengthError, setTitleLengthError] = useState(false);
   const titleLimitNotifiedRef = useRef(false);
+  const [titleLengthError, setTitleLengthError] = useState(false);
 
   const handleTitleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -51,15 +55,12 @@ export const usePostForm = () => {
     setContent(event.target.value);
   };
 
-  const applyPartial = useCallback(
-    (data: Partial<DraftData>) => {
-      if (data.title !== undefined) setTitle(data.title);
-      if (data.categoryId !== undefined) setCategoryId(data.categoryId);
-      if (data.thumbnailUrl !== undefined) setThumbnailUrl(data.thumbnailUrl);
-      if (data.content !== undefined) setContent(data.content);
-    },
-    [setTitle, setCategoryId, setThumbnailUrl, setContent],
-  );
+  const applyPartial = useCallback((data: Partial<DraftData>) => {
+    if (data.title !== undefined) setTitle(data.title);
+    if (data.categoryId !== undefined) setCategoryId(data.categoryId);
+    if (data.thumbnailUrl !== undefined) setThumbnailUrl(data.thumbnailUrl);
+    if (data.content !== undefined) setContent(data.content);
+  }, []);
 
   return {
     state: {

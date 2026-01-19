@@ -16,10 +16,13 @@ import {
 import { DRAFT_TOAST_DURATION_MS } from '@/app/shared/constants/limits/postCreate.limit';
 
 import type { AxiosError } from 'axios';
-import type { DraftSaveOptions, DraftSaverParams } from '@/app/shared/types/post';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
+import type { DraftSaveOptions, DraftSaverParams } from '@/app/shared/types/post';
 
-// draft 저장/발행 hook
+/**
+ * 임시저장 및 발행
+ * @description 게시물 임시저장과 발행 처리, 유효성 검증을 담당합니다.
+ */
 export const useDraftSaver = ({ formData, draftId, isAuthenticated }: DraftSaverParams) => {
   const router = useRouter();
   const { showToast } = useToast();
@@ -33,7 +36,7 @@ export const useDraftSaver = ({ formData, draftId, isAuthenticated }: DraftSaver
     title: formData.title.trim(),
     content: formData.content.trim(),
     thumbnail: formData.thumbnailUrl.trim(),
-    categoryId: formData.categoryId || null,
+    categoryId: formData.categoryId,
   });
 
   // 발행 필수 항목 검증
@@ -89,7 +92,7 @@ export const useDraftSaver = ({ formData, draftId, isAuthenticated }: DraftSaver
         {
           tags: validated.tags,
           title: validated.title,
-          content: formData.content,
+          content: validated.content,
           categoryId: validated.categoryId,
           thumbnailUrl: validated.thumbnail,
         },
@@ -133,7 +136,7 @@ export const useDraftSaver = ({ formData, draftId, isAuthenticated }: DraftSaver
         {
           tags: validated.tags,
           title: validated.title,
-          content: formData.content,
+          content: validated.content,
           categoryId: validated.categoryId,
           thumbnailUrl: validated.thumbnail,
         },

@@ -1,4 +1,4 @@
-import { type ChangeEvent, type ClipboardEvent, useRef } from 'react';
+import { useRef } from 'react';
 
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useAuthStore } from '@/app/shared/store/authStore';
@@ -11,18 +11,22 @@ import {
   TOAST_IMAGE_UPLOAD_TYPE_MESSAGE,
 } from '@/app/shared/constants/messages/postCreate.message';
 
+import type { ChangeEvent, ClipboardEvent } from 'react';
 import type { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
 import type { MarkdownImageUploadParams, SelectionRange } from '@/app/shared/types/post';
 
-// 마크다운 이미지 업로드 hook
+/**
+ * 마크다운 이미지 업로드
+ * @description 에디터 내 이미지 선택/붙여넣기, 업로드 및 마크다운 삽입을 처리합니다.
+ */
 export const useMarkdownImageUpload = (params: MarkdownImageUploadParams) => {
   const { content, contentRef, setContentValue, setContentAndSelection } = params;
   const { showToast } = useToast();
   const { accessToken } = useAuthStore();
   const uploadImageMutation = useUploadImageMutation();
-  const imageInputRef = useRef<HTMLInputElement | null>(null);
   const selectionRef = useRef<SelectionRange | null>(null);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
 
   // 커서 선택 범위 저장
   const captureSelection = () => {

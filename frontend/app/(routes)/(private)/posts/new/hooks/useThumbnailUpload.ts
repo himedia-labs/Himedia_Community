@@ -1,4 +1,4 @@
-import { type ChangeEvent, useRef } from 'react';
+import { useRef } from 'react';
 
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useUploadThumbnailMutation } from '@/app/api/uploads/uploads.mutations';
@@ -11,18 +11,21 @@ import {
   TOAST_THUMBNAIL_UPLOAD_TYPE_MESSAGE,
 } from '@/app/shared/constants/messages/postCreate.message';
 
+import type { ChangeEvent } from 'react';
 import type { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
 
-// 썸네일 업로드 관리 hook
+/**
+ * 썸네일 업로드
+ * @description 썸네일 이미지 파일 선택, 업로드 및 유효성 검증을 처리합니다.
+ */
 export const useThumbnailUpload = (onUploadSuccess: (url: string) => void) => {
   const { showToast } = useToast();
   const { accessToken } = useAuthStore();
-  const uploadThumbnailMutation = useUploadThumbnailMutation();
-  const thumbnailInputRef = useRef<HTMLInputElement | null>(null);
-
   const isAuthenticated = !!accessToken;
+  const uploadThumbnailMutation = useUploadThumbnailMutation();
   const isThumbnailUploading = uploadThumbnailMutation.isPending;
+  const thumbnailInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleThumbnailFileClick = () => {
     if (!isAuthenticated) {
@@ -37,11 +40,6 @@ export const useThumbnailUpload = (onUploadSuccess: (url: string) => void) => {
     const file = event.target.files?.[0];
     event.target.value = '';
     if (!file) return;
-
-    if (!isAuthenticated) {
-      showToast({ message: '로그인 후 이용해주세요.', type: 'warning' });
-      return;
-    }
 
     if (!file.type.startsWith('image/')) {
       showToast({ message: TOAST_THUMBNAIL_UPLOAD_TYPE_MESSAGE, type: 'warning' });

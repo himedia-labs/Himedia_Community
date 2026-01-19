@@ -2,21 +2,22 @@ import { useEffect, useRef } from 'react';
 
 import { AUTO_SAVE_DELAY_MS } from '@/app/shared/constants/limits/postCreate.limit';
 
-import type { DraftData } from '@/app/shared/types/post';
+import type { AutoSaveParams } from '@/app/shared/types/post';
 
-interface UseAutoSaveParams {
-  formData: DraftData;
-  isAuthenticated: boolean;
-  saveDraft: (options?: { silent?: boolean }) => Promise<void>;
-}
-
-export const useAutoSave = ({ formData, isAuthenticated, saveDraft }: UseAutoSaveParams) => {
+/**
+ * 자동 저장
+ * @description 폼 데이터 변경 후 일정 시간이 지나면 자동으로 임시저장합니다.
+ */
+export const useAutoSave = ({ formData, isAuthenticated, saveDraft }: AutoSaveParams) => {
+  // Ref
   const saveDraftRef = useRef(saveDraft);
 
+  // saveDraft 참조 동기화
   useEffect(() => {
     saveDraftRef.current = saveDraft;
   }, [saveDraft]);
 
+  // 자동 저장 타이머
   useEffect(() => {
     const hasDraft =
       formData.title.trim() ||
