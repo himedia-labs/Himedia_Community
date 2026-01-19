@@ -11,8 +11,8 @@ import {
   TOAST_IMAGE_UPLOAD_TYPE_MESSAGE,
 } from '@/app/shared/constants/messages/postCreate.message';
 
-import type { ChangeEvent, ClipboardEvent } from 'react';
 import type { AxiosError } from 'axios';
+import type { ChangeEvent, ClipboardEvent } from 'react';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
 import type { MarkdownImageUploadParams, SelectionRange } from '@/app/shared/types/post';
 

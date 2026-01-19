@@ -11,14 +11,22 @@ import type { DraftData } from '@/app/shared/types/post';
  * @description 제목, 카테고리, 썸네일, 본문의 기본 폼 상태를 관리합니다.
  */
 export const usePostForm = () => {
+  // 공통 훅
   const { showToast } = useToast();
+
+  // 폼 상태
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [thumbnailUrl, setThumbnailUrl] = useState('');
-  const titleLimitNotifiedRef = useRef(false);
+
+  // 에러 상태
   const [titleLengthError, setTitleLengthError] = useState(false);
 
+  // 제한 상태
+  const titleLimitNotifiedRef = useRef(false);
+
+  // 입력 핸들러
   const handleTitleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
@@ -43,18 +51,22 @@ export const usePostForm = () => {
     [showToast],
   );
 
+  // 셀렉트 핸들러
   const handleCategoryChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setCategoryId(event.target.value);
   };
 
+  // 썸네일 핸들러
   const handleThumbnailChange = (event: ChangeEvent<HTMLInputElement>) => {
     setThumbnailUrl(event.target.value);
   };
 
+  // 본문 핸들러
   const handleContentChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setContent(event.target.value);
   };
 
+  // 폼 갱신
   const applyPartial = useCallback((data: Partial<DraftData>) => {
     if (data.title !== undefined) setTitle(data.title);
     if (data.categoryId !== undefined) setCategoryId(data.categoryId);
