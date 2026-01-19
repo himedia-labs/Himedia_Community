@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -10,12 +10,18 @@ import { useQueryClient } from '@tanstack/react-query';
 import { authKeys } from '@/app/api/auth/auth.keys';
 import { useLoginMutation } from '@/app/api/auth/auth.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
-import { EMAIL_MESSAGES, LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
+import { EMAIL_REGEX } from '@/app/shared/constants/limits/auth.limit';
+import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 
 import { authenticateUser } from './login.handlers';
+import { useLoginRedirectToast } from './login.hooks';
 
 import styles from './login.module.css';
 
+/**
+ * 로그인 페이지
+ * @description 이메일/비밀번호 로그인을 처리합니다.
+ */
 export default function LoginPage() {
   // 라우트/쿼리
   const router = useRouter();
@@ -29,7 +35,6 @@ export default function LoginPage() {
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const loginMutation = useLoginMutation();
-  const authToastShownRef = useRef(false);
 
   // 폼 상태
   const [email, setEmail] = useState('');
@@ -54,12 +59,7 @@ export default function LoginPage() {
   });
 
   // 리다이렉트 안내
-  useEffect(() => {
-    if (authToastShownRef.current) return;
-    if (reason !== 'auth') return;
-    showToast({ message: LOGIN_MESSAGES.requireAuth, type: 'warning' });
-    authToastShownRef.current = true;
-  }, [reason, showToast]);
+  useLoginRedirectToast({ reason, showToast });
 
   return (
     <div className={styles.container}>
@@ -90,7 +90,7 @@ export default function LoginPage() {
                 onChange={e => {
                   setEmail(e.target.value);
                   const next = e.target.value;
-                  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(next)) {
+                  if (!EMAIL_REGEX.test(next)) {
                     setEmailError(EMAIL_MESSAGES.invalid);
                   } else if (emailError) {
                     setEmailError('');
