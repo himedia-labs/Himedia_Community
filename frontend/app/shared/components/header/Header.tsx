@@ -1,13 +1,13 @@
 'use client';
 
-import Link from 'next/link';
+import { useState } from 'react';
+
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { CiLogin } from 'react-icons/ci';
 import { useQueryClient } from '@tanstack/react-query';
-import { CiBellOff, CiBellOn, CiMenuBurger, CiSearch, CiUser } from 'react-icons/ci';
+import { CiBellOff, CiBellOn, CiLogin, CiMenuBurger, CiUser } from 'react-icons/ci';
 
 import { authKeys } from '@/app/api/auth/auth.keys';
 // import { useScroll } from '@/app/shared/hooks/useScroll';
@@ -17,50 +17,50 @@ import { useAuthStore } from '@/app/shared/store/authStore';
 
 import { HeaderConfig } from './Header.config';
 import { handleLogout as createHandleLogout } from './Header.handlers';
+import { usePostDetailPath } from './hooks/usePostDetailPath';
+import { useScrollProgress } from './hooks/useScrollProgress';
 
 import styles from './Header.module.css';
-import type { HeaderProps, NavItem } from './Header.types';
-
-const NAV_ITEMS: NavItem[] = [
-  { label: '알림', Icon: CiBellOn },
-  { label: '검색', Icon: CiSearch },
-  { label: '로그인/프로필', isAuthDependent: true },
-];
+import type { HeaderProps } from './Header.types';
 
 /**
  * 공통 헤더
  * @description 로그인 상태에 따라 메뉴를 표시
  */
 export default function Header({ initialIsLoggedIn }: HeaderProps) {
+  // 라우터 훅
   const router = useRouter();
   const pathname = usePathname();
+
+  // UI 상태
+  const [isBellOn, setIsBellOn] = useState(true);
+
+  // 요청 훅
   const queryClient = useQueryClient();
   const logoutMutation = useLogoutMutation();
-  // const isScrolled = useScroll(0);
-  const [isBellOn, setIsBellOn] = useState(true);
-  const [initialLoginFlag, setInitialLoginFlag] = useState(initialIsLoggedIn);
+
+  // 인증 상태
   const { accessToken, isInitialized } = useAuthStore();
   const clearAuth = useAuthStore(state => state.clearAuth);
+
+  // 알림 유틸
   const { showToast } = useToast();
 
   // 로그인 상태
-  // - initialLoginFlag: 로그인 후 리다이렉트 시 아이콘 변화가 없기에 필수
-  // - accessToken: 새로고침 시 초기화된 상태 복구 용도
-  const isLoggedIn = isInitialized ? !!accessToken : !!accessToken || initialLoginFlag;
+  // - initialIsLoggedIn: 서버 쿠키 기반 초기 상태
+  // - accessToken: 클라이언트 토큰 상태
+  const isLoggedIn = isInitialized ? !!accessToken : !!accessToken || initialIsLoggedIn;
 
-  useEffect(() => {
-    if (!isInitialized) return;
-    if (!accessToken) {
-      setInitialLoginFlag(false);
-    }
-  }, [isInitialized, accessToken]);
+  // 파생 상태
+  const isPostDetail = usePostDetailPath(pathname);
+  const scrollProgress = useScrollProgress(isPostDetail);
 
   // 특정 경로에서는 Header 숨김
   if (HeaderConfig.hidePaths.includes(pathname)) {
     return null;
   }
 
-  // 알림 아이콘 토글 (on/off)
+  // 알림 토글
   const toggleBell = () => setIsBellOn(prev => !prev);
 
   // 로그아웃 핸들러
@@ -71,7 +71,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
     authKeys,
     showToast,
     router,
-    onLogoutSuccess: () => setInitialLoginFlag(false),
+    onLogoutSuccess: () => null,
   });
 
   return (
@@ -89,7 +89,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
 
         <nav className={styles.nav} aria-label="주요 메뉴">
           <ul>
-            {NAV_ITEMS.map(item => {
+            {HeaderConfig.navItems.map(item => {
               if (item.isAuthDependent) {
                 const Icon = isLoggedIn ? CiLogin : CiUser;
                 const label = isLoggedIn ? '로그아웃' : '로그인';
@@ -158,6 +158,11 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
           <CiMenuBurger />
         </button>
       </div>
+      {isPostDetail ? (
+        <div className={styles.progressBar} aria-hidden="true">
+          <span className={styles.progressFill} style={{ width: `${scrollProgress}%` }} />
+        </div>
+      ) : null}
     </header>
   );
 }
