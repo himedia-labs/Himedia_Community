@@ -150,6 +150,7 @@ export const useDraftSaver = ({ formData, draftId, isAuthenticated }: DraftSaver
         await createPostMutation.mutateAsync(payload);
       }
 
+      queryClient.invalidateQueries({ queryKey: ['posts', 'list'] });
       showToast({ message: TOAST_SAVE_SUCCESS_MESSAGE, type: 'success' });
       router.replace('/');
     } catch (error) {
