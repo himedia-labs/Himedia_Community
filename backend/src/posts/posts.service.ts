@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, MoreThan, Repository } from 'typeorm';
+import { In, IsNull, MoreThan, Repository } from 'typeorm';
 
 import { Post, PostStatus } from './entities/post.entity';
 import { Tag } from './entities/tag.entity';
@@ -9,6 +9,7 @@ import { PostImage, PostImageType } from './entities/postImage.entity';
 import { PostLike } from './entities/postLike.entity';
 import { PostShareLog } from './entities/postShareLog.entity';
 import { PostViewLog } from './entities/postViewLog.entity';
+import { Comment } from '../comments/entities/comment.entity';
 import { ERROR_CODES } from '../constants/error/error-codes';
 import { AUTH_ERROR_MESSAGES } from '../constants/message/auth.messages';
 import { POST_ERROR_MESSAGES, POST_VALIDATION_MESSAGES } from '../constants/message/post.messages';
@@ -75,6 +76,8 @@ export class PostsService {
     private readonly postShareLogRepository: Repository<PostShareLog>,
     @InjectRepository(PostViewLog)
     private readonly postViewLogRepository: Repository<PostViewLog>,
+    @InjectRepository(Comment)
+    private readonly commentsRepository: Repository<Comment>,
     private readonly snowflakeService: SnowflakeService,
   ) {}
 
@@ -474,6 +477,9 @@ export class PostsService {
     }
 
     const liked = userId ? Boolean(await this.postLikeRepository.findOne({ where: { postId, userId } })) : false;
+    const commentCount = await this.commentsRepository.count({
+      where: { postId: post.id, deletedAt: IsNull() },
+    });
 
     return {
       id: post.id,
@@ -483,6 +489,7 @@ export class PostsService {
       status: post.status,
       viewCount: post.viewCount,
       likeCount: post.likeCount,
+      commentCount,
       liked,
       shareCount: post.shareCount,
       createdAt: post.createdAt,

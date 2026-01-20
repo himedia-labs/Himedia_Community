@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 
 import { ERROR_CODES } from '../constants/error/error-codes';
 import type { ErrorCode } from '../constants/error/error-codes';
@@ -32,7 +32,7 @@ export class CommentsService {
     }
 
     const comments = await this.commentsRepository.find({
-      where: { postId },
+      where: { postId, deletedAt: IsNull() },
       order: { createdAt: 'ASC' },
       relations: { author: true },
     });
@@ -46,7 +46,6 @@ export class CommentsService {
       dislikeCount: comment.dislikeCount,
       createdAt: comment.createdAt,
       updatedAt: comment.updatedAt,
-      deletedAt: comment.deletedAt,
       author: comment.author ? { id: comment.author.id, name: comment.author.name } : null,
     }));
   }

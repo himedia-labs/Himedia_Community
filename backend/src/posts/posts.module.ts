@@ -17,9 +17,12 @@ import { PostShareLog } from './entities/postShareLog.entity';
 import { PostViewLog } from './entities/postViewLog.entity';
 import { Tag } from './entities/tag.entity';
 import { OptionalJwtGuard } from '../auth/guards/optional-jwt.guard';
+import { Comment } from '../comments/entities/comment.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Post, Category, Tag, PostTag, PostLike, PostImage, PostShareLog, PostViewLog])],
+  imports: [
+    TypeOrmModule.forFeature([Post, Category, Tag, PostTag, PostLike, PostImage, PostShareLog, PostViewLog, Comment]),
+  ],
   controllers: [PostsController, CategoriesController, TagsController],
   providers: [PostsService, CategoriesService, TagsService, SnowflakeService, OptionalJwtGuard],
 })

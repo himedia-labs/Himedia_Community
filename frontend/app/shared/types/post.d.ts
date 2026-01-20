@@ -189,6 +189,7 @@ export interface PostDetailResponse {
   status: PostStatus;
   viewCount: number;
   likeCount: number;
+  commentCount: number;
   liked: boolean;
   shareCount: number;
   createdAt: string;
