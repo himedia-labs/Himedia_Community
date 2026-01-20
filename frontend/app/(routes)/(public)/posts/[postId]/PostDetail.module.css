@@ -9,9 +9,6 @@
   gap: 0.75rem;
   max-width: 960px;
   margin: 0 auto;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  padding-bottom: 1.5rem;
-  margin-bottom: 2rem;
 }
 
 .category {
@@ -42,6 +39,13 @@
   color: #c2c2c2;
 }
 
+.headerDivider {
+  max-width: 960px;
+  height: 1px;
+  margin: 2rem auto 2rem;
+  background: rgba(0, 0, 0, 0.08);
+}
+
 .body {
   position: relative;
   max-width: 960px;
@@ -70,7 +74,7 @@
   gap: 0.75rem;
   align-items: center;
   position: sticky;
-  top: 17.8rem;
+  top: 18.3rem;
   left: calc(50% - 622px);
   height: max-content;
   width: 60px;
@@ -82,7 +86,7 @@
   flex-direction: column;
   gap: 0.75rem;
   position: sticky;
-  top: 17.8rem;
+  top: 18.3rem;
   right: 50%;
   left: auto;
   transform: translateX(72.5rem);
@@ -140,8 +144,6 @@
 .actionValue :global(*) {
   line-height: 1;
 }
-
-
 
 .mainContent {
   max-width: 960px;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -18,7 +18,8 @@ import { formatDate } from './postDetail.utils';
 
 import styles from './PostDetail.module.css';
 import 'react-loading-skeleton/dist/skeleton.css';
-import type { MouseEvent } from 'react';
+
+import type { CSSProperties, MouseEvent } from 'react';
 
 /**
  * 게시물 상세 페이지
@@ -35,11 +36,27 @@ export default function PostDetailPage() {
   const isInitialized = useAuthStore(state => state.isInitialized);
 
   // 파생 데이터
+  const viewCount = data?.viewCount ?? 0;
   const likeCount = data?.likeCount ?? 0;
   const shareCount = data?.shareCount ?? 0;
-  const viewCount = data?.viewCount ?? 0;
   const thumbnailUrl = data?.thumbnailUrl ?? null;
   const hasThumbnail = Boolean(thumbnailUrl);
+
+  // 레이아웃 상태
+  const [actionsTop, setActionsTop] = useState<number | null>(null);
+  const containerRef = useRef<HTMLElement | null>(null);
+  const mainContentRef = useRef<HTMLDivElement | null>(null);
+
+  // 레이아웃 계산
+  const updateActionsTop = useCallback(() => {
+    const mainContent = mainContentRef.current;
+    if (!mainContent) return;
+    const nextTop = Math.max(0, mainContent.offsetTop);
+    setActionsTop(nextTop);
+  }, []);
+  const containerStyle = actionsTop === null ? undefined : ({ '--actions-top': `${actionsTop}px` } as CSSProperties);
+
+  // 액션 핸들러
   const { handleShareCopy, handleLikeClick, previewContent, tocItems } = usePostDetailActions({ data, postId });
   const handleTocClick = (id: string) => (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -49,11 +66,18 @@ export default function PostDetailPage() {
     window.history.replaceState(null, '', `#${id}`);
   };
 
-  // 로그인 토큰 초기화 후 좋아요 상태 갱신
+  // 토큰 갱신
   useEffect(() => {
     if (!isInitialized || !accessToken) return;
     refetch().catch(() => null);
   }, [accessToken, isInitialized, refetch]);
+
+  // 레이아웃 갱신
+  useEffect(() => {
+    updateActionsTop();
+    window.addEventListener('resize', updateActionsTop);
+    return () => window.removeEventListener('resize', updateActionsTop);
+  }, [thumbnailUrl, tocItems.length, updateActionsTop]);
 
   if (isLoading) {
     return (
@@ -108,7 +132,7 @@ export default function PostDetailPage() {
   }
 
   return (
-    <section className={styles.container} aria-label="게시물 상세">
+    <section className={styles.container} style={containerStyle} ref={containerRef} aria-label="게시물 상세">
       <aside className={styles.actions} aria-label="게시물 반응">
         <div className={`${styles.actionsInner} ${hasThumbnail ? '' : styles.actionsNoThumb}`}>
           <button
@@ -175,9 +199,10 @@ export default function PostDetailPage() {
           <span className={styles.metaItem}>{data.author?.name ?? '익명'}</span>
         </div>
       </div>
+      <div className={styles.headerDivider} aria-hidden="true" />
 
       <div className={styles.body}>
-        <div className={styles.mainContent}>
+        <div className={styles.mainContent} ref={mainContentRef}>
           {thumbnailUrl ? (
             <div className={styles.thumbnail}>
               <Image
@@ -188,6 +213,7 @@ export default function PostDetailPage() {
                 sizes="100vw"
                 unoptimized
                 priority
+                onLoadingComplete={updateActionsTop}
                 style={{ width: '100%', height: 'auto' }}
               />
             </div>
