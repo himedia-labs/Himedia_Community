@@ -182,6 +182,7 @@ export interface PostDetailResponse {
   status: PostStatus;
   viewCount: number;
   likeCount: number;
+  liked: boolean;
   shareCount: number;
   createdAt: string;
   updatedAt: string;
@@ -199,6 +200,11 @@ export interface PostViewResponse {
   viewCount: number;
 }
 
+export interface PostLikeResponse {
+  likeCount: number;
+  liked: boolean;
+}
+
 export type PostDetailActionsParams = {
   data?: PostDetailResponse | null;
   postId: string;
@@ -209,6 +215,8 @@ export type PostTocItem = {
   level: 1 | 2 | 3;
   text: string;
 };
+
+
 
 // Draft 관련
 export type DraftData = {

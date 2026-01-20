@@ -4,6 +4,7 @@ import { postsApi } from './posts.api';
 import type {
   CreatePostRequest,
   CreatePostResponse,
+  PostLikeResponse,
   PostShareResponse,
   PostViewResponse,
   UpdatePostRequest,
@@ -35,5 +36,12 @@ export const useSharePostMutation = () => {
 export const useViewPostMutation = () => {
   return useMutation<PostViewResponse, Error, string>({
     mutationFn: postsApi.viewPost,
+  });
+};
+
+// 게시물 좋아요 토글
+export const useLikePostMutation = () => {
+  return useMutation<PostLikeResponse, Error, string>({
+    mutationFn: postsApi.likePost,
   });
 };

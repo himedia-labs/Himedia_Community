@@ -112,6 +112,10 @@
   padding: 0;
 }
 
+.actionButtonActive {
+  color: #ef4444;
+}
+
 .actionItem {
   cursor: default;
 }
@@ -125,7 +129,19 @@
 .actionValue {
   font-size: 14px;
   color: #6f6f6f;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  height: 1em;
+  vertical-align: middle;
+  text-rendering: geometricPrecision;
 }
+
+.actionValue :global(*) {
+  line-height: 1;
+}
+
+
 
 .mainContent {
   max-width: 960px;

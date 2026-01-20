@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { postsKeys } from '@/app/api/posts/posts.keys';
-import { useSharePostMutation, useViewPostMutation } from '@/app/api/posts/posts.mutations';
+import { useLikePostMutation, useSharePostMutation, useViewPostMutation } from '@/app/api/posts/posts.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import { POST_DETAIL_MESSAGES } from '@/app/shared/constants/messages/post.message';
@@ -23,11 +23,16 @@ export const usePostDetailActions = ({ data, postId }: PostDetailActionsParams) 
   // 공통 훅
   const { showToast } = useToast();
   const queryClient = useQueryClient();
-  const viewTimerRef = useRef<number | null>(null);
-  const viewedPostIdRef = useRef<string | null>(null);
   const accessToken = useAuthStore(state => state.accessToken);
+
+  // 뮤테이션 훅
+  const { mutateAsync: likePost } = useLikePostMutation();
   const { mutateAsync: viewPost } = useViewPostMutation();
   const { mutateAsync: sharePost } = useSharePostMutation();
+
+  // 타이머 ref
+  const viewTimerRef = useRef<number | null>(null);
+  const viewedPostIdRef = useRef<string | null>(null);
 
   // 캐시 갱신
   const updateDetailCache = useCallback(
@@ -93,10 +98,20 @@ export const usePostDetailActions = ({ data, postId }: PostDetailActionsParams) 
   const tocItems = useMemo<PostTocItem[]>(() => extractMarkdownHeadings(data?.content ?? ''), [data?.content]);
 
   // 좋아요 클릭
-  const handleLikeClick = useCallback(() => {
-    if (accessToken) return;
-    showToast({ message: LOGIN_MESSAGES.requireAuth, type: 'warning' });
-  }, [accessToken, showToast]);
+  const handleLikeClick = useCallback(async () => {
+    if (!postId) return;
+    if (!accessToken) {
+      showToast({ message: LOGIN_MESSAGES.requireAuth, type: 'warning' });
+      return;
+    }
+
+    try {
+      const response = await likePost(postId);
+      updateDetailCache({ likeCount: response.likeCount, liked: response.liked });
+    } catch {
+      showToast({ message: POST_DETAIL_MESSAGES.LIKE_COUNT_FAILURE, type: 'warning' });
+    }
+  }, [accessToken, likePost, postId, showToast, updateDetailCache]);
 
   return { handleShareCopy, handleLikeClick, previewContent, tocItems };
 };

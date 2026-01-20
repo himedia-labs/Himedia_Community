@@ -1,18 +1,23 @@
 'use client';
 
+import { useEffect } from 'react';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
-import Skeleton from 'react-loading-skeleton';
+import NumberFlow from '@number-flow/react';
+import { FaHeart } from 'react-icons/fa';
 import { FiEye, FiHeart, FiShare2 } from 'react-icons/fi';
+import Skeleton from 'react-loading-skeleton';
 
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
-import { formatDate } from './postDetail.utils';
+import { useAuthStore } from '@/app/shared/store/authStore';
 import { usePostDetailActions } from './postDetail.hooks';
+import { formatDate } from './postDetail.utils';
 
-import 'react-loading-skeleton/dist/skeleton.css';
 import styles from './PostDetail.module.css';
+import 'react-loading-skeleton/dist/skeleton.css';
 import type { MouseEvent } from 'react';
 
 /**
@@ -23,10 +28,16 @@ export default function PostDetailPage() {
   // 라우트 데이터
   const params = useParams();
   const postId = typeof params?.postId === 'string' ? params.postId : '';
-  const { data, isLoading, isError } = usePostDetailQuery(postId, { enabled: Boolean(postId) });
+  const { data, isLoading, isError, refetch } = usePostDetailQuery(postId, { enabled: Boolean(postId) });
+
+  // 인증 상태
+  const accessToken = useAuthStore(state => state.accessToken);
+  const isInitialized = useAuthStore(state => state.isInitialized);
 
   // 파생 데이터
+  const likeCount = data?.likeCount ?? 0;
   const shareCount = data?.shareCount ?? 0;
+  const viewCount = data?.viewCount ?? 0;
   const thumbnailUrl = data?.thumbnailUrl ?? null;
   const hasThumbnail = Boolean(thumbnailUrl);
   const { handleShareCopy, handleLikeClick, previewContent, tocItems } = usePostDetailActions({ data, postId });
@@ -37,6 +48,12 @@ export default function PostDetailPage() {
     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     window.history.replaceState(null, '', `#${id}`);
   };
+
+  // 로그인 토큰 초기화 후 좋아요 상태 갱신
+  useEffect(() => {
+    if (!isInitialized || !accessToken) return;
+    refetch().catch(() => null);
+  }, [accessToken, isInitialized, refetch]);
 
   if (isLoading) {
     return (
@@ -94,13 +111,22 @@ export default function PostDetailPage() {
     <section className={styles.container} aria-label="게시물 상세">
       <aside className={styles.actions} aria-label="게시물 반응">
         <div className={`${styles.actionsInner} ${hasThumbnail ? '' : styles.actionsNoThumb}`}>
-          <button type="button" className={styles.actionButton} aria-label="좋아요" onClick={handleLikeClick}>
-            <FiHeart aria-hidden="true" />
-            <span className={styles.actionValue}>{data.likeCount.toLocaleString()}</span>
+          <button
+            type="button"
+            className={`${styles.actionButton} ${data.liked ? styles.actionButtonActive : ''}`}
+            aria-label="좋아요"
+            onClick={handleLikeClick}
+          >
+            {data.liked ? <FaHeart aria-hidden="true" /> : <FiHeart aria-hidden="true" />}
+            <span className={styles.actionValue}>
+              <NumberFlow value={likeCount} />
+            </span>
           </button>
           <div className={styles.actionItem} aria-label="조회수">
             <FiEye aria-hidden="true" />
-            <span className={styles.actionValue}>{data.viewCount.toLocaleString()}</span>
+            <span className={styles.actionValue}>
+              <NumberFlow value={viewCount} />
+            </span>
           </div>
           <button
             type="button"
@@ -109,7 +135,9 @@ export default function PostDetailPage() {
             aria-label="공유"
           >
             <FiShare2 aria-hidden="true" />
-            <span className={styles.actionValue}>{shareCount.toLocaleString()}</span>
+            <span className={styles.actionValue}>
+              <NumberFlow value={shareCount} />
+            </span>
           </button>
         </div>
       </aside>

@@ -3,6 +3,7 @@ import type {
   CreatePostRequest,
   CreatePostResponse,
   PostDetailResponse,
+  PostLikeResponse,
   PostListQuery,
   PostListResponse,
   PostShareResponse,
@@ -52,6 +53,12 @@ const viewPost = async (postId: string): Promise<PostViewResponse> => {
   return res.data;
 };
 
+// 게시물 좋아요 토글
+const likePost = async (postId: string): Promise<PostLikeResponse> => {
+  const res = await axiosInstance.post<PostLikeResponse>(`/posts/${postId}/like`);
+  return res.data;
+};
+
 // 게시물 수정
 const updatePost = async (payload: UpdatePostRequest): Promise<UpdatePostResponse> => {
   const { id, ...body } = payload;
@@ -67,5 +74,6 @@ export const postsApi = {
   getPostDetail,
   sharePost,
   viewPost,
+  likePost,
   updatePost,
 };
