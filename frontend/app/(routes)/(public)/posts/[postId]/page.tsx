@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,9 +8,10 @@ import { useParams } from 'next/navigation';
 
 import NumberFlow from '@number-flow/react';
 import { FaHeart } from 'react-icons/fa';
-import { FiEye, FiHeart, FiShare2 } from 'react-icons/fi';
+import { FiClock, FiEye, FiHeart, FiShare2, FiTrendingUp } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
 
+import { usePostCommentsQuery } from '@/app/api/comments/comments.queries';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { usePostDetailActions } from './postDetail.hooks';
@@ -30,6 +31,7 @@ export default function PostDetailPage() {
   const params = useParams();
   const postId = typeof params?.postId === 'string' ? params.postId : '';
   const { data, isLoading, isError, refetch } = usePostDetailQuery(postId, { enabled: Boolean(postId) });
+  const { data: comments, isLoading: isCommentsLoading } = usePostCommentsQuery(postId, { enabled: Boolean(postId) });
 
   // 인증 상태
   const accessToken = useAuthStore(state => state.accessToken);
@@ -39,7 +41,10 @@ export default function PostDetailPage() {
   const viewCount = data?.viewCount ?? 0;
   const likeCount = data?.likeCount ?? 0;
   const shareCount = data?.shareCount ?? 0;
+  const commentCount = data?.commentCount ?? 0;
   const thumbnailUrl = data?.thumbnailUrl ?? null;
+  const commentSkeletons = Array.from({ length: 3 });
+  const [commentSort, setCommentSort] = useState<'popular' | 'latest'>('latest');
 
   // 액션 핸들러
   const { handleShareCopy, handleLikeClick, previewContent, tocItems } = usePostDetailActions({ data, postId });
@@ -193,6 +198,104 @@ export default function PostDetailPage() {
           ) : null}
 
           <article className={styles.content}>{previewContent}</article>
+
+          <div className={styles.commentDivider} aria-hidden="true" />
+          <section aria-label="댓글 작성">
+            <div className={styles.commentHeader}>
+              <h2 className={styles.commentTitle}>
+                댓글 <span className={styles.commentCount}>{commentCount}</span>
+              </h2>
+            </div>
+            <form
+              className={styles.commentForm}
+              onSubmit={event => {
+                event.preventDefault();
+              }}
+            >
+              <textarea
+                className={styles.commentTextarea}
+                placeholder={accessToken ? '댓글을 입력하세요.' : '로그인 후 댓글을 작성할 수 있어요.'}
+                disabled={!accessToken}
+              />
+              <div className={styles.commentActions}>
+                {!accessToken ? (
+                  <span className={styles.commentHint}>
+                    <Link href={`/login?reason=comment&redirect=/posts/${postId}`}>로그인</Link> 후 이용해주세요.
+                  </span>
+                ) : null}
+                <button type="submit" className={styles.commentButton} disabled={!accessToken}>
+                  댓글남기기
+                </button>
+              </div>
+            </form>
+            <div className={styles.commentList} aria-live="polite">
+              {isCommentsLoading
+                ? commentSkeletons.map((_, index) => (
+                    <div key={`comment-skeleton-${index}`} className={styles.commentItem} aria-hidden="true">
+                      <div className={styles.commentHeaderRow}>
+                        <Skeleton width={120} height={12} />
+                        <Skeleton width={60} height={12} />
+                      </div>
+                      <Skeleton height={16} count={2} />
+                    </div>
+                  ))
+                : comments && comments.length > 0
+                  ? (
+                      <>
+                        <div className={styles.commentListHeader}>
+                          <div className={styles.commentSortGroup} role="tablist" aria-label="댓글 정렬">
+                            <button
+                              type="button"
+                              role="tab"
+                              aria-selected={commentSort === 'popular'}
+                              className={
+                                commentSort === 'popular'
+                                  ? `${styles.commentSortButton} ${styles.commentSortActive}`
+                                  : styles.commentSortButton
+                              }
+                              onClick={() => setCommentSort('popular')}
+                            >
+                              <FiTrendingUp className={styles.commentSortIcon} aria-hidden="true" />
+                              인기순
+                            </button>
+                            <button
+                              type="button"
+                              role="tab"
+                              aria-selected={commentSort === 'latest'}
+                              className={
+                                commentSort === 'latest'
+                                  ? `${styles.commentSortButton} ${styles.commentSortActive}`
+                                  : styles.commentSortButton
+                              }
+                              onClick={() => setCommentSort('latest')}
+                            >
+                              <FiClock className={styles.commentSortIcon} aria-hidden="true" />
+                              최신순
+                            </button>
+                          </div>
+                        </div>
+                        {comments.map(comment => (
+                          <div key={comment.id} className={styles.commentItem}>
+                            <div className={styles.commentHeaderRow}>
+                              <div className={styles.commentProfile}>
+                                <span className={styles.commentAvatar} aria-hidden="true" />
+                                <div className={styles.commentMeta}>
+                                  <span className={styles.commentAuthor}>{comment.author?.name ?? '익명'}</span>
+                                  <span className={styles.commentDate}>{formatDate(comment.createdAt)}</span>
+                                </div>
+                              </div>
+                              <button type="button" className={styles.commentFollowButton}>
+                                팔로우
+                              </button>
+                            </div>
+                            <p className={styles.commentBody}>{comment.content}</p>
+                          </div>
+                        ))}
+                      </>
+                    )
+                  : null}
+            </div>
+          </section>
         </div>
       </div>
     </section>
