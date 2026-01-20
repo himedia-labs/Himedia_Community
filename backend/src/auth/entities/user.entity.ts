@@ -4,13 +4,14 @@ import { RefreshToken } from './refreshToken.entity';
 // 권한
 export enum UserRole {
   TRAINEE = 'TRAINEE',
+  GRADUATE = 'GRADUATE',
   MENTOR = 'MENTOR',
   INSTRUCTOR = 'INSTRUCTOR',
   ADMIN = 'ADMIN',
 }
 
-@Check('users_role_check', "\"role\" IN ('TRAINEE', 'MENTOR', 'INSTRUCTOR', 'ADMIN')")
-@Check('users_requested_role_check', "\"requested_role\" IN ('TRAINEE', 'MENTOR', 'INSTRUCTOR')")
+@Check('users_role_check', "\"role\" IN ('TRAINEE', 'GRADUATE', 'MENTOR', 'INSTRUCTOR', 'ADMIN')")
+@Check('users_requested_role_check', "\"requested_role\" IN ('TRAINEE', 'GRADUATE', 'MENTOR', 'INSTRUCTOR')")
 @Entity({ name: 'users' })
 @Index(['email'])
 @Index(['role'])

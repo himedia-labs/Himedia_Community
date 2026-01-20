@@ -3,7 +3,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'TRAINEE' | 'MENTOR' | 'INSTRUCTOR';
+  role: 'TRAINEE' | 'GRADUATE' | 'MENTOR' | 'INSTRUCTOR';
   phone: string;
   course?: string | null;
 }
@@ -20,7 +20,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   phone: string;
-  role: 'TRAINEE' | 'MENTOR' | 'INSTRUCTOR';
+  role: 'TRAINEE' | 'GRADUATE' | 'MENTOR' | 'INSTRUCTOR';
   course?: string;
   privacyConsent: boolean;
 }

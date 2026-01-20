@@ -246,8 +246,9 @@ export default function RegisterPage() {
                 >
                   <option value="">선택해주세요</option>
                   <option value="trainee">훈련생</option>
-                  <option value="mentor">멘토</option>
+                  <option value="graduate">수료생</option>
                   <option value="instructor">강사</option>
+                  <option value="mentor">멘토</option>
                 </select>
                 <IoIosArrowDown className={styles.selectIcon} aria-hidden />
               </div>

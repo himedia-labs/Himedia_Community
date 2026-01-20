@@ -27,7 +27,7 @@ export class RegisterDto {
   @MaxLength(PHONE_CONFIG.MAX_LENGTH, { message: AUTH_VALIDATION_MESSAGES.PHONE_MAX_LENGTH })
   phone!: string;
 
-  @IsIn([UserRole.TRAINEE, UserRole.MENTOR, UserRole.INSTRUCTOR], { message: AUTH_VALIDATION_MESSAGES.ROLE_ENUM })
+  @IsIn([UserRole.TRAINEE, UserRole.GRADUATE, UserRole.MENTOR, UserRole.INSTRUCTOR], { message: AUTH_VALIDATION_MESSAGES.ROLE_ENUM })
   role!: UserRole;
 
   @IsOptional()
