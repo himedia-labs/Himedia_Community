@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -19,7 +19,7 @@ import { formatDate } from './postDetail.utils';
 import styles from './PostDetail.module.css';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-import type { CSSProperties, MouseEvent } from 'react';
+import type { MouseEvent } from 'react';
 
 /**
  * 게시물 상세 페이지
@@ -40,21 +40,6 @@ export default function PostDetailPage() {
   const likeCount = data?.likeCount ?? 0;
   const shareCount = data?.shareCount ?? 0;
   const thumbnailUrl = data?.thumbnailUrl ?? null;
-  const hasThumbnail = Boolean(thumbnailUrl);
-
-  // 레이아웃 상태
-  const [actionsTop, setActionsTop] = useState<number | null>(null);
-  const containerRef = useRef<HTMLElement | null>(null);
-  const mainContentRef = useRef<HTMLDivElement | null>(null);
-
-  // 레이아웃 계산
-  const updateActionsTop = useCallback(() => {
-    const mainContent = mainContentRef.current;
-    if (!mainContent) return;
-    const nextTop = Math.max(0, mainContent.offsetTop);
-    setActionsTop(nextTop);
-  }, []);
-  const containerStyle = actionsTop === null ? undefined : ({ '--actions-top': `${actionsTop}px` } as CSSProperties);
 
   // 액션 핸들러
   const { handleShareCopy, handleLikeClick, previewContent, tocItems } = usePostDetailActions({ data, postId });
@@ -72,38 +57,31 @@ export default function PostDetailPage() {
     refetch().catch(() => null);
   }, [accessToken, isInitialized, refetch]);
 
-  // 레이아웃 갱신
-  useEffect(() => {
-    updateActionsTop();
-    window.addEventListener('resize', updateActionsTop);
-    return () => window.removeEventListener('resize', updateActionsTop);
-  }, [thumbnailUrl, tocItems.length, updateActionsTop]);
-
   if (isLoading) {
     return (
       <section className={styles.container} aria-label="게시물 상세">
-        <aside className={styles.actions} aria-label="게시물 반응">
-          <div className={styles.actionsInner}>
-            <div className={styles.actionButton} aria-hidden="true">
-              <Skeleton circle height={18} width={18} />
-              <Skeleton height={10} width={24} />
-            </div>
-            <div className={styles.actionButton} aria-hidden="true">
-              <Skeleton circle height={18} width={18} />
-              <Skeleton height={10} width={24} />
-            </div>
-            <div className={styles.actionButton} aria-hidden="true">
-              <Skeleton circle height={18} width={18} />
-              <Skeleton height={10} width={24} />
-            </div>
-          </div>
-        </aside>
         <div className={styles.header}>
           <Skeleton width={120} height={12} />
           <Skeleton width="70%" height={42} />
           <Skeleton width={220} height={14} />
         </div>
         <div className={styles.body}>
+          <aside className={styles.actions} aria-label="게시물 반응">
+            <div className={styles.actionsInner}>
+              <div className={styles.actionButton} aria-hidden="true">
+                <Skeleton circle height={18} width={18} />
+                <Skeleton height={10} width={24} />
+              </div>
+              <div className={styles.actionButton} aria-hidden="true">
+                <Skeleton circle height={18} width={18} />
+                <Skeleton height={10} width={24} />
+              </div>
+              <div className={styles.actionButton} aria-hidden="true">
+                <Skeleton circle height={18} width={18} />
+                <Skeleton height={10} width={24} />
+              </div>
+            </div>
+          </aside>
           <div className={styles.mainContent}>
             <div className={styles.thumbnail}>
               <Skeleton height={700} borderRadius={16} />
@@ -132,62 +110,7 @@ export default function PostDetailPage() {
   }
 
   return (
-    <section className={styles.container} style={containerStyle} ref={containerRef} aria-label="게시물 상세">
-      <aside className={styles.actions} aria-label="게시물 반응">
-        <div className={`${styles.actionsInner} ${hasThumbnail ? '' : styles.actionsNoThumb}`}>
-          <button
-            type="button"
-            className={`${styles.actionButton} ${data.liked ? styles.actionButtonActive : ''}`}
-            aria-label="좋아요"
-            onClick={handleLikeClick}
-          >
-            {data.liked ? <FaHeart aria-hidden="true" /> : <FiHeart aria-hidden="true" />}
-            <span className={styles.actionValue}>
-              <NumberFlow value={likeCount} />
-            </span>
-          </button>
-          <div className={styles.actionItem} aria-label="조회수">
-            <FiEye aria-hidden="true" />
-            <span className={styles.actionValue}>
-              <NumberFlow value={viewCount} />
-            </span>
-          </div>
-          <button
-            type="button"
-            className={styles.actionButton}
-            onClick={handleShareCopy}
-            aria-label="공유"
-          >
-            <FiShare2 aria-hidden="true" />
-            <span className={styles.actionValue}>
-              <NumberFlow value={shareCount} />
-            </span>
-          </button>
-        </div>
-      </aside>
-      {tocItems.length > 0 ? (
-        <aside className={styles.toc} aria-label="본문 목차">
-          <div className={styles.tocInner}>
-            <div className={styles.tocTitle}>목차</div>
-            <ul className={styles.tocList}>
-              {tocItems.map(item => (
-                <li key={item.id} className={styles.tocItem}>
-                  <a
-                    href={`#${item.id}`}
-                    onClick={handleTocClick(item.id)}
-                    className={`${styles.tocLink} ${
-                      item.level === 2 ? styles.tocLevel2 : item.level === 3 ? styles.tocLevel3 : ''
-                    }`}
-                  >
-                    {item.text}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </aside>
-      ) : null}
-
+    <section className={styles.container} aria-label="게시물 상세">
       <div className={styles.header}>
         <div className={styles.category}>{data.category?.name ?? 'ALL'}</div>
         <h1 className={styles.title}>{data.title}</h1>
@@ -202,7 +125,56 @@ export default function PostDetailPage() {
       <div className={styles.headerDivider} aria-hidden="true" />
 
       <div className={styles.body}>
-        <div className={styles.mainContent} ref={mainContentRef}>
+        <aside className={styles.actions} aria-label="게시물 반응">
+          <div className={styles.actionsInner}>
+            <button
+              type="button"
+              className={`${styles.actionButton} ${data.liked ? styles.actionButtonActive : ''}`}
+              aria-label="좋아요"
+              onClick={handleLikeClick}
+            >
+              {data.liked ? <FaHeart aria-hidden="true" /> : <FiHeart aria-hidden="true" />}
+              <span className={styles.actionValue}>
+                <NumberFlow value={likeCount} />
+              </span>
+            </button>
+            <div className={styles.actionItem} aria-label="조회수">
+              <FiEye aria-hidden="true" />
+              <span className={styles.actionValue}>
+                <NumberFlow value={viewCount} />
+              </span>
+            </div>
+            <button type="button" className={styles.actionButton} onClick={handleShareCopy} aria-label="공유">
+              <FiShare2 aria-hidden="true" />
+              <span className={styles.actionValue}>
+                <NumberFlow value={shareCount} />
+              </span>
+            </button>
+          </div>
+        </aside>
+        {tocItems.length > 0 ? (
+          <aside className={styles.toc} aria-label="본문 목차">
+            <div className={styles.tocInner}>
+              <div className={styles.tocTitle}>목차</div>
+              <ul className={styles.tocList}>
+                {tocItems.map(item => (
+                  <li key={item.id} className={styles.tocItem}>
+                    <a
+                      href={`#${item.id}`}
+                      onClick={handleTocClick(item.id)}
+                      className={`${styles.tocLink} ${
+                        item.level === 2 ? styles.tocLevel2 : item.level === 3 ? styles.tocLevel3 : ''
+                      }`}
+                    >
+                      {item.text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </aside>
+        ) : null}
+        <div className={styles.mainContent}>
           {thumbnailUrl ? (
             <div className={styles.thumbnail}>
               <Image
@@ -213,7 +185,6 @@ export default function PostDetailPage() {
                 sizes="100vw"
                 unoptimized
                 priority
-                onLoadingComplete={updateActionsTop}
                 style={{ width: '100%', height: 'auto' }}
               />
             </div>
