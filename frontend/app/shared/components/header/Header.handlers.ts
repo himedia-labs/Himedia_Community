@@ -22,8 +22,7 @@ export const handleLogout = (params: {
       onSuccess: () => {
         // client, server store 상태 삭제
         params.clearAuth();
-        params.queryClient.setQueryData(params.authKeys.currentUser, null);
-        params.queryClient.invalidateQueries({ queryKey: params.authKeys.currentUser });
+        params.queryClient.clear();
         params.showToast({ message: '로그아웃되었습니다.', type: 'success' });
         params.onLogoutSuccess?.();
         params.router.push('/');
