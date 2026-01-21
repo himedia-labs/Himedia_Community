@@ -39,7 +39,11 @@ export default function PostDetailPage() {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const { data, isLoading, isError, refetch } = usePostDetailQuery(postId, { enabled: Boolean(postId) });
-  const { data: comments, isLoading: isCommentsLoading, refetch: refetchComments } = usePostCommentsQuery(postId, {
+  const {
+    data: comments,
+    isLoading: isCommentsLoading,
+    refetch: refetchComments,
+  } = usePostCommentsQuery(postId, {
     enabled: Boolean(postId),
   });
   const { content, handleSubmit, hasLengthError, isSubmitting, setContent } = usePostCommentForm(postId);
@@ -255,7 +259,7 @@ export default function PostDetailPage() {
                 className={`${styles.commentTextarea} ${hasLengthError ? styles.commentTextareaError : ''}`}
                 placeholder={
                   accessToken
-                    ? '입력한 댓글은 수정하거나 삭제할 수 없어요. 또한 허위사실, 욕설, 사칭 등 댓글은 통보없이 삭제될 수 있습니다.'
+                    ? '허위사실, 욕설, 사칭 등 댓글은 통보 없이 삭제될 수 있으며, 커뮤니티 운영정책에 따라 추가 조치가 이루어질 수 있습니다.'
                     : '로그인 후 댓글을 작성할 수 있어요.'
                 }
                 value={content}
