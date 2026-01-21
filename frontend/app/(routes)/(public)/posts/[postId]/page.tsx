@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -14,8 +14,9 @@ import Skeleton from 'react-loading-skeleton';
 import { usePostCommentsQuery } from '@/app/api/comments/comments.queries';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
+import { usePostCommentForm } from './postDetail.comments.hooks';
 import { usePostDetailActions } from './postDetail.hooks';
-import { formatDate, formatRole } from './postDetail.utils';
+import { formatDate, formatDateTime, formatRole } from './postDetail.utils';
 
 import styles from './PostDetail.module.css';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -32,6 +33,7 @@ export default function PostDetailPage() {
   const postId = typeof params?.postId === 'string' ? params.postId : '';
   const { data, isLoading, isError, refetch } = usePostDetailQuery(postId, { enabled: Boolean(postId) });
   const { data: comments, isLoading: isCommentsLoading } = usePostCommentsQuery(postId, { enabled: Boolean(postId) });
+  const { content, handleSubmit, isSubmitting, setContent } = usePostCommentForm(postId);
 
   // 인증 상태
   const accessToken = useAuthStore(state => state.accessToken);
@@ -45,6 +47,16 @@ export default function PostDetailPage() {
   const thumbnailUrl = data?.thumbnailUrl ?? null;
   const commentSkeletons = Array.from({ length: 3 });
   const [commentSort, setCommentSort] = useState<'popular' | 'latest'>('latest');
+  const sortedComments = useMemo(() => {
+    if (!comments?.length) return [];
+    if (commentSort === 'popular') {
+      return [...comments].sort((a, b) => {
+        if (b.likeCount !== a.likeCount) return b.likeCount - a.likeCount;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+    }
+    return [...comments].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [commentSort, comments]);
 
   // 액션 핸들러
   const { handleShareCopy, handleLikeClick, previewContent, tocItems } = usePostDetailActions({ data, postId });
@@ -210,6 +222,7 @@ export default function PostDetailPage() {
               className={styles.commentForm}
               onSubmit={event => {
                 event.preventDefault();
+                handleSubmit().catch(() => null);
               }}
             >
               <textarea
@@ -219,6 +232,8 @@ export default function PostDetailPage() {
                     ? '입력한 댓글은 수정하거나 삭제할 수 없어요. 또한 혐오시설, 욕설, 채팅 등 댓글은 통보없이 삭제될 수 있습니다.'
                     : '로그인 후 댓글을 작성할 수 있어요.'
                 }
+                value={content}
+                onChange={event => setContent(event.target.value)}
                 disabled={!accessToken}
               />
               <div className={styles.commentActions}>
@@ -227,8 +242,14 @@ export default function PostDetailPage() {
                     <Link href={`/login?reason=comment&redirect=/posts/${postId}`}>로그인</Link> 후 이용해주세요.
                   </span>
                 ) : null}
-                <button type="submit" className={styles.commentButton} disabled={!accessToken}>
-                  댓글남기기
+                <button
+                  type="submit"
+                  className={
+                    content.trim() ? `${styles.commentButton} ${styles.commentButtonActive}` : styles.commentButton
+                  }
+                  disabled={!accessToken || isSubmitting}
+                >
+                  댓글 남기기
                 </button>
               </div>
             </form>
@@ -243,7 +264,7 @@ export default function PostDetailPage() {
                     <Skeleton height={16} count={2} />
                   </div>
                 ))
-              ) : comments && comments.length > 0 ? (
+              ) : sortedComments.length > 0 ? (
                 <>
                   <div className={styles.commentListHeader}>
                     <div className={styles.commentSortGroup} role="tablist" aria-label="댓글 정렬">
@@ -277,14 +298,17 @@ export default function PostDetailPage() {
                       </button>
                     </div>
                   </div>
-                  {comments.map(comment => (
+                  {sortedComments.map(comment => (
                     <div key={comment.id} className={styles.commentItem}>
                       <div className={styles.commentHeaderRow}>
                         <div className={styles.commentProfile}>
                           <span className={styles.commentAvatar} aria-hidden="true" />
                           <div className={styles.commentMeta}>
-                            <span className={styles.commentAuthor}>{comment.author?.name ?? '익명'}</span>
-                            <span className={styles.commentDate}>{formatDate(comment.createdAt)}</span>
+                            <span className={styles.commentAuthor}>
+                              {comment.author?.name ?? '익명'}{' '}
+                              {comment.author?.role ? formatRole(comment.author.role) : ''}
+                            </span>
+                            <span className={styles.commentDate}>{formatDateTime(comment.createdAt)}</span>
                           </div>
                         </div>
                         <button type="button" className={styles.commentFollowButton}>
