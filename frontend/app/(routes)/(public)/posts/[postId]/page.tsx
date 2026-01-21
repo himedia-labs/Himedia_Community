@@ -214,7 +214,11 @@ export default function PostDetailPage() {
             >
               <textarea
                 className={styles.commentTextarea}
-                placeholder={accessToken ? '댓글을 입력하세요.' : '로그인 후 댓글을 작성할 수 있어요.'}
+                placeholder={
+                  accessToken
+                    ? '입력한 댓글은 수정하거나 삭제할 수 없어요. 또한 혐오시설, 욕설, 채팅 등 댓글은 통보없이 삭제될 수 있습니다.'
+                    : '로그인 후 댓글을 작성할 수 있어요.'
+                }
                 disabled={!accessToken}
               />
               <div className={styles.commentActions}>
@@ -229,71 +233,69 @@ export default function PostDetailPage() {
               </div>
             </form>
             <div className={styles.commentList} aria-live="polite">
-              {isCommentsLoading
-                ? commentSkeletons.map((_, index) => (
-                    <div key={`comment-skeleton-${index}`} className={styles.commentItem} aria-hidden="true">
-                      <div className={styles.commentHeaderRow}>
-                        <Skeleton width={120} height={12} />
-                        <Skeleton width={60} height={12} />
-                      </div>
-                      <Skeleton height={16} count={2} />
+              {isCommentsLoading ? (
+                commentSkeletons.map((_, index) => (
+                  <div key={`comment-skeleton-${index}`} className={styles.commentItem} aria-hidden="true">
+                    <div className={styles.commentHeaderRow}>
+                      <Skeleton width={120} height={12} />
+                      <Skeleton width={60} height={12} />
                     </div>
-                  ))
-                : comments && comments.length > 0
-                  ? (
-                      <>
-                        <div className={styles.commentListHeader}>
-                          <div className={styles.commentSortGroup} role="tablist" aria-label="댓글 정렬">
-                            <button
-                              type="button"
-                              role="tab"
-                              aria-selected={commentSort === 'popular'}
-                              className={
-                                commentSort === 'popular'
-                                  ? `${styles.commentSortButton} ${styles.commentSortActive}`
-                                  : styles.commentSortButton
-                              }
-                              onClick={() => setCommentSort('popular')}
-                            >
-                              <FiTrendingUp className={styles.commentSortIcon} aria-hidden="true" />
-                              인기순
-                            </button>
-                            <button
-                              type="button"
-                              role="tab"
-                              aria-selected={commentSort === 'latest'}
-                              className={
-                                commentSort === 'latest'
-                                  ? `${styles.commentSortButton} ${styles.commentSortActive}`
-                                  : styles.commentSortButton
-                              }
-                              onClick={() => setCommentSort('latest')}
-                            >
-                              <FiClock className={styles.commentSortIcon} aria-hidden="true" />
-                              최신순
-                            </button>
+                    <Skeleton height={16} count={2} />
+                  </div>
+                ))
+              ) : comments && comments.length > 0 ? (
+                <>
+                  <div className={styles.commentListHeader}>
+                    <div className={styles.commentSortGroup} role="tablist" aria-label="댓글 정렬">
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={commentSort === 'popular'}
+                        className={
+                          commentSort === 'popular'
+                            ? `${styles.commentSortButton} ${styles.commentSortActive}`
+                            : styles.commentSortButton
+                        }
+                        onClick={() => setCommentSort('popular')}
+                      >
+                        <FiTrendingUp className={styles.commentSortIcon} aria-hidden="true" />
+                        인기순
+                      </button>
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={commentSort === 'latest'}
+                        className={
+                          commentSort === 'latest'
+                            ? `${styles.commentSortButton} ${styles.commentSortActive}`
+                            : styles.commentSortButton
+                        }
+                        onClick={() => setCommentSort('latest')}
+                      >
+                        <FiClock className={styles.commentSortIcon} aria-hidden="true" />
+                        최신순
+                      </button>
+                    </div>
+                  </div>
+                  {comments.map(comment => (
+                    <div key={comment.id} className={styles.commentItem}>
+                      <div className={styles.commentHeaderRow}>
+                        <div className={styles.commentProfile}>
+                          <span className={styles.commentAvatar} aria-hidden="true" />
+                          <div className={styles.commentMeta}>
+                            <span className={styles.commentAuthor}>{comment.author?.name ?? '익명'}</span>
+                            <span className={styles.commentDate}>{formatDate(comment.createdAt)}</span>
                           </div>
                         </div>
-                        {comments.map(comment => (
-                          <div key={comment.id} className={styles.commentItem}>
-                            <div className={styles.commentHeaderRow}>
-                              <div className={styles.commentProfile}>
-                                <span className={styles.commentAvatar} aria-hidden="true" />
-                                <div className={styles.commentMeta}>
-                                  <span className={styles.commentAuthor}>{comment.author?.name ?? '익명'}</span>
-                                  <span className={styles.commentDate}>{formatDate(comment.createdAt)}</span>
-                                </div>
-                              </div>
-                              <button type="button" className={styles.commentFollowButton}>
-                                팔로우
-                              </button>
-                            </div>
-                            <p className={styles.commentBody}>{comment.content}</p>
-                          </div>
-                        ))}
-                      </>
-                    )
-                  : null}
+                        <button type="button" className={styles.commentFollowButton}>
+                          팔로우
+                        </button>
+                      </div>
+                      <p className={styles.commentBody}>{comment.content}</p>
+                    </div>
+                  ))}
+                </>
+              ) : null}
             </div>
           </section>
         </div>
