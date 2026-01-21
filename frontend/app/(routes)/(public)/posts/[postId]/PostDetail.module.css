@@ -286,6 +286,11 @@
   box-shadow: inset 0 0 0 1px #5a8cff;
 }
 
+.commentTextareaError {
+  border-color: #ef4444 !important;
+  box-shadow: inset 0 0 0 1px #ef4444 !important;
+}
+
 .commentTextarea {
   scrollbar-color: #cfd6e1 transparent;
   scrollbar-width: thin;
@@ -299,7 +304,7 @@
 }
 
 .commentHint {
-  margin-right: auto;
+  flex: 1;
   font-size: 0.85rem;
   color: #7a7a7a;
 }
@@ -307,6 +312,13 @@
 .commentHint a {
   color: #1f1f1f;
   text-decoration: underline;
+}
+
+.commentError {
+  flex: 1;
+  font-size: 0.85rem;
+  color: #ef4444;
+  font-weight: 600;
 }
 
 .commentButton {
@@ -444,6 +456,52 @@
   color: #4e5968;
   line-height: 1.5;
   word-break: break-word;
+  margin-bottom: 0.75rem;
+}
+
+.commentFooter {
+  display: flex;
+  align-items: center;
+}
+
+.commentActionButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #8a8a8a;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.commentActionButton:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.commentActionButtonLiked {
+  color: #ef4444;
+}
+
+.commentActionButton :global(svg) {
+  width: 16px;
+  height: 16px;
+}
+
+.commentActionValue {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  height: 1em;
+  vertical-align: middle;
+  text-rendering: geometricPrecision;
+}
+
+.commentActionValue :global(*) {
+  line-height: 1;
 }
 
 .commentEmpty {

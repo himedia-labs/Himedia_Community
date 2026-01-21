@@ -13,6 +13,7 @@ export interface CommentItem {
   depth: number;
   likeCount: number;
   dislikeCount: number;
+  liked: boolean;
   createdAt: string;
   updatedAt: string;
   author: CommentAuthorRef | null;
@@ -27,4 +28,9 @@ export interface CreateCommentRequest {
 
 export interface CreateCommentResponse {
   id: string;
+}
+
+export interface ToggleCommentLikeResponse {
+  likeCount: number;
+  liked: boolean;
 }

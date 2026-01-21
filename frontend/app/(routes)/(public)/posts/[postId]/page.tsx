@@ -8,11 +8,16 @@ import { useParams } from 'next/navigation';
 
 import NumberFlow from '@number-flow/react';
 import { FaHeart } from 'react-icons/fa';
-import { FiClock, FiEye, FiHeart, FiShare2, FiTrendingUp } from 'react-icons/fi';
+import { FiClock, FiEye, FiHeart, FiMessageCircle, FiShare2, FiTrendingUp } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
 
+import { useQueryClient } from '@tanstack/react-query';
+
+import { commentsApi } from '@/app/api/comments/comments.api';
+import { commentsKeys } from '@/app/api/comments/comments.keys';
 import { usePostCommentsQuery } from '@/app/api/comments/comments.queries';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
+import { useToast } from '@/app/shared/components/toast/toast';
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { usePostCommentForm } from './postDetail.comments.hooks';
 import { usePostDetailActions } from './postDetail.hooks';
@@ -31,9 +36,13 @@ export default function PostDetailPage() {
   // 라우트 데이터
   const params = useParams();
   const postId = typeof params?.postId === 'string' ? params.postId : '';
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const { data, isLoading, isError, refetch } = usePostDetailQuery(postId, { enabled: Boolean(postId) });
-  const { data: comments, isLoading: isCommentsLoading } = usePostCommentsQuery(postId, { enabled: Boolean(postId) });
-  const { content, handleSubmit, isSubmitting, setContent } = usePostCommentForm(postId);
+  const { data: comments, isLoading: isCommentsLoading, refetch: refetchComments } = usePostCommentsQuery(postId, {
+    enabled: Boolean(postId),
+  });
+  const { content, handleSubmit, hasLengthError, isSubmitting, setContent } = usePostCommentForm(postId);
 
   // 인증 상태
   const accessToken = useAuthStore(state => state.accessToken);
@@ -72,7 +81,24 @@ export default function PostDetailPage() {
   useEffect(() => {
     if (!isInitialized || !accessToken) return;
     refetch().catch(() => null);
-  }, [accessToken, isInitialized, refetch]);
+    refetchComments().catch(() => null);
+  }, [accessToken, isInitialized, refetch, refetchComments]);
+
+  // 댓글 해시 스크롤
+  useEffect(() => {
+    if (!comments || isCommentsLoading) return;
+    const hash = window.location.hash;
+    if (!hash.startsWith('#comment-')) return;
+
+    const timer = setTimeout(() => {
+      const target = document.querySelector(hash);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [comments, isCommentsLoading]);
 
   if (isLoading) {
     return (
@@ -226,10 +252,10 @@ export default function PostDetailPage() {
               }}
             >
               <textarea
-                className={styles.commentTextarea}
+                className={`${styles.commentTextarea} ${hasLengthError ? styles.commentTextareaError : ''}`}
                 placeholder={
                   accessToken
-                    ? '입력한 댓글은 수정하거나 삭제할 수 없어요. 또한 혐오시설, 욕설, 채팅 등 댓글은 통보없이 삭제될 수 있습니다.'
+                    ? '입력한 댓글은 수정하거나 삭제할 수 없어요. 또한 허위사실, 욕설, 사칭 등 댓글은 통보없이 삭제될 수 있습니다.'
                     : '로그인 후 댓글을 작성할 수 있어요.'
                 }
                 value={content}
@@ -241,13 +267,15 @@ export default function PostDetailPage() {
                   <span className={styles.commentHint}>
                     <Link href={`/login?reason=comment&redirect=/posts/${postId}`}>로그인</Link> 후 이용해주세요.
                   </span>
+                ) : hasLengthError ? (
+                  <span className={styles.commentError}>1,000자까지 입력 가능해요.</span>
                 ) : null}
                 <button
                   type="submit"
                   className={
                     content.trim() ? `${styles.commentButton} ${styles.commentButtonActive}` : styles.commentButton
                   }
-                  disabled={!accessToken || isSubmitting}
+                  disabled={!accessToken || isSubmitting || hasLengthError}
                 >
                   댓글 남기기
                 </button>
@@ -299,7 +327,7 @@ export default function PostDetailPage() {
                     </div>
                   </div>
                   {sortedComments.map(comment => (
-                    <div key={comment.id} className={styles.commentItem}>
+                    <div key={comment.id} id={`comment-${comment.id}`} className={styles.commentItem}>
                       <div className={styles.commentHeaderRow}>
                         <div className={styles.commentProfile}>
                           <span className={styles.commentAvatar} aria-hidden="true" />
@@ -316,6 +344,68 @@ export default function PostDetailPage() {
                         </button>
                       </div>
                       <p className={styles.commentBody}>{comment.content}</p>
+                      <div className={styles.commentFooter}>
+                        <button
+                          type="button"
+                          className={`${styles.commentActionButton} ${comment.liked ? styles.commentActionButtonLiked : ''}`}
+                          aria-label="좋아요"
+                          onClick={async () => {
+                            if (!accessToken) {
+                              showToast({ message: '로그인 후 이용해주세요.', type: 'warning' });
+                              return;
+                            }
+                            try {
+                              const result = await commentsApi.toggleCommentLike(postId, comment.id);
+                              queryClient.setQueryData(commentsKeys.list(postId), (old: any) => {
+                                if (!old) return old;
+                                return old.map((c: any) =>
+                                  c.id === comment.id ? { ...c, likeCount: result.likeCount, liked: result.liked } : c,
+                                );
+                              });
+                            } catch {
+                              // 에러 무시
+                            }
+                          }}
+                        >
+                          {comment.liked ? <FaHeart aria-hidden="true" /> : <FiHeart aria-hidden="true" />}
+                          {comment.likeCount > 0 ? (
+                            <span className={styles.commentActionValue}>
+                              <NumberFlow value={comment.likeCount} />
+                            </span>
+                          ) : null}
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.commentActionButton}
+                          aria-label="답글"
+                          onClick={() => {
+                            if (!accessToken) {
+                              showToast({ message: '로그인 후 이용해주세요.', type: 'warning' });
+                              return;
+                            }
+                          }}
+                        >
+                          <FiMessageCircle aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.commentActionButton}
+                          aria-label="공유"
+                          onClick={() => {
+                            const commentUrl = `${window.location.origin}/posts/${postId}#comment-${comment.id}`;
+                            navigator.clipboard
+                              .writeText(commentUrl)
+                              .then(() => {
+                                showToast({ message: '링크가 복사되었습니다.', type: 'success' });
+                              })
+                              .catch(() => {
+                                showToast({ message: '링크 복사에 실패했습니다.', type: 'error' });
+                              });
+                          }}
+                        >
+                          <FiShare2 aria-hidden="true" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </>

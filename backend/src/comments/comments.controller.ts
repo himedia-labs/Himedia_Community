@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Post, Request, UseGuards } from '@nestjs/common';
 
 import { JwtGuard } from '../auth/guards/jwt.guard';
+import { OptionalJwtGuard } from '../auth/guards/optional-jwt.guard';
 import { CreateCommentDto } from './dto/createComment.dto';
 import { CommentsService } from './comments.service';
 
@@ -12,8 +13,10 @@ export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
   @Get()
-  getComments(@Param('postId') postId: string) {
-    return this.commentsService.getCommentsByPostId(postId);
+  @UseGuards(OptionalJwtGuard)
+  getComments(@Param('postId') postId: string, @Request() req: ExpressRequest & { user?: JwtPayload }) {
+    const userId = req.user?.sub ?? null;
+    return this.commentsService.getCommentsByPostId(postId, userId);
   }
 
   @UseGuards(JwtGuard)
@@ -24,5 +27,15 @@ export class CommentsController {
     @Request() req: ExpressRequest & { user: JwtPayload },
   ) {
     return this.commentsService.createComment(postId, body, req.user.sub);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post(':commentId/like')
+  toggleLike(
+    @Param('postId') postId: string,
+    @Param('commentId') commentId: string,
+    @Request() req: ExpressRequest & { user: JwtPayload },
+  ) {
+    return this.commentsService.toggleCommentLike(postId, commentId, req.user.sub);
   }
 }

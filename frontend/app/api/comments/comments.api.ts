@@ -1,5 +1,10 @@
 import { axiosInstance } from '@/app/shared/network/axios.instance';
-import type { CommentListResponse, CreateCommentRequest, CreateCommentResponse } from '@/app/shared/types/comment';
+import type {
+  CommentListResponse,
+  CreateCommentRequest,
+  CreateCommentResponse,
+  ToggleCommentLikeResponse,
+} from '@/app/shared/types/comment';
 
 const getComments = async (postId: string): Promise<CommentListResponse> => {
   const res = await axiosInstance.get<CommentListResponse>(`/posts/${postId}/comments`);
@@ -11,7 +16,13 @@ const createComment = async (postId: string, payload: CreateCommentRequest): Pro
   return res.data;
 };
 
+const toggleCommentLike = async (postId: string, commentId: string): Promise<ToggleCommentLikeResponse> => {
+  const res = await axiosInstance.post<ToggleCommentLikeResponse>(`/posts/${postId}/comments/${commentId}/like`);
+  return res.data;
+};
+
 export const commentsApi = {
   getComments,
   createComment,
+  toggleCommentLike,
 };

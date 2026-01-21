@@ -7,10 +7,11 @@ import { Comment } from './entities/comment.entity';
 import { CommentReaction } from './entities/commentReaction.entity';
 import { Post } from '../posts/entities/post.entity';
 import { SnowflakeService } from '../common/services/snowflake.service';
+import { OptionalJwtGuard } from '../auth/guards/optional-jwt.guard';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Comment, CommentReaction, Post])],
   controllers: [CommentsController],
-  providers: [CommentsService, SnowflakeService],
+  providers: [CommentsService, SnowflakeService, OptionalJwtGuard],
 })
 export class CommentsModule {}
