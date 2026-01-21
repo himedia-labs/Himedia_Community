@@ -1,6 +1,11 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Request, UseGuards } from '@nestjs/common';
 
+import { JwtGuard } from '../auth/guards/jwt.guard';
+import { CreateCommentDto } from './dto/createComment.dto';
 import { CommentsService } from './comments.service';
+
+import type { JwtPayload } from '../auth/interfaces/jwt.interface';
+import type { Request as ExpressRequest } from 'express';
 
 @Controller('posts/:postId/comments')
 export class CommentsController {
@@ -9,5 +14,15 @@ export class CommentsController {
   @Get()
   getComments(@Param('postId') postId: string) {
     return this.commentsService.getCommentsByPostId(postId);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post()
+  createComment(
+    @Param('postId') postId: string,
+    @Body() body: CreateCommentDto,
+    @Request() req: ExpressRequest & { user: JwtPayload },
+  ) {
+    return this.commentsService.createComment(postId, body, req.user.sub);
   }
 }

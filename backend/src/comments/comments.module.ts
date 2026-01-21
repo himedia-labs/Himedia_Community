@@ -6,10 +6,11 @@ import { CommentsService } from './comments.service';
 import { Comment } from './entities/comment.entity';
 import { CommentReaction } from './entities/commentReaction.entity';
 import { Post } from '../posts/entities/post.entity';
+import { SnowflakeService } from '../common/services/snowflake.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Comment, CommentReaction, Post])],
   controllers: [CommentsController],
-  providers: [CommentsService],
+  providers: [CommentsService, SnowflakeService],
 })
 export class CommentsModule {}

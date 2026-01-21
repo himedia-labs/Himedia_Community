@@ -268,12 +268,13 @@ export class PostsService {
 
   // 게시글 생성
   async createPost(payload: CreatePostDto, authorId: string) {
+    const categoryId = payload.categoryId?.trim() || null;
     const status = payload.status ?? PostStatus.DRAFT;
     if (status === PostStatus.PUBLISHED) {
       ensurePublishFields({
         title: payload.title,
         content: payload.content,
-        categoryId: payload.categoryId,
+        categoryId,
       });
     }
     const rawTags = payload.tags ?? [];
@@ -288,7 +289,7 @@ export class PostsService {
       const post = postRepository.create({
         id: this.snowflakeService.generate(),
         authorId,
-        categoryId: payload.categoryId ?? null,
+        categoryId,
         title: payload.title,
         content: payload.content,
         status,

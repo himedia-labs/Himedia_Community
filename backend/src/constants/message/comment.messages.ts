@@ -1,4 +1,9 @@
 export const COMMENT_VALIDATION_MESSAGES = {
+  CONTENT_REQUIRED: '내용을 입력해주세요.',
   CONTENT_STRING: '내용은 문자열이어야 합니다.',
   PARENT_ID_STRING: '부모 댓글 ID는 문자열이어야 합니다.',
+} as const;
+
+export const COMMENT_ERROR_MESSAGES = {
+  COMMENT_NOT_FOUND: '댓글을 찾을 수 없습니다.',
 } as const;
