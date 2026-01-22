@@ -373,7 +373,9 @@
 }
 
 .commentSortGroup {
-  display: inline-flex;
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: center;
   gap: 0.6rem;
   padding: 0.25rem;
@@ -382,8 +384,11 @@
 }
 
 .commentSortButton {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.4rem;
   padding: 0.35rem 0.85rem;
   border-radius: 999px;
@@ -396,13 +401,24 @@
 }
 
 .commentSortActive {
-  background: #fff;
   color: #1f1f1f;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 .commentSortIcon {
   font-size: 0.9rem;
+}
+
+.commentSortIndicator {
+  position: absolute;
+  top: 0.25rem;
+  left: 0.25rem;
+  width: calc((100% - 0.5rem - 0.6rem) / 2);
+  height: calc(100% - 0.5rem);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+  transition: transform 0.22s ease;
+  z-index: 0;
 }
 
 .commentItem {

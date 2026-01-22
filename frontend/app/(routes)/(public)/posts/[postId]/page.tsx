@@ -80,6 +80,7 @@ export default function PostDetailPage() {
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState('');
   const hasEditingLengthError = editingContent.length > 1000;
+  const commentSortIndex = commentSort === 'popular' ? 0 : 1;
   const sortedComments = useMemo(() => {
     if (!comments?.length) return [];
     if (commentSort === 'popular') {
@@ -400,6 +401,14 @@ export default function PostDetailPage() {
                         <FiClock className={styles.commentSortIcon} aria-hidden="true" />
                         최신순
                       </button>
+                      <span
+                        className={styles.commentSortIndicator}
+                        aria-hidden="true"
+                        style={{
+                          transform:
+                            commentSortIndex === 0 ? 'translateX(0)' : 'translateX(calc(100% + 0.6rem))',
+                        }}
+                      />
                     </div>
                   </div>
                   {sortedComments.map(comment => (
