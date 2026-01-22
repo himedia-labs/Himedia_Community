@@ -112,7 +112,11 @@
 
   color: inherit;
   position: relative;
-  padding-bottom: 4px;
+  padding: 6px;
+  border-radius: 8px;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .navButton {
@@ -133,7 +137,22 @@
 
   color: inherit;
   position: relative;
-  padding-bottom: 4px;
+  padding: 6px;
+  border-radius: 8px;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.navLink:hover,
+.navButton:hover {
+  color: #1f1f1f;
+  background: #f3f4f6;
+  border-radius: 8px;
+}
+
+.profileIconButton :global(svg) {
+  transform: scale(1.1);
 }
 
 .notificationWrapper {
@@ -173,7 +192,6 @@
   background: transparent;
   color: #1f2937;
   font-size: 0.9rem;
-  font-weight: 600;
   text-align: left;
   text-decoration: none;
   cursor: pointer;

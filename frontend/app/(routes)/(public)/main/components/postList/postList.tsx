@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { Fragment, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -126,92 +126,113 @@ export default function PostListSection() {
           <ul className={styles.listView}>
             {isLoading
               ? listSkeletons.map((_, index) => (
-                  <li key={`list-skeleton-${index}`}>
-                    <article className={styles.listItem} aria-hidden="true">
-                      <div className={styles.listBody}>
-                        <Skeleton height={26} width="70%" />
-                        <Skeleton count={2} height={16} style={{ marginBottom: '6px' }} />
-                        <div className={styles.meta}>
-                          <span className={styles.metaGroup}>
-                            <Skeleton width={140} height={12} />
-                          </span>
-                          <span className={styles.metaGroup}>
-                            <Skeleton width={160} height={12} />
-                          </span>
-                        </div>
-                      </div>
-                      <Skeleton height={150} width="100%" borderRadius={12} />
-                    </article>
-                  </li>
-                ))
-              : filteredPosts.map(post => (
-                  <li key={post.id}>
-                    <Link className={styles.postLink} href={`/posts/${post.id}`}>
-                      <article className={styles.listItem}>
+                  <Fragment key={`list-skeleton-${index}`}>
+                    <li>
+                      <article className={styles.listItem} aria-hidden="true">
                         <div className={styles.listBody}>
-                          <h3>{post.title}</h3>
-                          <p className={styles.summary}>{post.summary}</p>
+                          <Skeleton height={26} width="70%" />
+                          <Skeleton count={2} height={16} style={{ marginBottom: '6px' }} />
                           <div className={styles.meta}>
                             <span className={styles.metaGroup}>
-                              <span className={styles.metaItem}>
-                                <CiCalendar aria-hidden="true" /> {post.date}
-                              </span>
-                              <span className={styles.separator} aria-hidden="true">
-                                |
-                              </span>
-                              <span className={styles.metaItem}>{post.timeAgo}</span>
+                              <Skeleton width={140} height={12} />
                             </span>
                             <span className={styles.metaGroup}>
-                              <span className={styles.metaItem}>
-                                <FiEye aria-hidden="true" /> {post.views.toLocaleString()}
-                              </span>
-                              <span className={styles.separator} aria-hidden="true">
-                                |
-                              </span>
-                              <span className={styles.metaItem}>
-                                <FiHeart aria-hidden="true" /> {post.likeCount.toLocaleString()}
-                              </span>
-                              <span className={styles.separator} aria-hidden="true">
-                                |
-                              </span>
-                              <span className={styles.metaItem}>
-                                <FiMessageCircle aria-hidden="true" /> {post.commentCount.toLocaleString()}
-                              </span>
+                              <Skeleton width={160} height={12} />
                             </span>
                           </div>
                         </div>
-                        {post.imageUrl ? (
-                          <div
-                            className={styles.listThumb}
-                            style={{
-                              backgroundImage: `url(${post.imageUrl})`,
-                            }}
-                            aria-hidden="true"
-                          />
-                        ) : null}
+                        <Skeleton height={150} width="100%" borderRadius={12} />
                       </article>
-                    </Link>
-                  </li>
+                    </li>
+                    {index < listSkeletons.length - 1 ? (
+                      <li className={styles.listDividerItem} aria-hidden="true">
+                        <div className={styles.listDivider} />
+                      </li>
+                    ) : null}
+                  </Fragment>
+                ))
+              : filteredPosts.map((post, index) => (
+                  <Fragment key={post.id}>
+                    <li>
+                      <Link className={styles.postLink} href={`/posts/${post.id}`}>
+                        <article className={styles.listItem}>
+                          <div className={styles.listBody}>
+                            <h3>{post.title}</h3>
+                            <p className={styles.summary}>{post.summary}</p>
+                            <div className={styles.meta}>
+                              <span className={styles.metaGroup}>
+                                <span className={styles.metaItem}>
+                                  <CiCalendar aria-hidden="true" /> {post.date}
+                                </span>
+                                <span className={styles.separator} aria-hidden="true">
+                                  |
+                                </span>
+                                <span className={styles.metaItem}>{post.timeAgo}</span>
+                              </span>
+                              <span className={styles.metaGroup}>
+                                <span className={styles.metaItem}>
+                                  <FiEye aria-hidden="true" /> {post.views.toLocaleString()}
+                                </span>
+                                <span className={styles.separator} aria-hidden="true">
+                                  |
+                                </span>
+                                <span className={styles.metaItem}>
+                                  <FiHeart aria-hidden="true" /> {post.likeCount.toLocaleString()}
+                                </span>
+                                <span className={styles.separator} aria-hidden="true">
+                                  |
+                                </span>
+                                <span className={styles.metaItem}>
+                                  <FiMessageCircle aria-hidden="true" /> {post.commentCount.toLocaleString()}
+                                </span>
+                              </span>
+                            </div>
+                          </div>
+                          {post.imageUrl ? (
+                            <div
+                              className={styles.listThumb}
+                              style={{
+                                backgroundImage: `url(${post.imageUrl})`,
+                              }}
+                              aria-hidden="true"
+                            />
+                          ) : null}
+                        </article>
+                      </Link>
+                    </li>
+                    {index < filteredPosts.length - 1 ? (
+                      <li className={styles.listDividerItem} aria-hidden="true">
+                        <div className={styles.listDivider} />
+                      </li>
+                    ) : null}
+                  </Fragment>
                 ))}
             {isFetchingNextPage
               ? listSkeletons.map((_, index) => (
-                  <li key={`list-more-skeleton-${index}`}>
-                    <article className={styles.listItem} aria-hidden="true">
-                      <div className={styles.listBody}>
-                        <Skeleton height={26} width="70%" />
-                        <Skeleton count={2} height={16} style={{ marginBottom: '6px' }} />
-                        <div className={styles.meta}>
-                          <span className={styles.metaGroup}>
-                            <Skeleton width={140} height={12} />
-                          </span>
-                          <span className={styles.metaGroup}>
-                            <Skeleton width={160} height={12} />
-                          </span>
+                  <Fragment key={`list-more-skeleton-${index}`}>
+                    <li>
+                      <article className={styles.listItem} aria-hidden="true">
+                        <div className={styles.listBody}>
+                          <Skeleton height={26} width="70%" />
+                          <Skeleton count={2} height={16} style={{ marginBottom: '6px' }} />
+                          <div className={styles.meta}>
+                            <span className={styles.metaGroup}>
+                              <Skeleton width={140} height={12} />
+                            </span>
+                            <span className={styles.metaGroup}>
+                              <Skeleton width={160} height={12} />
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                      <Skeleton height={150} width="100%" borderRadius={12} />
-                    </article>
-                  </li>
+                        <Skeleton height={150} width="100%" borderRadius={12} />
+                      </article>
+                    </li>
+                    {index < listSkeletons.length - 1 ? (
+                      <li className={styles.listDividerItem} aria-hidden="true">
+                        <div className={styles.listDivider} />
+                      </li>
+                    ) : null}
+                  </Fragment>
                 ))
               : null}
           </ul>

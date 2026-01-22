@@ -9,5 +9,6 @@ export const useCategoriesQuery = () => {
   return useQuery<CategoryListResponse, Error>({
     queryKey: categoriesKeys.all,
     queryFn: categoriesApi.getCategories,
+    placeholderData: previousData => previousData,
   });
 };

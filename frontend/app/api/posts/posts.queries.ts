@@ -13,6 +13,7 @@ export const useInfinitePostsQuery = (params?: PostListQuery, options?: QueryOpt
     queryKey: postsKeys.infinite(params),
     queryFn: ({ pageParam }) => postsApi.getPosts({ ...params, page: pageParam as number }),
     enabled: options?.enabled ?? true,
+    placeholderData: previousData => previousData,
     getNextPageParam: lastPage => (lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined),
     initialPageParam: 1,
   });
@@ -23,6 +24,7 @@ export const usePostsQuery = (params?: PostListQuery, options?: QueryOptions) =>
     queryKey: postsKeys.list(params),
     queryFn: () => postsApi.getPosts(params),
     enabled: options?.enabled ?? true,
+    placeholderData: previousData => previousData,
   });
 };
 

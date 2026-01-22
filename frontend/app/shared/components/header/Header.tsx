@@ -7,8 +7,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { CiLogin, CiMenuBurger, CiUser } from 'react-icons/ci';
-import { FiBookOpen, FiLogOut, FiUser } from 'react-icons/fi';
+import { CiUser, CiFileOn, CiLogin, CiLogout, CiMenuBurger } from 'react-icons/ci';
+import { PiUserCircleThin } from 'react-icons/pi';
 import { FiHeart, FiMessageCircle } from 'react-icons/fi';
 
 import { authKeys } from '@/app/api/auth/auth.keys';
@@ -270,7 +270,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
           <ul>
             {HeaderConfig.navItems.map(item => {
               if (item.isAuthDependent) {
-                const Icon = isLoggedIn ? CiUser : CiLogin;
+                const Icon = isLoggedIn ? PiUserCircleThin : CiLogin;
                 const label = isLoggedIn ? '프로필' : '로그인';
 
                 return (
@@ -279,7 +279,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                       <div className={styles.profileWrapper} ref={profileRef}>
                         <button
                           type="button"
-                          className={`${styles.navLink} ${styles.navButton}`}
+                          className={`${styles.navLink} ${styles.navButton} ${styles.profileIconButton}`}
                           aria-label={label}
                           aria-expanded={isProfileOpen}
                           aria-haspopup="menu"
@@ -301,7 +301,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                               role="menuitem"
                               onClick={closeProfileMenu}
                             >
-                              <FiUser aria-hidden="true" />
+                              <CiUser aria-hidden="true" />
                               마이페이지
                             </Link>
                             <Link
@@ -310,8 +310,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                               role="menuitem"
                               onClick={closeProfileMenu}
                             >
-                              <FiBookOpen aria-hidden="true" />
-                              내 블로그
+                              <CiFileOn aria-hidden="true" />내 블로그
                             </Link>
                             <div className={styles.profileDivider} aria-hidden="true" />
                             <button
@@ -323,7 +322,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                                 handleLogout();
                               }}
                             >
-                              <FiLogOut aria-hidden="true" />
+                              <CiLogout aria-hidden="true" />
                               로그아웃
                             </button>
                           </div>
@@ -368,7 +367,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                           </span>
                         ) : null}
                       </button>
-                        {isNotificationVisible ? (
+                      {isNotificationVisible ? (
                         <div
                           className={`${styles.notificationMenu} ${
                             isNotificationOpen ? styles.dropdownOpen : styles.dropdownClose
