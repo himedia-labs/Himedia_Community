@@ -11,7 +11,7 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     phone VARCHAR(20) NOT NULL UNIQUE,
     role VARCHAR(20) NOT NULL CHECK (role IN ('TRAINEE', 'MENTOR', 'INSTRUCTOR', 'ADMIN')),
-    requested_role VARCHAR(20) CHECK (requested_role IN ('TRAINEE', 'MENTOR', 'INSTRUCTOR')),
+    requested_role VARCHAR(20) CHECK (requested_role IN ('TRAINEE', 'GRADUATE', 'MENTOR', 'INSTRUCTOR')),
     course VARCHAR(255),
     privacy_consent BOOLEAN NOT NULL DEFAULT false,
     approved BOOLEAN NOT NULL DEFAULT false,
@@ -182,6 +182,23 @@ CREATE TABLE comment_reactions (
 
 -- 인덱스
 CREATE INDEX idx_comment_reactions_user_id ON comment_reactions(user_id);
+
+-- 알림 테이블
+CREATE TABLE notifications (
+    id BIGINT PRIMARY KEY,
+    target_user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    actor_user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    post_id BIGINT REFERENCES posts(id) ON DELETE CASCADE,
+    comment_id BIGINT REFERENCES comments(id) ON DELETE CASCADE,
+    type VARCHAR(20) NOT NULL CHECK (type IN ('POST_LIKE', 'POST_COMMENT', 'COMMENT_LIKE', 'COMMENT_REPLY')),
+    read_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 인덱스
+CREATE INDEX idx_notifications_target_user_id ON notifications(target_user_id);
+CREATE INDEX idx_notifications_target_user_created_at ON notifications(target_user_id, created_at);
+CREATE INDEX idx_notifications_target_user_read_at ON notifications(target_user_id, read_at);
 
 -- 리프레시 토큰 테이블
 CREATE TABLE refresh_tokens (

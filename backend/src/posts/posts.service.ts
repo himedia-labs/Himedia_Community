@@ -18,6 +18,8 @@ import { CreatePostDto } from './dto/createPost.dto';
 import { UpdatePostDto } from './dto/updatePost.dto';
 import { SnowflakeService } from '../common/services/snowflake.service';
 import { Follow } from '../follows/entities/follow.entity';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/entities/notification.entity';
 
 import type { ErrorCode } from '../constants/error/error-codes';
 const ensurePublishFields = (fields: {
@@ -79,6 +81,7 @@ export class PostsService {
     @InjectRepository(Comment)
     private readonly commentsRepository: Repository<Comment>,
     private readonly snowflakeService: SnowflakeService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   private buildPostImages(post: Post, postImageRepository: Repository<PostImage>) {
@@ -581,7 +584,7 @@ export class PostsService {
 
       const post = await postRepository.findOne({
         where: { id: postId, status: PostStatus.PUBLISHED },
-        select: { id: true, likeCount: true },
+        select: { id: true, likeCount: true, authorId: true },
       });
 
       if (!post) {
@@ -603,6 +606,15 @@ export class PostsService {
         await likeRepository.save(like);
         await postRepository.increment({ id: postId }, 'likeCount', 1);
         liked = true;
+      }
+
+      if (liked && post.authorId) {
+        await this.notificationsService.createNotification({
+          actorUserId: safeUserId,
+          targetUserId: post.authorId,
+          type: NotificationType.POST_LIKE,
+          postId: post.id,
+        });
       }
 
       const updated = await postRepository.findOne({

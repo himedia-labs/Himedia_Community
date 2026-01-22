@@ -8,6 +8,7 @@ import { FollowsModule } from './follows/follows.module';
 import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import appConfig from './common/config/app.config';
 
 @Module({
@@ -24,6 +25,7 @@ import appConfig from './common/config/app.config';
     PostsModule,
     CommentsModule,
     UploadsModule,
+    NotificationsModule,
   ],
   controllers: [],
   providers: [],

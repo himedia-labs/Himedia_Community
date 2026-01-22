@@ -12,6 +12,8 @@ import { CreateCommentDto } from './dto/createComment.dto';
 import { UpdateCommentDto } from './dto/updateComment.dto';
 import { Comment } from './entities/comment.entity';
 import { CommentReaction, CommentReactionType } from './entities/commentReaction.entity';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/entities/notification.entity';
 
 @Injectable()
 export class CommentsService {
@@ -23,12 +25,12 @@ export class CommentsService {
     @InjectRepository(Post)
     private readonly postsRepository: Repository<Post>,
     private readonly snowflakeService: SnowflakeService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async getCommentsByPostId(postId: string, userId: string | null = null) {
     const post = await this.postsRepository.findOne({
       where: { id: postId, status: PostStatus.PUBLISHED },
-      select: { id: true },
     });
 
     if (!post) {
@@ -81,7 +83,7 @@ export class CommentsService {
 
     const post = await this.postsRepository.findOne({
       where: { id: postId, status: PostStatus.PUBLISHED },
-      select: { id: true },
+      select: { id: true, authorId: true },
     });
 
     if (!post) {
@@ -94,6 +96,7 @@ export class CommentsService {
 
     let parentId: string | null = null;
     let depth = 0;
+    let parentAuthorId: string | null = null;
 
     if (body.parentId) {
       const parent = await this.commentsRepository.findOne({
@@ -110,6 +113,7 @@ export class CommentsService {
 
       parentId = parent.id;
       depth = parent.depth + 1;
+      parentAuthorId = parent.authorId;
     }
 
     const comment = this.commentsRepository.create({
@@ -122,6 +126,26 @@ export class CommentsService {
     });
 
     await this.commentsRepository.save(comment);
+
+    if (parentAuthorId) {
+      await this.notificationsService.createNotification({
+        actorUserId: authorId,
+        targetUserId: parentAuthorId,
+        type: NotificationType.COMMENT_REPLY,
+        postId: post.id,
+        commentId: comment.id,
+      });
+    }
+
+    if (post.authorId && post.authorId !== parentAuthorId) {
+      await this.notificationsService.createNotification({
+        actorUserId: authorId,
+        targetUserId: post.authorId,
+        type: NotificationType.POST_COMMENT,
+        postId: post.id,
+        commentId: comment.id,
+      });
+    }
 
     return { id: comment.id };
   }
@@ -186,7 +210,7 @@ export class CommentsService {
 
       const comment = await commentRepository.findOne({
         where: { id: commentId, postId, deletedAt: IsNull() },
-        select: { id: true, likeCount: true },
+        select: { id: true, likeCount: true, authorId: true, postId: true },
       });
 
       if (!comment) {
@@ -210,6 +234,16 @@ export class CommentsService {
         await reactionRepository.save(reaction);
         await commentRepository.increment({ id: commentId }, 'likeCount', 1);
         liked = true;
+      }
+
+      if (liked && comment.authorId) {
+        await this.notificationsService.createNotification({
+          actorUserId: safeUserId,
+          targetUserId: comment.authorId,
+          type: NotificationType.COMMENT_LIKE,
+          postId: comment.postId,
+          commentId: comment.id,
+        });
       }
 
       const updated = await commentRepository.findOne({
