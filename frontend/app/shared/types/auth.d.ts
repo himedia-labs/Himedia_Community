@@ -25,6 +25,7 @@ export interface RegisterRequest {
   privacyConsent: boolean;
 }
 
+
 // Login Request
 export interface LoginRequest {
   email: string;
