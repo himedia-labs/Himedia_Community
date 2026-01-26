@@ -1,11 +1,11 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 
 import { ILike, Repository } from 'typeorm';
 
 import { User } from '../entities/user.entity';
 import { ERROR_CODES } from '../../constants/error/error-codes';
-import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
+import { AUTH_ERROR_MESSAGES, AUTH_VALIDATION_MESSAGES } from '../../constants/message/auth.messages';
 
 import type { AuthUserProfile, PublicUserProfile } from '../interfaces/user.interface';
 
@@ -146,6 +146,50 @@ export class UserService {
     user.profileImageUrl = trimmed ? trimmed : null;
     await this.usersRepository.save(user);
 
+    return this.buildUserProfile(user);
+  }
+
+  /**
+   * 프로필 수정
+   * @description 이름/프로필 아이디를 업데이트
+   */
+  async updateProfile(userId: string, name?: string | null, profileHandle?: string | null): Promise<AuthUserProfile> {
+    const user = await this.getUserByIdOrThrow(userId);
+    const nextName = name?.trim();
+    const nextHandleRaw = profileHandle?.trim();
+    const nextHandle = nextHandleRaw?.startsWith('@') ? nextHandleRaw.slice(1) : nextHandleRaw;
+
+    if (typeof name !== 'undefined') {
+      if (!nextName) {
+        throw new ConflictException({
+          message: AUTH_VALIDATION_MESSAGES.NAME_STRING,
+          code: ERROR_CODES.VALIDATION_FAILED,
+        });
+      }
+      user.name = nextName;
+    }
+
+    if (typeof profileHandle !== 'undefined') {
+      if (!nextHandle) {
+        throw new ConflictException({
+          message: AUTH_VALIDATION_MESSAGES.PROFILE_HANDLE_REQUIRED,
+          code: ERROR_CODES.VALIDATION_FAILED,
+        });
+      }
+      const normalized = nextHandle.toLowerCase();
+      if (normalized !== user.profileHandle) {
+        const isDuplicated = await this.usersRepository.exist({ where: { profileHandle: normalized } });
+        if (isDuplicated) {
+          throw new ConflictException({
+            message: AUTH_VALIDATION_MESSAGES.PROFILE_HANDLE_DUPLICATE,
+            code: ERROR_CODES.AUTH_PROFILE_HANDLE_ALREADY_EXISTS,
+          });
+        }
+        user.profileHandle = normalized;
+      }
+    }
+
+    await this.usersRepository.save(user);
     return this.buildUserProfile(user);
   }
 

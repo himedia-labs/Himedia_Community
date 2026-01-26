@@ -24,6 +24,7 @@ import { VerifyResetCodeDto } from './dto/verifyResetCode.dto';
 import { ResetPasswordWithCodeDto } from './dto/resetPasswordWithCode.dto';
 import { UpdateProfileBioDto } from './dto/updateProfileBio.dto';
 import { UpdateProfileImageDto } from './dto/updateProfileImage.dto';
+import { UpdateProfileDto } from './dto/updateProfile.dto';
 
 import { UserService } from './services/user.service';
 import { AuthService } from './services/auth.service';
@@ -162,6 +163,16 @@ export class AuthController {
   @Patch('me/profile-image')
   updateProfileImage(@Body() body: UpdateProfileImageDto, @Request() req: ExpressRequest & { user: JwtPayload }) {
     return this.userService.updateProfileImage(req.user.sub, body.profileImageUrl);
+  }
+
+  /**
+   * 내 정보 수정
+   * @description 이름/프로필 아이디 수정
+   */
+  @UseGuards(JwtGuard)
+  @Patch('me/profile')
+  updateProfile(@Body() body: UpdateProfileDto, @Request() req: ExpressRequest & { user: JwtPayload }) {
+    return this.userService.updateProfile(req.user.sub, body.name, body.profileHandle);
   }
 
   /**
