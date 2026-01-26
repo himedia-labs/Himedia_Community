@@ -1,0 +1,147 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+  max-width: 1200px;
+  padding: 80px 0;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.headerMain {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.name {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.handle {
+  font-size: 1rem;
+  color: #8b95a1;
+}
+
+.listView {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.postLink {
+  display: block;
+  width: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.listItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  min-height: 150px;
+  width: 100%;
+}
+
+.listBody {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 16px;
+}
+
+.listBody h3 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.listThumb {
+  width: 100%;
+  height: 150px;
+  border-radius: 12px;
+  background-size: cover;
+  background-position: center;
+}
+
+.summary {
+  font-size: 14px;
+  margin: 0;
+  color: #757575;
+  line-height: 1.7;
+  align-self: start;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 14px;
+  color: #8a8a8a;
+  align-items: center;
+}
+
+.metaGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.separator {
+  color: #c7c7c7;
+}
+
+.listDivider {
+  width: 100%;
+  height: 1px;
+  margin: 3rem 0;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.listDividerItem {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.empty {
+  padding: 2rem;
+  border-radius: 16px;
+  border: 1px dashed rgba(0, 0, 0, 0.15);
+  text-align: center;
+  color: #7a7a7a;
+}
+
+@media (max-width: 600px) {
+  .headerMain {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .listItem {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+}
