@@ -17,12 +17,6 @@
   align-items: normal;
 }
 
-.subtitle {
-  margin: 0 0 32px;
-  font-size: 1rem;
-  color: #6b7280;
-}
-
 .list {
   display: flex;
   gap: 6px;
@@ -36,6 +30,13 @@
   height: 1px;
   background: #e5e8eb;
   margin: 6px 0;
+}
+
+.listGroupTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #9aa4b2;
+  padding: 10px 16px 4px;
 }
 
 .listLink {
@@ -60,31 +61,6 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-}
-
-.mainHeader {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.mainTitle {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #333d4b;
-  line-height: 1.6;
-}
-
-.mainMeta {
-  font-size: 0.9375rem;
-  color: #8b95a1;
-}
-
-.mainBody {
-  font-size: 1rem;
-  color: #4e5968;
-  line-height: 1.6;
 }
 
 .header {
@@ -118,7 +94,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px 0;
+  padding: 16px 0 0;
   min-height: 48px;
 }
 
@@ -147,6 +123,68 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.settingsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settingsBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 0;
+  border: 1px solid #e5e8eb;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.settingsBlockTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333d4b;
+}
+
+.settingsBlockFooter {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.settingsFooter {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 8px;
+}
+
+.withdrawButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: transparent;
+  color: #d14343;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.withdrawButton :global(svg) {
+  width: 16px;
+  height: 16px;
+}
+
+.settingsItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.settingsItemLabel {
+  font-size: 1rem;
+  color: #4e5968;
+  min-width: 200px;
 }
 
 .settingsEditorBox {
@@ -228,25 +266,6 @@
   margin-top: 0;
 }
 
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: 1.4rem;
-}
-
-.sectionHeading {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.sectionTitle {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #1f1f1f;
-  margin: 0;
-}
-
 .profileCard {
   border-radius: 12px;
   background: #fff;
@@ -262,24 +281,74 @@
   align-items: center;
   gap: 1.2rem;
   width: 100%;
+  position: relative;
 }
 
 .avatar {
   width: 62px;
   height: 62px;
   border-radius: 50%;
-  background: #f7f8fa;
-  border: 1px solid #e5e8eb;
+  background: #e9edf4;
+  border: 1px solid #d0d7de;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #1f1f1f;
   font-size: 1.25rem;
   font-weight: 700;
+  position: relative;
+}
+
+.avatarButton {
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.avatarButton:disabled {
+  cursor: default;
+}
+
+.avatarInput {
+  display: none;
+}
+
+.avatarRemoveButton {
+  border: none;
+  background: transparent;
+  color: #d14343;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin: 0;
+}
+
+.avatarRemoveButton:hover {
+  color: #b33a3a;
 }
 
 .avatarText {
   transform: translateY(1px);
+}
+
+.avatarIcon {
+  color: #6b7280;
+  width: 28px;
+  height: 28px;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatarIconEdit {
+  transform: translateX(4.75px) translateY(0.5px);
+  width: 35px;
+  height: 35px;
 }
 
 .profileInfo {
@@ -294,6 +363,42 @@
   font-size: 2rem;
   font-weight: bold;
   color: #333d4b;
+}
+
+.profileNameRow {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.profileHandle {
+  font-size: 1rem;
+  color: #8b95a1;
+}
+
+.profileActions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.profileEditButton {
+  border: 1px solid #e5e8eb;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  color: #333d4b;
+  background: #fff;
+  cursor: pointer;
+}
+
+.profileEditButton:hover {
+  background: #f2f4f6;
+  color: #1f1f1f;
 }
 
 .profileStats {
@@ -312,163 +417,6 @@
 
 .profileDivider {
   color: #363636;
-}
-
-.sortBar {
-  display: flex;
-  gap: 1.5rem;
-  padding: 0.5rem 0;
-  margin: 0 0 24px;
-}
-
-.sortButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-  padding: 0.5rem 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #a5a5a5;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.sortButton:hover {
-  color: #6f6f6f;
-}
-
-.sortButtonActive {
-  color: #1f1f1f;
-}
-
-.settingCard {
-  border-radius: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  padding: 1.4rem;
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.settingHeader {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.settingTitle {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #1f1f1f;
-  margin: 0;
-}
-
-.addressRow {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.addressPrefix {
-  padding: 0.55rem 0.8rem;
-  border-radius: 10px;
-  background: #f2f4f8;
-  color: #5c6b82;
-  font-size: 0.9rem;
-}
-
-.addressInput {
-  flex: 1;
-  min-width: 180px;
-  padding: 0.55rem 0.8rem;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  font-size: 0.9rem;
-}
-
-.primaryButton {
-  border: none;
-  border-radius: 10px;
-  padding: 0.55rem 1rem;
-  background: #1f2a44;
-  color: #fff;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.socialGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.socialItem {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-
-.socialLabel {
-  font-size: 0.85rem;
-  color: #5c6b82;
-  font-weight: 600;
-}
-
-.socialInput {
-  padding: 0.55rem 0.8rem;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  font-size: 0.9rem;
-}
-
-.withdrawCard {
-  border-radius: 16px;
-  border: 1px solid #f4d1d1;
-  padding: 1.4rem;
-  background: #fff7f7;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.dangerButton {
-  border: none;
-  border-radius: 10px;
-  padding: 0.55rem 1rem;
-  background: #d75b5b;
-  color: #fff;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.tabs {
-  margin-top: 0.8rem;
-  display: flex;
-  gap: 0.75rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  padding-bottom: 0.75rem;
-}
-
-.tabButton {
-  background: transparent;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 999px;
-  padding: 0.4rem 1rem;
-  font-size: 0.9rem;
-  color: #7a7a7a;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    color 0.2s ease,
-    background-color 0.2s ease;
 }
 
 .listView {
@@ -657,17 +605,6 @@
 
 @media (max-width: 1000px) {
   .profileCard {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
-@media (max-width: 700px) {
-  .socialGrid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .withdrawCard {
     flex-direction: column;
     align-items: flex-start;
   }
