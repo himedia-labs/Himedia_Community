@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 
-import { useUpdateProfileBioMutation, useUpdateProfileImageMutation } from '@/app/api/auth/auth.mutations';
+import { useUpdateProfileBioMutation, useUpdateProfileImageMutation, useUpdateProfileMutation } from '@/app/api/auth/auth.mutations';
 import { authKeys } from '@/app/api/auth/auth.keys';
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { commentsApi } from '@/app/api/comments/comments.api';
@@ -80,8 +80,80 @@ export const useMyPageData = () => {
   };
 };
 
+// 프로필 편집 훅
+export const useProfileEditor = (initialName?: string, initialHandle?: string) => {
+  // 레퍼런스
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  const { mutateAsync: updateProfile, isPending: isProfileSaving } = useUpdateProfileMutation();
+
+  // 편집 상태
+  const [isProfileEditing, setIsProfileEditing] = useState(false);
+  const [profileName, setProfileName] = useState('');
+  const [profileHandle, setProfileHandle] = useState('');
+
+  // 기본값 반영
+  useEffect(() => {
+    setProfileName(initialName ?? '');
+  }, [initialName]);
+  useEffect(() => {
+    setProfileHandle(initialHandle ?? '');
+  }, [initialHandle]);
+
+  // 핸들 입력
+  const handleProfileHandleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const nextValue = event.target.value;
+    if (/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(nextValue)) {
+      showToast({ message: '프로필 아이디는 영문/숫자만 입력할 수 있어요.', type: 'error' });
+      return;
+    }
+    setProfileHandle(nextValue);
+  };
+  // 프로필 저장
+  const handleProfileSave = async () => {
+    const nextName = profileName.trim();
+    const nextHandle = profileHandle.trim().replace(/^@/, '');
+    if (/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(nextHandle)) {
+      showToast({ message: '프로필 아이디는 영문/숫자만 입력할 수 있어요.', type: 'error' });
+      return;
+    }
+    if (!nextHandle) {
+      showToast({ message: '프로필 아이디를 입력해주세요.', type: 'error' });
+      return;
+    }
+    try {
+      await updateProfile({ name: nextName, profileHandle: nextHandle });
+      await queryClient.invalidateQueries({ queryKey: authKeys.currentUser });
+      showToast({ message: '프로필이 저장되었습니다.', type: 'success' });
+      setIsProfileEditing(false);
+    } catch (error) {
+      showToast({ message: '프로필 저장에 실패했습니다.', type: 'error' });
+    }
+  };
+  // 편집 토글
+  const handleProfileEditToggle = () => {
+    if (!isProfileEditing) {
+      setIsProfileEditing(true);
+      return;
+    }
+    if (isProfileSaving) return;
+    handleProfileSave();
+  };
+
+  return {
+    isProfileEditing,
+    isProfileSaving,
+    profileName,
+    profileHandle,
+    handlers: {
+      handleProfileEditToggle,
+      handleProfileHandleChange,
+    },
+  };
+};
+
 // 프로필 이미지 편집 훅
-export const useProfileImageEditor = (initialImageUrl?: string | null) => {
+export const useProfileImageEditor = (initialImageUrl?: string | null, isProfileEditing?: boolean) => {
   // 레퍼런스
   const queryClient = useQueryClient();
   const { showToast } = useToast();
@@ -89,7 +161,6 @@ export const useProfileImageEditor = (initialImageUrl?: string | null) => {
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
 
   // 편집 상태
-  const [isProfileEditing, setIsProfileEditing] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState('');
 
   // 기본값 반영
@@ -97,8 +168,6 @@ export const useProfileImageEditor = (initialImageUrl?: string | null) => {
     setProfileImageUrl(initialImageUrl ?? '');
   }, [initialImageUrl]);
 
-  // 편집 토글
-  const handleProfileEditToggle = () => setIsProfileEditing(prev => !prev);
   // 프로필 이미지 클릭
   const handleAvatarClick = () => {
     if (!isProfileEditing) return;
@@ -120,20 +189,8 @@ export const useProfileImageEditor = (initialImageUrl?: string | null) => {
       if (event.target) event.target.value = '';
     }
   };
-  // 프로필 이미지 삭제
-  const handleAvatarRemove = async () => {
-    try {
-      await updateProfileImage({ profileImageUrl: null });
-      setProfileImageUrl('');
-      await queryClient.invalidateQueries({ queryKey: authKeys.currentUser });
-      showToast({ message: '프로필 이미지가 삭제되었습니다.', type: 'success' });
-    } catch {
-      showToast({ message: '프로필 이미지 삭제에 실패했습니다.', type: 'error' });
-    }
-  };
 
   return {
-    isProfileEditing,
     isProfileUpdating,
     profileImageUrl,
     refs: {
@@ -142,8 +199,6 @@ export const useProfileImageEditor = (initialImageUrl?: string | null) => {
     handlers: {
       handleAvatarClick,
       handleAvatarChange,
-      handleAvatarRemove,
-      handleProfileEditToggle,
     },
   };
 };

@@ -20,6 +20,7 @@ import {
   useMyPageData,
   useMyPageTab,
   usePostMenu,
+  useProfileEditor,
   useProfileImageEditor,
 } from './mypage.hooks';
 import { formatDateLabel, formatDateTimeLabel, formatSummary } from './mypage.utils';
@@ -42,13 +43,20 @@ export default function MyPage() {
     userBio,
   } = useMyPageData();
 
-  // 프로필 이미지
+  // 프로필 편집
   const {
     isProfileEditing,
+    profileName,
+    profileHandle: editingHandle,
+    handlers: { handleProfileEditToggle, handleProfileHandleChange },
+  } = useProfileEditor(displayName, profileHandle);
+
+  // 프로필 이미지
+  const {
     profileImageUrl: profileAvatarUrl,
     refs: { avatarInputRef },
-    handlers: { handleAvatarClick, handleAvatarChange, handleAvatarRemove, handleProfileEditToggle },
-  } = useProfileImageEditor(profileImageUrl);
+    handlers: { handleAvatarClick, handleAvatarChange },
+  } = useProfileImageEditor(profileImageUrl, isProfileEditing);
 
   // 게시글 메뉴
   const { isPostDeleting, openPostMenuId, handlePostDelete, handlePostEdit, handlePostMenuToggle } = usePostMenu();
@@ -159,10 +167,25 @@ export default function MyPage() {
                   />
                 </button>
                 <div className={styles.profileInfo}>
-                  <div className={styles.profileNameRow}>
-                    <span className={styles.profileName}>{displayName}</span>
-                    <span className={styles.profileHandle}>@{profileHandle}</span>
-                  </div>
+                  {isProfileEditing ? (
+                    <div className={styles.profileNameRow}>
+                      <span className={styles.profileName}>{displayName}</span>
+                      <span className={styles.profileHandleInputGroup}>
+                        <span className={styles.profileHandlePrefix}>@</span>
+                        <input
+                          className={styles.profileHandleInput}
+                          value={editingHandle}
+                          onChange={handleProfileHandleChange}
+                          placeholder="아이디"
+                        />
+                      </span>
+                    </div>
+                  ) : (
+                    <div className={styles.profileNameRow}>
+                      <span className={styles.profileName}>{displayName}</span>
+                      <span className={styles.profileHandle}>@{profileHandle}</span>
+                    </div>
+                  )}
                   <div className={styles.profileStats}>
                     <span className={styles.profileStat}>
                       글 <strong>{myPosts.length}</strong>
@@ -178,13 +201,8 @@ export default function MyPage() {
                   </div>
                 </div>
                 <div className={styles.profileActions}>
-                  {isProfileEditing && profileAvatarUrl ? (
-                    <button type="button" className={styles.avatarRemoveButton} onClick={handleAvatarRemove}>
-                      프로필 사진 삭제
-                    </button>
-                  ) : null}
                   <button type="button" className={styles.profileEditButton} onClick={handleProfileEditToggle}>
-                    {isProfileEditing ? '저장' : '프로필 사진 변경'}
+                    {isProfileEditing ? '저장' : '프로필 수정'}
                   </button>
                 </div>
               </div>

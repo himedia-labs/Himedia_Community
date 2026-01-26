@@ -315,19 +315,6 @@
   display: none;
 }
 
-.avatarRemoveButton {
-  border: none;
-  background: transparent;
-  color: #d14343;
-  font-size: 0.85rem;
-  cursor: pointer;
-  margin: 0;
-}
-
-.avatarRemoveButton:hover {
-  color: #b33a3a;
-}
-
 .avatarText {
   transform: translateY(1px);
 }
@@ -352,9 +339,7 @@
 }
 
 .profileInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+  display: grid;
   width: 100%;
   flex: 1;
 }
@@ -367,8 +352,33 @@
 
 .profileNameRow {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: 10px;
+  height: 48px;
+}
+
+.profileHandleInputGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid #e5e8eb;
+  border-radius: 8px;
+  padding: 6px 10px;
+  background: #fff;
+}
+
+.profileHandlePrefix {
+  font-size: 1rem;
+  color: #8b95a1;
+}
+
+.profileHandleInput {
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  color: #333d4b;
+  background: transparent;
+  width: 120px;
 }
 
 .profileHandle {
