@@ -25,9 +25,9 @@ VALUES
   (19, 'Tech Essay'),
   (20, 'Study Note');
 
-INSERT INTO users (id, name, email, password, phone, role, requested_role, course, privacy_consent, approved)
+INSERT INTO users (id, name, email, password, phone, role, requested_role, course, profile_handle, profile_image_url, privacy_consent, approved)
 VALUES
-  (1, 'Demo User', 'demo@example.com', 'hashed_password', '01000000000', 'TRAINEE', NULL, 'Web Bootcamp', true, true);
+  (1, 'Demo User', 'demo@example.com', 'hashed_password', '01000000000', 'TRAINEE', NULL, 'Web Bootcamp', 'demo', NULL, true, true);
 
 INSERT INTO posts (id, author_id, category_id, title, content, status, published_at, view_count, like_count)
 VALUES

@@ -7,5 +7,15 @@ export interface AuthUserProfile {
   role: UserRole;
   phone: string;
   course: string | null;
+  profileHandle: string | null;
+  profileImageUrl: string | null;
+  profileBio: string | null;
+}
+
+export interface PublicUserProfile {
+  id: string;
+  name: string;
+  profileHandle: string | null;
+  profileImageUrl: string | null;
   profileBio: string | null;
 }

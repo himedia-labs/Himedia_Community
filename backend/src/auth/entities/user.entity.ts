@@ -17,6 +17,7 @@ export enum UserRole {
 @Index(['role'])
 @Index(['approved'])
 @Index(['role', 'approved'])
+@Index(['profileHandle'])
 export class User {
   @PrimaryColumn({ type: 'bigint' })
   id!: string;
@@ -41,6 +42,12 @@ export class User {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   course!: string | null;
+
+  @Column({ type: 'varchar', length: 50, name: 'profile_handle', unique: true, nullable: true })
+  profileHandle!: string | null;
+
+  @Column({ type: 'varchar', length: 500, name: 'profile_image_url', nullable: true })
+  profileImageUrl!: string | null;
 
   @Column({ type: 'text', name: 'profile_bio', nullable: true })
   profileBio!: string | null;
