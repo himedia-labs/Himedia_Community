@@ -2,9 +2,6 @@
   flex-direction: column;
   justify-content: normal;
   align-items: normal;
-  gap: 40px;
-  width: 100%;
-  max-width: 1200px;
   padding: 80px 0;
   display: flex;
 }
@@ -12,17 +9,28 @@
 .layout {
   display: flex;
   flex-direction: row;
-  gap: 80px;
+  gap: 3rem;
   justify-content: normal;
   align-items: normal;
 }
 
+.leftPanel {
+  min-width: 10rem;
+  min-width: 13rem;
+}
+
 .list {
   display: flex;
-  gap: 6px;
+  gap: 3rem;
   flex-wrap: wrap;
   flex-direction: column;
   min-width: 10rem;
+}
+
+.listSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .listDividerLine {
@@ -45,6 +53,12 @@
   color: #4e5968;
   text-decoration: none;
   border-radius: 10px;
+}
+
+.listCount {
+  margin-left: 6px;
+  font-size: 0.85rem;
+  color: #9aa4b2;
 }
 
 .listLink:hover {
@@ -83,6 +97,11 @@
   flex-direction: column;
 }
 
+.postsMain {
+  flex: 1;
+  min-width: 0;
+}
+
 .settingsSection {
   display: flex;
   flex-direction: column;
@@ -98,38 +117,51 @@
   min-height: 48px;
 }
 
+.settingsLabelGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settingsControlGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settingsDivider {
+  width: 1px;
+  height: 20px;
+  background: #e5e8eb;
+}
+
 .settingsSortGroup {
   display: inline-flex;
   align-items: center;
-  padding: 0.25rem;
   border-radius: 8px;
-  background: #f3f6ff;
-  transition: background-color 0.15s ease;
-}
-
-.settingsSortGroup:hover {
-  background: rgba(228, 228, 228, 0.75);
+  border: 1px solid #e5e8eb;
+  background: #fff;
   transition:
     color 0.15s ease,
     background-color 0.15s ease;
+}
+
+.settingsSortGroup:hover {
+  background: #f2f4f6;
 }
 
 .settingsSortButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  padding: 8px 14px;
-  border-radius: 999px;
+  gap: 6px;
+  padding: 8px 12px;
   border: none;
   background: transparent;
-  color: #7a7a7a;
-  font-size: 0.95rem;
+  color: #4e5968;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition:
-    color 0.15s ease,
-    background-color 0.15s ease;
 }
 
 .settingsSortButtonActive {
@@ -137,9 +169,88 @@
 }
 
 .settingsSortIcon {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
+.filterDropdown {
+  position: relative;
+}
+
+.filterButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e8eb;
+  background: #fff;
+  color: #4e5968;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.filterButton:hover {
+  background: #f2f4f6;
+  color: #1f1f1f;
+}
+
+.filterButton:disabled {
+  background: #f9fafb;
+  color: #b0b8c1;
+  cursor: not-allowed;
+}
+
+.filterChevron {
+  font-size: 0.9rem;
+}
+
+.filterMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 100px;
+  max-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 8px 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #fff;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+  z-index: 10;
+}
+
+.filterItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: #4e5968;
+}
+
+.filterItem:hover {
+  background: #f2f4f6;
+  color: #1f1f1f;
+}
+
+.filterItemActive {
+  background: #f2f4f6;
+  color: #1f1f1f;
+}
+
+.filterCount {
+  font-size: 0.85rem;
+  color: #9aa4b2;
+}
 .settingsLabel {
   font-size: 20px;
   color: #000000;
@@ -311,6 +422,29 @@
 
 .commentListReset {
   margin-top: 12px;
+  gap: 12px;
+}
+
+.commentBox {
+  border: 1px solid #e5e8eb;
+  border-radius: 12px;
+  padding: 16px;
+  background: #fff;
+}
+
+.commentMetaRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  color: #7a7a7a;
+  font-size: 0.85rem;
+}
+
+.commentMetaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .profileCard {
