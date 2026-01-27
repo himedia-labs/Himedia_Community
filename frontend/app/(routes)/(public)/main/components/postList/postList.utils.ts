@@ -39,7 +39,7 @@ const buildSummary = (content?: string) => {
     .replace(/(\*\*|__|~~|_)/g, '');
   const plainText = withoutDecorators.replace(/\s+/g, ' ').trim();
   if (!plainText) return '';
-  return plainText.length > 154 ? `${plainText.slice(0, 154)}...` : plainText;
+  return plainText.length > 154 ? `${plainText.slice(0, 134)}...` : plainText;
 };
 
 // 게시글 업로드 시점 기준 경과 시간 계산
