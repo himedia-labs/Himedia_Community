@@ -12,7 +12,10 @@ export default function Footer() {
   const pathname = usePathname();
 
   // 특정 경로에서는 Footer 숨김
-  if (FooterConfig.hidePaths.includes(pathname)) {
+  if (
+    FooterConfig.hidePaths.includes(pathname) ||
+    FooterConfig.hidePrefixes.some(prefix => pathname?.startsWith(prefix))
+  ) {
     return null;
   }
 

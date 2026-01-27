@@ -243,7 +243,10 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
   }, [isLoggedIn]);
 
   // 특정 경로에서는 Header 숨김
-  if (HeaderConfig.hidePaths.includes(pathname)) {
+  if (
+    HeaderConfig.hidePaths.includes(pathname) ||
+    HeaderConfig.hidePrefixes.some(prefix => pathname?.startsWith(prefix))
+  ) {
     return null;
   }
 

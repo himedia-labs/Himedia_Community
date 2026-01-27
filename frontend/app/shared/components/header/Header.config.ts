@@ -13,7 +13,10 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 export const HeaderConfig = {
+  // 정확히 일치하는 경로 숨김
   hidePaths: ['/login', '/register', '/find-password', '/posts/new'],
+  // prefix 기준 숨김
+  hidePrefixes: ['/posts/edit'],
   postDetailExcludeExactPaths: ['/posts/new'],
   postDetailExcludePrefixes: ['/posts/drafts'],
   navItems: NAV_ITEMS,
