@@ -21,6 +21,7 @@ import { renderMarkdownPreview } from '@/app/shared/utils/markdownPreview';
 import { getInitialTab } from './mypage.utils';
 
 import type { ChangeEvent } from 'react';
+import type { MyCommentItem } from '@/app/shared/types/comment';
 import type { PostListItem } from '@/app/shared/types/post';
 import type { TabKey } from './mypage.utils';
 
@@ -77,6 +78,41 @@ export const useMyPageData = () => {
     profileImageUrl,
     profileHandle,
     userBio,
+  };
+};
+
+export type ActivitySortKey = 'latest' | 'popular';
+
+// 활동 정렬 훅
+export const useActivitySort = (posts: PostListItem[], comments: MyCommentItem[]) => {
+  // 정렬 상태
+  const [sortKey, setSortKey] = useState<ActivitySortKey>('latest');
+
+  // 게시글 정렬
+  const sortedPosts = useMemo(() => {
+    const list = [...posts];
+    if (sortKey === 'popular') {
+      return list.sort((a, b) => b.likeCount - a.likeCount || b.viewCount - a.viewCount);
+    }
+    return list.sort(
+      (a, b) => new Date(b.publishedAt ?? b.createdAt).getTime() - new Date(a.publishedAt ?? a.createdAt).getTime(),
+    );
+  }, [posts, sortKey]);
+
+  // 댓글 정렬
+  const sortedComments = useMemo(() => {
+    const list = [...comments];
+    return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [comments, sortKey]);
+
+  // 정렬 변경
+  const handleSortChange = (nextKey: ActivitySortKey) => setSortKey(nextKey);
+
+  return {
+    sortKey,
+    sortedPosts,
+    sortedComments,
+    handleSortChange,
   };
 };
 
@@ -139,6 +175,11 @@ export const useProfileEditor = (initialName?: string, initialHandle?: string) =
     if (isProfileSaving) return;
     handleProfileSave();
   };
+  // 편집 취소
+  const handleProfileCancel = () => {
+    setProfileHandle(initialHandle ?? '');
+    setIsProfileEditing(false);
+  };
 
   return {
     isProfileEditing,
@@ -148,6 +189,7 @@ export const useProfileEditor = (initialName?: string, initialHandle?: string) =
     handlers: {
       handleProfileEditToggle,
       handleProfileHandleChange,
+      handleProfileCancel,
     },
   };
 };
@@ -395,7 +437,7 @@ export const usePostMenu = () => {
   const handlePostMenuToggle = (postId: string) => setOpenPostMenuId(prev => (prev === postId ? null : postId));
   // 게시글 수정 이동
   const handlePostEdit = (postId: string) => {
-    window.location.href = `/posts/new?draftId=${postId}`;
+    window.location.href = `/posts/edit/${postId}`;
   };
   // 게시글 삭제
   const handlePostDelete = async (postId: string) => {
