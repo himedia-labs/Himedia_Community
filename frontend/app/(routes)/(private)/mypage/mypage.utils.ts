@@ -19,7 +19,22 @@ export const formatDateLabel = (value?: string | null) => {
 // 요약 생성
 export const formatSummary = (value?: string | null) => {
   if (!value) return '내용 없음';
-  return value.replace(/\s+/g, ' ').slice(0, 120);
+  const trimmed = value.trim();
+  if (!trimmed) return '내용 없음';
+  const withoutCodeBlocks = trimmed.replace(/```[\s\S]*?```/g, ' ');
+  const withoutInlineCode = withoutCodeBlocks.replace(/`([^`]+)`/g, '$1');
+  const withoutImages = withoutInlineCode.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '$1');
+  const withoutLinks = withoutImages.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1');
+  const withoutHtml = withoutLinks.replace(/<[^>]+>/g, ' ');
+  const withoutDecorators = withoutHtml
+    .replace(/^>\s+/gm, '')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/^[-*+]\s+/gm, '')
+    .replace(/^\d+\.\s+/gm, '')
+    .replace(/(\*\*|__|~~|_)/g, '');
+  const plainText = withoutDecorators.replace(/\s+/g, ' ').trim();
+  if (!plainText) return '내용 없음';
+  return plainText.length > 200 ? `${plainText.slice(0, 185)}...` : plainText;
 };
 
 // 날짜/시간 포맷

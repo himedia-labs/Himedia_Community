@@ -6,7 +6,17 @@ import Link from 'next/link';
 
 import { CiCalendar } from 'react-icons/ci';
 import { FaUser, FaUserEdit } from 'react-icons/fa';
-import { FiChevronRight, FiEdit2, FiEye, FiHeart, FiMessageCircle, FiMoreHorizontal, FiTrash2 } from 'react-icons/fi';
+import {
+  FiChevronRight,
+  FiClock,
+  FiEdit2,
+  FiEye,
+  FiHeart,
+  FiMessageCircle,
+  FiMoreHorizontal,
+  FiTrash2,
+  FiTrendingUp,
+} from 'react-icons/fi';
 
 import commentStyles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
 import { splitCommentMentions } from '@/app/(routes)/(public)/posts/[postId]/postDetail.utils';
@@ -20,6 +30,7 @@ import {
   useMyPageData,
   useMyPageTab,
   usePostMenu,
+  useActivitySort,
   useProfileEditor,
   useProfileImageEditor,
 } from './mypage.hooks';
@@ -43,12 +54,16 @@ export default function MyPage() {
     userBio,
   } = useMyPageData();
 
+  // 활동 정렬
+  const { sortKey, sortedPosts, sortedComments, handleSortChange } = useActivitySort(myPosts, myComments);
+  const handleSortToggle = () => handleSortChange(sortKey === 'latest' ? 'popular' : 'latest');
+
   // 프로필 편집
   const {
     isProfileEditing,
     profileName,
     profileHandle: editingHandle,
-    handlers: { handleProfileEditToggle, handleProfileHandleChange },
+    handlers: { handleProfileEditToggle, handleProfileHandleChange, handleProfileCancel },
   } = useProfileEditor(displayName, profileHandle);
 
   // 프로필 이미지
@@ -201,6 +216,11 @@ export default function MyPage() {
                   </div>
                 </div>
                 <div className={styles.profileActions}>
+                  {isProfileEditing ? (
+                    <button type="button" className={styles.profileCancelButton} onClick={handleProfileCancel}>
+                      취소
+                    </button>
+                  ) : null}
                   <button type="button" className={styles.profileEditButton} onClick={handleProfileEditToggle}>
                     {isProfileEditing ? '저장' : '프로필 수정'}
                   </button>
@@ -284,8 +304,31 @@ export default function MyPage() {
               </div>
             ) : activeTab === 'posts' ? (
               myPosts.length ? (
-                <ul className={styles.listView}>
-                  {myPosts.map((post, index) => (
+                <>
+                  <div className={styles.settingsRow}>
+                    <span className={styles.settingsLabel}>내 블로그</span>
+                    <div className={styles.settingsSortGroup}>
+                      <button
+                        type="button"
+                        className={`${styles.settingsSortButton} ${styles.settingsSortButtonActive}`}
+                        onClick={handleSortToggle}
+                      >
+                        {sortKey === 'popular' ? (
+                          <>
+                            <FiTrendingUp className={styles.settingsSortIcon} aria-hidden="true" />
+                            인기순
+                          </>
+                        ) : (
+                          <>
+                            <FiClock className={styles.settingsSortIcon} aria-hidden="true" />
+                            최신순
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  <ul className={styles.listView}>
+                    {sortedPosts.map((post, index) => (
                     <Fragment key={post.id}>
                       <li>
                         <Link className={styles.postLink} href={`/posts/${post.id}`}>
@@ -373,16 +416,41 @@ export default function MyPage() {
                           </article>
                         </Link>
                       </li>
-                      {index < myPosts.length - 1 ? (
+                      {index < sortedPosts.length - 1 ? (
                         <li className={styles.listDividerItem} aria-hidden="true">
                           <div className={styles.listDivider} />
                         </li>
                       ) : null}
                     </Fragment>
-                  ))}
-                </ul>
+                    ))}
+                  </ul>
+                </>
               ) : (
-                <div className={styles.empty}>아직 작성한 게시물이 없습니다.</div>
+                <>
+                  <div className={styles.settingsRow}>
+                    <span className={styles.settingsLabel}>내 블로그</span>
+                    <div className={styles.settingsSortGroup}>
+                      <button
+                        type="button"
+                        className={`${styles.settingsSortButton} ${styles.settingsSortButtonActive}`}
+                        onClick={handleSortToggle}
+                      >
+                        {sortKey === 'popular' ? (
+                          <>
+                            <FiTrendingUp className={styles.settingsSortIcon} aria-hidden="true" />
+                            인기순
+                          </>
+                        ) : (
+                          <>
+                            <FiClock className={styles.settingsSortIcon} aria-hidden="true" />
+                            최신순
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  <div className={styles.empty}>아직 작성한 게시물이 없습니다.</div>
+                </>
               )
             ) : activeTab === 'account' ? (
               <div className={styles.settingsSection}>
@@ -414,8 +482,31 @@ export default function MyPage() {
               </div>
             ) : activeTab === 'comments' ? (
               myComments.length ? (
-                <div className={`${commentStyles.commentList} ${styles.commentListReset}`}>
-                  {myComments.map((comment, index) => {
+                <>
+                  <div className={styles.settingsRow}>
+                    <span className={styles.settingsLabel}>남긴 댓글</span>
+                    <div className={styles.settingsSortGroup}>
+                      <button
+                        type="button"
+                        className={`${styles.settingsSortButton} ${styles.settingsSortButtonActive}`}
+                        onClick={handleSortToggle}
+                      >
+                        {sortKey === 'popular' ? (
+                          <>
+                            <FiTrendingUp className={styles.settingsSortIcon} aria-hidden="true" />
+                            인기순
+                          </>
+                        ) : (
+                          <>
+                            <FiClock className={styles.settingsSortIcon} aria-hidden="true" />
+                            최신순
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  <div className={`${commentStyles.commentList} ${styles.commentListReset}`}>
+                  {sortedComments.map((comment, index) => {
                     const postId = comment.post?.id ?? '';
                     const postTitle = comment.post?.title ?? '게시글 없음';
                     const commentLink = postId ? `/posts/${postId}#comment-${comment.id}` : '';
@@ -685,12 +776,61 @@ export default function MyPage() {
                     );
                   })}
                 </div>
+                </>
               ) : (
-                <div className={styles.empty}>아직 남긴 댓글이 없습니다.</div>
+                <>
+                  <div className={styles.settingsRow}>
+                    <span className={styles.settingsLabel}>남긴 댓글</span>
+                    <div className={styles.settingsSortGroup}>
+                      <button
+                        type="button"
+                        className={`${styles.settingsSortButton} ${styles.settingsSortButtonActive}`}
+                        onClick={handleSortToggle}
+                      >
+                        {sortKey === 'popular' ? (
+                          <>
+                            <FiTrendingUp className={styles.settingsSortIcon} aria-hidden="true" />
+                            인기순
+                          </>
+                        ) : (
+                          <>
+                            <FiClock className={styles.settingsSortIcon} aria-hidden="true" />
+                            최신순
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  <div className={styles.empty}>아직 남긴 댓글이 없습니다.</div>
+                </>
               )
-            ) : (
-              <div className={styles.empty}>아직 활동 내역이 없습니다.</div>
-            )}
+            ) : activeTab === 'likes' ? (
+              <>
+                <div className={styles.settingsRow}>
+                  <span className={styles.settingsLabel}>좋아한 포스트</span>
+                  <div className={styles.settingsSortGroup}>
+                    <button
+                      type="button"
+                      className={`${styles.settingsSortButton} ${styles.settingsSortButtonActive}`}
+                      onClick={handleSortToggle}
+                    >
+                      {sortKey === 'popular' ? (
+                        <>
+                          <FiTrendingUp className={styles.settingsSortIcon} aria-hidden="true" />
+                          인기순
+                        </>
+                      ) : (
+                        <>
+                          <FiClock className={styles.settingsSortIcon} aria-hidden="true" />
+                          최신순
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+                <div className={styles.empty}>아직 활동 내역이 없습니다.</div>
+              </>
+            ) : null}
           </div>
         </div>
       </div>

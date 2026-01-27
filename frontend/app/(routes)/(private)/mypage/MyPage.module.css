@@ -98,6 +98,48 @@
   min-height: 48px;
 }
 
+.settingsSortGroup {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem;
+  border-radius: 8px;
+  background: #f3f6ff;
+  transition: background-color 0.15s ease;
+}
+
+.settingsSortGroup:hover {
+  background: rgba(228, 228, 228, 0.75);
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.settingsSortButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: #7a7a7a;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.settingsSortButtonActive {
+  color: #1f1f1f;
+}
+
+.settingsSortIcon {
+  font-size: 0.95rem;
+}
+
 .settingsLabel {
   font-size: 20px;
   color: #000000;
@@ -115,6 +157,11 @@
 }
 
 .settingsButton:hover {
+  background: #f2f4f6;
+  color: #1f1f1f;
+}
+
+.settingsButtonActive {
   background: #f2f4f6;
   color: #1f1f1f;
 }
@@ -263,7 +310,7 @@
 }
 
 .commentListReset {
-  margin-top: 0;
+  margin-top: 12px;
 }
 
 .profileCard {
@@ -411,6 +458,21 @@
   color: #1f1f1f;
 }
 
+.profileCancelButton {
+  border: 1px solid #e5e8eb;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  color: #4e5968;
+  background: #fff;
+  cursor: pointer;
+}
+
+.profileCancelButton:hover {
+  background: #f2f4f6;
+  color: #1f1f1f;
+}
+
 .profileStats {
   display: flex;
   align-items: center;
@@ -432,9 +494,11 @@
 .listView {
   display: flex;
   flex-direction: column;
+  gap: 16px;
   margin: 0;
   padding: 0;
   list-style: none;
+  margin-top: 12px;
 }
 
 .postLink {
@@ -446,23 +510,22 @@
 
 .listItem {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 220px;
   min-height: 150px;
   width: 100%;
+  position: relative;
+  padding: 20px 22px;
+  border-radius: 16px;
+  border: 1px solid #e5e8eb;
+  background: #fff;
+  box-sizing: border-box;
 }
 
 .listDivider {
-  width: 100%;
-  height: 1px;
-  margin: 3rem 0;
-  background: rgba(0, 0, 0, 0.06);
+  display: none;
 }
 
 .listDividerItem {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  width: 100%;
+  display: none;
 }
 
 .listBody {
@@ -479,9 +542,9 @@
 }
 
 .listMenuWrapper {
-  position: relative;
   display: inline-flex;
   align-items: center;
+  position: relative;
 }
 
 .listMenuButton {
@@ -606,6 +669,7 @@
 }
 
 .empty {
+  margin-top: 12px;
   padding: 2rem;
   border-radius: 16px;
   border: 1px dashed rgba(0, 0, 0, 0.15);
