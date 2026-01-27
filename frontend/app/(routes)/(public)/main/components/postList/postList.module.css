@@ -213,7 +213,6 @@
 .meta {
   display: flex;
   gap: 3rem;
-  margin-top: 0;
   font-size: 12px;
   color: #9b9b9b;
   align-items: center;
