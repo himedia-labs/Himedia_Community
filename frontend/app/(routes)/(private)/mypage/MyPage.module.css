@@ -298,15 +298,14 @@
 .settingsBlock {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 12px 0;
+  gap: 1rem;
+  padding: 2rem;
   border: 1px solid #e5e8eb;
   border-radius: 12px;
-  padding: 16px;
 }
 
 .settingsBlockTitle {
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: #333d4b;
 }

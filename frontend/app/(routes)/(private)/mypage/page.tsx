@@ -629,36 +629,33 @@ export default function MyPage() {
                       <div className={styles.settingsItem}>
                         <div className={styles.settingsItemLabel}>이름</div>
                         <div className={styles.settingsItemValue}>{displayName}</div>
-                        <button type="button" className={styles.settingsButton} disabled>
-                          변경 불가
-                        </button>
                       </div>
                       <div className={styles.settingsItem}>
                         <div className={styles.settingsItemLabel}>이메일 주소</div>
                         <div className={styles.settingsItemValue}>{userEmail || '미등록'}</div>
                         <button type="button" className={styles.settingsButton}>
-                          변경하기
+                          설정
                         </button>
                       </div>
                       <div className={styles.settingsItem}>
                         <div className={styles.settingsItemLabel}>비밀번호</div>
                         <div className={styles.settingsItemValue}>********</div>
                         <button type="button" className={styles.settingsButton}>
-                          변경하기
+                          설정
                         </button>
                       </div>
                       <div className={styles.settingsItem}>
                         <div className={styles.settingsItemLabel}>전화번호</div>
                         <div className={styles.settingsItemValue}>{userPhone || '미등록'}</div>
                         <button type="button" className={styles.settingsButton}>
-                          변경하기
+                          설정
                         </button>
                       </div>
                       <div className={styles.settingsItem}>
                         <div className={styles.settingsItemLabel}>생년월일</div>
                         <div className={styles.settingsItemValue}>미등록</div>
                         <button type="button" className={styles.settingsButton}>
-                          변경하기
+                          설정
                         </button>
                       </div>
                     </div>
