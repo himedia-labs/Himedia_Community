@@ -28,6 +28,15 @@ export const usePostsQuery = (params?: PostListQuery, options?: QueryOptions) =>
   });
 };
 
+export const useLikedPostsQuery = (params?: PostListQuery, options?: QueryOptions) => {
+  return useQuery<PostListResponse, Error>({
+    queryKey: postsKeys.liked(params),
+    queryFn: () => postsApi.getLikedPosts(params),
+    enabled: options?.enabled ?? true,
+    placeholderData: previousData => previousData,
+  });
+};
+
 export const useDraftsQuery = (params?: PostListQuery, options?: QueryOptions) => {
   return useQuery<PostListResponse, Error>({
     queryKey: postsKeys.drafts(params),

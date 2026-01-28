@@ -65,6 +65,12 @@ export class PostsController {
   }
 
   @UseGuards(JwtGuard)
+  @Get('liked')
+  getLikedPosts(@Query() query: ListPostsQueryDto, @Request() req: ExpressRequest & { user: JwtPayload }) {
+    return this.postsService.getLikedPosts(query, req.user.sub);
+  }
+
+  @UseGuards(JwtGuard)
   @Patch(':postId')
   updatePost(
     @Param('postId') postId: string,

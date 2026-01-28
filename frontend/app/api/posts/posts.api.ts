@@ -36,6 +36,12 @@ const getDraftDetail = async (postId: string): Promise<PostDetailResponse> => {
   return res.data;
 };
 
+// 좋아한 게시물 조회
+const getLikedPosts = async (params?: PostListQuery): Promise<PostListResponse> => {
+  const res = await axiosInstance.get<PostListResponse>('/posts/liked', { params });
+  return res.data;
+};
+
 // 게시물 상세 조회
 const getPostDetail = async (postId: string): Promise<PostDetailResponse> => {
   const res = await axiosInstance.get<PostDetailResponse>(`/posts/${postId}`);
@@ -78,6 +84,7 @@ export const postsApi = {
   createPost,
   getDrafts,
   getDraftDetail,
+  getLikedPosts,
   getPostDetail,
   sharePost,
   viewPost,

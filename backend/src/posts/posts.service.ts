@@ -192,6 +192,63 @@ export class PostsService {
     };
   }
 
+  async getLikedPosts(query: ListPostsQueryDto, userId: string) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+    const order = query.order ?? SortOrder.DESC;
+    const sort = query.sort ?? PostSortOption.CREATED_AT;
+
+    const queryBuilder = this.postsRepository
+      .createQueryBuilder('post')
+      .innerJoin(PostLike, 'postLike', 'postLike.postId = post.id AND postLike.userId = :userId', { userId })
+      .leftJoinAndSelect('post.category', 'category')
+      .leftJoinAndSelect('post.author', 'author')
+      .leftJoinAndSelect('post.postTags', 'postTags')
+      .leftJoinAndSelect('postTags.tag', 'tag')
+      .loadRelationCountAndMap('post.commentCount', 'post.comments', 'comment', qb =>
+        qb.andWhere('comment.deletedAt IS NULL'),
+      )
+      .where('post.status = :status', { status: PostStatus.PUBLISHED })
+      .distinct(true);
+
+    if (query.categoryId) {
+      queryBuilder.andWhere('post.categoryId = :categoryId', { categoryId: query.categoryId });
+    }
+
+    if (query.authorId) {
+      queryBuilder.andWhere('post.authorId = :authorId', { authorId: query.authorId });
+    }
+
+    const [posts, total] = await queryBuilder
+      .orderBy(`post.${sort}`, order)
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return {
+      items: posts.map(post => ({
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        thumbnailUrl: post.thumbnailUrl,
+        status: post.status,
+        viewCount: post.viewCount,
+        likeCount: post.likeCount,
+        shareCount: post.shareCount,
+        commentCount: post.commentCount ?? 0,
+        createdAt: post.createdAt,
+        publishedAt: post.publishedAt,
+        category: post.category ? { id: post.category.id, name: post.category.name } : null,
+        tags: post.postTags?.map(postTag => ({ id: postTag.tag.id, name: postTag.tag.name })) ?? [],
+        author: post.author ? { id: post.author.id, name: post.author.name, role: post.author.role } : null,
+      })),
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
   // 임시저장 목록 조회
   async getDrafts(query: ListPostsQueryDto, authorId: string) {
     const page = query.page ?? 1;
