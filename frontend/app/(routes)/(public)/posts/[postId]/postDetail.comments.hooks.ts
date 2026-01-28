@@ -315,6 +315,7 @@ export const usePostDetailComments = ({
       return;
     }
     showToast({ message: '댓글이 등록되었습니다.', type: 'success' });
+    await queryClient.invalidateQueries({ queryKey: commentsKeys.myList() });
     requestAnimationFrame(() => {
       commentListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
@@ -335,6 +336,7 @@ export const usePostDetailComments = ({
       }
       setOpenCommentMenuId(null);
       await queryClient.invalidateQueries({ queryKey: commentsKeys.list(postId) });
+      await queryClient.invalidateQueries({ queryKey: commentsKeys.myList() });
       await queryClient.invalidateQueries({ queryKey: postsKeys.detail(postId) });
     } catch {
       showToast({ message: '댓글 삭제에 실패했습니다.', type: 'error' });
@@ -378,6 +380,7 @@ export const usePostDetailComments = ({
       await updateComment({ commentId, payload: { content: trimmed } });
       handleEditCancel();
       await queryClient.invalidateQueries({ queryKey: commentsKeys.list(postId) });
+      await queryClient.invalidateQueries({ queryKey: commentsKeys.myList() });
       await queryClient.invalidateQueries({ queryKey: postsKeys.detail(postId) });
     } catch {
       showToast({ message: '댓글 수정에 실패했습니다.', type: 'error' });

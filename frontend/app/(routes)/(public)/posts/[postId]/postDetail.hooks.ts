@@ -108,6 +108,8 @@ export const usePostDetailActions = ({ data, postId }: PostDetailActionsParams) 
     try {
       const response = await likePost(postId);
       updateDetailCache({ likeCount: response.likeCount, liked: response.liked });
+      // 좋아요 목록 갱신
+      queryClient.invalidateQueries({ queryKey: postsKeys.liked() });
     } catch {
       showToast({ message: POST_DETAIL_MESSAGES.LIKE_COUNT_FAILURE, type: 'warning' });
     }
