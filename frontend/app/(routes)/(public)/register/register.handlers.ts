@@ -43,6 +43,7 @@ export const register = (params: {
   password: string;
   passwordConfirm: string;
   phone: string;
+  birthDate: string;
   role: string;
   course: string;
   privacyConsent: boolean;
@@ -51,6 +52,7 @@ export const register = (params: {
   setPasswordError: (value: string) => void;
   setPasswordConfirmError: (value: string) => void;
   setPhoneError: (value: string) => void;
+  setBirthDateError: (value: string) => void;
   setRoleError: (value: string) => void;
   setCourseError: (value: string) => void;
   setPrivacyError: (value: string) => void;
@@ -92,6 +94,10 @@ export const register = (params: {
       params.setPhoneError(REGISTER_MESSAGES.missingPhone);
       hasError = true;
     }
+    if (!params.birthDate) {
+      params.setBirthDateError(REGISTER_MESSAGES.missingBirthDate);
+      hasError = true;
+    }
     if (!params.role) {
       params.setRoleError(REGISTER_MESSAGES.missingRole);
       hasError = true;
@@ -122,6 +128,7 @@ export const register = (params: {
         email: params.email,
         password: params.password,
         phone: phoneNumber,
+        birthDate: params.birthDate,
         role: upperRole,
         course: params.course || undefined,
         privacyConsent: params.privacyConsent,
@@ -148,6 +155,7 @@ export const register = (params: {
             if (errors.email) params.setEmailError(errors.email[0]);
             if (errors.password) params.setPasswordError(errors.password[0]);
             if (errors.phone) params.setPhoneError(errors.phone[0]);
+            if (errors.birthDate) params.setBirthDateError(errors.birthDate[0]);
             if (errors.role) params.setRoleError(errors.role[0]);
             if (errors.course) params.setCourseError(errors.course[0]);
             if (errors.privacyConsent) params.setPrivacyError(errors.privacyConsent[0]);

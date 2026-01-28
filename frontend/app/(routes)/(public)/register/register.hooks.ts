@@ -27,6 +27,7 @@ export const useRegisterForm = () => {
   const [passwordError, setPasswordError] = useState('');
   const [passwordConfirmError, setPasswordConfirmError] = useState('');
   const [phoneError, setPhoneError] = useState('');
+  const [birthDateError, setBirthDateError] = useState('');
   const [roleError, setRoleError] = useState('');
   const [courseError, setCourseError] = useState('');
   const [privacyError, setPrivacyError] = useState('');
@@ -81,6 +82,7 @@ export const useRegisterForm = () => {
       passwordError,
       passwordConfirmError,
       phoneError,
+      birthDateError,
       roleError,
       courseError,
       privacyError,
@@ -91,6 +93,7 @@ export const useRegisterForm = () => {
       setPasswordError,
       setPasswordConfirmError,
       setPhoneError,
+      setBirthDateError,
       setRoleError,
       setCourseError,
       setPrivacyError,

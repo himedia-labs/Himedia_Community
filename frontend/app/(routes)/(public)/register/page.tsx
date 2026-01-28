@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FaCheck } from 'react-icons/fa';
+import { RxInfoCircled } from 'react-icons/rx';
 import { IoIosArrowDown } from 'react-icons/io';
 import { TbExternalLink } from 'react-icons/tb';
 
@@ -14,7 +15,7 @@ import { isValidPassword } from '@/app/shared/utils/password';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
 import { EMAIL_REGEX } from '@/app/shared/constants/config/auth.config';
-import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
+import { EMAIL_MESSAGES, REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import { COURSE_OPTIONS, PHONE_CONFIG } from '@/app/shared/constants/config/register.config';
 
 import styles from './register.module.css';
@@ -41,7 +42,7 @@ export default function RegisterPage() {
   } = useRegisterForm();
 
   // 폼 입력값 상태
-  const { name, email, password, passwordConfirm, phone, role, course, privacyConsent } = form;
+  const { name, email, birthDate, password, passwordConfirm, phone, role, course, privacyConsent } = form;
   // 폼 에러 상태
   const {
     nameError,
@@ -49,6 +50,7 @@ export default function RegisterPage() {
     passwordError,
     passwordConfirmError,
     phoneError,
+    birthDateError,
     roleError,
     courseError,
     privacyError,
@@ -60,10 +62,14 @@ export default function RegisterPage() {
     setPasswordError,
     setPasswordConfirmError,
     setPhoneError,
+    setBirthDateError,
     setRoleError,
     setCourseError,
     setPrivacyError,
   } = setErrors;
+
+  // 스텝 상태
+  const [step, setStep] = useState<1 | 2>(1);
 
   // 약관 페이지에서 돌아왔을 때 캐시 로드 안내 토스트
   useEffect(() => {
@@ -80,6 +86,7 @@ export default function RegisterPage() {
     password,
     passwordConfirm,
     phone,
+    birthDate,
     role,
     course,
     privacyConsent,
@@ -88,6 +95,7 @@ export default function RegisterPage() {
     setPasswordError,
     setPasswordConfirmError,
     setPhoneError,
+    setBirthDateError,
     setRoleError,
     setCourseError,
     setPrivacyError,
@@ -96,6 +104,47 @@ export default function RegisterPage() {
     router,
     onSuccessCleanup: clearFormCache,
   });
+
+  const handleNextStep = () => {
+    let hasError = false;
+    if (!name) {
+      setNameError(REGISTER_MESSAGES.missingName);
+      hasError = true;
+    }
+    if (!email) {
+      setEmailError(REGISTER_MESSAGES.missingEmail);
+      hasError = true;
+    }
+    if (!birthDate) {
+      setBirthDateError(REGISTER_MESSAGES.missingBirthDate);
+      hasError = true;
+    }
+    if (!password) {
+      setPasswordError(REGISTER_MESSAGES.missingPassword);
+      hasError = true;
+    } else if (!isValidPassword(password)) {
+      setPasswordError(REGISTER_MESSAGES.invalidPassword);
+      hasError = true;
+    }
+    if (!passwordConfirm) {
+      setPasswordConfirmError(REGISTER_MESSAGES.missingPasswordConfirm);
+      hasError = true;
+    } else if (password !== passwordConfirm) {
+      setPasswordConfirmError(REGISTER_MESSAGES.passwordMismatch);
+      hasError = true;
+    }
+    if (!phone) {
+      setPhoneError(REGISTER_MESSAGES.missingPhone);
+      hasError = true;
+    }
+
+    if (hasError) {
+      showToast({ message: REGISTER_MESSAGES.missingRequired, type: 'warning' });
+      return;
+    }
+
+    setStep(2);
+  };
 
   return (
     <div className={styles.container}>
@@ -115,216 +164,272 @@ export default function RegisterPage() {
           <h1 className={styles.title}>회원가입</h1>
 
           <form onSubmit={handleSubmit} className={styles.form}>
-            <div className={styles.formGroup}>
-              <label htmlFor="name" className={styles.label}>
-                이름
-              </label>
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={e => {
-                  setFormField('name', e.target.value);
-                  if (nameError) setNameError('');
-                }}
-                className={nameError ? `${styles.input} ${styles.error}` : styles.input}
-                autoComplete="name"
-              />
-              {nameError && <p className={styles.errorMessage}>{nameError}</p>}
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="email" className={styles.label}>
-                이메일 주소
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={e => {
-                  const next = e.target.value;
-                  setFormField('email', next);
-                  if (!EMAIL_REGEX.test(next)) {
-                    setEmailError(EMAIL_MESSAGES.invalid);
-                  } else if (emailError) {
-                    setEmailError('');
-                  }
-                }}
-                className={emailError ? `${styles.input} ${styles.error}` : styles.input}
-                autoComplete="username"
-              />
-              {emailError && <p className={styles.errorMessage}>{emailError}</p>}
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="password" className={styles.label}>
-                비밀번호
-              </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={e => {
-                  const value = e.target.value;
-                  setFormField('password', value);
-                  if (value && !isValidPassword(value)) {
-                    setPasswordError('최소 8자의 영문, 숫자, 특수문자를 입력해주세요.');
-                  } else {
-                    setPasswordError('');
-                  }
-                }}
-                className={
-                  passwordError
-                    ? `${styles.input} ${styles.passwordInput} ${styles.error}`
-                    : `${styles.input} ${styles.passwordInput}`
-                }
-                autoComplete="new-password"
-              />
-              {passwordError && <p className={styles.errorMessage}>{passwordError}</p>}
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="passwordConfirm" className={styles.label}>
-                비밀번호 확인
-              </label>
-              <input
-                type="password"
-                id="passwordConfirm"
-                value={passwordConfirm}
-                onChange={e => {
-                  setFormField('passwordConfirm', e.target.value);
-                  if (passwordConfirmError) setPasswordConfirmError('');
-                }}
-                onBlur={() => {
-                  // 에러 메시지는 백엔드에서만 표시
-                  if (passwordConfirmError) {
-                    setPasswordConfirmError('');
-                  }
-                }}
-                className={
-                  passwordConfirmError
-                    ? `${styles.input} ${styles.passwordInput} ${styles.error}`
-                    : `${styles.input} ${styles.passwordInput}`
-                }
-                autoComplete="new-password"
-              />
-              {passwordConfirmError && <p className={styles.errorMessage}>{passwordConfirmError}</p>}
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="phone" className={styles.label}>
-                전화번호
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                value={phone}
-                onChange={handlePhoneChange}
-                className={phoneError ? `${styles.input} ${styles.error}` : styles.input}
-                placeholder="010 1234 5678"
-                maxLength={PHONE_CONFIG.FORMATTED_MAX_LENGTH}
-                autoComplete="tel"
-              />
-              {phoneError && <p className={styles.errorMessage}>{phoneError}</p>}
-            </div>
-
-            <hr className={styles.divider} />
-
-            <div className={styles.formGroup}>
-              <label htmlFor="role" className={styles.label}>
-                역할
-              </label>
-              <div className={styles.selectWrapper}>
-                <select
-                  id="role"
-                  value={role}
-                  onChange={e => {
-                    setFormField('role', e.target.value);
-                    if (roleError) setRoleError('');
-                  }}
-                  className={roleError ? `${styles.select} ${styles.error}` : styles.select}
-                >
-                  <option value="">선택해주세요</option>
-                  <option value="trainee">훈련생</option>
-                  <option value="graduate">수료생</option>
-                  <option value="instructor">강사</option>
-                  <option value="mentor">멘토</option>
-                </select>
-                <IoIosArrowDown className={styles.selectIcon} aria-hidden />
-              </div>
-              {roleError && <p className={styles.errorMessage}>{roleError}</p>}
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="course" className={styles.label}>
-                과정명 및 기수
-              </label>
-              <div className={styles.selectWrapper}>
-                <select
-                  id="course"
-                  value={course}
-                  onChange={e => {
-                    setFormField('course', e.target.value);
-                    if (courseError) setCourseError('');
-                  }}
-                  className={courseError ? `${styles.select} ${styles.error}` : styles.select}
-                >
-                  <option value="">선택해주세요</option>
-                  {COURSE_OPTIONS.map(option => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-                <IoIosArrowDown className={styles.selectIcon} aria-hidden />
-              </div>
-              {courseError && <p className={styles.errorMessage}>{courseError}</p>}
-            </div>
-
-            <div className={styles.formGroup}>
-              <div className={styles.consentWrapper}>
-                <div className={styles.checkboxRow}>
-                  <label className={styles.checkboxBox}>
-                    <input
-                      type="checkbox"
-                      checked={privacyConsent}
-                      onChange={e => {
-                        setFormField('privacyConsent', e.target.checked);
-                        if (privacyError) setPrivacyError('');
-                      }}
-                      className={styles.checkbox}
-                    />
-                    <FaCheck className={styles.checkboxIcon} aria-hidden />
+            {step === 1 ? (
+              <>
+                <div className={styles.formGroup}>
+                  <label htmlFor="name" className={styles.label}>
+                    <span className={styles.labelText}>이름</span>
                   </label>
-                  <div className={`${styles.checkboxText} ${privacyError ? styles.checkboxTextError : ''}`}>
-                    <Link
-                      href="/terms/privacy"
-                      className={`${styles.link} ${styles.consentLink}`}
-                      onClick={() => {
-                        if (name || email || password || phone || role || course || passwordConfirm) {
-                          markKeepCache();
-                          showToast({ message: '입력한 내용이 임시 저장되었습니다.', type: 'info' });
-                        }
-                      }}
+                  <input
+                    type="text"
+                    id="name"
+                    value={name}
+                    onChange={e => {
+                      setFormField('name', e.target.value);
+                      if (nameError) setNameError('');
+                    }}
+                    className={nameError ? `${styles.input} ${styles.error}` : styles.input}
+                    autoComplete="name"
+                  />
+                  {nameError && <p className={styles.errorMessage}>{nameError}</p>}
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="email" className={styles.label}>
+                    <span className={styles.labelText}>이메일 주소</span>
+                    <span className={styles.labelHint}>(인증 전)</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={e => {
+                      const next = e.target.value;
+                      setFormField('email', next);
+                      if (!EMAIL_REGEX.test(next)) {
+                        setEmailError(EMAIL_MESSAGES.invalid);
+                      } else if (emailError) {
+                        setEmailError('');
+                      }
+                    }}
+                    className={emailError ? `${styles.input} ${styles.error}` : styles.input}
+                    autoComplete="username"
+                  />
+                  {emailError && <p className={styles.errorMessage}>{emailError}</p>}
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="birthDate" className={styles.label}>
+                    <span className={styles.labelText}>생년월일</span>
+                  </label>
+                  <input
+                    type="date"
+                    id="birthDate"
+                    value={birthDate}
+                    onChange={e => {
+                      setFormField('birthDate', e.target.value);
+                      if (birthDateError) setBirthDateError('');
+                    }}
+                    className={birthDateError ? `${styles.input} ${styles.error}` : styles.input}
+                    autoComplete="bday"
+                  />
+                  {birthDateError && <p className={styles.errorMessage}>{birthDateError}</p>}
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="password" className={styles.label}>
+                    <span className={styles.labelText}>비밀번호</span>
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={e => {
+                      const value = e.target.value;
+                      setFormField('password', value);
+                      if (value && !isValidPassword(value)) {
+                        setPasswordError('최소 8자의 영문, 숫자, 특수문자를 입력해주세요.');
+                      } else {
+                        setPasswordError('');
+                      }
+                    }}
+                    className={
+                      passwordError
+                        ? `${styles.input} ${styles.passwordInput} ${styles.error}`
+                        : `${styles.input} ${styles.passwordInput}`
+                    }
+                    autoComplete="new-password"
+                  />
+                  {passwordError && <p className={styles.errorMessage}>{passwordError}</p>}
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="passwordConfirm" className={styles.label}>
+                    <span className={styles.labelText}>비밀번호 확인</span>
+                  </label>
+                  <input
+                    type="password"
+                    id="passwordConfirm"
+                    value={passwordConfirm}
+                    onChange={e => {
+                      setFormField('passwordConfirm', e.target.value);
+                      if (passwordConfirmError) setPasswordConfirmError('');
+                    }}
+                    onBlur={() => {
+                      // 에러 메시지는 백엔드에서만 표시
+                      if (passwordConfirmError) {
+                        setPasswordConfirmError('');
+                      }
+                    }}
+                    className={
+                      passwordConfirmError
+                        ? `${styles.input} ${styles.passwordInput} ${styles.error}`
+                        : `${styles.input} ${styles.passwordInput}`
+                    }
+                    autoComplete="new-password"
+                  />
+                  {passwordConfirmError && <p className={styles.errorMessage}>{passwordConfirmError}</p>}
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="phone" className={styles.label}>
+                    <span className={styles.labelText}>전화번호</span>
+                    <span
+                      className={styles.infoIcon}
+                      role="img"
+                      aria-label="전화번호 안내"
+                      data-tooltip="전화번호는 계정 보호 및 고객 지원을 위해 사용됩니다."
                     >
-                      <span>[필수] 개인정보 수집 및 이용동의</span>
-                      <TbExternalLink aria-hidden className={styles.consentIcon} />
+                      <RxInfoCircled aria-hidden="true" />
+                    </span>
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    value={phone}
+                    onChange={handlePhoneChange}
+                    className={phoneError ? `${styles.input} ${styles.error}` : styles.input}
+                    placeholder="010 1234 5678"
+                    maxLength={PHONE_CONFIG.FORMATTED_MAX_LENGTH}
+                    autoComplete="tel"
+                  />
+                  {phoneError && <p className={styles.errorMessage}>{phoneError}</p>}
+                </div>
+
+                <div className={styles.footer}>
+                  <div className={styles.links}>
+                    <Link href="/login" className={styles.link}>
+                      이미 계정이 있으신가요?
                     </Link>
                   </div>
+                  <button type="button" className={styles.submitButton} onClick={handleNextStep}>
+                    다음
+                  </button>
                 </div>
-              </div>
-            </div>
+              </>
+            ) : (
+              <>
+                <div className={styles.formGroup}>
+                  <label htmlFor="role" className={styles.label}>
+                    <span className={styles.labelText}>역할</span>
+                  </label>
+                  <div className={styles.selectWrapper}>
+                    <select
+                      id="role"
+                      value={role}
+                      onChange={e => {
+                        setFormField('role', e.target.value);
+                        if (roleError) setRoleError('');
+                      }}
+                      className={roleError ? `${styles.select} ${styles.error}` : styles.select}
+                    >
+                      <option value="">선택해주세요</option>
+                      <option value="trainee">훈련생</option>
+                      <option value="graduate">수료생</option>
+                      <option value="instructor">강사</option>
+                      <option value="mentor">멘토</option>
+                    </select>
+                    <IoIosArrowDown className={styles.selectIcon} aria-hidden />
+                  </div>
+                  {roleError && <p className={styles.errorMessage}>{roleError}</p>}
+                </div>
 
-            <div className={styles.footer}>
-              <div className={styles.links}>
-                <Link href="/login" className={styles.link}>
-                  이미 계정이 있으신가요?
-                </Link>
-              </div>
-              <button type="submit" className={styles.submitButton}>
-                회원가입
-              </button>
-            </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="course" className={styles.label}>
+                    <span className={styles.labelText}>과정명 및 기수</span>
+                  </label>
+                  <div className={styles.selectWrapper}>
+                    <select
+                      id="course"
+                      value={course}
+                      onChange={e => {
+                        setFormField('course', e.target.value);
+                        if (courseError) setCourseError('');
+                      }}
+                      className={courseError ? `${styles.select} ${styles.error}` : styles.select}
+                    >
+                      <option value="">선택해주세요</option>
+                      {COURSE_OPTIONS.map(option => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                    <IoIosArrowDown className={styles.selectIcon} aria-hidden />
+                  </div>
+                  {courseError && <p className={styles.errorMessage}>{courseError}</p>}
+                </div>
+
+                <div className={styles.formGroup}>
+                  <div className={styles.consentWrapper}>
+                    <div className={styles.checkboxRow}>
+                      <label className={styles.checkboxBox}>
+                        <input
+                          type="checkbox"
+                          checked={privacyConsent}
+                          onChange={e => {
+                            setFormField('privacyConsent', e.target.checked);
+                            if (privacyError) setPrivacyError('');
+                          }}
+                          className={styles.checkbox}
+                        />
+                        <FaCheck className={styles.checkboxIcon} aria-hidden />
+                      </label>
+                      <div className={`${styles.checkboxText} ${privacyError ? styles.checkboxTextError : ''}`}>
+                        <Link
+                          href="/terms/privacy"
+                          className={`${styles.link} ${styles.consentLink}`}
+                          onClick={() => {
+                            if (
+                              name ||
+                              email ||
+                              password ||
+                              phone ||
+                              role ||
+                              course ||
+                              passwordConfirm ||
+                              birthDate
+                            ) {
+                              markKeepCache();
+                              showToast({ message: '입력한 내용이 임시 저장되었습니다.', type: 'info' });
+                            }
+                          }}
+                        >
+                          <span>[필수] 개인정보 수집 및 이용동의</span>
+                          <TbExternalLink aria-hidden className={styles.consentIcon} />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.footer}>
+                  <div className={styles.links}>
+                    <Link href="/login" className={styles.link}>
+                      이미 계정이 있으신가요?
+                    </Link>
+                  </div>
+                  <div className={styles.stepActions}>
+                    <button type="button" className={styles.secondaryButton} onClick={() => setStep(1)}>
+                      이전
+                    </button>
+                    <button type="submit" className={styles.submitButton}>
+                      회원가입
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </form>
         </div>
       </div>
