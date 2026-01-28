@@ -22,6 +22,7 @@ export const AUTH_VALIDATION_MESSAGES = {
   PROFILE_HANDLE_DUPLICATE: '이미 사용 중인 프로필 아이디입니다.',
   PHONE_STRING: '전화번호는 문자열이어야 합니다.',
   PHONE_MAX_LENGTH: '전화번호는 11자 이하여야 합니다.',
+  BIRTH_DATE_FORMAT: '생년월일 형식이 올바르지 않습니다.',
   ROLE_ENUM: '유효한 역할을 선택해주세요.',
   COURSE_STRING: '과정명은 문자열이어야 합니다.',
   COURSE_MAX_LENGTH: '과정명은 255자 이하여야 합니다.',

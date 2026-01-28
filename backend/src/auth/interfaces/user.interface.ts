@@ -7,6 +7,7 @@ export interface AuthUserProfile {
   role: UserRole;
   phone: string;
   course: string | null;
+  birthDate: string | null;
   profileHandle: string | null;
   profileImageUrl: string | null;
   profileBio: string | null;

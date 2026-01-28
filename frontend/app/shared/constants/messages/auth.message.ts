@@ -3,6 +3,7 @@ export const LOGIN_MESSAGES = {
   success: '로그인 되었습니다.',
   fallbackError: '로그인에 실패했습니다. 잠시 후 다시 시도해주세요.',
   missingEmail: '이메일을 입력해주세요.',
+  missingBirthDate: '생년월일을 입력해주세요.',
   missingPassword: '비밀번호를 입력해주세요.',
   missingCredentials: '이메일과 비밀번호를 입력해주세요.',
   requireAuth: '로그인 후 이용할 수 있어요.',
@@ -19,6 +20,7 @@ export const REGISTER_MESSAGES = {
   // Input Form
   missingName: '이름을 입력해주세요.',
   missingEmail: '이메일을 입력해주세요.',
+  missingBirthDate: '생년월일을 입력해주세요.',
   missingPassword: '비밀번호를 입력해주세요.',
   invalidPassword: '비밀번호는 영문, 숫자, 특수문자를 포함해 8자 이상이어야 합니다.',
   missingPasswordConfirm: '비밀번호 확인을 입력해주세요.',

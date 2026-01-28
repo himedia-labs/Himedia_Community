@@ -23,6 +23,7 @@ export const REGISTER_FORM_CACHE_KEEP_KEY = 'registerFormCacheKeep';
 export const REGISTER_FORM_DEFAULT = {
   name: '',
   email: '',
+  birthDate: '',
   password: '',
   passwordConfirm: '',
   phone: '',
@@ -34,5 +35,6 @@ export const REGISTER_FORM_DEFAULT = {
 // 전화번호 입력 설정
 export const PHONE_CONFIG = {
   DIGIT_MAX_LENGTH: 11,
+  FORMATTED_MAX_LENGTH: 13,
   DISPLAY_FORMAT: 'XXX XXXX XXXX',
 };

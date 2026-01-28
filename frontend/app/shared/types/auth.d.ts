@@ -5,6 +5,7 @@ export interface User {
   name: string;
   role: 'TRAINEE' | 'GRADUATE' | 'MENTOR' | 'INSTRUCTOR';
   phone: string;
+  birthDate?: string | null;
   course?: string | null;
   profileHandle?: string | null;
   profileImageUrl?: string | null;
@@ -44,6 +45,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   phone: string;
+  birthDate: string;
   role: 'TRAINEE' | 'GRADUATE' | 'MENTOR' | 'INSTRUCTOR';
   course?: string;
   privacyConsent: boolean;

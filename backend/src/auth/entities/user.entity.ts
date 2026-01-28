@@ -43,6 +43,9 @@ export class User {
   @Column({ type: 'varchar', length: 255, nullable: true })
   course!: string | null;
 
+  @Column({ type: 'date', name: 'birth_date', nullable: true })
+  birthDate!: string | null;
+
   @Column({ type: 'varchar', length: 50, name: 'profile_handle', unique: true, nullable: true })
   profileHandle!: string | null;
 

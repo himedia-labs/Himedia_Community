@@ -13,6 +13,7 @@ CREATE TABLE users (
     role VARCHAR(20) NOT NULL CHECK (role IN ('TRAINEE', 'MENTOR', 'INSTRUCTOR', 'ADMIN')),
     requested_role VARCHAR(20) CHECK (requested_role IN ('TRAINEE', 'GRADUATE', 'MENTOR', 'INSTRUCTOR')),
     course VARCHAR(255),
+    birth_date DATE,
     profile_handle VARCHAR(50) UNIQUE,
     profile_image_url VARCHAR(500),
     profile_bio TEXT,
@@ -247,6 +248,7 @@ COMMENT ON COLUMN users.phone IS '전화번호';
 COMMENT ON COLUMN users.role IS '역할: TRAINEE(훈련생), MENTOR(멘토), INSTRUCTOR(강사), ADMIN(관리자)';
 COMMENT ON COLUMN users.requested_role IS '가입 시 신청 역할: TRAINEE(훈련생), MENTOR(멘토), INSTRUCTOR(강사)';
 COMMENT ON COLUMN users.course IS '과정명 및 기수';
+COMMENT ON COLUMN users.birth_date IS '생년월일';
 COMMENT ON COLUMN users.profile_bio IS '자기소개';
 COMMENT ON COLUMN users.profile_handle IS '프로필 핸들';
 COMMENT ON COLUMN users.profile_image_url IS '프로필 이미지 URL';

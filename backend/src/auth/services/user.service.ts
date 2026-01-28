@@ -100,6 +100,7 @@ export class UserService {
       role: user.role,
       phone: user.phone,
       course: user.course ?? null,
+      birthDate: user.birthDate ?? null,
       profileHandle: user.profileHandle ?? null,
       profileImageUrl: user.profileImageUrl ?? null,
       profileBio: user.profileBio ?? null,

@@ -1,4 +1,15 @@
-import { IsEmail, IsBoolean, IsOptional, IsString, IsIn, MaxLength, MinLength, Equals, Matches } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsEmail,
+  IsIn,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+  Equals,
+  Matches,
+} from 'class-validator';
 
 import { UserRole } from '../entities/user.entity';
 import { PHONE_CONFIG } from '../../constants/config/phone.config';
@@ -26,6 +37,9 @@ export class RegisterDto {
   @IsString({ message: AUTH_VALIDATION_MESSAGES.PHONE_STRING })
   @MaxLength(PHONE_CONFIG.MAX_LENGTH, { message: AUTH_VALIDATION_MESSAGES.PHONE_MAX_LENGTH })
   phone!: string;
+
+  @IsDateString({}, { message: AUTH_VALIDATION_MESSAGES.BIRTH_DATE_FORMAT })
+  birthDate!: string;
 
   @IsIn([UserRole.TRAINEE, UserRole.GRADUATE, UserRole.MENTOR, UserRole.INSTRUCTOR], { message: AUTH_VALIDATION_MESSAGES.ROLE_ENUM })
   role!: UserRole;
