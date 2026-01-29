@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PRIVATE_PATHS = ['/posts/new', '/posts/drafts'];
+const PRIVATE_PATHS = ['/mypage', '/posts/new', '/posts/drafts'];
 
 export const middleware = (request: NextRequest) => {
   const { pathname } = request.nextUrl;
@@ -24,5 +24,5 @@ export const middleware = (request: NextRequest) => {
 };
 
 export const config = {
-  matcher: ['/posts/new/:path*', '/posts/drafts/:path*'],
+  matcher: ['/mypage/:path*', '/posts/new/:path*', '/posts/drafts/:path*'],
 };
