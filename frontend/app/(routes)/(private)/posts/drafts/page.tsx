@@ -7,8 +7,8 @@ import Skeleton from 'react-loading-skeleton';
 import { useDraftsQuery } from '@/app/api/posts/posts.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
 
-import 'react-loading-skeleton/dist/skeleton.css';
 import styles from './DraftList.module.css';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 /**
  * 임시저장 목록 페이지
