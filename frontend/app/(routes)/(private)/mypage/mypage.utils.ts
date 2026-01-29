@@ -1,7 +1,6 @@
 import type { PostListItem } from '@/app/shared/types/post';
 
-export type TabKey = 'posts' | 'comments' | 'likes' | 'settings' | 'account';
-export type ActivitySortKey = 'latest' | 'popular';
+import type { ActivitySortKey, TabKey } from '@/app/shared/types/mypage';
 
 // 탭 판별
 export const getInitialTab = (value?: string | null, defaultTab: TabKey = 'posts') => {
