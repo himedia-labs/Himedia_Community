@@ -2,8 +2,8 @@
 
 import { Fragment, useMemo, useState } from 'react';
 
-import Image from 'next/image';
 import Link from 'next/link';
+import Image from 'next/image';
 
 import { CiCalendar } from 'react-icons/ci';
 import { FaUser, FaUserEdit } from 'react-icons/fa';
@@ -20,25 +20,32 @@ import {
   FiTrendingUp,
 } from 'react-icons/fi';
 
-import commentStyles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
-import { splitCommentMentions } from '@/app/(routes)/(public)/posts/[postId]/postDetail.utils';
+import { MYPAGE_TABS } from '@/app/shared/constants/config/mypage.config';
 import EditorToolbar from '@/app/shared/components/markdown-editor/EditorToolbar';
-import markdownStyles from '@/app/shared/styles/markdown.module.css';
-import markdownEditorStyles from '@/app/shared/styles/markdownEditor.module.css';
-import { stopMenuPropagation } from './mypage.handlers';
+import { stopMenuPropagation } from '@/app/(routes)/(private)/mypage/mypage.handlers';
+import { splitCommentMentions } from '@/app/(routes)/(public)/posts/[postId]/postDetail.utils';
+import {
+  formatDateLabel,
+  formatDateTimeLabel,
+  formatSummary,
+  sortPostsByKey,
+} from '@/app/(routes)/(private)/mypage/mypage.utils';
 import {
   useBioEditor,
   useCommentEditor,
   useMyPageData,
   useMyPageTab,
-  usePostSidebarData,
   usePostMenu,
+  usePostSidebarData,
   useActivitySort,
   useProfileEditor,
   useProfileImageEditor,
-} from './mypage.hooks';
-import { formatDateLabel, formatDateTimeLabel, formatSummary, sortPostsByKey } from './mypage.utils';
-import styles from './MyPage.module.css';
+} from '@/app/(routes)/(private)/mypage/mypage.hooks';
+
+import markdownStyles from '@/app/shared/styles/markdown.module.css';
+import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
+import markdownEditorStyles from '@/app/shared/styles/markdownEditor.module.css';
+import commentStyles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
 
 export default function MyPage() {
   // 탭 상태
@@ -137,19 +144,6 @@ export default function MyPage() {
     });
   }, [selectedCategoryId, selectedTagId, sortedPosts]);
 
-  if (!accessToken) {
-    return (
-      <section className={styles.container} aria-label="마이페이지">
-        <div className={styles.empty}>
-          <p>로그인 후 이용해주세요.</p>
-          <Link href="/login" className={styles.primaryLink}>
-            로그인하기
-          </Link>
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section className={styles.container} aria-label="마이페이지">
       <div className={styles.layout}>
@@ -157,34 +151,42 @@ export default function MyPage() {
           <nav className={styles.list} aria-label="마이페이지 메뉴">
             <div className={styles.listSection}>
               <Link
-                className={activeTab === 'settings' ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink}
-                href="/mypage"
+                className={
+                  activeTab === MYPAGE_TABS[0].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
+                }
+                href={MYPAGE_TABS[0].href}
               >
-                내 정보
+                {MYPAGE_TABS[0].label}
               </Link>
               <div className={styles.listDividerLine} aria-hidden="true" />
               <span className={styles.listGroupTitle}>활동</span>
               <Link
-                className={activeTab === 'posts' ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink}
-                href="/mypage?tab=posts"
+                className={
+                  activeTab === MYPAGE_TABS[1].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
+                }
+                href={MYPAGE_TABS[1].href}
               >
-                내 블로그
+                {MYPAGE_TABS[1].label}
               </Link>
               <Link
-                className={activeTab === 'comments' ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink}
-                href="/mypage?tab=comments"
+                className={
+                  activeTab === MYPAGE_TABS[2].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
+                }
+                href={MYPAGE_TABS[2].href}
               >
-                남긴 댓글
+                {MYPAGE_TABS[2].label}
               </Link>
               <Link
-                className={activeTab === 'likes' ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink}
-                href="/mypage?tab=likes"
+                className={
+                  activeTab === MYPAGE_TABS[3].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
+                }
+                href={MYPAGE_TABS[3].href}
               >
-                좋아한 포스트
+                {MYPAGE_TABS[3].label}
               </Link>
               <div className={styles.listDividerLine} aria-hidden="true" />
-              <Link className={styles.listLink} href="/mypage?tab=account">
-                계정 설정
+              <Link className={styles.listLink} href={MYPAGE_TABS[4].href}>
+                {MYPAGE_TABS[4].label}
               </Link>
             </div>
           </nav>
@@ -623,43 +625,43 @@ export default function MyPage() {
                 <div className={styles.settingsRow}>
                   <span className={styles.settingsLabel}>계정 설정</span>
                 </div>
-                  <div className={styles.settingsBlock}>
-                    <div className={styles.settingsBlockTitle}>기본 정보</div>
-                    <div className={styles.settingsGroup}>
-                      <div className={styles.settingsItem}>
-                        <div className={styles.settingsItemLabel}>이름</div>
-                        <div className={styles.settingsItemValue}>{displayName}</div>
-                      </div>
-                      <div className={styles.settingsItem}>
-                        <div className={styles.settingsItemLabel}>이메일 주소</div>
-                        <div className={styles.settingsItemValue}>{userEmail || '미등록'}</div>
-                        <button type="button" className={styles.settingsButton}>
-                          설정
-                        </button>
-                      </div>
-                      <div className={styles.settingsItem}>
-                        <div className={styles.settingsItemLabel}>비밀번호</div>
-                        <div className={styles.settingsItemValue}>********</div>
-                        <button type="button" className={styles.settingsButton}>
-                          설정
-                        </button>
-                      </div>
-                      <div className={styles.settingsItem}>
-                        <div className={styles.settingsItemLabel}>전화번호</div>
-                        <div className={styles.settingsItemValue}>{userPhone || '미등록'}</div>
-                        <button type="button" className={styles.settingsButton}>
-                          설정
-                        </button>
-                      </div>
-                      <div className={styles.settingsItem}>
-                        <div className={styles.settingsItemLabel}>생년월일</div>
-                        <div className={styles.settingsItemValue}>미등록</div>
-                        <button type="button" className={styles.settingsButton}>
-                          설정
-                        </button>
-                      </div>
+                <div className={styles.settingsBlock}>
+                  <div className={styles.settingsBlockTitle}>기본 정보</div>
+                  <div className={styles.settingsGroup}>
+                    <div className={styles.settingsItem}>
+                      <div className={styles.settingsItemLabel}>이름</div>
+                      <div className={styles.settingsItemValue}>{displayName}</div>
+                    </div>
+                    <div className={styles.settingsItem}>
+                      <div className={styles.settingsItemLabel}>이메일 주소</div>
+                      <div className={styles.settingsItemValue}>{userEmail || '미등록'}</div>
+                      <button type="button" className={styles.settingsButton}>
+                        설정
+                      </button>
+                    </div>
+                    <div className={styles.settingsItem}>
+                      <div className={styles.settingsItemLabel}>비밀번호</div>
+                      <div className={styles.settingsItemValue}>********</div>
+                      <button type="button" className={styles.settingsButton}>
+                        설정
+                      </button>
+                    </div>
+                    <div className={styles.settingsItem}>
+                      <div className={styles.settingsItemLabel}>전화번호</div>
+                      <div className={styles.settingsItemValue}>{userPhone || '미등록'}</div>
+                      <button type="button" className={styles.settingsButton}>
+                        설정
+                      </button>
+                    </div>
+                    <div className={styles.settingsItem}>
+                      <div className={styles.settingsItemLabel}>생년월일</div>
+                      <div className={styles.settingsItemValue}>미등록</div>
+                      <button type="button" className={styles.settingsButton}>
+                        설정
+                      </button>
                     </div>
                   </div>
+                </div>
                 <div className={styles.settingsFooter}>
                   <button type="button" className={styles.withdrawButton}>
                     회원탈퇴 <FiChevronRight aria-hidden="true" />
