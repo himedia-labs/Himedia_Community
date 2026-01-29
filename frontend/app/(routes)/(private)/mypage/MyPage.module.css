@@ -55,12 +55,6 @@
   border-radius: 10px;
 }
 
-.listCount {
-  margin-left: 6px;
-  font-size: 0.85rem;
-  color: #9aa4b2;
-}
-
 .listLink:hover {
   background: #f2f4f6;
   color: #1f1f1f;
@@ -115,12 +109,6 @@
   gap: 16px;
   padding: 16px 0 0;
   min-height: 48px;
-}
-
-.settingsLabelGroup {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
 }
 
 .settingsControlGroup {
@@ -278,11 +266,6 @@
   cursor: not-allowed;
 }
 
-.settingsButtonActive {
-  background: #f2f4f6;
-  color: #1f1f1f;
-}
-
 .settingsBody {
   display: flex;
   flex-direction: column;
@@ -308,11 +291,6 @@
   font-size: 1.125rem;
   font-weight: 600;
   color: #333d4b;
-}
-
-.settingsBlockFooter {
-  display: flex;
-  justify-content: flex-end;
 }
 
 .settingsFooter {
@@ -506,10 +484,6 @@
 
 .avatarInput {
   display: none;
-}
-
-.avatarText {
-  transform: translateY(1px);
 }
 
 .avatarIcon {
@@ -802,17 +776,6 @@
   color: #c7c7c7;
 }
 
-.primaryLink {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.6rem 1rem;
-  border-radius: 999px;
-  background: #1f2a44;
-  color: #fff;
-  text-decoration: none;
-  font-size: 0.9rem;
-}
 
 .empty {
   margin-top: 12px;
