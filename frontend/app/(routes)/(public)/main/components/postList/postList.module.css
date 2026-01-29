@@ -13,10 +13,6 @@
   border-right: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.sidebar {
-  padding-left: 48px;
-}
-
 .sortBar {
   display: flex;
   gap: 1.5rem;
@@ -281,7 +277,7 @@
 }
 
 .sidebar {
-  padding-left: 3rem;
+  padding: 1.5rem 0 0 3rem;
   position: sticky;
   top: 7.5rem;
   align-self: start;
