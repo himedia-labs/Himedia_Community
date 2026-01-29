@@ -410,15 +410,20 @@
   text-decoration: none;
 }
 
-.commentListReset {
+.commentListReset.commentListReset {
   margin-top: 12px;
-  gap: 12px;
+  gap: 1rem;
 }
 
 .commentBox {
   border: 1px solid #e5e8eb;
   border-radius: 12px;
   padding: 16px;
+  background: #fff;
+}
+
+.commentBox.commentBox {
+  border: 1px solid #e5e8eb;
   background: #fff;
 }
 
@@ -775,7 +780,6 @@
 .separator {
   color: #c7c7c7;
 }
-
 
 .empty {
   margin-top: 12px;
