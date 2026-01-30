@@ -2,8 +2,9 @@ import { useMemo } from 'react';
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useMyCommentsQuery } from '@/app/api/comments/comments.queries';
-import { useFollowersQuery, useFollowingsQuery } from '@/app/api/follows/follows.queries';
 import { useLikedPostsQuery, usePostsQuery } from '@/app/api/posts/posts.queries';
+import { useFollowersQuery, useFollowingsQuery } from '@/app/api/follows/follows.queries';
+
 import { useAuthStore } from '@/app/shared/store/authStore';
 
 /**

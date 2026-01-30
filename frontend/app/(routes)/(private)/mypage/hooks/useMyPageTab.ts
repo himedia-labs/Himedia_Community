@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-
 import { useSearchParams } from 'next/navigation';
 
 import { getInitialTab } from '@/app/(routes)/(private)/mypage/utils';

@@ -2,9 +2,9 @@ import { useMemo, useState } from 'react';
 
 import { sortPostsByKey } from '@/app/(routes)/(private)/mypage/utils';
 
-import type { ActivitySortKey } from '@/app/shared/types/mypage';
-import type { MyCommentItem } from '@/app/shared/types/comment';
 import type { PostListItem } from '@/app/shared/types/post';
+import type { MyCommentItem } from '@/app/shared/types/comment';
+import type { ActivitySortKey } from '@/app/shared/types/mypage';
 
 /**
  * 마이페이지 활동 정렬 훅

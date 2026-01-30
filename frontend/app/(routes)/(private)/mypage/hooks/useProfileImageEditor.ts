@@ -3,8 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { authKeys } from '@/app/api/auth/auth.keys';
-import { useUpdateProfileImageMutation } from '@/app/api/auth/auth.mutations';
 import { uploadsApi } from '@/app/api/uploads/uploads.api';
+import { useUpdateProfileImageMutation } from '@/app/api/auth/auth.mutations';
+
 import { useToast } from '@/app/shared/components/toast/toast';
 
 import type { ChangeEvent } from 'react';

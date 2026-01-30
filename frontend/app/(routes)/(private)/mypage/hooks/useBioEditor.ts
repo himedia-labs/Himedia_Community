@@ -3,8 +3,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { authKeys } from '@/app/api/auth/auth.keys';
-import { useUpdateProfileBioMutation } from '@/app/api/auth/auth.mutations';
 import { uploadsApi } from '@/app/api/uploads/uploads.api';
+import { useUpdateProfileBioMutation } from '@/app/api/auth/auth.mutations';
+
 import { useToast } from '@/app/shared/components/toast/toast';
 import { renderMarkdownPreview } from '@/app/shared/utils/markdownPreview';
 
