@@ -4,19 +4,20 @@ import { useState } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { authKeys } from '@/app/api/auth/auth.keys';
 import { useLoginMutation } from '@/app/api/auth/auth.mutations';
+
 import { useToast } from '@/app/shared/components/toast/toast';
 import { EMAIL_REGEX } from '@/app/shared/constants/config/auth.config';
 import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 
-import { authenticateUser } from './login.handlers';
-import { useLoginRedirectToast } from './login.hooks';
+import { authenticateUser } from '@/app/(routes)/(public)/login/handlers';
+import { useLoginRedirectToast } from '@/app/(routes)/(public)/login/hooks/useLoginRedirectToast';
 
-import styles from './login.module.css';
+import styles from '@/app/(routes)/(public)/login/login.module.css';
 
 /**
  * 로그인 페이지
