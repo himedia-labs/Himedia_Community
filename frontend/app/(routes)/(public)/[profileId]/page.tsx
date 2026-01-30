@@ -46,6 +46,7 @@ export default function ProfilePage() {
   const handleText = profile?.profileHandle ? `@${profile.profileHandle}` : `@${normalizedProfileId}`;
   const bioPreview = useMemo(() => renderMarkdownPreview(profile?.profileBio ?? ''), [profile?.profileBio]);
 
+  // 프로필 : 파라미터 대기
   if (!decodedProfileId) {
     return (
       <section className={styles.container} aria-label="프로필">
@@ -54,6 +55,7 @@ export default function ProfilePage() {
     );
   }
 
+  // 프로필 : @ 없는 요청 차단
   if (!hasAtPrefix) {
     return (
       <section className={styles.container} aria-label="프로필">
