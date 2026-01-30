@@ -8,29 +8,28 @@ import { useParams } from 'next/navigation';
 import { CiCalendar } from 'react-icons/ci';
 import { FiEye, FiHeart, FiMessageCircle } from 'react-icons/fi';
 
-import { useProfileByHandleQuery } from '@/app/api/auth/auth.queries';
 import { usePostsQuery } from '@/app/api/posts/posts.queries';
-import markdownStyles from '@/app/shared/styles/markdown.module.css';
+import { useProfileByHandleQuery } from '@/app/api/auth/auth.queries';
 import { renderMarkdownPreview } from '@/app/shared/utils/markdownPreview';
+import { formatDateLabel, formatSummary } from '@/app/(routes)/(public)/[profileId]/utils';
 
-import styles from './ProfilePage.module.css';
+import markdownStyles from '@/app/shared/styles/markdown.module.css';
+import styles from '@/app/(routes)/(public)/[profileId]/ProfilePage.module.css';
 
-const formatDateLabel = (value?: string | null) => {
-  if (!value) return '--';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '--';
-  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
-};
-
-const formatSummary = (value?: string | null) => {
-  if (!value) return '내용 없음';
-  return value.replace(/\s+/g, ' ').slice(0, 120);
-};
-
+/**
+ * 프로필 페이지
+ * @description 사용자 공개 프로필과 게시글 목록을 표시
+ */
 export default function ProfilePage() {
+  // 라우트 파라미터
   const params = useParams();
-  const profileId = Array.isArray(params?.profileId) ? params.profileId[0] : params?.profileId ?? '';
-  const { data: profile, isLoading: isProfileLoading } = useProfileByHandleQuery(profileId);
+  const profileId = Array.isArray(params?.profileId) ? params.profileId[0] : (params?.profileId ?? '');
+  const decodedProfileId = decodeURIComponent(profileId);
+  const hasAtPrefix = decodedProfileId.startsWith('@');
+  const normalizedProfileId = decodedProfileId.replace(/^@/, '');
+
+  // 조회 데이터
+  const { data: profile, isLoading: isProfileLoading } = useProfileByHandleQuery(normalizedProfileId);
   const { data: postsData, isLoading: isPostsLoading } = usePostsQuery(
     {
       authorId: profile?.id,
@@ -42,9 +41,26 @@ export default function ProfilePage() {
     { enabled: Boolean(profile?.id) },
   );
 
+  // 파생 데이터
   const posts = postsData?.items ?? [];
-  const handleText = profile?.profileHandle ? `@${profile.profileHandle}` : profileId;
+  const handleText = profile?.profileHandle ? `@${profile.profileHandle}` : `@${normalizedProfileId}`;
   const bioPreview = useMemo(() => renderMarkdownPreview(profile?.profileBio ?? ''), [profile?.profileBio]);
+
+  if (!decodedProfileId) {
+    return (
+      <section className={styles.container} aria-label="프로필">
+        <div className={styles.empty}>프로필을 불러오는 중입니다.</div>
+      </section>
+    );
+  }
+
+  if (!hasAtPrefix) {
+    return (
+      <section className={styles.container} aria-label="프로필">
+        <div className={styles.empty}>프로필을 찾을 수 없습니다.</div>
+      </section>
+    );
+  }
 
   if (isProfileLoading) {
     return (
