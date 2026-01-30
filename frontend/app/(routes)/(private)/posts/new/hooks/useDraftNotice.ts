@@ -4,10 +4,7 @@ import { useToast } from '@/app/shared/components/toast/toast';
 
 import type { DraftNoticeParams } from '@/app/shared/types/post';
 
-/**
- * 임시저장 알림
- * @description 저장된 임시저장이 있을 때 알림을 표시
- */
+// 게시물 작성 : 임시저장 알림 훅
 export const useDraftNotice = ({ draftId, hasDrafts }: DraftNoticeParams) => {
   const { showToast } = useToast();
   const draftNoticeShownRef = useRef(false);

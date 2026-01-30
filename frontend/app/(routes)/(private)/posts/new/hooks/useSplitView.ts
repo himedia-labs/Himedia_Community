@@ -5,10 +5,7 @@ import { DEFAULT_SPLIT_LEFT, SPLIT_MAX, SPLIT_MIN } from '@/app/shared/constants
 import type { PointerEvent as ReactPointerEvent } from 'react';
 import type { SplitViewOptions } from '@/app/shared/types/post';
 
-/**
- * 분할 뷰 드래그 관리
- * @description 에디터와 프리뷰 분할선 드래그 기능을 제공
- */
+// 게시물 작성 : 분할 뷰 훅
 export const useSplitView = (options: SplitViewOptions = {}) => {
   const { defaultValue = DEFAULT_SPLIT_LEFT, min = SPLIT_MIN, max = SPLIT_MAX } = options;
   const splitRef = useRef<HTMLDivElement | null>(null);

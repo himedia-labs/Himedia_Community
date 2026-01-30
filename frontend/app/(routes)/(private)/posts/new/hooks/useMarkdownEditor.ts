@@ -5,10 +5,7 @@ import { useSplitView } from './useSplitView';
 
 import type { MarkdownEditorParams } from '@/app/shared/types/post';
 
-/**
- * 마크다운 에디터
- * @description 마크다운 문법 적용, 이미지 삽입, 분할 뷰 기능을 통합 제공
- */
+// 게시물 작성 : 마크다운 에디터 훅
 export const useMarkdownEditor = (params: MarkdownEditorParams) => {
   const { content, setContentValue } = params;
   const contentRef = useRef<HTMLTextAreaElement | null>(null);

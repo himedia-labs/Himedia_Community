@@ -4,10 +4,7 @@ import { AUTO_SAVE_DELAY_MS } from '@/app/shared/constants/config/post.config';
 
 import type { AutoSaveParams } from '@/app/shared/types/post';
 
-/**
- * 자동 저장
- * @description 폼 데이터 변경 후 일정 시간이 지나면 임시저장
- */
+// 게시물 작성 : 자동 저장 훅
 export const useAutoSave = ({ formData, isAuthenticated, saveDraft }: AutoSaveParams) => {
   // Ref
   const saveDraftRef = useRef(saveDraft);
