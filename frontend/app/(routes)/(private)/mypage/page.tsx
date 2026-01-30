@@ -24,23 +24,18 @@ import { MYPAGE_TABS } from '@/app/shared/constants/config/mypage.config';
 import EditorToolbar from '@/app/shared/components/markdown-editor/EditorToolbar';
 import { stopMenuPropagation } from '@/app/(routes)/(private)/mypage/mypage.handlers';
 import { splitCommentMentions } from '@/app/(routes)/(public)/posts/[postId]/postDetail.utils';
+import { formatDateLabel, formatDateTimeLabel, formatSummary, sortPostsByKey } from '@/app/(routes)/(private)/mypage/mypage.utils';
 import {
-  formatDateLabel,
-  formatDateTimeLabel,
-  formatSummary,
-  sortPostsByKey,
-} from '@/app/(routes)/(private)/mypage/mypage.utils';
-import {
+  useActivitySort,
   useBioEditor,
   useCommentEditor,
   useMyPageData,
   useMyPageTab,
   usePostMenu,
   usePostSidebarData,
-  useActivitySort,
   useProfileEditor,
   useProfileImageEditor,
-} from '@/app/(routes)/(private)/mypage/mypage.hooks';
+} from '@/app/(routes)/(private)/mypage/hooks';
 
 import markdownStyles from '@/app/shared/styles/markdown.module.css';
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
