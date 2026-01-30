@@ -9,21 +9,17 @@ import { useParams, useRouter } from 'next/navigation';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
 import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
 
+import { createEditPreview } from '@/app/(routes)/(private)/posts/edit/[postId]/utils';
+import { createExitHandler } from '@/app/(routes)/(private)/posts/edit/[postId]/postEdit.handlers';
 import { EditorToolbar, PostPreview, PostDetailsForm } from '@/app/(routes)/(private)/posts/new/components';
-import { formatDateLabel, renderMarkdownPreview } from '@/app/(routes)/(private)/posts/new/postCreate.utils';
 import { usePostEditInitializer, usePostEditSaver } from '@/app/(routes)/(private)/posts/edit/[postId]/hooks';
+
 import {
   useMarkdownEditor,
   usePostForm,
   useTagInput,
   useThumbnailUpload,
 } from '@/app/(routes)/(private)/posts/new/hooks';
-
-import {
-  DEFAULT_AUTHOR_NAME,
-  DEFAULT_CATEGORY_LABEL,
-  DEFAULT_PREVIEW_STATS,
-} from '@/app/shared/constants/config/post.config';
 
 import styles from '@/app/(routes)/(private)/posts/new/PostCreate.module.css';
 import markdownEditorStyles from '@/app/shared/styles/markdownEditor.module.css';
@@ -101,11 +97,15 @@ export default function PostEditPage() {
   const { data: categories, isLoading: isCategoryLoading } = useCategoriesQuery();
 
   // 미리보기 데이터
-  const authorName = DEFAULT_AUTHOR_NAME;
-  const dateLabel = formatDateLabel(new Date());
-  const previewStats = DEFAULT_PREVIEW_STATS;
-  const categoryName = categories?.find(category => String(category.id) === categoryId)?.name ?? DEFAULT_CATEGORY_LABEL;
-  const previewContent = useMemo(() => renderMarkdownPreview(content), [content]);
+  const { authorName, categoryName, dateLabel, previewStats, previewContent } = useMemo(
+    () =>
+      createEditPreview({
+        categories,
+        categoryId,
+        content,
+      }),
+    [categories, categoryId, content],
+  );
 
   if (!postDetail && !isLoading) {
     return (
@@ -257,7 +257,7 @@ export default function PostEditPage() {
         <button
           type="button"
           className={`${styles.actionButton} ${styles.actionButtonExit}`}
-          onClick={() => router.push(postId ? `/posts/${postId}` : '/')}
+          onClick={createExitHandler(router, postId)}
         >
           <span>나가기</span>
         </button>

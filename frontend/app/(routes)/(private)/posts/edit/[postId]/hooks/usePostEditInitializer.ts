@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { mapDraftToForm } from '@/app/(routes)/(private)/posts/new/postCreate.utils';
+import { mapDraftToForm } from '@/app/(routes)/(private)/posts/new/utils';
 
 import type { PostEditInitializerParams } from '@/app/shared/types/postEdit';
 
