@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
-import Image from 'next/image';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import {
@@ -12,13 +12,19 @@ import {
   useVerifyResetCodeMutation,
 } from '@/app/api/auth/auth.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
-import { EMAIL_REGEX, RESET_CODE_EXPIRY_SECONDS } from '@/app/shared/constants/config/auth.config';
 import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
+import { EMAIL_REGEX, RESET_CODE_EXPIRY_SECONDS } from '@/app/shared/constants/config/auth.config';
 
-import { resetPasswordState, resetPassword, sendCode, verifyCode } from './find-password.handlers';
-import { formatCode, formatRemainingTime, isValidPassword } from './find-password.utils';
+import { formatCode, formatRemainingTime, isValidPassword } from '@/app/(routes)/(public)/find-password/utils';
+import {
+  resetPassword,
+  resetPasswordState,
+  sendCode,
+  verifyCode,
+} from '@/app/(routes)/(public)/find-password/handlers';
 
-import styles from './find-password.module.css';
+import styles from '@/app/(routes)/(public)/find-password/find-password.module.css';
+
 import type { AuthStep } from '@/app/shared/types/auth';
 
 /**
