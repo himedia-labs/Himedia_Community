@@ -105,10 +105,11 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
   // - initialIsLoggedIn: 서버 쿠키 기반 초기 상태
   // - accessToken: 클라이언트 토큰 상태
   const isLoggedIn = isInitialized ? !!accessToken : !!accessToken || initialIsLoggedIn;
+  const canFetchNotifications = isInitialized && !!accessToken;
 
   const { data: currentUser } = useCurrentUserQuery();
 
-  const { data: notificationsData } = useNotificationsQuery({ enabled: isLoggedIn });
+  const { data: notificationsData } = useNotificationsQuery({ enabled: canFetchNotifications });
 
   // 파생 상태
   const isPostDetail = usePostDetailPath(pathname);
@@ -313,8 +314,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                               role="menuitem"
                               onClick={closeProfileMenu}
                             >
-                              <CiUser aria-hidden="true" />
-                              내 정보
+                              <CiUser aria-hidden="true" />내 정보
                             </Link>
                             <div className={styles.profileDivider} aria-hidden="true" />
                             <Link
