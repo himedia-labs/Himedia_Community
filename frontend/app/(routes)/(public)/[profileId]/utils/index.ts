@@ -1,2 +1,2 @@
-export { formatSummary } from '@/app/(routes)/(public)/[profileId]/utils/formatSummary';
-export { formatDateLabel } from '@/app/(routes)/(public)/[profileId]/utils/formatDateLabel';
+export { formatSummary } from '@/app/(routes)/(public)/[profileId]/utils/formatSummary.utils';
+export { formatDateLabel } from '@/app/(routes)/(public)/[profileId]/utils/formatDateLabel.utils';

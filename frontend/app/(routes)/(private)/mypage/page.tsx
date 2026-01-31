@@ -22,7 +22,7 @@ import {
 
 import { MYPAGE_TABS } from '@/app/shared/constants/config/mypage.config';
 import EditorToolbar from '@/app/shared/components/markdown-editor/EditorToolbar';
-import { stopMenuPropagation } from '@/app/(routes)/(private)/mypage/mypage.handlers';
+import { stopMenuPropagation } from '@/app/(routes)/(private)/mypage/handlers';
 import { splitCommentMentions } from '@/app/(routes)/(public)/posts/[postId]/utils';
 import {
   formatDateLabel,
