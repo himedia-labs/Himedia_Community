@@ -1,1 +1,1 @@
-export { authenticateUser } from '@/app/(routes)/(public)/login/handlers/authenticateUser';
+export { authenticateUser } from '@/app/(routes)/(public)/login/handlers/authenticateUser.handlers';
