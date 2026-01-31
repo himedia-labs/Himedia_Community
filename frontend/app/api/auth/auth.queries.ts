@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { authApi } from './auth.api';
-import { authKeys } from './auth.keys';
+import { authApi } from '@/app/api/auth/auth.api';
+import { authKeys } from '@/app/api/auth/auth.keys';
 import { useAuthStore } from '@/app/shared/store/authStore';
+
 import type { PublicProfile, User } from '@/app/shared/types/auth';
 
 // 현재 로그인 사용자 조회 쿼리

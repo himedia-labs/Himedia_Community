@@ -1,7 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { authApi } from './auth.api';
-import {
+import { authApi } from '@/app/api/auth/auth.api';
+
+import type {
   AuthResponse,
   LoginRequest,
   RegisterRequest,

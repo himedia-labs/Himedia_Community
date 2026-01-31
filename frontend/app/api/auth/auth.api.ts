@@ -1,7 +1,9 @@
 import { axiosInstance } from '@/app/shared/network/axios.instance';
-import {
+
+import type {
   AuthResponse,
   LoginRequest,
+  PublicProfile,
   RegisterRequest,
   ResetPasswordRequest,
   ResetPasswordResponse,
@@ -13,7 +15,6 @@ import {
   UpdateProfileImageResponse,
   UpdateProfileRequest,
   UpdateProfileResponse,
-  PublicProfile,
   User,
   VerifyResetCodeRequest,
   VerifyResetCodeResponse,
