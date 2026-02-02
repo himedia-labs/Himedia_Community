@@ -1,7 +1,8 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
-import { FooterConfig } from './Footer.config';
+import { usePathVisibility } from '@/app/shared/hooks/usePathVisibility';
+import { LayoutVisibilityConfig } from '@/app/shared/constants/config/layout.config';
+
 import styles from './Footer.module.css';
 
 /**
@@ -9,22 +10,13 @@ import styles from './Footer.module.css';
  * @description 서비스 하단 정보를 표시
  */
 export default function Footer() {
-  const pathname = usePathname();
-
-  // 특정 경로에서는 Footer 숨김
-  if (
-    FooterConfig.hidePaths.includes(pathname) ||
-    FooterConfig.hidePrefixes.some(prefix => pathname?.startsWith(prefix))
-  ) {
-    return null;
-  }
+  const isVisible = usePathVisibility(LayoutVisibilityConfig);
+  if (!isVisible) return null;
 
   return (
     <footer className={styles.container}>
       <div className={styles.wrap}>
-        <div className={styles.footer_bottom}>
-          <p className={styles.copyright}>© {new Date().getFullYear()} Himedia. All rights reserved.</p>
-        </div>
+        <p className={styles.copyright}>© {new Date().getFullYear()} Himedia. All rights reserved.</p>
       </div>
     </footer>
   );
