@@ -1,10 +1,12 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+
 import { SlArrowUp } from 'react-icons/sl';
 
-import { ScrollTopButtonConfig } from './ScrollTopButton.config';
-import { useScroll } from '../../hooks/useScroll';
+import { useScroll } from '@/app/shared/hooks/useScroll';
+import { ScrollTopButtonConfig } from '@/app/shared/constants/config/scrollTopButton.config';
+
 import styles from './ScrollTopButton.module.css';
 
 /**
