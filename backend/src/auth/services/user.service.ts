@@ -115,6 +115,7 @@ export class UserService {
     const normalized = profileHandle.trim();
     const user = await this.usersRepository.findOne({
       where: [{ profileHandle: ILike(normalized) }, { email: ILike(`${normalized}@%`) }],
+      select: ['id', 'name', 'profileHandle', 'profileImageUrl', 'profileBio'],
     });
 
     if (!user) {
