@@ -1,6 +1,6 @@
 import { IsOptional, IsString, MaxLength } from 'class-validator';
 
-import { COMMENT_VALIDATION_MESSAGES } from '../../constants/message/comment.messages';
+import { COMMENT_VALIDATION_MESSAGES } from '@/constants/message/comment.messages';
 
 // 댓글 수정
 export class UpdateCommentDto {

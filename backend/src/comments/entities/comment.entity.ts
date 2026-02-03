@@ -10,9 +10,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import { User } from '../../auth/entities/user.entity';
-import { Post } from '../../posts/entities/post.entity';
-import { CommentReaction } from './commentReaction.entity';
+import { User } from '@/auth/entities/user.entity';
+import { Post } from '@/posts/entities/post.entity';
+import { CommentReaction } from '@/comments/entities/commentReaction.entity';
 
 @Entity({ name: 'comments' })
 @Index(['postId'])
