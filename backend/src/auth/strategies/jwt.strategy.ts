@@ -23,7 +23,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly userService: UserService,
   ) {
     super({
-      // Authorization: Bearer <token> 헤더에서 JWT를 읽고, 만료는 체크하며, 주어진 시크릿으로 검증
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: config.jwt.secret,
