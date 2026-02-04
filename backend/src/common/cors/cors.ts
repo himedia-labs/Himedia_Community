@@ -2,7 +2,8 @@ import { INestApplication } from '@nestjs/common';
 import { ConfigService, ConfigType } from '@nestjs/config';
 
 import appConfig from '@/common/config/app.config';
-import { CorsConfig } from '@/common/cors/cors.types';
+
+import type { CorsConfig } from '@/common/cors/cors.types';
 
 /**
  * CORS 설정 생성

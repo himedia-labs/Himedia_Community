@@ -10,8 +10,9 @@ import { AuthService } from '@/auth/services/auth.service';
 import { UserService } from '@/auth/services/user.service';
 import { TokenService } from '@/auth/services/token.service';
 import { RateLimitService } from '@/auth/services/rateLimit.service';
-import { PasswordChangeService } from '@/auth/services/password-change.service';
+import { SnowflakeService } from '@/common/services/snowflake.service';
 import { PasswordResetService } from '@/auth/services/password-reset.service';
+import { PasswordChangeService } from '@/auth/services/password-change.service';
 
 import { User } from '@/auth/entities/user.entity';
 import { RefreshToken } from '@/auth/entities/refreshToken.entity';
@@ -26,7 +27,6 @@ import { PasswordRateLimitGuard } from '@/auth/guards/passwordRateLimit.guard';
 
 import appConfig from '@/common/config/app.config';
 import { EmailModule } from '@/email/email.module';
-import { SnowflakeService } from '@/common/services/snowflake.service';
 
 @Module({
   imports: [

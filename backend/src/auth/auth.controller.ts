@@ -1,18 +1,18 @@
 import {
-  Body,
-  Controller,
-  Get,
-  Headers,
-  HttpCode,
-  Inject,
   Ip,
+  Get,
+  Post,
+  Body,
   Param,
   Patch,
-  Post,
+  Inject,
   Request,
+  Headers,
+  HttpCode,
   Response,
-  UnauthorizedException,
   UseGuards,
+  Controller,
+  UnauthorizedException,
 } from '@nestjs/common';
 
 import { LoginDto } from '@/auth/dto/login.dto';
@@ -28,8 +28,8 @@ import { ResetPasswordWithCodeDto } from '@/auth/dto/resetPasswordWithCode.dto';
 import { AuthService } from '@/auth/services/auth.service';
 import { UserService } from '@/auth/services/user.service';
 import { TokenService } from '@/auth/services/token.service';
-import { PasswordChangeService } from '@/auth/services/password-change.service';
 import { PasswordResetService } from '@/auth/services/password-reset.service';
+import { PasswordChangeService } from '@/auth/services/password-change.service';
 
 import { JwtGuard } from '@/auth/guards/jwt.guard';
 import { LocalGuard } from '@/auth/guards/local.guard';
