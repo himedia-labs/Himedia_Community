@@ -1,125 +1,118 @@
 import {
-  BadRequestException,
-  Controller,
   Post,
   Request,
-  UploadedFile,
   UseGuards,
+  Controller,
+  UploadedFile,
   UseInterceptors,
+  BadRequestException,
 } from '@nestjs/common';
-import type { Request as ExpressRequest } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 
-import { UploadsService } from './uploads.service';
-import type { UploadedFilePayload } from './uploads.types';
-import { JwtGuard } from '../auth/guards/jwt.guard';
-import { ERROR_CODES } from '../constants/error/error-codes';
+import { JwtGuard } from '@/auth/guards/jwt.guard';
+import { ERROR_CODES } from '@/constants/error/error-codes';
 
-import type { JwtPayload } from '../auth/interfaces/jwt.interface';
+import { IMAGE_LIMITS } from '@/uploads/uploads.constants';
+import { IMAGE_ONLY_MESSAGE } from '@/uploads/uploads.constants';
+import { ALLOWED_IMAGE_TYPES } from '@/uploads/uploads.constants';
+import { IMAGE_REQUIRED_MESSAGE } from '@/uploads/uploads.constants';
 
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+import { UploadsService } from '@/uploads/uploads.service';
+
+import type { Request as ExpressRequest } from 'express';
+import type { JwtPayload } from '@/auth/interfaces/jwt.interface';
+import type { UploadedFilePayload, UploadFileFilterPayload, UploadFileFilterCallback } from '@/uploads/uploads.types';
+
+/**
+ * 이미지 필터
+ * @description 허용된 이미지 타입만 통과
+ */
+const imageFileFilter = (_req: ExpressRequest, file: UploadFileFilterPayload, callback: UploadFileFilterCallback) => {
+  if (ALLOWED_IMAGE_TYPES.has(file.mimetype)) {
+    return callback(null, true);
+  }
+
+  const error = new BadRequestException({
+    message: IMAGE_ONLY_MESSAGE,
+    code: ERROR_CODES.VALIDATION_FAILED,
+  });
+
+  return callback(error, false);
+};
+
+const IMAGE_UPLOAD_INTERCEPTOR = FileInterceptor('file', {
+  limits: IMAGE_LIMITS,
+  fileFilter: imageFileFilter,
+});
+
+// 타입 정의
+type AuthRequest = ExpressRequest & { user: JwtPayload };
 
 @Controller('uploads')
 export class UploadsController {
+  /**
+   * 업로드 컨트롤러
+   * @description 업로드 관련 요청을 처리
+   */
   constructor(private readonly uploadsService: UploadsService) {}
 
+  /**
+   * 파일 확인
+   * @description 업로드 파일 유무를 검증
+   */
+  private getRequiredFile(file: UploadedFilePayload | undefined) {
+    if (!file) {
+      throw new BadRequestException({
+        message: IMAGE_REQUIRED_MESSAGE,
+        code: ERROR_CODES.VALIDATION_FAILED,
+      });
+    }
+
+    return file;
+  }
+
+  /**
+   * 썸네일 업로드
+   * @description 썸네일 이미지를 업로드
+   */
   @UseGuards(JwtGuard)
   @Post('thumbnail')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      limits: { fileSize: MAX_IMAGE_SIZE },
-      fileFilter: (_req, file, callback) => {
-        if (!ALLOWED_IMAGE_TYPES.has(file.mimetype)) {
-          return callback(
-            new BadRequestException({
-              message: '이미지 파일만 업로드할 수 있습니다.',
-              code: ERROR_CODES.VALIDATION_FAILED,
-            }),
-            false,
-          );
-        }
-        return callback(null, true);
-      },
-    }),
-  )
-  uploadThumbnail(
-    @UploadedFile() file: UploadedFilePayload | undefined,
-    @Request() req: ExpressRequest & { user: JwtPayload },
-  ) {
-    if (!file) {
-      throw new BadRequestException({
-        message: '이미지 파일을 선택해주세요.',
-        code: ERROR_CODES.VALIDATION_FAILED,
-      });
-    }
+  @UseInterceptors(IMAGE_UPLOAD_INTERCEPTOR)
+  uploadThumbnail(@UploadedFile() file: UploadedFilePayload | undefined, @Request() req: AuthRequest) {
+    // 파일 검증
+    const requiredFile = this.getRequiredFile(file);
 
-    return this.uploadsService.uploadThumbnail(file, req.user.sub);
+    // 업로드 처리
+    return this.uploadsService.uploadThumbnail(requiredFile, req.user.sub);
   }
 
+  /**
+   * 이미지 업로드
+   * @description 본문 이미지를 업로드
+   */
   @UseGuards(JwtGuard)
   @Post('image')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      limits: { fileSize: MAX_IMAGE_SIZE },
-      fileFilter: (_req, file, callback) => {
-        if (!ALLOWED_IMAGE_TYPES.has(file.mimetype)) {
-          return callback(
-            new BadRequestException({
-              message: '이미지 파일만 업로드할 수 있습니다.',
-              code: ERROR_CODES.VALIDATION_FAILED,
-            }),
-            false,
-          );
-        }
-        return callback(null, true);
-      },
-    }),
-  )
-  uploadImage(
-    @UploadedFile() file: UploadedFilePayload | undefined,
-    @Request() req: ExpressRequest & { user: JwtPayload },
-  ) {
-    if (!file) {
-      throw new BadRequestException({
-        message: '이미지 파일을 선택해주세요.',
-        code: ERROR_CODES.VALIDATION_FAILED,
-      });
-    }
+  @UseInterceptors(IMAGE_UPLOAD_INTERCEPTOR)
+  uploadImage(@UploadedFile() file: UploadedFilePayload | undefined, @Request() req: AuthRequest) {
+    // 파일 검증
+    const requiredFile = this.getRequiredFile(file);
 
-    return this.uploadsService.uploadImage(file, req.user.sub);
+    // 업로드 처리
+    return this.uploadsService.uploadImage(requiredFile, req.user.sub);
   }
 
+  /**
+   * 아바타 업로드
+   * @description 프로필 아바타 이미지를 업로드
+   */
   @UseGuards(JwtGuard)
   @Post('avatar')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      limits: { fileSize: MAX_IMAGE_SIZE },
-      fileFilter: (_req, file, callback) => {
-        if (!ALLOWED_IMAGE_TYPES.has(file.mimetype)) {
-          return callback(
-            new BadRequestException({
-              message: '이미지 파일만 업로드할 수 있습니다.',
-              code: ERROR_CODES.VALIDATION_FAILED,
-            }),
-            false,
-          );
-        }
-        return callback(null, true);
-      },
-    }),
-  )
-  uploadAvatar(
-    @UploadedFile() file: UploadedFilePayload | undefined,
-    @Request() req: ExpressRequest & { user: JwtPayload },
-  ) {
-    if (!file) {
-      throw new BadRequestException({
-        message: '이미지 파일을 선택해주세요.',
-        code: ERROR_CODES.VALIDATION_FAILED,
-      });
-    }
+  @UseInterceptors(IMAGE_UPLOAD_INTERCEPTOR)
+  uploadAvatar(@UploadedFile() file: UploadedFilePayload | undefined, @Request() req: AuthRequest) {
+    // 파일 검증
+    const requiredFile = this.getRequiredFile(file);
 
-    return this.uploadsService.uploadAvatar(file, req.user.sub);
+    // 업로드 처리
+    return this.uploadsService.uploadAvatar(requiredFile, req.user.sub);
   }
 }
