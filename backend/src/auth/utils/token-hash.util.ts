@@ -1,9 +1,7 @@
 import { createHash, createHmac } from 'crypto';
 
 import { comparePassword } from '@/auth/utils/bcrypt.util';
-
-const HMAC_SHA256_PREFIX = 'hmac-sha256:';
-const SHA256_PREFIX = 'sha256:';
+import { HMAC_SHA256_PREFIX, SHA256_PREFIX } from '@/auth/token-hash.constants';
 
 /**
  * 리프레시 토큰 시크릿 해싱
