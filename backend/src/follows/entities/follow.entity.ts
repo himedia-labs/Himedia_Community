@@ -1,6 +1,6 @@
 import { CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
-import { User } from '../../auth/entities/user.entity';
+import { User } from '@/auth/entities/user.entity';
 
 @Entity({ name: 'user_follows' })
 @Index(['followerId'])
