@@ -15,7 +15,9 @@ import { NotificationType } from '@/notifications/entities/notification.entity';
 
 import { CreatePostDto } from '@/posts/dto/createPost.dto';
 import { UpdatePostDto } from '@/posts/dto/updatePost.dto';
-import { ListPostsQueryDto, PostSortOption, SortOrder } from '@/posts/dto/listPostsQuery.dto';
+import { ListPostsQueryDto } from '@/posts/dto/listPostsQuery.dto';
+import { PostSortOption, SortOrder } from '@/posts/posts.types';
+import { IMAGE_URL_MAX_LENGTH, SHARE_WINDOW_MINUTES, VIEW_WINDOW_HOURS } from '@/posts/posts.constants';
 
 import { Tag } from '@/posts/entities/tag.entity';
 import { PostTag } from '@/posts/entities/postTag.entity';
@@ -48,10 +50,6 @@ const ensurePublishFields = (fields: {
     throw new BadRequestException({ message: POST_VALIDATION_MESSAGES.CATEGORY_REQUIRED, code });
   }
 };
-
-const VIEW_WINDOW_HOURS = 24;
-const SHARE_WINDOW_MINUTES = 10;
-const IMAGE_URL_MAX_LENGTH = 500;
 
 /**
  * 이미지 URL 추출

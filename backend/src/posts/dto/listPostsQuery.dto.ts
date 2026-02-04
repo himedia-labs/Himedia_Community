@@ -2,22 +2,9 @@ import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 import { PostStatus } from '@/posts/entities/post.entity';
+import { POST_FEED_OPTIONS } from '@/posts/posts.constants';
 import { POST_VALIDATION_MESSAGES } from '@/constants/message/post.messages';
-
-export enum PostSortOption {
-  CREATED_AT = 'createdAt',
-  PUBLISHED_AT = 'publishedAt',
-  VIEW_COUNT = 'viewCount',
-  LIKE_COUNT = 'likeCount',
-}
-
-export const POST_FEED_OPTIONS = ['following'] as const;
-export type PostFeedOption = (typeof POST_FEED_OPTIONS)[number];
-
-export enum SortOrder {
-  ASC = 'ASC',
-  DESC = 'DESC',
-}
+import { PostFeedOption, PostSortOption, SortOrder } from '@/posts/posts.types';
 
 // 게시글 목록 조회 쿼리
 export class ListPostsQueryDto {
