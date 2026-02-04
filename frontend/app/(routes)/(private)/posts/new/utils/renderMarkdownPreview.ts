@@ -1,4 +1,4 @@
-import { renderMarkdownPreview } from '@/app/shared/utils/markdownPreview';
+import { renderMarkdownPreview } from '@/app/shared/utils/markdown';
 
 /**
  * 마크다운 본문 렌더링

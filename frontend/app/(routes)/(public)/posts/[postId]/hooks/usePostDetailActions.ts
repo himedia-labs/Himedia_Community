@@ -4,14 +4,15 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { postsKeys } from '@/app/api/posts/posts.keys';
 import { useLikePostMutation, useSharePostMutation, useViewPostMutation } from '@/app/api/posts/posts.mutations';
-import { useToast } from '@/app/shared/components/toast/toast';
-import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
-import { POST_DETAIL_MESSAGES } from '@/app/shared/constants/messages/post.message';
-import { VIEW_DELAY_MS } from '@/app/shared/constants/config/post.config';
-import { useAuthStore } from '@/app/shared/store/authStore';
-import { extractMarkdownHeadings, renderMarkdownPreview } from '@/app/shared/utils/markdownPreview';
 
+import { useToast } from '@/app/shared/components/toast/toast';
+import { VIEW_DELAY_MS } from '@/app/shared/constants/config/post.config';
+import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import { copyToClipboard } from '@/app/(routes)/(public)/posts/[postId]/utils';
+import { POST_DETAIL_MESSAGES } from '@/app/shared/constants/messages/post.message';
+import { extractMarkdownHeadings, renderMarkdownPreview } from '@/app/shared/utils/markdown';
+
+import { useAuthStore } from '@/app/shared/store/authStore';
 
 import type { PostDetailActionsParams, PostDetailResponse, PostTocItem } from '@/app/shared/types/post';
 

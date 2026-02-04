@@ -1,13 +1,15 @@
 import { cookies } from 'next/headers';
-import Header from './shared/components/header/Header';
-import Footer from './shared/components/footer/Footer';
-import ToastProvider from './shared/components/toast/toast';
-import QueryProvider from './provider/ReactQuery/QueryProvider';
-import ScrollTopButton from './shared/components/scroll-top/ScrollTopButton';
+
+import Footer from '@/app/shared/components/footer/Footer';
+import Header from '@/app/shared/components/header/Header';
+import ToastProvider from '@/app/shared/components/toast/ToastProvider';
+import ScrollTopButton from '@/app/shared/components/scroll-top/ScrollTopButton';
+
+import QueryProvider from '@/app/provider/ReactQuery/QueryProvider';
+import AuthInitializer from '@/app/provider/AuthProvider/AuthInitializer';
 
 import './globals.css';
 import './reset.css';
-import AuthInitializer from './provider/AuthProvider/AuthInitializer';
 
 export default async function RootLayout({
   children,

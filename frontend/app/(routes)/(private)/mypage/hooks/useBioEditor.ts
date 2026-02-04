@@ -7,7 +7,7 @@ import { uploadsApi } from '@/app/api/uploads/uploads.api';
 import { useUpdateProfileBioMutation } from '@/app/api/auth/auth.mutations';
 
 import { useToast } from '@/app/shared/components/toast/toast';
-import { renderMarkdownPreview } from '@/app/shared/utils/markdownPreview';
+import { renderMarkdownPreview } from '@/app/shared/utils/markdown';
 
 import type { ChangeEvent } from 'react';
 

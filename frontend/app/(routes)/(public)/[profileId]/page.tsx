@@ -10,7 +10,7 @@ import { FiEye, FiHeart, FiMessageCircle } from 'react-icons/fi';
 
 import { usePostsQuery } from '@/app/api/posts/posts.queries';
 import { useProfileByHandleQuery } from '@/app/api/auth/auth.queries';
-import { renderMarkdownPreview } from '@/app/shared/utils/markdownPreview';
+import { renderMarkdownPreview } from '@/app/shared/utils/markdown';
 import { formatDateLabel, formatSummary } from '@/app/(routes)/(public)/[profileId]/utils';
 
 import markdownStyles from '@/app/shared/styles/markdown.module.css';
