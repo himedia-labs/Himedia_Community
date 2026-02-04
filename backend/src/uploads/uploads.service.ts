@@ -5,17 +5,11 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 
 import appConfig from '@/common/config/app.config';
 import { ERROR_CODES } from '@/constants/error/error-codes';
+import { MIME_EXTENSION_MAP } from '@/uploads/uploads.constants';
+import { IMAGE_REQUIRED_MESSAGE } from '@/uploads/uploads.constants';
 
 import type { ConfigType } from '@nestjs/config';
 import type { UploadedFilePayload } from '@/uploads/uploads.types';
-
-// 확장자 매핑
-const MIME_EXTENSION_MAP: Record<string, string> = {
-  'image/jpeg': '.jpg',
-  'image/png': '.png',
-  'image/webp': '.webp',
-  'image/gif': '.gif',
-};
 
 @Injectable()
 export class UploadsService {
@@ -48,7 +42,7 @@ export class UploadsService {
     // 파일 검증
     if (!file) {
       throw new BadRequestException({
-        message: '이미지 파일을 선택해주세요.',
+        message: IMAGE_REQUIRED_MESSAGE,
         code: ERROR_CODES.VALIDATION_FAILED,
       });
     }

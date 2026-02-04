@@ -10,19 +10,20 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import { JwtGuard } from '@/auth/guards/jwt.guard';
+
 import { ERROR_CODES } from '@/constants/error/error-codes';
 
-import { IMAGE_LIMITS } from '@/uploads/uploads.constants';
-import { IMAGE_ONLY_MESSAGE } from '@/uploads/uploads.constants';
-import { ALLOWED_IMAGE_TYPES } from '@/uploads/uploads.constants';
-import { IMAGE_REQUIRED_MESSAGE } from '@/uploads/uploads.constants';
-
 import { UploadsService } from '@/uploads/uploads.service';
+import { ALLOWED_IMAGE_TYPES, IMAGE_LIMITS, IMAGE_ONLY_MESSAGE, IMAGE_REQUIRED_MESSAGE } from '@/uploads/uploads.constants';
 
 import type { Request as ExpressRequest } from 'express';
 import type { JwtPayload } from '@/auth/interfaces/jwt.interface';
-import type { UploadedFilePayload, UploadFileFilterPayload, UploadFileFilterCallback } from '@/uploads/uploads.types';
+import type { UploadFileFilterCallback, UploadFileFilterPayload, UploadedFilePayload } from '@/uploads/uploads.types';
 
+// 타입 정의
+type AuthRequest = ExpressRequest & { user: JwtPayload };
+
+// 필터 이미지
 /**
  * 이미지 필터
  * @description 허용된 이미지 타입만 통과
@@ -40,13 +41,11 @@ const imageFileFilter = (_req: ExpressRequest, file: UploadFileFilterPayload, ca
   return callback(error, false);
 };
 
+// 인터셉터 업로드
 const IMAGE_UPLOAD_INTERCEPTOR = FileInterceptor('file', {
   limits: IMAGE_LIMITS,
   fileFilter: imageFileFilter,
 });
-
-// 타입 정의
-type AuthRequest = ExpressRequest & { user: JwtPayload };
 
 @Controller('uploads')
 export class UploadsController {
