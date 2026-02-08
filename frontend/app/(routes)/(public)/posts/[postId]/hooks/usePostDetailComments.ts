@@ -566,10 +566,7 @@ export const usePostDetailComments = ({
 
   // 답글 토글
   const handleReplyToggle = (rootCommentId: string, comment: CommentItem, isReply: boolean) => {
-    if (!accessToken) {
-      showToast({ message: '로그인 후 이용해주세요.', type: 'warning' });
-      return;
-    }
+    if (!accessToken) return;
     if (isReply) {
       if (!openRepliesIds.includes(rootCommentId)) {
         setOpenRepliesIds(prev => [...prev, rootCommentId]);

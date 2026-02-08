@@ -4,7 +4,9 @@ import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { PostStatus } from '@/posts/entities/post.entity';
 import { POST_FEED_OPTIONS } from '@/posts/posts.constants';
 import { POST_VALIDATION_MESSAGES } from '@/constants/message/post.messages';
-import { PostFeedOption, PostSortOption, SortOrder } from '@/posts/posts.types';
+import { PostSortOption, SortOrder } from '@/posts/posts.types';
+
+import type { PostFeedOption } from '@/posts/posts.types';
 
 // 게시글 목록 조회 쿼리
 export class ListPostsQueryDto {
