@@ -13,10 +13,12 @@ import { RateLimitService } from '@/auth/services/rateLimit.service';
 import { SnowflakeService } from '@/common/services/snowflake.service';
 import { PasswordResetService } from '@/auth/services/password-reset.service';
 import { PasswordChangeService } from '@/auth/services/password-change.service';
+import { EmailVerificationService } from '@/auth/services/email-verification.service';
 
 import { User } from '@/auth/entities/user.entity';
 import { RefreshToken } from '@/auth/entities/refreshToken.entity';
 import { PasswordReset } from '@/auth/entities/passwordReset.entity';
+import { EmailVerification } from '@/auth/entities/emailVerification.entity';
 
 import { JwtStrategy } from '@/auth/strategies/jwt.strategy';
 import { LocalStrategy } from '@/auth/strategies/local.strategy';
@@ -30,7 +32,7 @@ import { EmailModule } from '@/email/email.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, RefreshToken, PasswordReset]),
+    TypeOrmModule.forFeature([User, RefreshToken, PasswordReset, EmailVerification]),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule.forFeature(appConfig)],
@@ -53,6 +55,7 @@ import { EmailModule } from '@/email/email.module';
     TokenService,
     PasswordChangeService,
     PasswordResetService,
+    EmailVerificationService,
     RateLimitService,
     UserService,
     SnowflakeService,

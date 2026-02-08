@@ -24,12 +24,15 @@ import { VerifyResetCodeDto } from '@/auth/dto/verifyResetCode.dto';
 import { UpdateProfileBioDto } from '@/auth/dto/updateProfileBio.dto';
 import { UpdateProfileImageDto } from '@/auth/dto/updateProfileImage.dto';
 import { ResetPasswordWithCodeDto } from '@/auth/dto/resetPasswordWithCode.dto';
+import { SendEmailVerificationCodeDto } from '@/auth/dto/sendEmailVerificationCode.dto';
+import { VerifyEmailVerificationCodeDto } from '@/auth/dto/verifyEmailVerificationCode.dto';
 
 import { AuthService } from '@/auth/services/auth.service';
 import { UserService } from '@/auth/services/user.service';
 import { TokenService } from '@/auth/services/token.service';
 import { PasswordResetService } from '@/auth/services/password-reset.service';
 import { PasswordChangeService } from '@/auth/services/password-change.service';
+import { EmailVerificationService } from '@/auth/services/email-verification.service';
 
 import { JwtGuard } from '@/auth/guards/jwt.guard';
 import { LocalGuard } from '@/auth/guards/local.guard';
@@ -56,10 +59,11 @@ import type { Request as ExpressRequest, Response as ExpressResponse } from 'exp
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+    private readonly userService: UserService,
     private readonly tokenService: TokenService,
     private readonly passwordResetService: PasswordResetService,
     private readonly passwordChangeService: PasswordChangeService,
-    private readonly userService: UserService,
+    private readonly emailVerificationService: EmailVerificationService,
     @Inject(appConfig.KEY)
     private readonly config: ConfigType<typeof appConfig>,
   ) {}
@@ -89,6 +93,27 @@ export class AuthController {
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
     await this.authService.register(registerDto);
+  }
+
+  /**
+   * 이메일 인증 코드 전송
+   * @description 회원가입 이메일 인증번호 발송 (비인증)
+   */
+  @UseGuards(PasswordRateLimitGuard)
+  @Post('email/send-code')
+  @HttpCode(200)
+  sendEmailVerificationCode(@Body() sendEmailVerificationCodeDto: SendEmailVerificationCodeDto) {
+    return this.emailVerificationService.sendEmailVerificationCode(sendEmailVerificationCodeDto);
+  }
+
+  /**
+   * 이메일 인증 코드 검증
+   * @description 회원가입 이메일 인증번호 확인 (비인증)
+   */
+  @Post('email/verify-code')
+  @HttpCode(200)
+  verifyEmailVerificationCode(@Body() verifyEmailVerificationCodeDto: VerifyEmailVerificationCodeDto) {
+    return this.emailVerificationService.verifyEmailVerificationCode(verifyEmailVerificationCodeDto);
   }
 
   /**
