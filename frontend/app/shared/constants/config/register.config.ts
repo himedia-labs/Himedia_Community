@@ -32,6 +32,15 @@ export const REGISTER_FORM_DEFAULT = {
   privacyConsent: false,
 };
 
+// 생년월일 입력 설정
+export const BIRTH_DATE_CONFIG = {
+  DIGIT_MAX_LENGTH: 8,
+  FORMATTED_MAX_LENGTH: 10,
+};
+
+// 이메일 인증 설정
+export const EMAIL_VERIFICATION_CODE_LENGTH = 8;
+
 // 전화번호 입력 설정
 export const PHONE_CONFIG = {
   DIGIT_MAX_LENGTH: 11,

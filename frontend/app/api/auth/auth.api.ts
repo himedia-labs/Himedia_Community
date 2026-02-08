@@ -1,28 +1,48 @@
 import { axiosInstance } from '@/app/shared/network/axios.instance';
 
 import type {
+  User,
   AuthResponse,
   LoginRequest,
   PublicProfile,
   RegisterRequest,
   ResetPasswordRequest,
-  ResetPasswordResponse,
+  UpdateProfileRequest,
   SendResetCodeRequest,
+  ResetPasswordResponse,
+  UpdateProfileResponse,
   SendResetCodeResponse,
   UpdateProfileBioRequest,
   UpdateProfileBioResponse,
   UpdateProfileImageRequest,
   UpdateProfileImageResponse,
-  UpdateProfileRequest,
-  UpdateProfileResponse,
-  User,
   VerifyResetCodeRequest,
   VerifyResetCodeResponse,
+  SendEmailVerificationCodeRequest,
+  SendEmailVerificationCodeResponse,
+  VerifyEmailVerificationCodeRequest,
+  VerifyEmailVerificationCodeResponse,
 } from '@/app/shared/types/auth';
 
 // 회원가입
 const register = async (data: RegisterRequest): Promise<void> => {
   const res = await axiosInstance.post('/auth/register', data);
+  return res.data;
+};
+
+// 회원가입 이메일 인증: 코드 발송
+const sendEmailVerificationCode = async (
+  data: SendEmailVerificationCodeRequest,
+): Promise<SendEmailVerificationCodeResponse> => {
+  const res = await axiosInstance.post<SendEmailVerificationCodeResponse>('/auth/email/send-code', data);
+  return res.data;
+};
+
+// 회원가입 이메일 인증: 코드 검증
+const verifyEmailVerificationCode = async (
+  data: VerifyEmailVerificationCodeRequest,
+): Promise<VerifyEmailVerificationCodeResponse> => {
+  const res = await axiosInstance.post<VerifyEmailVerificationCodeResponse>('/auth/email/verify-code', data);
   return res.data;
 };
 
@@ -86,6 +106,8 @@ const logout = async (): Promise<void> => {
 
 export const authApi = {
   register,
+  sendEmailVerificationCode,
+  verifyEmailVerificationCode,
   login,
   sendResetCode,
   verifyResetCode,

@@ -97,5 +97,26 @@ export interface ResetPasswordResponse {
   message: string;
 }
 
+// Email Verification - Send Code
+export interface SendEmailVerificationCodeRequest {
+  email: string;
+}
+
+export interface SendEmailVerificationCodeResponse {
+  success: boolean;
+  message: string;
+}
+
+// Email Verification - Verify Code
+export interface VerifyEmailVerificationCodeRequest {
+  email: string;
+  code: string;
+}
+
+export interface VerifyEmailVerificationCodeResponse {
+  success: boolean;
+  message: string;
+}
+
 // Find Password Page
 export type AuthStep = 'verify' | 'password';
