@@ -367,7 +367,6 @@ export default function PostDetailPage() {
                 type="button"
                 className={styles.commentActionButton}
                 aria-label={isReply ? '답글 달기' : '댓글'}
-                disabled={!accessToken}
                 onClick={() => handleReplyToggle(rootCommentId, comment, isReply)}
               >
                 {isReply ? (
