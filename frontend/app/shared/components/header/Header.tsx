@@ -123,18 +123,20 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                       <div className={styles.profileWrapper} ref={profileRef}>
                         <button
                           type="button"
-                          className={`${styles.navLink} ${styles.navButton} ${styles.profileIconButton}`}
+                          className={styles.profileIconButton}
                           aria-label={label}
                           aria-expanded={isProfileOpen}
                           aria-haspopup="menu"
                           title={label}
                           onClick={handleToggleProfile}
                         >
-                          {currentUser?.profileImageUrl ? (
-                            <img className={styles.profileIconImage} src={currentUser.profileImageUrl} alt="" />
-                          ) : (
-                            <Icon aria-hidden="true" focusable="false" />
-                          )}
+                          <span className={styles.profileIconMedia} aria-hidden="true">
+                            {currentUser?.profileImageUrl ? (
+                              <img className={styles.profileIconImage} src={currentUser.profileImageUrl} alt="" />
+                            ) : (
+                              <Icon className={styles.profileFallbackIcon} />
+                            )}
+                          </span>
                         </button>
                         {isProfileVisible ? (
                           <div
