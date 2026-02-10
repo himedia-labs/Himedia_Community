@@ -33,6 +33,14 @@ export interface UpdateProfileRequest {
 
 export type UpdateProfileResponse = User;
 
+export interface UpdateAccountInfoRequest {
+  email?: string;
+  phone?: string;
+  birthDate?: string;
+}
+
+export type UpdateAccountInfoResponse = User;
+
 // Auth Response
 export interface AuthResponse {
   accessToken: string;
@@ -63,6 +71,13 @@ export interface LoginRequest {
   email: string;
   password: string;
 }
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export type ChangePasswordResponse = AuthResponse;
 
 // Password Reset - Send Code
 export interface SendResetCodeRequest {

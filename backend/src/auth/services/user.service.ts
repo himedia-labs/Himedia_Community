@@ -1,10 +1,10 @@
+import { ILike, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { ILike, Repository } from 'typeorm';
 
 import { User } from '@/auth/entities/user.entity';
-
 import { ERROR_CODES } from '@/constants/error/error-codes';
+import { formatPhoneNumber, normalizePhoneNumber } from '@/auth/utils/phone.util';
 import { AUTH_ERROR_MESSAGES, AUTH_VALIDATION_MESSAGES } from '@/constants/message/auth.messages';
 
 import type { AuthUserProfile, PublicUserProfile } from '@/auth/interfaces/user.interface';
@@ -191,6 +191,64 @@ export class UserService {
         }
         user.profileHandle = normalized;
       }
+    }
+
+    await this.usersRepository.save(user);
+    return this.buildUserProfile(user);
+  }
+
+  /**
+   * 계정 기본 정보 수정
+   * @description 이메일/전화번호/생년월일을 업데이트
+   */
+  async updateAccountInfo(
+    userId: string,
+    email?: string | null,
+    phone?: string | null,
+    birthDate?: string | null,
+  ): Promise<AuthUserProfile> {
+    // 사용자 조회
+    const user = await this.getUserByIdOrThrow(userId);
+
+    // 이메일 수정
+    if (typeof email !== 'undefined') {
+      const nextEmail = (email ?? '').trim().toLowerCase();
+      if (nextEmail && nextEmail !== user.email) {
+        const emailExists = await this.usersRepository.exist({ where: { email: nextEmail } });
+        if (emailExists) {
+          throw new ConflictException({
+            message: AUTH_ERROR_MESSAGES.EMAIL_ALREADY_EXISTS,
+            code: ERROR_CODES.AUTH_EMAIL_ALREADY_EXISTS,
+          });
+        }
+        user.email = nextEmail;
+      }
+    }
+
+    // 전화번호 수정
+    if (typeof phone !== 'undefined') {
+      const nextPhone = (phone ?? '').trim();
+      const normalizedPhone = normalizePhoneNumber(nextPhone);
+      const formattedPhone = formatPhoneNumber(normalizedPhone);
+
+      if (formattedPhone && formattedPhone !== user.phone) {
+        const phoneExists = await this.usersRepository.exist({
+          where: [{ phone: normalizedPhone }, { phone: formattedPhone }],
+        });
+        if (phoneExists) {
+          throw new ConflictException({
+            message: AUTH_ERROR_MESSAGES.PHONE_ALREADY_EXISTS,
+            code: ERROR_CODES.AUTH_PHONE_ALREADY_EXISTS,
+          });
+        }
+        user.phone = formattedPhone;
+      }
+    }
+
+    // 생년월일 수정
+    if (typeof birthDate !== 'undefined') {
+      const nextBirthDate = (birthDate ?? '').trim();
+      user.birthDate = nextBirthDate || null;
     }
 
     await this.usersRepository.save(user);

@@ -22,6 +22,7 @@ import { ChangePasswordDto } from '@/auth/dto/changePassword.dto';
 import { ForgotPasswordDto } from '@/auth/dto/forgotPassword.dto';
 import { VerifyResetCodeDto } from '@/auth/dto/verifyResetCode.dto';
 import { UpdateProfileBioDto } from '@/auth/dto/updateProfileBio.dto';
+import { UpdateAccountInfoDto } from '@/auth/dto/updateAccountInfo.dto';
 import { UpdateProfileImageDto } from '@/auth/dto/updateProfileImage.dto';
 import { ResetPasswordWithCodeDto } from '@/auth/dto/resetPasswordWithCode.dto';
 import { SendEmailVerificationCodeDto } from '@/auth/dto/sendEmailVerificationCode.dto';
@@ -198,6 +199,16 @@ export class AuthController {
   @Patch('me/profile')
   updateProfile(@Body() body: UpdateProfileDto, @Request() req: ExpressRequest & { user: JwtPayload }) {
     return this.userService.updateProfile(req.user.sub, body.name, body.profileHandle);
+  }
+
+  /**
+   * 내 계정 정보 수정
+   * @description 이메일/전화번호/생년월일 수정
+   */
+  @UseGuards(JwtGuard)
+  @Patch('me/account')
+  updateAccountInfo(@Body() body: UpdateAccountInfoDto, @Request() req: ExpressRequest & { user: JwtPayload }) {
+    return this.userService.updateAccountInfo(req.user.sub, body.email, body.phone, body.birthDate);
   }
 
   /**

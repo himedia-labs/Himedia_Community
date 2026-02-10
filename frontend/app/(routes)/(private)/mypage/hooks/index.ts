@@ -6,4 +6,5 @@ export { useActivitySort } from '@/app/(routes)/(private)/mypage/hooks/useActivi
 export { useCommentEditor } from '@/app/(routes)/(private)/mypage/hooks/useCommentEditor';
 export { useProfileEditor } from '@/app/(routes)/(private)/mypage/hooks/useProfileEditor';
 export { usePostSidebarData } from '@/app/(routes)/(private)/mypage/hooks/usePostSidebarData';
+export { useAccountSettings } from '@/app/(routes)/(private)/mypage/hooks/useAccountSettings';
 export { useProfileImageEditor } from '@/app/(routes)/(private)/mypage/hooks/useProfileImageEditor';

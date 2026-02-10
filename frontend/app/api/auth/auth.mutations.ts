@@ -12,11 +12,15 @@ import type {
   ResetPasswordResponse,
   UpdateProfileResponse,
   SendResetCodeResponse,
+  ChangePasswordRequest,
   VerifyResetCodeRequest,
+  ChangePasswordResponse,
   UpdateProfileBioRequest,
   VerifyResetCodeResponse,
+  UpdateAccountInfoRequest,
   UpdateProfileBioResponse,
   UpdateProfileImageRequest,
+  UpdateAccountInfoResponse,
   UpdateProfileImageResponse,
   SendEmailVerificationCodeRequest,
   SendEmailVerificationCodeResponse,
@@ -91,6 +95,20 @@ export const useUpdateProfileImageMutation = () => {
 export const useUpdateProfileMutation = () => {
   return useMutation<UpdateProfileResponse, Error, UpdateProfileRequest>({
     mutationFn: authApi.updateProfile,
+  });
+};
+
+// 계정 기본 정보 수정
+export const useUpdateAccountInfoMutation = () => {
+  return useMutation<UpdateAccountInfoResponse, Error, UpdateAccountInfoRequest>({
+    mutationFn: authApi.updateAccountInfo,
+  });
+};
+
+// 비밀번호 변경
+export const useChangePasswordMutation = () => {
+  return useMutation<ChangePasswordResponse, Error, ChangePasswordRequest>({
+    mutationFn: authApi.changePassword,
   });
 };
 

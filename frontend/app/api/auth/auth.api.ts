@@ -12,11 +12,15 @@ import type {
   ResetPasswordResponse,
   UpdateProfileResponse,
   SendResetCodeResponse,
+  ChangePasswordRequest,
+  VerifyResetCodeRequest,
+  ChangePasswordResponse,
   UpdateProfileBioRequest,
   UpdateProfileBioResponse,
+  UpdateAccountInfoRequest,
   UpdateProfileImageRequest,
+  UpdateAccountInfoResponse,
   UpdateProfileImageResponse,
-  VerifyResetCodeRequest,
   VerifyResetCodeResponse,
   SendEmailVerificationCodeRequest,
   SendEmailVerificationCodeResponse,
@@ -99,6 +103,18 @@ const updateProfile = async (payload: UpdateProfileRequest): Promise<UpdateProfi
   return res.data;
 };
 
+// 계정 기본 정보 수정
+const updateAccountInfo = async (payload: UpdateAccountInfoRequest): Promise<UpdateAccountInfoResponse> => {
+  const res = await axiosInstance.patch<UpdateAccountInfoResponse>('/auth/me/account', payload);
+  return res.data;
+};
+
+// 비밀번호 변경
+const changePassword = async (payload: ChangePasswordRequest): Promise<ChangePasswordResponse> => {
+  const res = await axiosInstance.post<ChangePasswordResponse>('/auth/password/change', payload);
+  return res.data;
+};
+
 // 로그아웃
 const logout = async (): Promise<void> => {
   await axiosInstance.post('/auth/logout');
@@ -117,5 +133,7 @@ export const authApi = {
   updateProfileBio,
   updateProfileImage,
   updateProfile,
+  updateAccountInfo,
+  changePassword,
   logout,
 };
