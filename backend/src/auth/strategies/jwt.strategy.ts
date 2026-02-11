@@ -37,6 +37,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // 사용자 조회
     const user = await this.userService.getUserByIdOrThrow(payload.sub);
 
+    // 탈퇴 계정 차단
+    if (user.withdrawn) {
+      throw new ForbiddenException({
+        message: AUTH_ERROR_MESSAGES.ACCOUNT_WITHDRAWN,
+        code: ERROR_CODES.AUTH_ACCOUNT_WITHDRAWN,
+      });
+    }
+
     // 승인되지 않은 사용자
     if (!user.approved) {
       throw new ForbiddenException({

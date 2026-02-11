@@ -8,6 +8,7 @@ import { TokenService } from '@/auth/services/token.service';
 
 import { User, UserRole } from '@/auth/entities/user.entity';
 
+import { AUTH_CONFIG } from '@/constants/config/auth.config';
 import { ERROR_CODES } from '@/constants/error/error-codes';
 import { SnowflakeService } from '@/common/services/snowflake.service';
 import { AUTH_ERROR_MESSAGES } from '@/constants/message/auth.messages';
@@ -148,6 +149,22 @@ export class AuthService {
       });
     }
 
+    // 탈퇴 계정 차단
+    if (user.withdrawn) {
+      if (this.isWithdrawRestoreExpired(user)) {
+        await this.markWithdrawExpiredMemo(user);
+        throw new UnauthorizedException({
+          message: AUTH_ERROR_MESSAGES.INVALID_CREDENTIALS,
+          code: ERROR_CODES.AUTH_INVALID_CREDENTIALS,
+        });
+      }
+
+      throw new ForbiddenException({
+        message: AUTH_ERROR_MESSAGES.ACCOUNT_WITHDRAWN,
+        code: ERROR_CODES.AUTH_ACCOUNT_WITHDRAWN,
+      });
+    }
+
     // 승인 상태 확인
     if (!user.approved) {
       throw new ForbiddenException({
@@ -157,6 +174,41 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  /**
+   * 탈퇴 복구 가능 여부
+   * @description 복구 기한(또는 탈퇴 시각+유예기간)을 기준으로 만료 여부를 계산
+   */
+  private isWithdrawRestoreExpired(user: User): boolean {
+    const deadline = user.withdrawRestoreDeadline ?? this.buildLegacyRestoreDeadline(user.withdrawnAt);
+    if (!deadline) return true;
+    return deadline.getTime() < Date.now();
+  }
+
+  /**
+   * 탈퇴 만료 메모 반영
+   * @description 만료 메모가 아직 없으면 상태 메모를 만료값으로 업데이트
+   */
+  private async markWithdrawExpiredMemo(user: User): Promise<void> {
+    if (user.withdrawNote === AUTH_CONFIG.WITHDRAW_NOTE_EXPIRED) {
+      return;
+    }
+
+    user.withdrawNote = AUTH_CONFIG.WITHDRAW_NOTE_EXPIRED;
+    await this.usersRepository.save(user);
+  }
+
+  /**
+   * 레거시 복구 기한 계산
+   * @description 복구 기한 컬럼이 없는 기존 탈퇴 계정은 withdrawnAt 기준으로 기한을 계산
+   */
+  private buildLegacyRestoreDeadline(withdrawnAt: Date | null): Date | null {
+    if (!withdrawnAt) return null;
+
+    const deadline = new Date(withdrawnAt);
+    deadline.setDate(deadline.getDate() + AUTH_CONFIG.WITHDRAW_RESTORE_GRACE_DAYS);
+    return deadline;
   }
 
   // 프로필 핸들 생성

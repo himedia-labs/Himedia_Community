@@ -1,4 +1,9 @@
 export const AUTH_CONFIG = {
   // 비밀번호 해싱 라운드 수 (bcrypt)
   BCRYPT_ROUNDS: 10,
+  // 탈퇴 복구 유예 기간 (일)
+  WITHDRAW_RESTORE_GRACE_DAYS: 30,
+  // 탈퇴 계정 상태 메모
+  WITHDRAW_NOTE_ACTIVE: 'WITHDRAWN_RESTORE_WINDOW_OPEN',
+  WITHDRAW_NOTE_EXPIRED: 'WITHDRAWN_RESTORE_WINDOW_EXPIRED',
 } as const;

@@ -19,6 +19,10 @@ CREATE TABLE users (
     profile_bio TEXT,
     privacy_consent BOOLEAN NOT NULL DEFAULT false,
     approved BOOLEAN NOT NULL DEFAULT false,
+    withdrawn BOOLEAN NOT NULL DEFAULT false,
+    withdrawn_at TIMESTAMP,
+    withdraw_restore_deadline TIMESTAMP,
+    withdraw_note VARCHAR(255),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -27,6 +31,8 @@ CREATE TABLE users (
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_role ON users(role);
 CREATE INDEX idx_users_approved ON users(approved);
+CREATE INDEX idx_users_withdrawn ON users(withdrawn);
+CREATE INDEX idx_users_withdraw_restore_deadline ON users(withdraw_restore_deadline);
 CREATE INDEX idx_users_role_approved ON users(role, approved);
 CREATE INDEX idx_users_profile_handle ON users(profile_handle);
 
@@ -254,6 +260,10 @@ COMMENT ON COLUMN users.profile_handle IS '프로필 핸들';
 COMMENT ON COLUMN users.profile_image_url IS '프로필 이미지 URL';
 COMMENT ON COLUMN users.privacy_consent IS '개인정보 수집 및 이용 동의 여부';
 COMMENT ON COLUMN users.approved IS '관리자 승인 여부';
+COMMENT ON COLUMN users.withdrawn IS '회원탈퇴 여부';
+COMMENT ON COLUMN users.withdrawn_at IS '회원탈퇴 처리 시각';
+COMMENT ON COLUMN users.withdraw_restore_deadline IS '회원탈퇴 후 복구 가능 마감 시각';
+COMMENT ON COLUMN users.withdraw_note IS '탈퇴 계정 상태 메모';
 COMMENT ON COLUMN users.created_at IS '생성 일시';
 COMMENT ON COLUMN users.updated_at IS '수정 일시';
 

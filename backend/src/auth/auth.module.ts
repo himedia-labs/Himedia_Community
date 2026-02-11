@@ -13,6 +13,8 @@ import { RateLimitService } from '@/auth/services/rateLimit.service';
 import { SnowflakeService } from '@/common/services/snowflake.service';
 import { PasswordResetService } from '@/auth/services/password-reset.service';
 import { PasswordChangeService } from '@/auth/services/password-change.service';
+import { AccountRestoreService } from '@/auth/services/account-restore.service';
+import { AccountWithdrawService } from '@/auth/services/account-withdraw.service';
 import { EmailVerificationService } from '@/auth/services/email-verification.service';
 
 import { User } from '@/auth/entities/user.entity';
@@ -52,18 +54,20 @@ import { EmailModule } from '@/email/email.module';
   controllers: [AuthController],
   providers: [
     AuthService,
-    TokenService,
-    PasswordChangeService,
-    PasswordResetService,
-    EmailVerificationService,
-    RateLimitService,
     UserService,
-    SnowflakeService,
-    LocalStrategy,
     JwtStrategy,
-    PasswordRateLimitGuard,
+    TokenService,
+    LocalStrategy,
+    RateLimitService,
+    SnowflakeService,
     LoginRateLimitGuard,
     LoginValidationGuard,
+    PasswordResetService,
+    AccountRestoreService,
+    PasswordChangeService,
+    PasswordRateLimitGuard,
+    AccountWithdrawService,
+    EmailVerificationService,
   ],
 })
 export class AuthModule {}

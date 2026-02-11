@@ -17,6 +17,8 @@ export enum UserRole {
 @Index(['email'])
 @Index(['role'])
 @Index(['approved'])
+@Index(['withdrawn'])
+@Index(['withdrawRestoreDeadline'])
 @Index(['role', 'approved'])
 @Index(['profileHandle'])
 export class User {
@@ -61,6 +63,18 @@ export class User {
 
   @Column({ type: 'boolean', default: false })
   approved!: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  withdrawn!: boolean;
+
+  @Column({ type: 'timestamp', name: 'withdrawn_at', nullable: true })
+  withdrawnAt!: Date | null;
+
+  @Column({ type: 'timestamp', name: 'withdraw_restore_deadline', nullable: true })
+  withdrawRestoreDeadline!: Date | null;
+
+  @Column({ type: 'varchar', length: 255, name: 'withdraw_note', nullable: true })
+  withdrawNote!: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;

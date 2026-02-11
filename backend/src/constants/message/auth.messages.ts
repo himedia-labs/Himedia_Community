@@ -6,8 +6,13 @@ export const AUTH_ERROR_MESSAGES = {
   EMAIL_NOT_FOUND: '등록되지 않은 이메일입니다.',
   EMAIL_ALREADY_EXISTS: '이미 가입된 이메일입니다.',
   PHONE_ALREADY_EXISTS: '이미 등록된 전화번호입니다.',
+  ACCOUNT_WITHDRAWN: '탈퇴한 계정입니다.',
   PENDING_APPROVAL: '관리자 승인 대기 중입니다.',
   TOO_MANY_LOGIN_ATTEMPTS: '로그인 시도가 많습니다. 잠시 후 다시 시도해주세요.',
+} as const;
+
+export const AUTH_SUCCESS_MESSAGES = {
+  WITHDRAWN: '회원탈퇴가 완료되었습니다.',
 } as const;
 
 export const AUTH_VALIDATION_MESSAGES = {

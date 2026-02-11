@@ -21,10 +21,12 @@ import { UpdateProfileDto } from '@/auth/dto/updateProfile.dto';
 import { ChangePasswordDto } from '@/auth/dto/changePassword.dto';
 import { ForgotPasswordDto } from '@/auth/dto/forgotPassword.dto';
 import { VerifyResetCodeDto } from '@/auth/dto/verifyResetCode.dto';
+import { WithdrawAccountDto } from '@/auth/dto/withdrawAccount.dto';
 import { UpdateProfileBioDto } from '@/auth/dto/updateProfileBio.dto';
 import { UpdateAccountInfoDto } from '@/auth/dto/updateAccountInfo.dto';
 import { UpdateProfileImageDto } from '@/auth/dto/updateProfileImage.dto';
 import { ResetPasswordWithCodeDto } from '@/auth/dto/resetPasswordWithCode.dto';
+import { RestoreWithdrawnAccountDto } from '@/auth/dto/restoreWithdrawnAccount.dto';
 import { SendEmailVerificationCodeDto } from '@/auth/dto/sendEmailVerificationCode.dto';
 import { VerifyEmailVerificationCodeDto } from '@/auth/dto/verifyEmailVerificationCode.dto';
 
@@ -33,6 +35,8 @@ import { UserService } from '@/auth/services/user.service';
 import { TokenService } from '@/auth/services/token.service';
 import { PasswordResetService } from '@/auth/services/password-reset.service';
 import { PasswordChangeService } from '@/auth/services/password-change.service';
+import { AccountRestoreService } from '@/auth/services/account-restore.service';
+import { AccountWithdrawService } from '@/auth/services/account-withdraw.service';
 import { EmailVerificationService } from '@/auth/services/email-verification.service';
 
 import { JwtGuard } from '@/auth/guards/jwt.guard';
@@ -64,6 +68,8 @@ export class AuthController {
     private readonly tokenService: TokenService,
     private readonly passwordResetService: PasswordResetService,
     private readonly passwordChangeService: PasswordChangeService,
+    private readonly accountRestoreService: AccountRestoreService,
+    private readonly accountWithdrawService: AccountWithdrawService,
     private readonly emailVerificationService: EmailVerificationService,
     @Inject(appConfig.KEY)
     private readonly config: ConfigType<typeof appConfig>,
@@ -115,6 +121,28 @@ export class AuthController {
   @HttpCode(200)
   verifyEmailVerificationCode(@Body() verifyEmailVerificationCodeDto: VerifyEmailVerificationCodeDto) {
     return this.emailVerificationService.verifyEmailVerificationCode(verifyEmailVerificationCodeDto);
+  }
+
+  /**
+   * 탈퇴 계정 복원
+   * @description 이메일 인증번호를 확인한 뒤 계정을 복원하고 로그인 처리
+   */
+  @Post('restore')
+  @HttpCode(200)
+  async restoreWithdrawnAccount(
+    @Body() body: RestoreWithdrawnAccountDto,
+    @Response() res: ExpressResponse,
+    @Headers('user-agent') userAgent?: string,
+    @Ip() ipAddress?: string,
+  ) {
+    const authResponse = await this.accountRestoreService.restoreWithdrawnAccount(
+      body.email,
+      body.code,
+      userAgent,
+      ipAddress,
+    );
+    setCookies(res, authResponse.refreshToken, this.config);
+    return res.status(200).json({ accessToken: authResponse.accessToken, user: authResponse.user });
   }
 
   /**
@@ -209,6 +237,23 @@ export class AuthController {
   @Patch('me/account')
   updateAccountInfo(@Body() body: UpdateAccountInfoDto, @Request() req: ExpressRequest & { user: JwtPayload }) {
     return this.userService.updateAccountInfo(req.user.sub, body.email, body.phone, body.birthDate);
+  }
+
+  /**
+   * 회원탈퇴
+   * @description 현재 비밀번호 확인 후 계정을 탈퇴 처리하고 세션을 종료
+   */
+  @UseGuards(JwtGuard)
+  @Post('withdraw')
+  @HttpCode(200)
+  async withdrawAccount(
+    @Body() body: WithdrawAccountDto,
+    @Request() req: ExpressRequest & { user: JwtPayload },
+    @Response() res: ExpressResponse,
+  ) {
+    const result = await this.accountWithdrawService.withdrawAccount(req.user.sub, body.currentPassword);
+    clearCookies(res, this.config);
+    return res.status(200).json(result);
   }
 
   /**
