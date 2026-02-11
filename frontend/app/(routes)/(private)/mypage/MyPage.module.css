@@ -1,17 +1,15 @@
 .container {
-  flex-direction: column;
-  justify-content: normal;
-  align-items: normal;
-  padding: 80px 0;
   display: flex;
+  flex-direction: column;
+  align-items: normal;
+  justify-content: normal;
+
+  padding: 80px 0;
 }
 
 .layout {
   display: flex;
-  flex-direction: row;
   gap: 3rem;
-  justify-content: normal;
-  align-items: normal;
 }
 
 .leftPanel {
@@ -21,9 +19,10 @@
 
 .list {
   display: flex;
-  gap: 3rem;
-  flex-wrap: wrap;
   flex-direction: column;
+  flex-wrap: wrap;
+  gap: 3rem;
+
   min-width: 10rem;
 }
 
@@ -36,38 +35,46 @@
 .listDividerLine {
   width: 100%;
   height: 1px;
-  background: #e5e8eb;
+
   margin: 6px 0;
+
+  background: #e5e8eb;
 }
 
 .listGroupTitle {
+  padding: 10px 16px 4px;
+
   font-size: 0.85rem;
   font-weight: 600;
   color: #9aa4b2;
-  padding: 10px 16px 4px;
 }
 
 .listLink {
   padding: 12px 16px;
+
+  border-radius: 10px;
+
   font-size: 1rem;
   color: #4e5968;
   text-decoration: none;
-  border-radius: 10px;
 }
 
 .listLink:hover {
   background: #f2f4f6;
+
   color: #1f1f1f;
 }
 
 .listLinkActive {
   background: #f2f4f6;
+
   color: #1f1f1f;
 }
 
 .main {
   display: flex;
   flex-direction: column;
+
   width: 100%;
 }
 
@@ -76,14 +83,17 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+
   width: 100%;
 }
 
 .headerDivider {
   width: 100%;
   height: 1px;
-  background: #e5e8eb;
+
   margin: 24px 0;
+
+  background: #e5e8eb;
 }
 
 .content {
@@ -93,7 +103,220 @@
 
 .postsMain {
   flex: 1;
+
   min-width: 0;
+}
+
+.profileCard {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+
+  width: 100%;
+
+  border-radius: 12px;
+
+  background: #fff;
+}
+
+.profileMain {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+
+  position: relative;
+
+  width: 100%;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+
+  width: 62px;
+  height: 62px;
+
+  border: 1px solid #d0d7de;
+  border-radius: 50%;
+
+  background: #e9edf4;
+
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.avatarButton {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 0;
+
+  border: none;
+
+  background: transparent;
+
+  cursor: pointer;
+}
+
+.avatarButton:disabled {
+  cursor: default;
+}
+
+.avatarInput {
+  display: none;
+}
+
+.avatarIcon {
+  width: 28px;
+  height: 28px;
+
+  color: #6b7280;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+
+  border-radius: 50%;
+
+  object-fit: cover;
+}
+
+.avatarIconEdit {
+  width: 35px;
+  height: 35px;
+
+  transform: translateX(4.75px) translateY(0.5px);
+}
+
+.profileInfo {
+  display: grid;
+  flex: 1;
+
+  width: 100%;
+}
+
+.profileName {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333d4b;
+}
+
+.profileNameRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  height: 48px;
+}
+
+.profileHandleInputGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  padding: 6px 10px;
+
+  border: 1px solid #e5e8eb;
+  border-radius: 8px;
+
+  background: #fff;
+}
+
+.profileHandlePrefix {
+  font-size: 1rem;
+  color: #8b95a1;
+}
+
+.profileHandleInput {
+  width: 120px;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  font-size: 1rem;
+  color: #333d4b;
+}
+
+.profileHandle {
+  font-size: 1rem;
+  color: #8b95a1;
+}
+
+.profileActions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.profileEditButton {
+  padding: 6px 12px;
+
+  border: 1px solid #e5e8eb;
+  border-radius: 8px;
+
+  background: #fff;
+
+  font-size: 0.9rem;
+  color: #333d4b;
+
+  cursor: pointer;
+}
+
+.profileEditButton:hover {
+  background: #f2f4f6;
+
+  color: #1f1f1f;
+}
+
+.profileCancelButton {
+  padding: 6px 12px;
+
+  border: 1px solid #e5e8eb;
+  border-radius: 8px;
+
+  background: #fff;
+
+  font-size: 0.9rem;
+  color: #4e5968;
+
+  cursor: pointer;
+}
+
+.profileCancelButton:hover {
+  background: #f2f4f6;
+
+  color: #1f1f1f;
+}
+
+.profileStats {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  font-size: 14px;
+  color: #4e5968;
+}
+
+.profileStat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.profileDivider {
+  color: #363636;
 }
 
 .settingsSection {
@@ -107,8 +330,10 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px 0 0;
+
   min-height: 48px;
+
+  padding: 16px 0 0;
 }
 
 .settingsControlGroup {
@@ -120,15 +345,19 @@
 .settingsDivider {
   width: 1px;
   height: 20px;
+
   background: #e5e8eb;
 }
 
 .settingsSortGroup {
   display: inline-flex;
   align-items: center;
-  border-radius: 8px;
+
   border: 1px solid #e5e8eb;
+  border-radius: 8px;
+
   background: #fff;
+
   transition:
     color 0.15s ease,
     background-color 0.15s ease;
@@ -143,12 +372,17 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
+
   padding: 8px 12px;
+
   border: none;
+
   background: transparent;
-  color: #4e5968;
+
   font-size: 0.9rem;
   font-weight: 600;
+  color: #4e5968;
+
   cursor: pointer;
 }
 
@@ -168,23 +402,31 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+
   padding: 8px 12px;
-  border-radius: 8px;
+
   border: 1px solid #e5e8eb;
+  border-radius: 8px;
+
   background: #fff;
-  color: #4e5968;
+
   font-size: 0.9rem;
+  color: #4e5968;
+
   cursor: pointer;
 }
 
 .filterButton:hover {
   background: #f2f4f6;
+
   color: #1f1f1f;
 }
 
 .filterButton:disabled {
   background: #f9fafb;
+
   color: #b0b8c1;
+
   cursor: not-allowed;
 }
 
@@ -193,45 +435,59 @@
 }
 
 .filterMenu {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  min-width: 100px;
-  max-width: 200px;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  padding: 8px 6px;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: #fff;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
   z-index: 10;
+
+  min-width: 100px;
+  max-width: 200px;
+
+  padding: 8px 6px;
+
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+
+  background: #fff;
+
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
 }
 
 .filterItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   width: 100%;
+
   padding: 8px 10px;
+
   border: none;
   border-radius: 8px;
+
   background: transparent;
-  text-align: left;
-  cursor: pointer;
-  font-size: 0.9rem;
+
   font-family: inherit;
+  font-size: 0.9rem;
   color: #4e5968;
+  text-align: left;
+
+  cursor: pointer;
 }
 
 .filterItem:hover {
   background: #f2f4f6;
+
   color: #1f1f1f;
 }
 
 .filterItemActive {
   background: #f2f4f6;
+
   color: #1f1f1f;
 }
 
@@ -240,40 +496,51 @@
   color: #9aa4b2;
 }
 .settingsLabel {
+  border-bottom: 0.125rem solid #000;
+
   font-size: 20px;
   color: #000000;
-  border-bottom: 0.125rem solid #000;
 }
 
 .settingsButton {
+  padding: 8px 14px;
+
   border: 1px solid #e5e8eb;
   border-radius: 8px;
-  padding: 8px 14px;
+
+  background: #fff;
+
   font-size: 0.95rem;
   color: #333d4b;
-  background: #fff;
+
   cursor: pointer;
 }
 
 .settingsButton:hover {
   background: #f2f4f6;
+
   color: #1f1f1f;
 }
 
 .settingsButton:disabled {
   background: #f9fafb;
+
   color: #b0b8c1;
+
   cursor: not-allowed;
 }
 
 .settingsButtonPlaceholder {
+  padding: 8px 14px;
+
   border: 1px solid transparent;
   border-radius: 8px;
-  padding: 8px 14px;
+
   font-size: 0.95rem;
   line-height: 1;
-  visibility: hidden;
+
   pointer-events: none;
+  visibility: hidden;
 }
 
 .settingsBody {
@@ -292,7 +559,9 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+
   padding: 2rem;
+
   border: 1px solid #e5e8eb;
   border-radius: 12px;
 }
@@ -306,6 +575,7 @@
 .settingsFooter {
   display: flex;
   justify-content: flex-end;
+
   padding-top: 8px;
 }
 
@@ -313,10 +583,14 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+
   border: none;
+
   background: transparent;
-  color: #d14343;
+
   font-size: 0.95rem;
+  color: #d14343;
+
   cursor: pointer;
 }
 
@@ -333,19 +607,26 @@
 }
 
 .settingsItemLabel {
-  height: 38px;
   display: inline-flex;
   align-items: center;
+
+  min-width: 200px;
+  height: 38px;
+
   font-size: 1rem;
   color: #4e5968;
-  min-width: 200px;
 }
 
 .settingsItemValue {
   flex: 1;
+
   font-size: 0.95rem;
   color: #1f1f1f;
   text-align: left;
+}
+
+.settingsPasswordValueMask {
+  letter-spacing: 0.25em;
 }
 
 .settingsItemEmail {
@@ -358,25 +639,89 @@
 
 .settingsEmailContent {
   display: flex;
-  flex-direction: column;
   flex: 1;
-  min-width: 0;
+  flex-direction: column;
   gap: 8px;
+
+  min-width: 0;
+}
+
+.settingsEmailPanel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+
+  min-width: 0;
+}
+
+.settingsEmailFieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .settingsEmailTop {
-  height: 38px;
   display: flex;
   align-items: center;
   gap: 16px;
+
+  height: 38px;
+}
+
+.settingsEmailInputRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  height: 38px;
+}
+
+.settingsEmailCodeInput {
+  max-width: 220px;
+}
+
+.settingsEmailCodeInput:disabled {
+  border-color: #eef1f4;
+
+  background: #f8fafc;
+
+  color: #9aa4b2;
+
+  cursor: not-allowed;
+}
+
+.settingsEmailCodeInput:disabled::placeholder {
+  color: #b0b8c1;
+}
+
+.settingsEmailVerifyHint {
+  margin: 0;
+
+  font-size: 0.85rem;
+  color: #6b7684;
+}
+
+.settingsEmailActionsRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.settingsEmailActionDivider {
+  font-size: 0.95rem;
+  color: #b0b8c1;
+  line-height: 1;
 }
 
 .settingsPasswordPanel {
   display: flex;
   flex: 1;
-  min-width: 0;
   flex-direction: column;
   gap: 12px;
+
+  min-width: 0;
 }
 
 .settingsPasswordFieldGroup {
@@ -402,20 +747,28 @@
 }
 
 .settingsPasswordToggle {
-  position: absolute;
-  top: 50%;
-  right: 12px;
-  width: 20px;
-  height: 20px;
-  border: none;
-  padding: 0;
-  background: transparent;
-  color: #7d8794;
-  cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
+  position: absolute;
+  top: 50%;
+  right: 12px;
+
+  width: 20px;
+  height: 20px;
+
+  padding: 0;
+
+  border: none;
+
+  background: transparent;
+
+  color: #7d8794;
+
   transform: translateY(-50%);
+
+  cursor: pointer;
 }
 
 .settingsPasswordEye {
@@ -425,6 +778,7 @@
 
 .settingsPasswordHint {
   margin: 0;
+
   font-size: 0.9rem;
   color: #6b7684;
 }
@@ -437,14 +791,17 @@
 
 .settingsPasswordRule {
   margin: 0;
+
   font-size: 0.9rem;
   color: #6b7684;
 }
 
 .settingsPasswordRule::before {
-  content: '\2713';
   margin-right: 6px;
+
   color: #9aa4b2;
+
+  content: '\2713';
 }
 
 .settingsPasswordRuleInvalid {
@@ -473,12 +830,16 @@
 .settingsInput {
   width: 100%;
   height: 38px;
+
+  padding: 0 12px;
+
   border: 1px solid #e5e8eb;
   border-radius: 8px;
-  padding: 0 12px;
+
+  background: #fff;
+
   font-size: 0.95rem;
   color: #1f1f1f;
-  background: #fff;
 }
 
 .settingsInput:focus {
@@ -488,6 +849,7 @@
 
 .settingsItemInput {
   flex: 1;
+
   min-width: 0;
   max-width: 680px;
 }
@@ -496,12 +858,14 @@
   display: inline-flex;
   justify-content: flex-end;
   gap: 8px;
+
   width: 100%;
 }
 
 .settingsInlineActionsInline {
-  width: auto;
   flex-shrink: 0;
+
+  width: auto;
 }
 
 .settingsInlineCancelButton {
@@ -523,32 +887,42 @@
 }
 
 .settingsCancelButton {
+  padding: 8px 16px;
+
   border: 1px solid #e5e8eb;
   border-radius: 8px;
-  padding: 8px 16px;
+
+  background: #fff;
+
   font-size: 0.95rem;
   color: #4e5968;
-  background: #fff;
+
   cursor: pointer;
 }
 
 .settingsCancelButton:hover {
   background: #f2f4f6;
+
   color: #1f1f1f;
 }
 
 .settingsSaveButton {
+  padding: 8px 16px;
+
   border: 1px solid #e5e8eb;
   border-radius: 8px;
-  padding: 8px 16px;
+
+  background: #fff;
+
   font-size: 0.95rem;
   color: #333d4b;
-  background: #fff;
+
   cursor: pointer;
 }
 
 .settingsSaveButton:hover {
   background: #f2f4f6;
+
   color: #1f1f1f;
 }
 
@@ -556,19 +930,21 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  height: 8.75rem;
   justify-content: center;
+  gap: 3px;
+
+  height: 8.75rem;
 }
 
 .settingsText {
   margin: 0;
+
   font-size: 0.95rem;
-  color: #4e5968;
   line-height: 1.6;
+  color: #4e5968;
+  text-align: center;
   white-space: pre-wrap;
   word-break: break-word;
-  text-align: center;
 }
 
 .settingsSubtext {
@@ -577,245 +953,42 @@
   text-align: center;
 }
 
-.commentLink {
-  display: block;
-  color: inherit;
-  text-decoration: none;
-}
-
-.commentListReset.commentListReset {
-  margin-top: 12px;
-  gap: 1rem;
-}
-
-.commentBox {
-  border: 1px solid #e5e8eb;
-  border-radius: 12px;
-  padding: 16px;
-  background: #fff;
-}
-
-.commentBox.commentBox {
-  border: 1px solid #e5e8eb;
-  background: #fff;
-}
-
-.commentMetaRow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-  color: #7a7a7a;
-  font-size: 0.85rem;
-}
-
-.commentMetaItem {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.profileCard {
-  border-radius: 12px;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 1rem;
-  width: 100%;
-}
-
-.profileMain {
-  display: flex;
-  align-items: center;
-  gap: 1.2rem;
-  width: 100%;
-  position: relative;
-}
-
-.avatar {
-  width: 62px;
-  height: 62px;
-  border-radius: 50%;
-  background: #e9edf4;
-  border: 1px solid #d0d7de;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  font-weight: 700;
-  position: relative;
-}
-
-.avatarButton {
-  border: none;
-  background: transparent;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-.avatarButton:disabled {
-  cursor: default;
-}
-
-.avatarInput {
-  display: none;
-}
-
-.avatarIcon {
-  color: #6b7280;
-  width: 28px;
-  height: 28px;
-}
-
-.avatarImage {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.avatarIconEdit {
-  transform: translateX(4.75px) translateY(0.5px);
-  width: 35px;
-  height: 35px;
-}
-
-.profileInfo {
-  display: grid;
-  width: 100%;
-  flex: 1;
-}
-
-.profileName {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #333d4b;
-}
-
-.profileNameRow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  height: 48px;
-}
-
-.profileHandleInputGroup {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  border: 1px solid #e5e8eb;
-  border-radius: 8px;
-  padding: 6px 10px;
-  background: #fff;
-}
-
-.profileHandlePrefix {
-  font-size: 1rem;
-  color: #8b95a1;
-}
-
-.profileHandleInput {
-  border: none;
-  outline: none;
-  font-size: 1rem;
-  color: #333d4b;
-  background: transparent;
-  width: 120px;
-}
-
-.profileHandle {
-  font-size: 1rem;
-  color: #8b95a1;
-}
-
-.profileActions {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
-.profileEditButton {
-  border: 1px solid #e5e8eb;
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 0.9rem;
-  color: #333d4b;
-  background: #fff;
-  cursor: pointer;
-}
-
-.profileEditButton:hover {
-  background: #f2f4f6;
-  color: #1f1f1f;
-}
-
-.profileCancelButton {
-  border: 1px solid #e5e8eb;
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 0.9rem;
-  color: #4e5968;
-  background: #fff;
-  cursor: pointer;
-}
-
-.profileCancelButton:hover {
-  background: #f2f4f6;
-  color: #1f1f1f;
-}
-
-.profileStats {
-  display: flex;
-  align-items: center;
-  color: #4e5968;
-  font-size: 14px;
-  gap: 0.25rem;
-}
-
-.profileStat {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.profileDivider {
-  color: #363636;
-}
-
 .listView {
   display: flex;
   flex-direction: column;
   gap: 16px;
+
   margin: 0;
-  padding: 0;
-  list-style: none;
   margin-top: 12px;
+  padding: 0;
+
+  list-style: none;
 }
 
 .postLink {
   display: block;
+
   width: 100%;
+
   color: inherit;
   text-decoration: none;
 }
 
 .listItem {
   display: grid;
-  min-height: 150px;
-  width: 100%;
+
   position: relative;
-  padding: 20px 22px;
-  border-radius: 16px;
-  border: 1px solid #e5e8eb;
-  background: #fff;
+
+  width: 100%;
+  min-height: 150px;
   box-sizing: border-box;
+
+  padding: 20px 22px;
+
+  border: 1px solid #e5e8eb;
+  border-radius: 16px;
+
+  background: #fff;
 }
 
 .listDivider {
@@ -842,6 +1015,7 @@
 .listMenuWrapper {
   display: inline-flex;
   align-items: center;
+
   position: relative;
 }
 
@@ -849,11 +1023,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   width: 32px;
   height: 32px;
+
   border: none;
+
   background: transparent;
+
   color: #8a8a8a;
+
   cursor: pointer;
 }
 
@@ -870,28 +1049,39 @@
   position: absolute;
   top: calc(100% + 0.35rem);
   right: 0;
-  min-width: 4rem;
-  padding: 0.35rem;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: #fff;
-  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
   z-index: 5;
+
+  min-width: 4rem;
+
+  padding: 0.35rem;
+
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+
+  background: #fff;
+
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
 }
 
 .listMenuItem {
   display: flex;
   align-items: center;
   gap: 0.45rem;
+
   width: 100%;
+
   padding: 0.45rem 0.6rem;
-  border-radius: 8px;
+
   border: none;
+  border-radius: 8px;
+
   background: transparent;
-  color: #4e5968;
+
   font-size: 0.85rem;
-  cursor: pointer;
+  color: #4e5968;
   text-align: left;
+
+  cursor: pointer;
 }
 
 .listMenuItem:hover {
@@ -904,38 +1094,46 @@
 }
 
 .listBody h3 {
+  display: -webkit-box;
+
   margin: 0;
+
   font-size: 24px;
   line-height: 1.3;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+
   overflow: hidden;
 }
 
 .listThumb {
   width: 100%;
   height: 150px;
+
   border-radius: 12px;
+
   background-size: cover;
   background-position: center;
 }
 
 .summary {
-  font-size: 14px;
-  margin: 0;
-  color: #757575;
-  line-height: 1.7;
   align-self: start;
+
+  margin: 0;
+
+  font-size: 14px;
+  line-height: 1.7;
+  color: #757575;
 }
 
 .meta {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 1rem;
+
   font-size: 14px;
   color: #8a8a8a;
-  align-items: center;
 }
 
 .metaGroup {
@@ -957,27 +1155,55 @@
 .empty {
   margin-top: 12px;
   padding: 2rem;
-  border-radius: 16px;
+
   border: 1px dashed rgba(0, 0, 0, 0.15);
+  border-radius: 16px;
+
+  color: #7a7a7a;
   text-align: center;
+}
+
+.commentLink {
+  display: block;
+
+  color: inherit;
+  text-decoration: none;
+}
+
+.commentListReset.commentListReset {
+  gap: 1rem;
+
+  margin-top: 12px;
+}
+
+.commentBox {
+  padding: 16px;
+
+  border: 1px solid #e5e8eb;
+  border-radius: 12px;
+
+  background: #fff;
+}
+
+.commentBox.commentBox {
+  border: 1px solid #e5e8eb;
+
+  background: #fff;
+}
+
+.commentMetaRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-top: 10px;
+
+  font-size: 0.85rem;
   color: #7a7a7a;
 }
 
-@media (max-width: 1000px) {
-  .profileCard {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
-@media (max-width: 600px) {
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .listItem {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 16px;
-  }
+.commentMetaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }

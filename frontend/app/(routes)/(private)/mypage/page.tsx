@@ -23,7 +23,7 @@ import {
 } from 'react-icons/fi';
 
 import { MYPAGE_TABS } from '@/app/shared/constants/config/mypage.config';
-import { PHONE_CONFIG } from '@/app/shared/constants/config/register.config';
+import { EMAIL_VERIFICATION_CODE_LENGTH, PHONE_CONFIG } from '@/app/shared/constants/config/register.config';
 
 import { stopMenuPropagation } from '@/app/(routes)/(private)/mypage/handlers';
 import EditorToolbar from '@/app/shared/components/markdown-editor/EditorToolbar';
@@ -122,13 +122,18 @@ export default function MyPage() {
     birthDateValue,
     confirmPasswordValue,
     currentPasswordValue,
+    emailCodeValue,
     emailValue,
+    isEmailCodeSent,
+    isEmailVerified,
     isEditingAny,
     isEditingBirthDate,
     isEditingEmail,
     isEditingPassword,
     isEditingPhone,
     isSaving,
+    isSendingEmailCode,
+    isVerifyingEmailCode,
     showConfirmPassword,
     showCurrentPassword,
     showNewPassword,
@@ -140,10 +145,12 @@ export default function MyPage() {
     saveEmail,
     savePassword,
     savePhone,
+    sendEmailVerificationCode,
     setConfirmPasswordValue,
     setCurrentPasswordValue,
-    setEmailValue,
     setNewPasswordValue,
+    handleEmailChange,
+    handleEmailCodeChange,
     handleBirthDateChange,
     handlePhoneChange,
     toggleConfirmPasswordVisibility,
@@ -695,15 +702,57 @@ export default function MyPage() {
                     <div className={`${styles.settingsItem} ${styles.settingsItemEmail}`}>
                       <div className={styles.settingsItemLabel}>이메일 주소</div>
                       <div className={styles.settingsEmailContent}>
-                        <div className={styles.settingsEmailTop}>
-                          {isEditingEmail ? (
-                            <>
-                              <input
-                                type="email"
-                                className={`${styles.settingsInput} ${styles.settingsItemInput}`}
-                                value={emailValue}
-                                onChange={event => setEmailValue(event.target.value)}
-                              />
+                        {isEditingEmail ? (
+                          <div className={styles.settingsEmailPanel}>
+                            <div className={styles.settingsEmailFieldGroup}>
+                              <div className={styles.settingsEmailInputRow}>
+                                <input
+                                  type="email"
+                                  className={`${styles.settingsInput} ${styles.settingsItemInput}`}
+                                  value={emailValue}
+                                  placeholder="변경할 이메일 주소"
+                                  onChange={handleEmailChange}
+                                />
+                              </div>
+                              <p className={styles.settingsEmailVerifyHint}>변경할 이메일로 인증번호를 발송해주세요.</p>
+                            </div>
+
+                            <div className={styles.settingsEmailFieldGroup}>
+                              <div className={styles.settingsEmailInputRow}>
+                                <input
+                                  type="text"
+                                  className={`${styles.settingsInput} ${styles.settingsItemInput} ${styles.settingsEmailCodeInput}`}
+                                  value={emailCodeValue}
+                                  placeholder="8자리 인증번호"
+                                  maxLength={EMAIL_VERIFICATION_CODE_LENGTH}
+                                  autoComplete="one-time-code"
+                                  disabled={
+                                    !isEmailCodeSent || isSendingEmailCode || isEmailVerified || isVerifyingEmailCode
+                                  }
+                                  onChange={handleEmailCodeChange}
+                                />
+                              </div>
+                              <p className={styles.settingsEmailVerifyHint}>
+                                {isEmailVerified
+                                  ? '이메일 인증이 완료되었습니다.'
+                                  : isEmailCodeSent
+                                    ? '인증번호 8자리를 입력하면 자동으로 확인됩니다.'
+                                    : '변경할 이메일로 인증번호를 발송해주세요.'}
+                              </p>
+                            </div>
+
+                            <div className={styles.settingsEmailActionsRow}>
+                              <button
+                                type="button"
+                                className={styles.settingsButton}
+                                disabled={isSaving || isSendingEmailCode}
+                                onClick={sendEmailVerificationCode}
+                              >
+                                {isEmailCodeSent ? '재전송' : '인증번호 발송'}
+                              </button>
+                              <span className={styles.settingsEmailActionDivider} aria-hidden="true">
+                                |
+                              </span>
                               <div className={`${styles.settingsInlineActions} ${styles.settingsInlineActionsInline}`}>
                                 <button
                                   type="button"
@@ -716,33 +765,33 @@ export default function MyPage() {
                                 <button
                                   type="button"
                                   className={styles.settingsButton}
-                                  disabled={isSaving}
+                                  disabled={isSaving || !isEmailVerified}
                                   onClick={saveEmail}
                                 >
                                   저장
                                 </button>
                               </div>
-                            </>
-                          ) : (
-                            <>
-                              <div className={styles.settingsItemValue}>{accountEmailValue}</div>
-                              {!isEditingAny ? (
-                                <button
-                                  type="button"
-                                  className={styles.settingsButton}
-                                  disabled={isSaving}
-                                  onClick={startEmailEdit}
-                                >
-                                  설정
-                                </button>
-                              ) : (
-                                <span className={styles.settingsButtonPlaceholder} aria-hidden="true">
-                                  설정
-                                </span>
-                              )}
-                            </>
-                          )}
-                        </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className={styles.settingsEmailTop}>
+                            <div className={styles.settingsItemValue}>{accountEmailValue}</div>
+                            {!isEditingAny ? (
+                              <button
+                                type="button"
+                                className={styles.settingsButton}
+                                disabled={isSaving}
+                                onClick={startEmailEdit}
+                              >
+                                설정
+                              </button>
+                            ) : (
+                              <span className={styles.settingsButtonPlaceholder} aria-hidden="true">
+                                설정
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div
@@ -888,7 +937,9 @@ export default function MyPage() {
                         </div>
                       ) : (
                         <>
-                          <div className={styles.settingsItemValue}>********</div>
+                          <div className={`${styles.settingsItemValue} ${styles.settingsPasswordValueMask}`}>
+                            **********
+                          </div>
                           {!isEditingAny ? (
                             <button type="button" className={styles.settingsButton} onClick={startPasswordEdit}>
                               설정

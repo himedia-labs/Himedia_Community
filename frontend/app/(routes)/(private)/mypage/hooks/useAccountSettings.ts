@@ -2,13 +2,24 @@ import { useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { authKeys } from '@/app/api/auth/auth.keys';
-import { useChangePasswordMutation, useUpdateAccountInfoMutation } from '@/app/api/auth/auth.mutations';
+import {
+  useChangePasswordMutation,
+  useUpdateAccountInfoMutation,
+  useSendEmailVerificationCodeMutation,
+  useVerifyEmailVerificationCodeMutation,
+} from '@/app/api/auth/auth.mutations';
 
 import { useAuthStore } from '@/app/shared/store/authStore';
 
 import { isValidPassword } from '@/app/shared/utils/password';
 import { useToast } from '@/app/shared/components/toast/toast';
-import { BIRTH_DATE_CONFIG, PHONE_CONFIG } from '@/app/shared/constants/config/register.config';
+import { EMAIL_REGEX } from '@/app/shared/constants/config/auth.config';
+import { EMAIL_MESSAGES, REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
+import {
+  BIRTH_DATE_CONFIG,
+  PHONE_CONFIG,
+  EMAIL_VERIFICATION_CODE_LENGTH,
+} from '@/app/shared/constants/config/register.config';
 
 import type { ChangeEvent } from 'react';
 import type { AxiosError } from 'axios';
@@ -28,12 +39,18 @@ export const useAccountSettings = ({ birthDate, email, phone }: UseAccountSettin
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const { setAccessToken } = useAuthStore();
-  const { mutateAsync: updateAccountInfo, isPending: isUpdatingAccount } = useUpdateAccountInfoMutation();
   const { mutateAsync: changePassword, isPending: isChangingPassword } = useChangePasswordMutation();
+  const { mutateAsync: updateAccountInfo, isPending: isUpdatingAccount } = useUpdateAccountInfoMutation();
+  const { mutateAsync: sendEmailCode, isPending: isSendingEmailCode } = useSendEmailVerificationCodeMutation();
+  const { mutateAsync: verifyEmailCode, isPending: isVerifyingEmailCode } = useVerifyEmailVerificationCodeMutation();
 
-  const [emailValue, setEmailValue] = useState(email);
   const [phoneValue, setPhoneValue] = useState(phone);
+  const [emailValue, setEmailValue] = useState(email);
+  const [verifiedEmail, setVerifiedEmail] = useState('');
+  const [emailCodeValue, setEmailCodeValue] = useState('');
   const [newPasswordValue, setNewPasswordValue] = useState('');
+  const [isEmailCodeSent, setIsEmailCodeSent] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [birthDateValue, setBirthDateValue] = useState(birthDate);
   const [currentPasswordValue, setCurrentPasswordValue] = useState('');
@@ -44,15 +61,23 @@ export const useAccountSettings = ({ birthDate, email, phone }: UseAccountSettin
 
   // 공통 유틸
   const isSaving = isUpdatingAccount || isChangingPassword;
+  const normalizeEmail = (value: string) => value.trim().toLowerCase();
   const applyCurrentUser = (nextUser: User) => queryClient.setQueryData(authKeys.currentUser, nextUser);
   const extractErrorMessage = (error: unknown, fallback: string) => {
     const axiosError = error as AxiosError<ApiErrorResponse>;
     return axiosError.response?.data?.message || fallback;
   };
+  const clearEmailVerificationState = () => {
+    setEmailCodeValue('');
+    setVerifiedEmail('');
+    setIsEmailCodeSent(false);
+    setIsEmailVerified(false);
+  };
 
   // 편집 시작
   const startEmailEdit = () => {
     setEmailValue(email);
+    clearEmailVerificationState();
     setEditingField('email');
   };
   const startPhoneEdit = () => {
@@ -82,6 +107,82 @@ export const useAccountSettings = ({ birthDate, email, phone }: UseAccountSettin
     setShowCurrentPassword(false);
     setShowNewPassword(false);
     setShowConfirmPassword(false);
+    clearEmailVerificationState();
+  };
+
+  // 이메일/인증 상태 변경
+  const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const nextValue = event.target.value;
+    const nextNormalizedEmail = normalizeEmail(nextValue);
+    const verifiedNormalizedEmail = normalizeEmail(verifiedEmail);
+
+    setEmailValue(nextValue);
+    if (verifiedNormalizedEmail && nextNormalizedEmail === verifiedNormalizedEmail) return;
+    clearEmailVerificationState();
+  };
+
+  // 이메일/인증번호 입력
+  const handleEmailCodeChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const nextCode = event.target.value;
+    const trimmedCode = nextCode.trim();
+
+    setEmailCodeValue(nextCode);
+
+    if (!isEmailCodeSent || isEmailVerified || isVerifyingEmailCode) return;
+    if (trimmedCode.length !== EMAIL_VERIFICATION_CODE_LENGTH) return;
+    void verifyEmailVerificationCode(trimmedCode);
+  };
+
+  // 이메일/인증번호 발송
+  const sendEmailVerificationCode = async () => {
+    const nextEmail = normalizeEmail(emailValue);
+    if (!nextEmail) {
+      showToast({ message: REGISTER_MESSAGES.missingEmail, type: 'warning' });
+      return;
+    }
+    if (!EMAIL_REGEX.test(nextEmail)) {
+      showToast({ message: EMAIL_MESSAGES.invalid, type: 'warning' });
+      return;
+    }
+    if (nextEmail === email) {
+      showToast({ message: '기존 이메일과 동일합니다.', type: 'warning' });
+      return;
+    }
+
+    try {
+      const result = await sendEmailCode({ email: nextEmail, purpose: 'account-change' });
+      setEmailCodeValue('');
+      setVerifiedEmail('');
+      setIsEmailVerified(false);
+      setIsEmailCodeSent(true);
+      showToast({ message: result.message, type: 'success' });
+    } catch (error) {
+      showToast({ message: extractErrorMessage(error, '인증번호 발송에 실패했습니다.'), type: 'error' });
+    }
+  };
+
+  // 이메일/인증번호 검증
+  const verifyEmailVerificationCode = async (codeValue?: string) => {
+    const nextEmail = normalizeEmail(emailValue);
+    const nextCode = (codeValue ?? emailCodeValue).trim();
+
+    if (!nextEmail) {
+      showToast({ message: REGISTER_MESSAGES.missingEmail, type: 'warning' });
+      return;
+    }
+    if (!nextCode) {
+      showToast({ message: REGISTER_MESSAGES.missingEmailCode, type: 'warning' });
+      return;
+    }
+
+    try {
+      const result = await verifyEmailCode({ email: nextEmail, code: nextCode });
+      setVerifiedEmail(nextEmail);
+      setIsEmailVerified(true);
+      showToast({ message: result.message, type: 'success' });
+    } catch (error) {
+      showToast({ message: extractErrorMessage(error, '인증번호 확인에 실패했습니다.'), type: 'error' });
+    }
   };
 
   // 비밀번호 표시 토글
@@ -91,9 +192,13 @@ export const useAccountSettings = ({ birthDate, email, phone }: UseAccountSettin
 
   // 항목 저장
   const saveEmail = async () => {
-    const nextEmail = emailValue.trim();
+    const nextEmail = normalizeEmail(emailValue);
     if (!nextEmail || nextEmail === email) {
       cancelEdit();
+      return;
+    }
+    if (!isEmailVerified || normalizeEmail(verifiedEmail) !== nextEmail) {
+      showToast({ message: REGISTER_MESSAGES.missingEmailVerification, type: 'warning' });
       return;
     }
 
@@ -225,13 +330,18 @@ export const useAccountSettings = ({ birthDate, email, phone }: UseAccountSettin
     birthDateValue,
     confirmPasswordValue,
     currentPasswordValue,
+    emailCodeValue,
     emailValue,
+    isEmailCodeSent,
+    isEmailVerified,
     isEditingAny,
     isEditingBirthDate,
     isEditingEmail,
     isEditingPassword,
     isEditingPhone,
     isSaving,
+    isSendingEmailCode,
+    isVerifyingEmailCode,
     showConfirmPassword,
     showCurrentPassword,
     showNewPassword,
@@ -243,12 +353,16 @@ export const useAccountSettings = ({ birthDate, email, phone }: UseAccountSettin
     saveEmail,
     savePassword,
     savePhone,
+    sendEmailVerificationCode,
     setBirthDateValue,
+    setEmailCodeValue,
     setConfirmPasswordValue,
     setCurrentPasswordValue,
     setEmailValue,
     setNewPasswordValue,
     setPhoneValue,
+    handleEmailChange,
+    handleEmailCodeChange,
     handleBirthDateChange,
     handlePhoneChange,
     toggleConfirmPasswordVisibility,
