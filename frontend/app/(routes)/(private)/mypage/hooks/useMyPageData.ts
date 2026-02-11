@@ -12,10 +12,14 @@ import { useAuthStore } from '@/app/shared/store/authStore';
  * @description 내 정보/활동 데이터를 조회하고 파생값을 구성
  */
 export const useMyPageData = () => {
-  const { accessToken } = useAuthStore();
+  const { accessToken, isInitialized } = useAuthStore();
 
   // 데이터 조회
-  const { data: currentUser } = useCurrentUserQuery();
+  const {
+    data: currentUser,
+    isFetching: isCurrentUserFetching,
+    isLoading: isCurrentUserLoading,
+  } = useCurrentUserQuery();
   const { data: followersData } = useFollowersQuery({ enabled: Boolean(accessToken) });
   const { data: followingsData } = useFollowingsQuery({ enabled: Boolean(accessToken) });
   const { data: myCommentsData } = useMyCommentsQuery({ enabled: Boolean(accessToken) });
@@ -29,11 +33,14 @@ export const useMyPageData = () => {
   );
 
   // 파생 데이터
+  const isAuthInitializing = !isInitialized;
+  const isCurrentUserPending = Boolean(accessToken) && (isCurrentUserLoading || isCurrentUserFetching || !currentUser);
+  const isUserInfoLoading = isAuthInitializing || isCurrentUserPending;
   const myComments = myCommentsData ?? [];
   const likedPosts = likedPostsData?.items ?? [];
   const userBio = currentUser?.profileBio ?? '';
   const profileImageUrl = currentUser?.profileImageUrl ?? '';
-  const displayName = currentUser?.name ?? '사용자';
+  const displayName = currentUser?.name ?? '';
   const userEmail = currentUser?.email ?? '';
   const userPhone = currentUser?.phone ?? '';
   const userBirthDate = currentUser?.birthDate ?? '';
@@ -54,6 +61,7 @@ export const useMyPageData = () => {
     displayName,
     followerCount,
     followingCount,
+    isUserInfoLoading,
     userBirthDate,
     userEmail,
     userPhone,

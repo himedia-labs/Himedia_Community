@@ -5,12 +5,19 @@ import { authKeys } from '@/app/api/auth/auth.keys';
 import { useChangePasswordMutation, useUpdateAccountInfoMutation } from '@/app/api/auth/auth.mutations';
 
 import { useAuthStore } from '@/app/shared/store/authStore';
-import { useToast } from '@/app/shared/components/toast/toast';
 
+import { isValidPassword } from '@/app/shared/utils/password';
+import { useToast } from '@/app/shared/components/toast/toast';
+import { BIRTH_DATE_CONFIG, PHONE_CONFIG } from '@/app/shared/constants/config/register.config';
+
+import type { ChangeEvent } from 'react';
 import type { AxiosError } from 'axios';
 import type { User } from '@/app/shared/types/auth';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
-import type { AccountEditField, UseAccountSettingsParams } from '@/app/(routes)/(private)/mypage/hooks/useAccountSettings.types';
+import type {
+  AccountEditField,
+  UseAccountSettingsParams,
+} from '@/app/(routes)/(private)/mypage/hooks/useAccountSettings.types';
 
 /**
  * 계정 설정 훅
@@ -24,13 +31,16 @@ export const useAccountSettings = ({ birthDate, email, phone }: UseAccountSettin
   const { mutateAsync: updateAccountInfo, isPending: isUpdatingAccount } = useUpdateAccountInfoMutation();
   const { mutateAsync: changePassword, isPending: isChangingPassword } = useChangePasswordMutation();
 
-  const [editingField, setEditingField] = useState<AccountEditField>(null);
   const [emailValue, setEmailValue] = useState(email);
   const [phoneValue, setPhoneValue] = useState(phone);
+  const [newPasswordValue, setNewPasswordValue] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [birthDateValue, setBirthDateValue] = useState(birthDate);
   const [currentPasswordValue, setCurrentPasswordValue] = useState('');
-  const [newPasswordValue, setNewPasswordValue] = useState('');
   const [confirmPasswordValue, setConfirmPasswordValue] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [editingField, setEditingField] = useState<AccountEditField>(null);
 
   // 공통 유틸
   const isSaving = isUpdatingAccount || isChangingPassword;
@@ -57,6 +67,9 @@ export const useAccountSettings = ({ birthDate, email, phone }: UseAccountSettin
     setCurrentPasswordValue('');
     setNewPasswordValue('');
     setConfirmPasswordValue('');
+    setShowCurrentPassword(false);
+    setShowNewPassword(false);
+    setShowConfirmPassword(false);
     setEditingField('password');
   };
 
@@ -66,7 +79,15 @@ export const useAccountSettings = ({ birthDate, email, phone }: UseAccountSettin
     setCurrentPasswordValue('');
     setNewPasswordValue('');
     setConfirmPasswordValue('');
+    setShowCurrentPassword(false);
+    setShowNewPassword(false);
+    setShowConfirmPassword(false);
   };
+
+  // 비밀번호 표시 토글
+  const toggleCurrentPasswordVisibility = () => setShowCurrentPassword(prev => !prev);
+  const toggleNewPasswordVisibility = () => setShowNewPassword(prev => !prev);
+  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(prev => !prev);
 
   // 항목 저장
   const saveEmail = async () => {
@@ -117,6 +138,34 @@ export const useAccountSettings = ({ birthDate, email, phone }: UseAccountSettin
       showToast({ message: extractErrorMessage(error, '생년월일 수정에 실패했습니다.'), type: 'error' });
     }
   };
+
+  // 전화번호 포맷
+  const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const digits = event.target.value.replace(/[^0-9]/g, '').slice(0, PHONE_CONFIG.DIGIT_MAX_LENGTH);
+
+    let formatted = digits;
+    if (digits.length > 3 && digits.length <= 7) {
+      formatted = `${digits.slice(0, 3)} ${digits.slice(3)}`;
+    } else if (digits.length > 7) {
+      formatted = `${digits.slice(0, 3)} ${digits.slice(3, 7)} ${digits.slice(7)}`;
+    }
+
+    setPhoneValue(formatted);
+  };
+
+  // 생년월일 포맷
+  const handleBirthDateChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const digits = event.target.value.replace(/[^0-9]/g, '').slice(0, BIRTH_DATE_CONFIG.DIGIT_MAX_LENGTH);
+
+    let formatted = digits;
+    if (digits.length > 4 && digits.length <= 6) {
+      formatted = `${digits.slice(0, 4)}-${digits.slice(4)}`;
+    } else if (digits.length > 6) {
+      formatted = `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6)}`;
+    }
+
+    setBirthDateValue(formatted);
+  };
   const savePassword = async () => {
     const currentPassword = currentPasswordValue.trim();
     const newPassword = newPasswordValue.trim();
@@ -130,6 +179,13 @@ export const useAccountSettings = ({ birthDate, email, phone }: UseAccountSettin
       showToast({ message: '새 비밀번호 확인이 일치하지 않습니다.', type: 'warning' });
       return;
     }
+    if (!isValidPassword(newPassword)) {
+      showToast({
+        message: '8~32자, 공백 없이 영문/숫자/특수문자 중 2가지 이상이며 연속 3자 동일 문자는 사용할 수 없습니다.',
+        type: 'warning',
+      });
+      return;
+    }
 
     try {
       const result = await changePassword({ currentPassword, newPassword });
@@ -141,6 +197,22 @@ export const useAccountSettings = ({ birthDate, email, phone }: UseAccountSettin
       showToast({ message: extractErrorMessage(error, '비밀번호 변경에 실패했습니다.'), type: 'error' });
     }
   };
+
+  // 비밀번호 규칙 상태
+  const passwordRuleStatus = useMemo(() => {
+    const hasLetter = /[a-zA-Z]/.test(newPasswordValue);
+    const hasNumber = /\d/.test(newPasswordValue);
+    const hasSpecial = /[@$!%*?&]/.test(newPasswordValue);
+    const includedTypeCount = Number(hasLetter) + Number(hasNumber) + Number(hasSpecial);
+    const hasNoWhitespace = !/\s/.test(newPasswordValue);
+
+    return {
+      hasInput: newPasswordValue.length > 0,
+      hasTypeCombination: includedTypeCount >= 2,
+      hasValidLength: hasNoWhitespace && newPasswordValue.length >= 8 && newPasswordValue.length <= 32,
+      hasNoTripleRepeat: !/(.)\1\1/.test(newPasswordValue),
+    };
+  }, [newPasswordValue]);
 
   // 편집 상태
   const isEditingEmail = editingField === 'email';
@@ -160,8 +232,12 @@ export const useAccountSettings = ({ birthDate, email, phone }: UseAccountSettin
     isEditingPassword,
     isEditingPhone,
     isSaving,
+    showConfirmPassword,
+    showCurrentPassword,
+    showNewPassword,
     newPasswordValue,
     phoneValue,
+    passwordRuleStatus,
     cancelEdit,
     saveBirthDate,
     saveEmail,
@@ -173,6 +249,11 @@ export const useAccountSettings = ({ birthDate, email, phone }: UseAccountSettin
     setEmailValue,
     setNewPasswordValue,
     setPhoneValue,
+    handleBirthDateChange,
+    handlePhoneChange,
+    toggleConfirmPasswordVisibility,
+    toggleCurrentPasswordVisibility,
+    toggleNewPasswordVisibility,
     startBirthDateEdit,
     startEmailEdit,
     startPasswordEdit,

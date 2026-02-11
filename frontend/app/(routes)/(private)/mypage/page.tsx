@@ -4,6 +4,7 @@ import { Fragment, useMemo, useState } from 'react';
 
 import Link from 'next/link';
 import Image from 'next/image';
+import Skeleton from 'react-loading-skeleton';
 
 import { CiCalendar } from 'react-icons/ci';
 import { FaUser, FaUserEdit } from 'react-icons/fa';
@@ -13,6 +14,7 @@ import {
   FiClock,
   FiEdit2,
   FiEye,
+  FiEyeOff,
   FiHeart,
   FiMessageCircle,
   FiMoreHorizontal,
@@ -21,8 +23,10 @@ import {
 } from 'react-icons/fi';
 
 import { MYPAGE_TABS } from '@/app/shared/constants/config/mypage.config';
-import EditorToolbar from '@/app/shared/components/markdown-editor/EditorToolbar';
+import { PHONE_CONFIG } from '@/app/shared/constants/config/register.config';
+
 import { stopMenuPropagation } from '@/app/(routes)/(private)/mypage/handlers';
+import EditorToolbar from '@/app/shared/components/markdown-editor/EditorToolbar';
 import { splitCommentMentions } from '@/app/(routes)/(public)/posts/[postId]/utils';
 import {
   formatDateLabel,
@@ -31,6 +35,7 @@ import {
   sortPostsByKey,
 } from '@/app/(routes)/(private)/mypage/utils';
 import {
+  useAccountSettings,
   useActivitySort,
   useBioEditor,
   useCommentEditor,
@@ -42,6 +47,7 @@ import {
   useProfileImageEditor,
 } from '@/app/(routes)/(private)/mypage/hooks';
 
+import 'react-loading-skeleton/dist/skeleton.css';
 import markdownStyles from '@/app/shared/styles/markdown.module.css';
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 import markdownEditorStyles from '@/app/shared/styles/markdownEditor.module.css';
@@ -57,10 +63,10 @@ export default function MyPage() {
 
   // 데이터 상태
   const {
-    accessToken,
     displayName,
     followerCount,
     followingCount,
+    isUserInfoLoading,
     likedPosts,
     myComments,
     myPosts,
@@ -111,6 +117,48 @@ export default function MyPage() {
     handleEditSubmit,
   } = useCommentEditor();
 
+  // 계정 설정
+  const {
+    birthDateValue,
+    confirmPasswordValue,
+    currentPasswordValue,
+    emailValue,
+    isEditingAny,
+    isEditingBirthDate,
+    isEditingEmail,
+    isEditingPassword,
+    isEditingPhone,
+    isSaving,
+    showConfirmPassword,
+    showCurrentPassword,
+    showNewPassword,
+    newPasswordValue,
+    passwordRuleStatus,
+    phoneValue,
+    cancelEdit,
+    saveBirthDate,
+    saveEmail,
+    savePassword,
+    savePhone,
+    setConfirmPasswordValue,
+    setCurrentPasswordValue,
+    setEmailValue,
+    setNewPasswordValue,
+    handleBirthDateChange,
+    handlePhoneChange,
+    toggleConfirmPasswordVisibility,
+    toggleCurrentPasswordVisibility,
+    toggleNewPasswordVisibility,
+    startBirthDateEdit,
+    startEmailEdit,
+    startPasswordEdit,
+    startPhoneEdit,
+  } = useAccountSettings({
+    birthDate: userBirthDate,
+    email: userEmail,
+    phone: userPhone,
+  });
+
   // 자기소개 편집
   const {
     bioPreview,
@@ -148,6 +196,13 @@ export default function MyPage() {
       return matchesCategory && matchesTag;
     });
   }, [selectedCategoryId, selectedTagId, sortedPosts]);
+
+  const accountNameValue = isUserInfoLoading ? <Skeleton width={88} height={18} /> : displayName || '사용자';
+  const accountEmailValue = isUserInfoLoading ? <Skeleton width={180} height={18} /> : userEmail || '미등록';
+  const accountPhoneValue = isUserInfoLoading ? <Skeleton width={140} height={18} /> : userPhone || '미등록';
+  const accountBirthDateValue = isUserInfoLoading ? <Skeleton width={120} height={18} /> : userBirthDate || '미등록';
+  const profileNameValue = isUserInfoLoading ? <Skeleton width={96} height={22} /> : displayName || '사용자';
+  const profileHandleValue = isUserInfoLoading ? <Skeleton width={86} height={16} /> : `@${profileHandle}`;
 
   return (
     <section className={styles.container} aria-label="마이페이지">
@@ -235,7 +290,7 @@ export default function MyPage() {
                 <div className={styles.profileInfo}>
                   {isProfileEditing ? (
                     <div className={styles.profileNameRow}>
-                      <span className={styles.profileName}>{displayName}</span>
+                      <span className={styles.profileName}>{profileNameValue}</span>
                       <span className={styles.profileHandleInputGroup}>
                         <span className={styles.profileHandlePrefix}>@</span>
                         <input
@@ -248,8 +303,8 @@ export default function MyPage() {
                     </div>
                   ) : (
                     <div className={styles.profileNameRow}>
-                      <span className={styles.profileName}>{displayName}</span>
-                      <span className={styles.profileHandle}>@{profileHandle}</span>
+                      <span className={styles.profileName}>{profileNameValue}</span>
+                      <span className={styles.profileHandle}>{profileHandleValue}</span>
                     </div>
                   )}
                   <div className={styles.profileStats}>
@@ -635,35 +690,317 @@ export default function MyPage() {
                   <div className={styles.settingsGroup}>
                     <div className={styles.settingsItem}>
                       <div className={styles.settingsItemLabel}>이름</div>
-                      <div className={styles.settingsItemValue}>{displayName}</div>
+                      <div className={styles.settingsItemValue}>{accountNameValue}</div>
                     </div>
-                    <div className={styles.settingsItem}>
+                    <div className={`${styles.settingsItem} ${styles.settingsItemEmail}`}>
                       <div className={styles.settingsItemLabel}>이메일 주소</div>
-                      <div className={styles.settingsItemValue}>{userEmail || '미등록'}</div>
-                      <button type="button" className={styles.settingsButton}>
-                        설정
-                      </button>
+                      <div className={styles.settingsEmailContent}>
+                        <div className={styles.settingsEmailTop}>
+                          {isEditingEmail ? (
+                            <>
+                              <input
+                                type="email"
+                                className={`${styles.settingsInput} ${styles.settingsItemInput}`}
+                                value={emailValue}
+                                onChange={event => setEmailValue(event.target.value)}
+                              />
+                              <div className={`${styles.settingsInlineActions} ${styles.settingsInlineActionsInline}`}>
+                                <button
+                                  type="button"
+                                  className={`${styles.settingsButton} ${styles.settingsInlineCancelButton}`}
+                                  disabled={isSaving}
+                                  onClick={cancelEdit}
+                                >
+                                  취소
+                                </button>
+                                <button
+                                  type="button"
+                                  className={styles.settingsButton}
+                                  disabled={isSaving}
+                                  onClick={saveEmail}
+                                >
+                                  저장
+                                </button>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className={styles.settingsItemValue}>{accountEmailValue}</div>
+                              {!isEditingAny ? (
+                                <button
+                                  type="button"
+                                  className={styles.settingsButton}
+                                  disabled={isSaving}
+                                  onClick={startEmailEdit}
+                                >
+                                  설정
+                                </button>
+                              ) : (
+                                <span className={styles.settingsButtonPlaceholder} aria-hidden="true">
+                                  설정
+                                </span>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <div className={styles.settingsItem}>
+                    <div
+                      className={`${styles.settingsItem} ${isEditingPassword ? styles.settingsItemPasswordEditing : ''}`}
+                    >
                       <div className={styles.settingsItemLabel}>비밀번호</div>
-                      <div className={styles.settingsItemValue}>********</div>
-                      <button type="button" className={styles.settingsButton}>
-                        설정
-                      </button>
+                      {isEditingPassword ? (
+                        <div className={styles.settingsPasswordPanel}>
+                          <div className={styles.settingsPasswordFieldGroup}>
+                            <div className={styles.settingsPasswordInputWrap}>
+                              <input
+                                type={showCurrentPassword ? 'text' : 'password'}
+                                className={`${styles.settingsInput} ${styles.settingsItemInput} ${styles.settingsPasswordInput} ${
+                                  !showCurrentPassword ? styles.settingsPasswordInputMasked : ''
+                                }`}
+                                value={currentPasswordValue}
+                                placeholder="현재 비밀번호"
+                                onChange={event => setCurrentPasswordValue(event.target.value)}
+                              />
+                              <button
+                                type="button"
+                                className={styles.settingsPasswordToggle}
+                                aria-label={showCurrentPassword ? '현재 비밀번호 숨기기' : '현재 비밀번호 보기'}
+                                onClick={toggleCurrentPasswordVisibility}
+                              >
+                                {showCurrentPassword ? (
+                                  <FiEyeOff className={styles.settingsPasswordEye} aria-hidden="true" />
+                                ) : (
+                                  <FiEye className={styles.settingsPasswordEye} aria-hidden="true" />
+                                )}
+                              </button>
+                            </div>
+                            <p className={styles.settingsPasswordHint}>
+                              확인을 위해 현재 비밀번호를 다시 입력해 주세요.
+                            </p>
+                          </div>
+                          <div className={styles.settingsPasswordFieldGroup}>
+                            <div className={styles.settingsPasswordInputWrap}>
+                              <input
+                                type={showNewPassword ? 'text' : 'password'}
+                                className={`${styles.settingsInput} ${styles.settingsItemInput} ${styles.settingsPasswordInput} ${
+                                  !showNewPassword ? styles.settingsPasswordInputMasked : ''
+                                }`}
+                                value={newPasswordValue}
+                                placeholder="새 비밀번호"
+                                onChange={event => setNewPasswordValue(event.target.value)}
+                              />
+                              <button
+                                type="button"
+                                className={styles.settingsPasswordToggle}
+                                aria-label={showNewPassword ? '새 비밀번호 숨기기' : '새 비밀번호 보기'}
+                                onClick={toggleNewPasswordVisibility}
+                              >
+                                {showNewPassword ? (
+                                  <FiEyeOff className={styles.settingsPasswordEye} aria-hidden="true" />
+                                ) : (
+                                  <FiEye className={styles.settingsPasswordEye} aria-hidden="true" />
+                                )}
+                              </button>
+                            </div>
+                            <div className={styles.settingsPasswordRules}>
+                              <p
+                                className={`${styles.settingsPasswordRule} ${
+                                  passwordRuleStatus.hasInput
+                                    ? passwordRuleStatus.hasTypeCombination
+                                      ? styles.settingsPasswordRuleValid
+                                      : styles.settingsPasswordRuleInvalid
+                                    : ''
+                                }`}
+                              >
+                                영문/숫자/특수문자 중, 2가지 이상 포함
+                              </p>
+                              <p
+                                className={`${styles.settingsPasswordRule} ${
+                                  passwordRuleStatus.hasInput
+                                    ? passwordRuleStatus.hasValidLength
+                                      ? styles.settingsPasswordRuleValid
+                                      : styles.settingsPasswordRuleInvalid
+                                    : ''
+                                }`}
+                              >
+                                8자 이상 32자 이하 입력 (공백 제외)
+                              </p>
+                              <p
+                                className={`${styles.settingsPasswordRule} ${
+                                  passwordRuleStatus.hasInput
+                                    ? passwordRuleStatus.hasNoTripleRepeat
+                                      ? styles.settingsPasswordRuleValid
+                                      : styles.settingsPasswordRuleInvalid
+                                    : ''
+                                }`}
+                              >
+                                연속 3자 이상 동일한 문자/숫자 제외
+                              </p>
+                            </div>
+                          </div>
+                          <div className={styles.settingsPasswordFieldGroup}>
+                            <div className={styles.settingsPasswordInputWrap}>
+                              <input
+                                type={showConfirmPassword ? 'text' : 'password'}
+                                className={`${styles.settingsInput} ${styles.settingsItemInput} ${styles.settingsPasswordInput} ${
+                                  !showConfirmPassword ? styles.settingsPasswordInputMasked : ''
+                                }`}
+                                value={confirmPasswordValue}
+                                placeholder="새 비밀번호 확인"
+                                onChange={event => setConfirmPasswordValue(event.target.value)}
+                              />
+                              <button
+                                type="button"
+                                className={styles.settingsPasswordToggle}
+                                aria-label={showConfirmPassword ? '새 비밀번호 확인 숨기기' : '새 비밀번호 확인 보기'}
+                                onClick={toggleConfirmPasswordVisibility}
+                              >
+                                {showConfirmPassword ? (
+                                  <FiEyeOff className={styles.settingsPasswordEye} aria-hidden="true" />
+                                ) : (
+                                  <FiEye className={styles.settingsPasswordEye} aria-hidden="true" />
+                                )}
+                              </button>
+                            </div>
+                            <p className={styles.settingsPasswordHint}>확인을 위해 새 비밀번호를 다시 입력해 주세요.</p>
+                          </div>
+                          <div className={styles.settingsPasswordActionsRow}>
+                            <div className={`${styles.settingsInlineActions} ${styles.settingsInlineActionsInline}`}>
+                              <button
+                                type="button"
+                                className={`${styles.settingsButton} ${styles.settingsInlineCancelButton}`}
+                                disabled={isSaving}
+                                onClick={cancelEdit}
+                              >
+                                취소
+                              </button>
+                              <button
+                                type="button"
+                                className={styles.settingsButton}
+                                disabled={isSaving}
+                                onClick={savePassword}
+                              >
+                                저장
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className={styles.settingsItemValue}>********</div>
+                          {!isEditingAny ? (
+                            <button type="button" className={styles.settingsButton} onClick={startPasswordEdit}>
+                              설정
+                            </button>
+                          ) : (
+                            <span className={styles.settingsButtonPlaceholder} aria-hidden="true">
+                              설정
+                            </span>
+                          )}
+                        </>
+                      )}
                     </div>
-                    <div className={styles.settingsItem}>
+                    <div className={`${styles.settingsItem} ${styles.settingsItemEmail}`}>
                       <div className={styles.settingsItemLabel}>전화번호</div>
-                      <div className={styles.settingsItemValue}>{userPhone || '미등록'}</div>
-                      <button type="button" className={styles.settingsButton}>
-                        설정
-                      </button>
+                      <div className={styles.settingsEmailContent}>
+                        <div className={styles.settingsEmailTop}>
+                          {isEditingPhone ? (
+                            <>
+                              <input
+                                type="tel"
+                                className={`${styles.settingsInput} ${styles.settingsItemInput}`}
+                                value={phoneValue}
+                                placeholder="010 1234 5678"
+                                maxLength={PHONE_CONFIG.FORMATTED_MAX_LENGTH}
+                                onChange={handlePhoneChange}
+                              />
+                              <div className={`${styles.settingsInlineActions} ${styles.settingsInlineActionsInline}`}>
+                                <button
+                                  type="button"
+                                  className={`${styles.settingsButton} ${styles.settingsInlineCancelButton}`}
+                                  disabled={isSaving}
+                                  onClick={cancelEdit}
+                                >
+                                  취소
+                                </button>
+                                <button
+                                  type="button"
+                                  className={styles.settingsButton}
+                                  disabled={isSaving}
+                                  onClick={savePhone}
+                                >
+                                  저장
+                                </button>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className={styles.settingsItemValue}>{accountPhoneValue}</div>
+                              {!isEditingAny ? (
+                                <button type="button" className={styles.settingsButton} onClick={startPhoneEdit}>
+                                  설정
+                                </button>
+                              ) : (
+                                <span className={styles.settingsButtonPlaceholder} aria-hidden="true">
+                                  설정
+                                </span>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <div className={styles.settingsItem}>
+                    <div className={`${styles.settingsItem} ${styles.settingsItemEmail}`}>
                       <div className={styles.settingsItemLabel}>생년월일</div>
-                      <div className={styles.settingsItemValue}>{userBirthDate || '미등록'}</div>
-                      <button type="button" className={styles.settingsButton}>
-                        설정
-                      </button>
+                      <div className={styles.settingsEmailContent}>
+                        <div className={styles.settingsEmailTop}>
+                          {isEditingBirthDate ? (
+                            <>
+                              <input
+                                type="text"
+                                className={`${styles.settingsInput} ${styles.settingsItemInput}`}
+                                value={birthDateValue}
+                                placeholder="YYYY-MM-DD"
+                                inputMode="numeric"
+                                maxLength={10}
+                                onChange={handleBirthDateChange}
+                              />
+                              <div className={`${styles.settingsInlineActions} ${styles.settingsInlineActionsInline}`}>
+                                <button
+                                  type="button"
+                                  className={`${styles.settingsButton} ${styles.settingsInlineCancelButton}`}
+                                  disabled={isSaving}
+                                  onClick={cancelEdit}
+                                >
+                                  취소
+                                </button>
+                                <button
+                                  type="button"
+                                  className={styles.settingsButton}
+                                  disabled={isSaving}
+                                  onClick={saveBirthDate}
+                                >
+                                  저장
+                                </button>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className={styles.settingsItemValue}>{accountBirthDateValue}</div>
+                              {!isEditingAny ? (
+                                <button type="button" className={styles.settingsButton} onClick={startBirthDateEdit}>
+                                  설정
+                                </button>
+                              ) : (
+                                <span className={styles.settingsButtonPlaceholder} aria-hidden="true">
+                                  설정
+                                </span>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
