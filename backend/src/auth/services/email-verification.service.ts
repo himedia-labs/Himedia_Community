@@ -10,11 +10,14 @@ import { UserService } from '@/auth/services/user.service';
 
 import { EmailVerification } from '@/auth/entities/emailVerification.entity';
 
-import { ERROR_CODES } from '@/constants/error/error-codes';
 import { EmailService } from '@/email/email.service';
+import { ERROR_CODES } from '@/constants/error/error-codes';
 import { SnowflakeService } from '@/common/services/snowflake.service';
-import { AUTH_ERROR_MESSAGES } from '@/constants/message/auth.messages';
+
+import { AUTH_CONFIG } from '@/constants/config/auth.config';
 import { EMAIL_VERIFICATION_CONFIG } from '@/constants/config/email-verification.config';
+
+import { AUTH_ERROR_MESSAGES } from '@/constants/message/auth.messages';
 import {
   EMAIL_VERIFICATION_ERROR_MESSAGES,
   EMAIL_VERIFICATION_SUCCESS_MESSAGES,
@@ -22,6 +25,7 @@ import {
 
 import { comparePassword, hashWithAuthRounds } from '@/auth/utils/bcrypt.util';
 
+import type { EmailVerificationPurpose } from '@/auth/dto/sendEmailVerificationCode.types';
 import type { EmailVerificationValidation } from '@/auth/interfaces/emailVerification.interface';
 
 /**
@@ -43,11 +47,24 @@ export class EmailVerificationService {
    * @description 회원가입 이메일 인증번호를 발송
    */
   async sendEmailVerificationCode(dto: SendEmailVerificationCodeDto): Promise<{ success: true; message: string }> {
-    const purpose = dto.purpose === 'account-change' ? 'account-change' : 'register';
+    const purpose: EmailVerificationPurpose = dto.purpose ?? 'register';
 
     // 사용자/검증
     const existingUser = await this.userService.findUserByEmail(dto.email);
-    if (existingUser) {
+    if (purpose === 'withdraw-restore') {
+      const canRestore =
+        Boolean(existingUser?.withdrawn) &&
+        !this.isWithdrawRestoreExpired(
+          existingUser?.withdrawRestoreDeadline ?? null,
+          existingUser?.withdrawnAt ?? null,
+        );
+      if (!canRestore) {
+        throw new UnauthorizedException({
+          message: AUTH_ERROR_MESSAGES.INVALID_CREDENTIALS,
+          code: ERROR_CODES.AUTH_INVALID_CREDENTIALS,
+        });
+      }
+    } else if (existingUser) {
       throw new ConflictException({
         message: AUTH_ERROR_MESSAGES.EMAIL_ALREADY_EXISTS,
         code: ERROR_CODES.AUTH_EMAIL_ALREADY_EXISTS,
@@ -121,10 +138,7 @@ export class EmailVerificationService {
    * 이메일 인증 코드 검증
    * @description 이메일과 인증번호로 유효성 확인
    */
-  private async validateEmailVerificationCode(
-    email: string,
-    code: string,
-  ): Promise<EmailVerificationValidation> {
+  private async validateEmailVerificationCode(email: string, code: string): Promise<EmailVerificationValidation> {
     // 사용자/검증
     const existingUser = await this.userService.findUserByEmail(email);
     if (existingUser) {
@@ -200,5 +214,27 @@ export class EmailVerificationService {
     }
 
     return code;
+  }
+
+  /**
+   * 탈퇴 복구 기한 만료 여부
+   * @description 복구 기한(또는 탈퇴 시각+유예기간) 기준 경과 여부를 반환
+   */
+  private isWithdrawRestoreExpired(restoreDeadline: Date | null, withdrawnAt: Date | null): boolean {
+    const deadline = restoreDeadline ?? this.buildLegacyRestoreDeadline(withdrawnAt);
+    if (!deadline) return true;
+    return deadline.getTime() < Date.now();
+  }
+
+  /**
+   * 레거시 복구 기한 계산
+   * @description 복구 기한 컬럼이 없는 기존 데이터는 탈퇴 시각 기준으로 계산
+   */
+  private buildLegacyRestoreDeadline(withdrawnAt: Date | null): Date | null {
+    if (!withdrawnAt) return null;
+
+    const deadline = new Date(withdrawnAt);
+    deadline.setDate(deadline.getDate() + AUTH_CONFIG.WITHDRAW_RESTORE_GRACE_DAYS);
+    return deadline;
   }
 }

@@ -1,8 +1,7 @@
 import { IsEmail, IsIn, IsOptional, MaxLength } from 'class-validator';
 
 import { AUTH_VALIDATION_MESSAGES } from '@/constants/message/auth.messages';
-
-export type EmailVerificationPurpose = 'register' | 'account-change';
+import { EMAIL_VERIFICATION_PURPOSES, type EmailVerificationPurpose } from '@/auth/dto/sendEmailVerificationCode.types';
 
 // 이메일 인증 코드 발송
 export class SendEmailVerificationCodeDto {
@@ -11,6 +10,6 @@ export class SendEmailVerificationCodeDto {
   email!: string;
 
   @IsOptional()
-  @IsIn(['register', 'account-change'])
+  @IsIn(EMAIL_VERIFICATION_PURPOSES)
   purpose?: EmailVerificationPurpose;
 }
