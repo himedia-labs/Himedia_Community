@@ -79,6 +79,22 @@ export interface ChangePasswordRequest {
 
 export type ChangePasswordResponse = AuthResponse;
 
+export interface WithdrawAccountRequest {
+  currentPassword: string;
+}
+
+export interface WithdrawAccountResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface RestoreWithdrawnAccountRequest {
+  email: string;
+  code: string;
+}
+
+export type RestoreWithdrawnAccountResponse = AuthResponse;
+
 // Password Reset - Send Code
 export interface SendResetCodeRequest {
   email: string;
@@ -115,7 +131,7 @@ export interface ResetPasswordResponse {
 // Email Verification - Send Code
 export interface SendEmailVerificationCodeRequest {
   email: string;
-  purpose?: 'register' | 'account-change';
+  purpose?: 'register' | 'account-change' | 'withdraw-restore';
 }
 
 export interface SendEmailVerificationCodeResponse {

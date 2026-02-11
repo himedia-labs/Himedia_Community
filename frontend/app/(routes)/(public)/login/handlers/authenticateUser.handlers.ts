@@ -17,6 +17,7 @@ export const authenticateUser = (params: {
   password: string;
   setEmailError: (value: string) => void;
   setPasswordError: (value: string) => void;
+  onWithdrawnAccount?: (message?: string) => void;
   redirectTo?: string | null;
   loginMutation: UseMutationResult<AuthResponse, Error, LoginRequest>;
   showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
@@ -63,7 +64,12 @@ export const authenticateUser = (params: {
         // 로그인 실패 시
         onError: (error: unknown) => {
           const axiosError = error as AxiosError<ApiErrorResponse>;
-          const { message } = axiosError.response?.data || {};
+          const { code, message } = axiosError.response?.data || {};
+
+          if (code === 'AUTH_ACCOUNT_WITHDRAWN') {
+            params.onWithdrawnAccount?.(message);
+            return;
+          }
 
           // 백엔드 메시지 Toast로 표시
           if (message) {

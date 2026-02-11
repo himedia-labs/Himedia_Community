@@ -8,16 +8,27 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { authKeys } from '@/app/api/auth/auth.keys';
-import { useLoginMutation } from '@/app/api/auth/auth.mutations';
+import {
+  useLoginMutation,
+  useSendEmailVerificationCodeMutation,
+  useRestoreWithdrawnAccountMutation,
+} from '@/app/api/auth/auth.mutations';
+
+import { useAuthStore } from '@/app/shared/store/authStore';
 
 import { useToast } from '@/app/shared/components/toast/toast';
+import ActionModal from '@/app/shared/components/modal/ActionModal';
 import { EMAIL_REGEX } from '@/app/shared/constants/config/auth.config';
-import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
+import { EMAIL_MESSAGES, LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
+import { LOGIN_WITHDRAW_MODAL_MESSAGES } from '@/app/shared/constants/messages/modal.message';
 
 import { authenticateUser } from '@/app/(routes)/(public)/login/handlers';
 import { useLoginRedirectToast } from '@/app/(routes)/(public)/login/hooks/useLoginRedirectToast';
 
 import styles from '@/app/(routes)/(public)/login/login.module.css';
+
+import type { AxiosError } from 'axios';
+import type { ApiErrorResponse } from '@/app/shared/types/error';
 
 /**
  * 로그인 페이지
@@ -36,6 +47,8 @@ export default function LoginPage() {
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const loginMutation = useLoginMutation();
+  const restoreCodeMutation = useSendEmailVerificationCodeMutation();
+  const restoreAccountMutation = useRestoreWithdrawnAccountMutation();
 
   // 폼 상태
   const [email, setEmail] = useState('');
@@ -44,6 +57,11 @@ export default function LoginPage() {
   // 에러 상태
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [restoreCode, setRestoreCode] = useState('');
+  const [restoreEmail, setRestoreEmail] = useState('');
+  const [withdrawnMessage, setWithdrawnMessage] = useState('');
+  const [isWithdrawnModalOpen, setIsWithdrawnModalOpen] = useState(false);
+  const [isRestoreCodeSent, setIsRestoreCodeSent] = useState(false);
 
   // 로그인 핸들러
   const handleLogin = authenticateUser({
@@ -51,6 +69,13 @@ export default function LoginPage() {
     password,
     setEmailError,
     setPasswordError,
+    onWithdrawnAccount: _message => {
+      setWithdrawnMessage(LOGIN_WITHDRAW_MODAL_MESSAGES.description);
+      setRestoreEmail(email.trim().toLowerCase());
+      setRestoreCode('');
+      setIsRestoreCodeSent(false);
+      setIsWithdrawnModalOpen(true);
+    },
     redirectTo,
     loginMutation,
     showToast,
@@ -61,6 +86,59 @@ export default function LoginPage() {
 
   // 리다이렉트 안내
   useLoginRedirectToast({ reason, showToast });
+
+  const closeWithdrawModal = () => {
+    if (restoreCodeMutation.isPending || restoreAccountMutation.isPending) return;
+
+    setIsWithdrawnModalOpen(false);
+    setRestoreCode('');
+    setIsRestoreCodeSent(false);
+  };
+
+  const sendRestoreCode = async () => {
+    if (restoreCodeMutation.isPending || !restoreEmail) return;
+
+    try {
+      const result = await restoreCodeMutation.mutateAsync({
+        email: restoreEmail,
+        purpose: 'withdraw-restore',
+      });
+      setIsRestoreCodeSent(true);
+      showToast({ message: result.message, type: 'success' });
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      const message = axiosError.response?.data?.message ?? LOGIN_MESSAGES.fallbackError;
+      showToast({ message, type: 'error' });
+    }
+  };
+
+  const restoreAccount = async () => {
+    if (restoreAccountMutation.isPending) return;
+
+    if (!restoreCode.trim()) {
+      showToast({ message: LOGIN_WITHDRAW_MODAL_MESSAGES.missingCode, type: 'warning' });
+      return;
+    }
+
+    try {
+      const result = await restoreAccountMutation.mutateAsync({
+        email: restoreEmail,
+        code: restoreCode.trim(),
+      });
+      const { setAccessToken } = useAuthStore.getState();
+      setAccessToken(result.accessToken);
+      queryClient.setQueryData(authKeys.currentUser, result.user);
+      setIsWithdrawnModalOpen(false);
+      setRestoreCode('');
+      setIsRestoreCodeSent(false);
+      showToast({ message: LOGIN_WITHDRAW_MODAL_MESSAGES.restoredSuccess, type: 'success' });
+      router.push(redirectTo ?? '/');
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      const message = axiosError.response?.data?.message ?? LOGIN_MESSAGES.fallbackError;
+      showToast({ message, type: 'error' });
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -142,6 +220,53 @@ export default function LoginPage() {
           </form>
         </div>
       </div>
+
+      {isWithdrawnModalOpen ? (
+        <ActionModal
+          body={
+            <div className={styles.withdrawRestoreBody}>
+              <p className={styles.withdrawModalText}>{withdrawnMessage}</p>
+              <div className={styles.withdrawRestoreRow}>
+                <input
+                  type="email"
+                  className={`${styles.input} ${styles.withdrawRestoreEmailInput}`}
+                  value={restoreEmail}
+                  disabled
+                  readOnly
+                />
+              </div>
+              <input
+                type="text"
+                className={styles.input}
+                value={restoreCode}
+                maxLength={8}
+                inputMode="text"
+                placeholder={LOGIN_WITHDRAW_MODAL_MESSAGES.codePlaceholder}
+                disabled={!isRestoreCodeSent || restoreAccountMutation.isPending}
+                onChange={event => setRestoreCode(event.target.value)}
+              />
+            </div>
+          }
+          title={LOGIN_WITHDRAW_MODAL_MESSAGES.title}
+          cancelLabel={LOGIN_WITHDRAW_MODAL_MESSAGES.cancel}
+          confirmLabel={LOGIN_WITHDRAW_MODAL_MESSAGES.confirm}
+          cancelBorderless
+          leftAction={
+            <button
+              type="button"
+              className={styles.withdrawRestoreCodeButton}
+              disabled={restoreCodeMutation.isPending || restoreAccountMutation.isPending}
+              onClick={sendRestoreCode}
+            >
+              {isRestoreCodeSent ? LOGIN_WITHDRAW_MODAL_MESSAGES.resendCode : LOGIN_WITHDRAW_MODAL_MESSAGES.sendCode}
+            </button>
+          }
+          cancelDisabled={restoreCodeMutation.isPending || restoreAccountMutation.isPending}
+          confirmDisabled={!isRestoreCodeSent || !restoreCode.trim() || restoreAccountMutation.isPending}
+          onClose={closeWithdrawModal}
+          onConfirm={restoreAccount}
+        />
+      ) : null}
     </div>
   );
 }

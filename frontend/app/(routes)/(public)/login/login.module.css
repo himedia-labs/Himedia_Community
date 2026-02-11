@@ -123,6 +123,66 @@
   color: #ef4444;
 }
 
+.withdrawModalText {
+  margin: 0;
+  white-space: pre-line;
+  line-height: 1.5;
+}
+
+.withdrawRestoreBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.withdrawRestoreRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.withdrawRestoreEmailInput {
+  overflow: hidden;
+  flex: 1;
+
+  color: #8b95a1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.withdrawRestoreEmailInput:disabled {
+  border-color: #d9d9d9;
+
+  background: #f7f9fc;
+
+  color: #8b95a1;
+}
+
+.withdrawRestoreCodeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 84px;
+  padding: 8px 14px;
+  border: 1px solid #e5e8eb;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 0.92rem;
+  color: #4e5968;
+  cursor: pointer;
+}
+
+.withdrawRestoreCodeButton:hover {
+  background: #f2f4f6;
+  color: #1f1f1f;
+}
+
+.withdrawRestoreCodeButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .footer {
   display: flex;
   justify-content: space-between;

@@ -4,11 +4,13 @@ import { Fragment, useMemo, useState } from 'react';
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import Skeleton from 'react-loading-skeleton';
 
 import { CiCalendar } from 'react-icons/ci';
 import { FaUser, FaUserEdit } from 'react-icons/fa';
 import {
+  FiAlertCircle,
   FiChevronDown,
   FiChevronRight,
   FiClock,
@@ -25,9 +27,11 @@ import {
 import { MYPAGE_TABS } from '@/app/shared/constants/config/mypage.config';
 import { EMAIL_VERIFICATION_CODE_LENGTH, PHONE_CONFIG } from '@/app/shared/constants/config/register.config';
 
+import ActionModal from '@/app/shared/components/modal/ActionModal';
 import { stopMenuPropagation } from '@/app/(routes)/(private)/mypage/handlers';
 import EditorToolbar from '@/app/shared/components/markdown-editor/EditorToolbar';
 import { splitCommentMentions } from '@/app/(routes)/(public)/posts/[postId]/utils';
+import { WITHDRAW_MODAL_MESSAGES } from '@/app/shared/constants/messages/modal.message';
 import {
   formatDateLabel,
   formatDateTimeLabel,
@@ -46,12 +50,18 @@ import {
   useProfileEditor,
   useProfileImageEditor,
 } from '@/app/(routes)/(private)/mypage/hooks';
+import { useWithdrawAccountMutation } from '@/app/api/auth/auth.mutations';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import markdownStyles from '@/app/shared/styles/markdown.module.css';
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 import markdownEditorStyles from '@/app/shared/styles/markdownEditor.module.css';
 import commentStyles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
+import { useToast } from '@/app/shared/components/toast/toast';
+import { useAuthStore } from '@/app/shared/store/authStore';
+
+import type { AxiosError } from 'axios';
+import type { ApiErrorResponse } from '@/app/shared/types/error';
 
 /**
  * 마이페이지
@@ -59,7 +69,11 @@ import commentStyles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.mod
  */
 export default function MyPage() {
   // 탭 상태
+  const router = useRouter();
+  const { showToast } = useToast();
+  const { clearAuth } = useAuthStore();
   const activeTab = useMyPageTab('settings');
+  const { mutateAsync: withdrawAccount, isPending: isWithdrawing } = useWithdrawAccountMutation();
 
   // 데이터 상태
   const {
@@ -180,6 +194,9 @@ export default function MyPage() {
   // 필터 상태
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isTagOpen, setIsTagOpen] = useState(false);
+  const [showWithdrawPassword, setShowWithdrawPassword] = useState(false);
+  const [withdrawPassword, setWithdrawPassword] = useState('');
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
   const toggleCategory = () => setIsCategoryOpen(prev => !prev);
@@ -210,6 +227,46 @@ export default function MyPage() {
   const accountBirthDateValue = isUserInfoLoading ? <Skeleton width={120} height={18} /> : userBirthDate || '미등록';
   const profileNameValue = isUserInfoLoading ? <Skeleton width={96} height={22} /> : displayName || '사용자';
   const profileHandleValue = isUserInfoLoading ? <Skeleton width={86} height={16} /> : `@${profileHandle}`;
+  const closeWithdrawModal = () => {
+    if (isWithdrawing) return;
+
+    setIsWithdrawModalOpen(false);
+    setShowWithdrawPassword(false);
+    setWithdrawPassword('');
+  };
+
+  const openWithdrawModal = () => {
+    if (isWithdrawing) return;
+
+    setShowWithdrawPassword(false);
+    setWithdrawPassword('');
+    setIsWithdrawModalOpen(true);
+  };
+
+  const handleWithdraw = async () => {
+    if (isWithdrawing) return;
+
+    const currentPassword = withdrawPassword.trim();
+    if (!currentPassword) {
+      showToast({ message: WITHDRAW_MODAL_MESSAGES.missingPassword, type: 'warning' });
+      return;
+    }
+
+    try {
+      const result = await withdrawAccount({ currentPassword });
+
+      setIsWithdrawModalOpen(false);
+      setShowWithdrawPassword(false);
+      setWithdrawPassword('');
+      clearAuth();
+      showToast({ message: result.message, type: 'success' });
+      router.replace('/');
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      const message = axiosError.response?.data?.message ?? WITHDRAW_MODAL_MESSAGES.fallbackError;
+      showToast({ message, type: 'error' });
+    }
+  };
 
   return (
     <section className={styles.container} aria-label="마이페이지">
@@ -1054,7 +1111,12 @@ export default function MyPage() {
                   </div>
                 </div>
                 <div className={styles.settingsFooter}>
-                  <button type="button" className={styles.withdrawButton}>
+                  <button
+                    type="button"
+                    className={styles.withdrawButton}
+                    disabled={isWithdrawing}
+                    onClick={openWithdrawModal}
+                  >
                     회원탈퇴 <FiChevronRight aria-hidden="true" />
                   </button>
                 </div>
@@ -1515,6 +1577,63 @@ export default function MyPage() {
           </div>
         </div>
       </div>
+
+      {isWithdrawModalOpen ? (
+        <ActionModal
+          body={
+            <>
+              <div className={styles.withdrawGuide}>
+                <ul className={styles.withdrawGuideList}>
+                  {WITHDRAW_MODAL_MESSAGES.guides.map(guide => (
+                    <li key={guide} className={styles.withdrawGuideItem}>
+                      {guide}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className={styles.withdrawGuideWarning}>
+                <FiAlertCircle className={styles.withdrawGuideWarningIcon} aria-hidden="true" />
+                {WITHDRAW_MODAL_MESSAGES.warning}
+              </div>
+              <p className={styles.settingsPasswordHint}>{WITHDRAW_MODAL_MESSAGES.description}</p>
+              <div className={styles.settingsPasswordInputWrap}>
+                <input
+                  type={showWithdrawPassword ? 'text' : 'password'}
+                  className={`${styles.settingsInput} ${styles.settingsPasswordInput} ${
+                    !showWithdrawPassword ? styles.settingsPasswordInputMasked : ''
+                  }`}
+                  value={withdrawPassword}
+                  placeholder={WITHDRAW_MODAL_MESSAGES.placeholder}
+                  autoComplete="current-password"
+                  disabled={isWithdrawing}
+                  onChange={event => setWithdrawPassword(event.target.value)}
+                />
+                <button
+                  type="button"
+                  className={styles.settingsPasswordToggle}
+                  aria-label={showWithdrawPassword ? '현재 비밀번호 숨기기' : '현재 비밀번호 보기'}
+                  disabled={isWithdrawing}
+                  onClick={() => setShowWithdrawPassword(prev => !prev)}
+                >
+                  {showWithdrawPassword ? (
+                    <FiEyeOff className={styles.settingsPasswordEye} aria-hidden="true" />
+                  ) : (
+                    <FiEye className={styles.settingsPasswordEye} aria-hidden="true" />
+                  )}
+                </button>
+              </div>
+            </>
+          }
+          title={WITHDRAW_MODAL_MESSAGES.title}
+          cancelLabel={WITHDRAW_MODAL_MESSAGES.cancel}
+          confirmLabel={WITHDRAW_MODAL_MESSAGES.confirm}
+          confirmVariant="danger"
+          cancelDisabled={isWithdrawing}
+          confirmDisabled={isWithdrawing}
+          onClose={closeWithdrawModal}
+          onConfirm={handleWithdraw}
+        />
+      ) : null}
     </section>
   );
 }

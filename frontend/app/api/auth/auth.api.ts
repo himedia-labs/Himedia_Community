@@ -1,4 +1,7 @@
+import { axiosBare } from '@/app/shared/network/axios.config';
 import { axiosInstance } from '@/app/shared/network/axios.instance';
+
+import { useAuthStore } from '@/app/shared/store/authStore';
 
 import type {
   User,
@@ -13,15 +16,19 @@ import type {
   UpdateProfileResponse,
   SendResetCodeResponse,
   ChangePasswordRequest,
+  WithdrawAccountRequest,
   VerifyResetCodeRequest,
   ChangePasswordResponse,
+  VerifyResetCodeResponse,
+  WithdrawAccountResponse,
   UpdateProfileBioRequest,
   UpdateProfileBioResponse,
   UpdateAccountInfoRequest,
   UpdateProfileImageRequest,
   UpdateAccountInfoResponse,
   UpdateProfileImageResponse,
-  VerifyResetCodeResponse,
+  RestoreWithdrawnAccountRequest,
+  RestoreWithdrawnAccountResponse,
   SendEmailVerificationCodeRequest,
   SendEmailVerificationCodeResponse,
   VerifyEmailVerificationCodeRequest,
@@ -115,6 +122,22 @@ const changePassword = async (payload: ChangePasswordRequest): Promise<ChangePas
   return res.data;
 };
 
+// 회원탈퇴
+const withdrawAccount = async (payload: WithdrawAccountRequest): Promise<WithdrawAccountResponse> => {
+  const accessToken = useAuthStore.getState().accessToken;
+  const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined;
+  const res = await axiosBare.post<WithdrawAccountResponse>('/auth/withdraw', payload, { headers });
+  return res.data;
+};
+
+// 탈퇴 계정 복원
+const restoreWithdrawnAccount = async (
+  payload: RestoreWithdrawnAccountRequest,
+): Promise<RestoreWithdrawnAccountResponse> => {
+  const res = await axiosBare.post<RestoreWithdrawnAccountResponse>('/auth/restore', payload);
+  return res.data;
+};
+
 // 로그아웃
 const logout = async (): Promise<void> => {
   await axiosInstance.post('/auth/logout');
@@ -135,5 +158,7 @@ export const authApi = {
   updateProfile,
   updateAccountInfo,
   changePassword,
+  withdrawAccount,
+  restoreWithdrawnAccount,
   logout,
 };

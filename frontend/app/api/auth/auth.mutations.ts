@@ -13,8 +13,10 @@ import type {
   UpdateProfileResponse,
   SendResetCodeResponse,
   ChangePasswordRequest,
+  WithdrawAccountRequest,
   VerifyResetCodeRequest,
   ChangePasswordResponse,
+  WithdrawAccountResponse,
   UpdateProfileBioRequest,
   VerifyResetCodeResponse,
   UpdateAccountInfoRequest,
@@ -22,6 +24,8 @@ import type {
   UpdateProfileImageRequest,
   UpdateAccountInfoResponse,
   UpdateProfileImageResponse,
+  RestoreWithdrawnAccountRequest,
+  RestoreWithdrawnAccountResponse,
   SendEmailVerificationCodeRequest,
   SendEmailVerificationCodeResponse,
   VerifyEmailVerificationCodeRequest,
@@ -109,6 +113,20 @@ export const useUpdateAccountInfoMutation = () => {
 export const useChangePasswordMutation = () => {
   return useMutation<ChangePasswordResponse, Error, ChangePasswordRequest>({
     mutationFn: authApi.changePassword,
+  });
+};
+
+// 회원탈퇴
+export const useWithdrawAccountMutation = () => {
+  return useMutation<WithdrawAccountResponse, Error, WithdrawAccountRequest>({
+    mutationFn: authApi.withdrawAccount,
+  });
+};
+
+// 탈퇴 계정 복원
+export const useRestoreWithdrawnAccountMutation = () => {
+  return useMutation<RestoreWithdrawnAccountResponse, Error, RestoreWithdrawnAccountRequest>({
+    mutationFn: authApi.restoreWithdrawnAccount,
   });
 };
 
