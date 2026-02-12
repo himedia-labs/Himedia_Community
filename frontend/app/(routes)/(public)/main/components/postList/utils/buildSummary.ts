@@ -1,8 +1,15 @@
+type BuildSummaryOptions = {
+  maxLength?: number;
+  previewLength?: number;
+};
+
 /**
  * 요약 생성
  * @description 마크다운/HTML 제거 후 요약 텍스트 생성
  */
-export const buildSummary = (content?: string) => {
+export const buildSummary = (content?: string, options?: BuildSummaryOptions) => {
+  const maxLength = options?.maxLength ?? 154;
+  const previewLength = options?.previewLength ?? 134;
   if (!content) return '';
   const trimmed = content.trim();
   if (!trimmed) return '';
@@ -19,5 +26,5 @@ export const buildSummary = (content?: string) => {
     .replace(/(\*\*|__|~~|_)/g, '');
   const plainText = withoutDecorators.replace(/\s+/g, ' ').trim();
   if (!plainText) return '';
-  return plainText.length > 154 ? `${plainText.slice(0, 134)}...` : plainText;
+  return plainText.length > maxLength ? `${plainText.slice(0, previewLength).trimEnd()} ...` : plainText;
 };

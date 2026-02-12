@@ -19,13 +19,18 @@ export type Post = {
   id: string;
   title: string;
   summary: string;
+  cardSummary: string;
   imageUrl?: string;
+  authorId: string;
   category: string;
   date: string;
   timeAgo: string;
   views: number;
+  shareCount: number;
   likeCount: number;
   commentCount: number;
+  authorName: string;
+  authorProfileImageUrl?: string | null;
 };
 
 export type TopPost = {
@@ -75,6 +80,7 @@ export interface PostAuthorRef {
   id: string;
   name: string;
   role: UserRole;
+  profileImageUrl?: string | null;
 }
 
 export interface PostListItem {

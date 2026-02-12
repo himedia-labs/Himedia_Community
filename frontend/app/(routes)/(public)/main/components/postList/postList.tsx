@@ -6,9 +6,11 @@ import { Fragment, useEffect, useRef } from 'react';
 
 import { PiList } from 'react-icons/pi';
 import Skeleton from 'react-loading-skeleton';
+import { FaUser } from 'react-icons/fa6';
 import { CiCalendar, CiGrid41 } from 'react-icons/ci';
-import { FiEye, FiHeart, FiMessageCircle, FiPlus } from 'react-icons/fi';
+import { FiEye, FiHeart, FiMessageCircle, FiPlus, FiShare2 } from 'react-icons/fi';
 
+import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
 
 import { usePostList } from '@/app/(routes)/(public)/main/components/postList/hooks';
@@ -16,6 +18,7 @@ import {
   createHandleCreatePost,
   createHandleSortFilter,
 } from '@/app/(routes)/(public)/main/components/postList/handlers';
+import { truncateWithEllipsis } from '@/app/(routes)/(public)/main/components/postList/utils/truncateWithEllipsis';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
@@ -30,6 +33,7 @@ export default function PostListSection() {
 
   // 인증 상태
   const { accessToken } = useAuthStore();
+  const { data: currentUser } = useCurrentUserQuery();
 
   // 목록 상태
   const {
@@ -134,7 +138,9 @@ export default function PostListSection() {
                       <article className={styles.listItem} aria-hidden="true">
                         <div className={styles.listBody}>
                           <Skeleton height={26} width="70%" />
-                          <Skeleton count={2} height={16} style={{ marginBottom: '6px' }} />
+                          <div className={styles.skeletonSummary}>
+                            <Skeleton count={2} height={16} />
+                          </div>
                           <div className={styles.meta}>
                             <span className={styles.metaGroup}>
                               <Skeleton width={140} height={12} />
@@ -192,13 +198,9 @@ export default function PostListSection() {
                             </div>
                           </div>
                           {post.imageUrl ? (
-                            <div
-                              className={styles.listThumb}
-                              style={{
-                                backgroundImage: `url(${post.imageUrl})`,
-                              }}
-                              aria-hidden="true"
-                            />
+                            <div className={styles.listThumb} aria-hidden="true">
+                              <img className={styles.listThumbImage} src={post.imageUrl} alt="" loading="lazy" />
+                            </div>
                           ) : null}
                         </article>
                       </Link>
@@ -217,7 +219,9 @@ export default function PostListSection() {
                       <article className={styles.listItem} aria-hidden="true">
                         <div className={styles.listBody}>
                           <Skeleton height={26} width="70%" />
-                          <Skeleton count={2} height={16} style={{ marginBottom: '6px' }} />
+                          <div className={styles.skeletonSummary}>
+                            <Skeleton count={2} height={16} />
+                          </div>
                           <div className={styles.meta}>
                             <span className={styles.metaGroup}>
                               <Skeleton width={140} height={12} />
@@ -245,54 +249,130 @@ export default function PostListSection() {
               ? cardSkeletons.map((_, index) => (
                   <li key={`card-skeleton-${index}`}>
                     <article className={styles.cardItem} aria-hidden="true">
-                      <Skeleton className={styles.cardThumb} />
-                      <div className={styles.cardBody}>
-                        <Skeleton height={18} width="75%" />
-                        <Skeleton count={2} height={14} style={{ marginBottom: '6px' }} />
+                      <div className={styles.cardTop}>
+                        <Skeleton className={styles.cardThumb} />
+                        <div className={styles.cardBody}>
+                          <Skeleton height={18} width="75%" />
+                          <div className={styles.skeletonSummary}>
+                            <Skeleton count={2} height={14} />
+                          </div>
+                        </div>
                       </div>
                       <div className={styles.cardFooter}>
-                        <Skeleton width={140} height={12} />
+                        <div className={styles.cardDateRow}>
+                          <Skeleton width={140} height={12} />
+                        </div>
+                        <div className={styles.cardFooterDivider} />
+                        <div className={styles.cardMetaRow}>
+                          <div className={styles.cardAuthor}>
+                            <Skeleton circle width={24} height={24} />
+                            <Skeleton width={80} height={12} />
+                          </div>
+                          <div className={styles.cardStats}>
+                            <Skeleton width={36} height={12} />
+                            <Skeleton width={36} height={12} />
+                            <Skeleton width={36} height={12} />
+                          </div>
+                        </div>
                       </div>
                     </article>
                   </li>
                 ))
-              : filteredPosts.map(post => (
-                  <li key={post.id}>
-                    <Link className={styles.postLink} href={`/posts/${post.id}`}>
-                      <article className={styles.cardItem}>
-                        {post.imageUrl ? (
+              : filteredPosts.map(post => {
+                  const hasThumbnail = Boolean(post.imageUrl);
+                  const cardTitle = truncateWithEllipsis(post.title, hasThumbnail ? 50 : 78);
+                  const sourceSummary = hasThumbnail ? post.summary : post.cardSummary;
+                  const cardSummary = truncateWithEllipsis(sourceSummary, hasThumbnail ? 118 : 260);
+                  const isMyPost = !!currentUser?.id && currentUser.id === post.authorId;
+                  return (
+                    <li key={post.id}>
+                      <Link className={styles.postLink} href={`/posts/${post.id}`}>
+                        <article className={styles.cardItem}>
+                          <div className={styles.cardTop}>
+                            {post.imageUrl ? (
+                              <div className={styles.cardThumb} aria-hidden="true">
+                                <img className={styles.cardThumbImage} src={post.imageUrl} alt="" loading="lazy" />
+                              </div>
+                            ) : null}
+                            <div className={post.imageUrl ? styles.cardBody : `${styles.cardBody} ${styles.cardBodyNoThumb}`}>
+                              <h3>{cardTitle}</h3>
+                              <p className={styles.summary}>{cardSummary}</p>
+                            </div>
+                          </div>
                           <div
-                            className={styles.cardThumb}
-                            style={{
-                              backgroundImage: `url(${post.imageUrl})`,
-                            }}
-                            aria-hidden="true"
-                          />
-                        ) : null}
-                        <div className={styles.cardBody}>
-                          <h3>{post.title}</h3>
-                          <p className={styles.summary}>{post.summary}</p>
-                        </div>
-                        <div className={styles.cardFooter}>
-                          <span>{post.date}</span>
-                          <span>·</span>
-                          <span>{post.timeAgo}</span>
-                        </div>
-                      </article>
-                    </Link>
-                  </li>
-                ))}
+                            className={
+                              hasThumbnail
+                                ? `${styles.cardFooter} ${styles.cardFooterWithThumb}`
+                                : `${styles.cardFooter} ${styles.cardFooterNoThumb}`
+                            }
+                          >
+                            <div className={styles.cardDateRow}>
+                              <span>{post.date}</span>
+                              <span>·</span>
+                              <span>{post.timeAgo}</span>
+                            </div>
+                            <div className={styles.cardFooterDivider} aria-hidden="true" />
+                            <div className={styles.cardMetaRow}>
+                              <div className={styles.cardAuthor}>
+                                <div
+                                  className={isMyPost ? `${styles.cardAuthorAvatar} ${styles.cardAuthorAvatarMine}` : styles.cardAuthorAvatar}
+                                  aria-hidden="true"
+                                >
+                                  {post.authorProfileImageUrl ? (
+                                    <img className={styles.cardAuthorImage} src={post.authorProfileImageUrl} alt="" loading="lazy" />
+                                  ) : (
+                                    <FaUser className={styles.cardAuthorFallbackIcon} />
+                                  )}
+                                </div>
+                                <span className={styles.cardAuthorName}>{post.authorName}</span>
+                              </div>
+                              <div className={styles.cardStats}>
+                                <span className={styles.cardStat}>
+                                  <FiHeart aria-hidden="true" /> {post.likeCount.toLocaleString()}
+                                </span>
+                                <span className={styles.cardStat}>
+                                  <FiEye aria-hidden="true" /> {post.views.toLocaleString()}
+                                </span>
+                                <span className={styles.cardStat}>
+                                  <FiShare2 aria-hidden="true" /> {post.shareCount.toLocaleString()}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      </Link>
+                    </li>
+                  );
+                })}
             {isFetchingNextPage
               ? cardSkeletons.map((_, index) => (
                   <li key={`card-more-skeleton-${index}`}>
                     <article className={styles.cardItem} aria-hidden="true">
-                      <Skeleton className={styles.cardThumb} />
-                      <div className={styles.cardBody}>
-                        <Skeleton height={18} width="75%" />
-                        <Skeleton count={2} height={14} style={{ marginBottom: '6px' }} />
+                      <div className={styles.cardTop}>
+                        <Skeleton className={styles.cardThumb} />
+                        <div className={styles.cardBody}>
+                          <Skeleton height={18} width="75%" />
+                          <div className={styles.skeletonSummary}>
+                            <Skeleton count={2} height={14} />
+                          </div>
+                        </div>
                       </div>
                       <div className={styles.cardFooter}>
-                        <Skeleton width={140} height={12} />
+                        <div className={styles.cardDateRow}>
+                          <Skeleton width={140} height={12} />
+                        </div>
+                        <div className={styles.cardFooterDivider} />
+                        <div className={styles.cardMetaRow}>
+                          <div className={styles.cardAuthor}>
+                            <Skeleton circle width={24} height={24} />
+                            <Skeleton width={80} height={12} />
+                          </div>
+                          <div className={styles.cardStats}>
+                            <Skeleton width={36} height={12} />
+                            <Skeleton width={36} height={12} />
+                            <Skeleton width={36} height={12} />
+                          </div>
+                        </div>
                       </div>
                     </article>
                   </li>

@@ -15,12 +15,17 @@ export const toViewPost = (item: PostListItem): Post => {
     id: item.id,
     title: item.title,
     summary: buildSummary(item.content),
+    cardSummary: buildSummary(item.content, { maxLength: 320, previewLength: 280 }),
     imageUrl,
+    authorId: item.author?.id ?? '',
     category: item.category?.name ?? 'ALL',
+    authorName: item.author?.name ?? '알 수 없음',
     date: formatDate(item.publishedAt ?? item.createdAt),
     timeAgo: buildRelativeTime(item.publishedAt ?? item.createdAt),
     views: item.viewCount,
+    shareCount: item.shareCount,
     likeCount: item.likeCount,
     commentCount: item.commentCount ?? 0,
+    authorProfileImageUrl: item.author?.profileImageUrl ?? null,
   };
 };

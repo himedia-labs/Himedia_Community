@@ -183,9 +183,15 @@
 .listThumb {
   width: 100%;
   height: 150px;
+  overflow: hidden;
   border-radius: 12px;
-  background-size: cover;
-  background-position: center;
+}
+
+.listThumbImage {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 .summary {
@@ -238,42 +244,168 @@
 
 .cardGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(288px, 288px));
   gap: 24px;
   margin: 0;
   padding: 0;
   list-style: none;
+  justify-content: start;
 }
 
 .cardItem {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  justify-content: flex-start;
   padding: 18px;
   border-radius: 24px;
   background: white;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
-  min-height: 360px;
+  height: 390px;
+}
+
+.cardTop {
+  display: flex;
+  flex-direction: column;
 }
 
 .cardThumb {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  height: 150px;
+  overflow: hidden;
+  margin-bottom: 16px;
   border-radius: 20px;
+  background-color: #f3f3f3;
+}
+
+.cardThumbImage {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 .cardBody h3 {
-  margin: 12px 0;
+  margin: 0 0 8px;
   font-size: 1.1rem;
+  line-height: 1.45;
+}
+
+.cardBodyNoThumb h3 {
+  margin: 0 0 8px;
+}
+
+.cardBody .summary {
+  margin: 0;
+  line-height: 1.6;
+  overflow: hidden;
+}
+
+.skeletonSummary {
+  margin-bottom: 6px;
 }
 
 .cardFooter {
-  margin-top: auto;
-  display: inline-flex;
+  margin-top: 0;
+  display: flex;
   gap: 10px;
+  flex-direction: column;
+}
+
+.cardFooterWithThumb {
+  margin-top: auto;
+}
+
+.cardFooterNoThumb {
+  margin-top: auto;
+}
+
+.cardDateRow {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
   font-size: 0.9rem;
   color: #6b6b6b;
+}
+
+.cardFooterDivider {
+  width: 100%;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.cardMetaRow {
+  display: flex;
+  gap: 8px;
   align-items: center;
+  justify-content: space-between;
+}
+
+.cardAuthor {
+  min-width: 0;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.cardAuthorAvatar {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  background: #e9edf4;
+  color: #6b7280;
+  overflow: hidden;
+}
+
+.cardAuthorAvatarMine {
+  border-color: #0080ff;
+}
+
+.cardAuthorImage {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.cardAuthorFallbackIcon {
+  width: 11px;
+  height: 11px;
+}
+
+.cardAuthorName {
+  max-width: 100px;
+  color: #444;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardStats {
+  display: inline-flex;
+  gap: 10px;
+  flex-shrink: 0;
+  align-items: center;
+  color: #6b6b6b;
+  font-size: 0.78rem;
+}
+
+.cardStat {
+  gap: 4px;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.cardStat :global(svg) {
+  font-size: 0.9rem;
+  transform: translateY(-0.5px);
 }
 
 .sidebar {
