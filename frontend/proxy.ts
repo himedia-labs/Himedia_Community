@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 
 const PRIVATE_PATHS = ['/mypage', '/posts/new', '/posts/drafts'];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isPrivateRoute = PRIVATE_PATHS.some(path => pathname.startsWith(path));
 
