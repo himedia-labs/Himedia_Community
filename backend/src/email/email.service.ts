@@ -50,11 +50,7 @@ export class EmailService {
    * 이메일 인증 코드 전송
    * @description 회원가입/이메일 변경 인증번호 메일을 발송
    */
-  async sendEmailVerificationCode(
-    to: string,
-    code: string,
-    purpose: EmailVerificationPurpose = 'register',
-  ) {
+  async sendEmailVerificationCode(to: string, code: string, purpose: EmailVerificationPurpose = 'register') {
     const isAccountChangePurpose = purpose === 'account-change';
     const isWithdrawRestorePurpose = purpose === 'withdraw-restore';
     const subject = isWithdrawRestorePurpose

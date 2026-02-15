@@ -14,7 +14,12 @@ import { JwtGuard } from '@/auth/guards/jwt.guard';
 import { ERROR_CODES } from '@/constants/error/error-codes';
 
 import { UploadsService } from '@/uploads/uploads.service';
-import { ALLOWED_IMAGE_TYPES, IMAGE_LIMITS, IMAGE_ONLY_MESSAGE, IMAGE_REQUIRED_MESSAGE } from '@/uploads/uploads.constants';
+import {
+  ALLOWED_IMAGE_TYPES,
+  IMAGE_LIMITS,
+  IMAGE_ONLY_MESSAGE,
+  IMAGE_REQUIRED_MESSAGE,
+} from '@/uploads/uploads.constants';
 
 import type { Request as ExpressRequest } from 'express';
 import type { JwtPayload } from '@/auth/interfaces/jwt.interface';

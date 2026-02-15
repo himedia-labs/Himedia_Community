@@ -350,7 +350,6 @@
 .settingsSection {
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
 
 .settingsRow {
@@ -456,12 +455,6 @@
   color: #b0b8c1;
 
   cursor: not-allowed;
-}
-
-.tagFilterButton {
-  min-width: 120px;
-  justify-content: space-between;
-  gap: 10px;
 }
 
 .tagFilterLabel {
@@ -1117,7 +1110,6 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) 262px;
   gap: 32px;
-  min-height: 150px;
 }
 
 .listItemNoThumb {
