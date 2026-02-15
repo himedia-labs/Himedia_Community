@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
 import { useInfinitePostsQuery, usePostsQuery } from '@/app/api/posts/posts.queries';
@@ -11,9 +12,23 @@ import type { SortFilter, TopPost, ViewMode } from '@/app/shared/types/post';
  * @description 메인 포스트 목록의 상태와 데이터를 제공
  */
 export const usePostList = () => {
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const viewMode: ViewMode = searchParams.get('view') === 'card' ? 'card' : 'list';
   const [sortFilter, setSortFilter] = useState<SortFilter>('latest');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+  const setViewMode = (nextViewMode: ViewMode) => {
+    const nextSearchParams = new URLSearchParams(searchParams.toString());
+    if (nextViewMode === 'list') {
+      nextSearchParams.delete('view');
+    } else {
+      nextSearchParams.set('view', nextViewMode);
+    }
+    const nextQueryString = nextSearchParams.toString();
+    const nextUrl = nextQueryString ? `${pathname}?${nextQueryString}` : pathname;
+    router.replace(nextUrl);
+  };
   const { data: categories, isLoading: isCategoriesLoading } = useCategoriesQuery();
   const selectedCategoryId = categories?.find(category => category.name === selectedCategory)?.id;
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfinitePostsQuery({

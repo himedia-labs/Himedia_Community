@@ -13,7 +13,10 @@ export const buildSummary = (content?: string, options?: BuildSummaryOptions) =>
   if (!content) return '';
   const trimmed = content.trim();
   if (!trimmed) return '';
-  const withoutCodeBlocks = trimmed.replace(/```[\s\S]*?```/g, ' ');
+  const withoutCodeBlocks = trimmed
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/~~~[\s\S]*?~~~/g, ' ')
+    .replace(/(```|~~~)[^\n]*\n?/g, ' ');
   const withoutInlineCode = withoutCodeBlocks.replace(/`([^`]+)`/g, '$1');
   const withoutImages = withoutInlineCode.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '$1');
   const withoutLinks = withoutImages.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1');
@@ -24,7 +27,8 @@ export const buildSummary = (content?: string, options?: BuildSummaryOptions) =>
     .replace(/^[-*+]\s+/gm, '')
     .replace(/^\d+\.\s+/gm, '')
     .replace(/(\*\*|__|~~|_)/g, '');
-  const plainText = withoutDecorators.replace(/\s+/g, ' ').trim();
+  const withoutBackticks = withoutDecorators.replace(/`+/g, ' ');
+  const plainText = withoutBackticks.replace(/\s+/g, ' ').trim();
   if (!plainText) return '';
   return plainText.length > maxLength ? `${plainText.slice(0, previewLength).trimEnd()} ...` : plainText;
 };

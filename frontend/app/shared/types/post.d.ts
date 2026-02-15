@@ -20,9 +20,11 @@ export type Post = {
   title: string;
   summary: string;
   cardSummary: string;
+  longSummary: string;
   imageUrl?: string;
   authorId: string;
   category: string;
+  tags: string[];
   date: string;
   timeAgo: string;
   views: number;
