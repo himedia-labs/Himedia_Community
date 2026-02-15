@@ -5,6 +5,7 @@ import { DataSource } from 'typeorm';
 
 const envFile = `.env.${process.env.NODE_ENV ?? 'development'}`;
 config({ path: resolve(__dirname, '..', '..', envFile) });
+const isProduction = process.env.NODE_ENV === 'production';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -15,7 +16,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME,
   entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
   migrations: [resolve(__dirname, '..', '..', '..', 'database', 'migrations', '*.{ts,js}')],
-  synchronize: true,
+  synchronize: !isProduction,
 });
 
 export default AppDataSource;
