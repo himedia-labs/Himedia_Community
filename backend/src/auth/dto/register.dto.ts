@@ -11,11 +11,11 @@ import {
   Matches,
 } from 'class-validator';
 
-import { PHONE_CONFIG } from '@/constants/config/phone.config';
-import { AUTH_VALIDATION_MESSAGES } from '@/constants/message/auth.messages';
-import { PASSWORD_VALIDATION_MESSAGES } from '@/constants/message/password.messages';
+import { PHONE_CONFIG } from '../../constants/config/phone.config';
+import { AUTH_VALIDATION_MESSAGES } from '../../constants/message/auth.messages';
+import { PASSWORD_VALIDATION_MESSAGES } from '../../constants/message/password.messages';
 
-import { UserRole } from '@/auth/entities/user.entity';
+import { UserRole } from '../entities/user.entity';
 
 // 회원가입
 export class RegisterDto {

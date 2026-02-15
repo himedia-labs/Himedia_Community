@@ -2,20 +2,20 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { LessThan, MoreThanOrEqual, Repository } from 'typeorm';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
-import { TokenService } from '@/auth/services/token.service';
-import { UserService } from '@/auth/services/user.service';
+import { TokenService } from './token.service';
+import { UserService } from './user.service';
 
-import { User } from '@/auth/entities/user.entity';
-import { EmailVerification } from '@/auth/entities/emailVerification.entity';
+import { User } from '../entities/user.entity';
+import { EmailVerification } from '../entities/emailVerification.entity';
 
-import { AUTH_CONFIG } from '@/constants/config/auth.config';
-import { ERROR_CODES } from '@/constants/error/error-codes';
-import { AUTH_ERROR_MESSAGES } from '@/constants/message/auth.messages';
-import { EMAIL_VERIFICATION_ERROR_MESSAGES } from '@/constants/message/email-verification.messages';
+import { AUTH_CONFIG } from '../../constants/config/auth.config';
+import { ERROR_CODES } from '../../constants/error/error-codes';
+import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
+import { EMAIL_VERIFICATION_ERROR_MESSAGES } from '../../constants/message/email-verification.messages';
 
-import { comparePassword } from '@/auth/utils/bcrypt.util';
+import { comparePassword } from '../utils/bcrypt.util';
 
-import type { AuthResponse } from '@/auth/interfaces/auth.interface';
+import type { AuthResponse } from '../interfaces/auth.interface';
 
 /**
  * 계정 복원 서비스

@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { SnowflakeService } from '@/common/services/snowflake.service';
-import { Notification } from '@/notifications/entities/notification.entity';
-import { NotificationsService } from '@/notifications/notifications.service';
-import { NotificationsController } from '@/notifications/notifications.controller';
+import { SnowflakeService } from '../common/services/snowflake.service';
+import { Notification } from './entities/notification.entity';
+import { NotificationsService } from './notifications.service';
+import { NotificationsController } from './notifications.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Notification])],

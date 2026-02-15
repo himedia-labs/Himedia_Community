@@ -2,15 +2,15 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 
-import { SnowflakeService } from '@/common/services/snowflake.service';
+import { SnowflakeService } from '../common/services/snowflake.service';
 
-import { ERROR_CODES } from '@/constants/error/error-codes';
-import { NOTIFICATION_ERROR_MESSAGES } from '@/constants/message/notification.messages';
+import { ERROR_CODES } from '../constants/error/error-codes';
+import { NOTIFICATION_ERROR_MESSAGES } from '../constants/message/notification.messages';
 
-import { Notification, NotificationType } from '@/notifications/entities/notification.entity';
+import { Notification, NotificationType } from './entities/notification.entity';
 
-import type { ErrorCode } from '@/constants/error/error-codes';
-import type { CreateNotificationInput } from '@/notifications/notifications.types';
+import type { ErrorCode } from '../constants/error/error-codes';
+import type { CreateNotificationInput } from './notifications.types';
 
 /**
  * 알림 요약 생성

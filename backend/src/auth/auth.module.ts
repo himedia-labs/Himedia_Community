@@ -4,33 +4,33 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService, ConfigType } from '@nestjs/config';
 
-import { AuthController } from '@/auth/auth.controller';
+import { AuthController } from './auth.controller';
 
-import { AuthService } from '@/auth/services/auth.service';
-import { UserService } from '@/auth/services/user.service';
-import { TokenService } from '@/auth/services/token.service';
-import { RateLimitService } from '@/auth/services/rateLimit.service';
-import { SnowflakeService } from '@/common/services/snowflake.service';
-import { PasswordResetService } from '@/auth/services/password-reset.service';
-import { PasswordChangeService } from '@/auth/services/password-change.service';
-import { AccountRestoreService } from '@/auth/services/account-restore.service';
-import { AccountWithdrawService } from '@/auth/services/account-withdraw.service';
-import { EmailVerificationService } from '@/auth/services/email-verification.service';
+import { AuthService } from './services/auth.service';
+import { UserService } from './services/user.service';
+import { TokenService } from './services/token.service';
+import { RateLimitService } from './services/rateLimit.service';
+import { SnowflakeService } from '../common/services/snowflake.service';
+import { PasswordResetService } from './services/password-reset.service';
+import { PasswordChangeService } from './services/password-change.service';
+import { AccountRestoreService } from './services/account-restore.service';
+import { AccountWithdrawService } from './services/account-withdraw.service';
+import { EmailVerificationService } from './services/email-verification.service';
 
-import { User } from '@/auth/entities/user.entity';
-import { RefreshToken } from '@/auth/entities/refreshToken.entity';
-import { PasswordReset } from '@/auth/entities/passwordReset.entity';
-import { EmailVerification } from '@/auth/entities/emailVerification.entity';
+import { User } from './entities/user.entity';
+import { RefreshToken } from './entities/refreshToken.entity';
+import { PasswordReset } from './entities/passwordReset.entity';
+import { EmailVerification } from './entities/emailVerification.entity';
 
-import { JwtStrategy } from '@/auth/strategies/jwt.strategy';
-import { LocalStrategy } from '@/auth/strategies/local.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
 
-import { LoginRateLimitGuard } from '@/auth/guards/loginRateLimit.guard';
-import { LoginValidationGuard } from '@/auth/guards/loginValidation.guard';
-import { PasswordRateLimitGuard } from '@/auth/guards/passwordRateLimit.guard';
+import { LoginRateLimitGuard } from './guards/loginRateLimit.guard';
+import { LoginValidationGuard } from './guards/loginValidation.guard';
+import { PasswordRateLimitGuard } from './guards/passwordRateLimit.guard';
 
-import appConfig from '@/common/config/app.config';
-import { EmailModule } from '@/email/email.module';
+import appConfig from '../common/config/app.config';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [

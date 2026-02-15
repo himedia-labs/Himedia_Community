@@ -1,8 +1,8 @@
 import { Transform } from 'class-transformer';
 import { IsOptional, IsString, MaxLength } from 'class-validator';
 
-import { COMMENT_VALIDATION_MESSAGES } from '@/constants/message/comment.messages';
-import { MAX_COMMENT_CONTENT_LENGTH, normalizeCommentContent } from '@/comments/utils/comment-content.util';
+import { COMMENT_VALIDATION_MESSAGES } from '../../constants/message/comment.messages';
+import { MAX_COMMENT_CONTENT_LENGTH, normalizeCommentContent } from '../utils/comment-content.util';
 
 // 댓글 수정
 export class UpdateCommentDto {

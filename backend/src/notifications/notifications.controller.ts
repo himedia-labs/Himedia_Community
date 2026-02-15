@@ -1,9 +1,9 @@
 import { Controller, Get, Param, Patch, Query, Request, UseGuards } from '@nestjs/common';
 
-import { JwtGuard } from '@/auth/guards/jwt.guard';
-import { NotificationsService } from '@/notifications/notifications.service';
+import { JwtGuard } from '../auth/guards/jwt.guard';
+import { NotificationsService } from './notifications.service';
 
-import type { AuthRequest } from '@/notifications/notifications.types';
+import type { AuthRequest } from './notifications.types';
 
 @Controller('notifications')
 @UseGuards(JwtGuard)

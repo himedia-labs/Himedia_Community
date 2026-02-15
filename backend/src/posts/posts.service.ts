@@ -2,32 +2,32 @@ import { BadRequestException, Injectable, NotFoundException, UnauthorizedExcepti
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, IsNull, MoreThan, Repository } from 'typeorm';
 
-import { SnowflakeService } from '@/common/services/snowflake.service';
+import { SnowflakeService } from '../common/services/snowflake.service';
 
-import { ERROR_CODES } from '@/constants/error/error-codes';
-import { AUTH_ERROR_MESSAGES } from '@/constants/message/auth.messages';
-import { POST_ERROR_MESSAGES, POST_VALIDATION_MESSAGES } from '@/constants/message/post.messages';
+import { ERROR_CODES } from '../constants/error/error-codes';
+import { AUTH_ERROR_MESSAGES } from '../constants/message/auth.messages';
+import { POST_ERROR_MESSAGES, POST_VALIDATION_MESSAGES } from '../constants/message/post.messages';
 
-import { Follow } from '@/follows/entities/follow.entity';
-import { Comment } from '@/comments/entities/comment.entity';
-import { NotificationsService } from '@/notifications/notifications.service';
-import { NotificationType } from '@/notifications/entities/notification.entity';
+import { Follow } from '../follows/entities/follow.entity';
+import { Comment } from '../comments/entities/comment.entity';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/entities/notification.entity';
 
-import { CreatePostDto } from '@/posts/dto/createPost.dto';
-import { UpdatePostDto } from '@/posts/dto/updatePost.dto';
-import { ListPostsQueryDto } from '@/posts/dto/listPostsQuery.dto';
-import { PostSortOption, SortOrder } from '@/posts/posts.types';
-import { IMAGE_URL_MAX_LENGTH, SHARE_WINDOW_MINUTES, VIEW_WINDOW_HOURS } from '@/posts/posts.constants';
+import { CreatePostDto } from './dto/createPost.dto';
+import { UpdatePostDto } from './dto/updatePost.dto';
+import { ListPostsQueryDto } from './dto/listPostsQuery.dto';
+import { PostSortOption, SortOrder } from './posts.types';
+import { IMAGE_URL_MAX_LENGTH, SHARE_WINDOW_MINUTES, VIEW_WINDOW_HOURS } from './posts.constants';
 
-import { Tag } from '@/posts/entities/tag.entity';
-import { PostTag } from '@/posts/entities/postTag.entity';
-import { PostLike } from '@/posts/entities/postLike.entity';
-import { Post, PostStatus } from '@/posts/entities/post.entity';
-import { PostViewLog } from '@/posts/entities/postViewLog.entity';
-import { PostShareLog } from '@/posts/entities/postShareLog.entity';
-import { PostImage, PostImageType } from '@/posts/entities/postImage.entity';
+import { Tag } from './entities/tag.entity';
+import { PostTag } from './entities/postTag.entity';
+import { PostLike } from './entities/postLike.entity';
+import { Post, PostStatus } from './entities/post.entity';
+import { PostViewLog } from './entities/postViewLog.entity';
+import { PostShareLog } from './entities/postShareLog.entity';
+import { PostImage, PostImageType } from './entities/postImage.entity';
 
-import type { ErrorCode } from '@/constants/error/error-codes';
+import type { ErrorCode } from '../constants/error/error-codes';
 
 /**
  * 게시글 발행 검증

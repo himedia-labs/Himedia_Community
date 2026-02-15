@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 
-import { TagsService } from '@/posts/tags.service';
-import { TagSuggestQueryDto } from '@/posts/dto/tagSuggestQuery.dto';
+import { TagsService } from './tags.service';
+import { TagSuggestQueryDto } from './dto/tagSuggestQuery.dto';
 
 @Controller('tags')
 export class TagsController {

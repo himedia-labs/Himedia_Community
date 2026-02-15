@@ -1,7 +1,7 @@
 import { BadRequestException, INestApplication, ValidationPipe } from '@nestjs/common';
 
-import { ERROR_CODES } from '@/constants/error/error-codes';
-import { COMMON_VALIDATION_MESSAGES } from '@/constants/message/common.messages';
+import { ERROR_CODES } from '../../constants/error/error-codes';
+import { COMMON_VALIDATION_MESSAGES } from '../../constants/message/common.messages';
 
 import type { ValidationError } from 'class-validator';
 

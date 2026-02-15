@@ -1,7 +1,7 @@
 import { IsEmail, IsString, Length, MaxLength } from 'class-validator';
 
-import { AUTH_VALIDATION_MESSAGES } from '@/constants/message/auth.messages';
-import { PASSWORD_VALIDATION_MESSAGES } from '@/constants/message/password.messages';
+import { AUTH_VALIDATION_MESSAGES } from '../../constants/message/auth.messages';
+import { PASSWORD_VALIDATION_MESSAGES } from '../../constants/message/password.messages';
 
 // 탈퇴 계정 복원
 export class RestoreWithdrawnAccountDto {

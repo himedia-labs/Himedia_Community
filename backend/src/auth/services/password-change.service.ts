@@ -2,19 +2,19 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
-import { ChangePasswordDto } from '@/auth/dto/changePassword.dto';
+import { ChangePasswordDto } from '../dto/changePassword.dto';
 
-import { UserService } from '@/auth/services/user.service';
-import { TokenService } from '@/auth/services/token.service';
+import { UserService } from './user.service';
+import { TokenService } from './token.service';
 
-import { User } from '@/auth/entities/user.entity';
+import { User } from '../entities/user.entity';
 
-import { ERROR_CODES } from '@/constants/error/error-codes';
-import { AUTH_ERROR_MESSAGES } from '@/constants/message/auth.messages';
+import { ERROR_CODES } from '../../constants/error/error-codes';
+import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
 
-import { comparePassword, hashWithAuthRounds } from '@/auth/utils/bcrypt.util';
+import { comparePassword, hashWithAuthRounds } from '../utils/bcrypt.util';
 
-import type { AuthResponse } from '@/auth/interfaces/auth.interface';
+import type { AuthResponse } from '../interfaces/auth.interface';
 
 /**
  * 비밀번호 변경 서비스

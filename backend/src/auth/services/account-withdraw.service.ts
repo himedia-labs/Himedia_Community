@@ -2,16 +2,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
-import { UserService } from '@/auth/services/user.service';
-import { TokenService } from '@/auth/services/token.service';
+import { UserService } from './user.service';
+import { TokenService } from './token.service';
 
-import { User } from '@/auth/entities/user.entity';
+import { User } from '../entities/user.entity';
 
-import { AUTH_CONFIG } from '@/constants/config/auth.config';
-import { ERROR_CODES } from '@/constants/error/error-codes';
-import { AUTH_ERROR_MESSAGES, AUTH_SUCCESS_MESSAGES } from '@/constants/message/auth.messages';
+import { AUTH_CONFIG } from '../../constants/config/auth.config';
+import { ERROR_CODES } from '../../constants/error/error-codes';
+import { AUTH_ERROR_MESSAGES, AUTH_SUCCESS_MESSAGES } from '../../constants/message/auth.messages';
 
-import { comparePassword } from '@/auth/utils/bcrypt.util';
+import { comparePassword } from '../utils/bcrypt.util';
 
 /**
  * 회원탈퇴 서비스

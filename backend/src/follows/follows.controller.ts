@@ -1,10 +1,10 @@
 import { Controller, Delete, Get, Param, Post, Request, UseGuards } from '@nestjs/common';
 
-import { JwtGuard } from '@/auth/guards/jwt.guard';
-import { FollowsService } from '@/follows/follows.service';
+import { JwtGuard } from '../auth/guards/jwt.guard';
+import { FollowsService } from './follows.service';
 
 import type { Request as ExpressRequest } from 'express';
-import type { JwtPayload } from '@/auth/interfaces/jwt.interface';
+import type { JwtPayload } from '../auth/interfaces/jwt.interface';
 
 // 타입/정의
 type AuthRequest = ExpressRequest & { user: JwtPayload };

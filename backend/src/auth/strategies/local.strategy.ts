@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
 
-import { AuthService } from '@/auth/services/auth.service';
+import { AuthService } from '../services/auth.service';
 
-import type { User } from '@/auth/entities/user.entity';
+import type { User } from '../entities/user.entity';
 
 /**
  * 로컬 인증

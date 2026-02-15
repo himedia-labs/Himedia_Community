@@ -1,11 +1,11 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 
-import { RateLimitService } from '@/auth/services/rateLimit.service';
+import { RateLimitService } from '../services/rateLimit.service';
 
-import { PASSWORD_RATE_LIMIT_CONFIG } from '@/constants/config/rate-limit.config';
+import { PASSWORD_RATE_LIMIT_CONFIG } from '../../constants/config/rate-limit.config';
 
 import type { Request } from 'express';
-import type { RateLimitRule } from '@/auth/interfaces/rateLimit.interface';
+import type { RateLimitRule } from '../interfaces/rateLimit.interface';
 
 /**
  * 비밀번호 재설정 코드 요청 레이트 리밋 가드

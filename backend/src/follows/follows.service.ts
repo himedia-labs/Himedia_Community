@@ -2,14 +2,14 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 
-import { User } from '@/auth/entities/user.entity';
-import { Follow } from '@/follows/entities/follow.entity';
+import { User } from '../auth/entities/user.entity';
+import { Follow } from './entities/follow.entity';
 
-import { ERROR_CODES } from '@/constants/error/error-codes';
-import { FOLLOW_ERROR_MESSAGES } from '@/constants/message/follow.messages';
+import { ERROR_CODES } from '../constants/error/error-codes';
+import { FOLLOW_ERROR_MESSAGES } from '../constants/message/follow.messages';
 
-import type { ErrorCode } from '@/constants/error/error-codes';
-import type { FollowStatusResponse, MutualLookupMode } from '@/follows/follows.types';
+import type { ErrorCode } from '../constants/error/error-codes';
+import type { FollowStatusResponse, MutualLookupMode } from './follows.types';
 
 @Injectable()
 export class FollowsService {

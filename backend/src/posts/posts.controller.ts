@@ -2,17 +2,17 @@ import { randomUUID } from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request, Response, UseGuards } from '@nestjs/common';
 
-import { JwtGuard } from '@/auth/guards/jwt.guard';
-import { OptionalJwtGuard } from '@/auth/guards/optional-jwt.guard';
+import { JwtGuard } from '../auth/guards/jwt.guard';
+import { OptionalJwtGuard } from '../auth/guards/optional-jwt.guard';
 
-import { INTERACTION_CONFIG } from '@/constants/config/interaction.config';
+import { INTERACTION_CONFIG } from '../constants/config/interaction.config';
 
-import { PostsService } from '@/posts/posts.service';
-import { CreatePostDto } from '@/posts/dto/createPost.dto';
-import { UpdatePostDto } from '@/posts/dto/updatePost.dto';
-import { ListPostsQueryDto } from '@/posts/dto/listPostsQuery.dto';
+import { PostsService } from './posts.service';
+import { CreatePostDto } from './dto/createPost.dto';
+import { UpdatePostDto } from './dto/updatePost.dto';
+import { ListPostsQueryDto } from './dto/listPostsQuery.dto';
 
-import type { AuthRequest, OptionalAuthRequest } from '@/posts/posts.types';
+import type { AuthRequest, OptionalAuthRequest } from './posts.types';
 import type { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 
 @Controller('posts')

@@ -1,7 +1,7 @@
 import { Catch, ArgumentsHost, HttpException, ExceptionFilter, Logger, INestApplication } from '@nestjs/common';
 
 import type { Request, Response } from 'express';
-import type { FieldErrors, StandardErrorResponse } from '@/common/exception/httpException.types';
+import type { FieldErrors, StandardErrorResponse } from './httpException.types';
 
 /**
  * 요청 데이터 변환

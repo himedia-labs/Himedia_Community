@@ -1,7 +1,7 @@
-import { NotificationType } from '@/notifications/entities/notification.entity';
+import { NotificationType } from './entities/notification.entity';
 
 import type { Request as ExpressRequest } from 'express';
-import type { JwtPayload } from '@/auth/interfaces/jwt.interface';
+import type { JwtPayload } from '../auth/interfaces/jwt.interface';
 
 export type AuthRequest = ExpressRequest & { user: JwtPayload };
 

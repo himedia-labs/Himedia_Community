@@ -2,21 +2,21 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ConflictException, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
-import { RegisterDto } from '@/auth/dto/register.dto';
+import { RegisterDto } from '../dto/register.dto';
 
-import { TokenService } from '@/auth/services/token.service';
+import { TokenService } from './token.service';
 
-import { User, UserRole } from '@/auth/entities/user.entity';
+import { User, UserRole } from '../entities/user.entity';
 
-import { AUTH_CONFIG } from '@/constants/config/auth.config';
-import { ERROR_CODES } from '@/constants/error/error-codes';
-import { SnowflakeService } from '@/common/services/snowflake.service';
-import { AUTH_ERROR_MESSAGES } from '@/constants/message/auth.messages';
+import { AUTH_CONFIG } from '../../constants/config/auth.config';
+import { ERROR_CODES } from '../../constants/error/error-codes';
+import { SnowflakeService } from '../../common/services/snowflake.service';
+import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
 
-import { formatPhoneNumber, normalizePhoneNumber } from '@/auth/utils/phone.util';
-import { comparePassword, hashWithAuthRounds } from '@/auth/utils/bcrypt.util';
+import { formatPhoneNumber, normalizePhoneNumber } from '../utils/phone.util';
+import { comparePassword, hashWithAuthRounds } from '../utils/bcrypt.util';
 
-import type { AuthResponse } from '@/auth/interfaces/auth.interface';
+import type { AuthResponse } from '../interfaces/auth.interface';
 
 /**
  * 인증 서비스

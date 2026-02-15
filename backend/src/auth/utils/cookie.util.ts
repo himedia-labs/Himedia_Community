@@ -1,5 +1,5 @@
-import appConfig from '@/common/config/app.config';
-import { TOKEN_CONFIG } from '@/constants/config/token.config';
+import appConfig from '../../common/config/app.config';
+import { TOKEN_CONFIG } from '../../constants/config/token.config';
 
 import type { Response } from 'express';
 import type { ConfigType } from '@nestjs/config';

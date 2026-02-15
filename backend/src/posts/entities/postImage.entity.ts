@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
-import { Post } from '@/posts/entities/post.entity';
+import { Post } from './post.entity';
 
 export enum PostImageType {
   THUMBNAIL = 'THUMBNAIL',

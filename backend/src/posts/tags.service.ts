@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { Tag } from '@/posts/entities/tag.entity';
-import { TagSuggestQueryDto } from '@/posts/dto/tagSuggestQuery.dto';
+import { Tag } from './entities/tag.entity';
+import { TagSuggestQueryDto } from './dto/tagSuggestQuery.dto';
 
 @Injectable()
 export class TagsService {

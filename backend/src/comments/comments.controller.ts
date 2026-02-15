@@ -1,15 +1,15 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Request, UseGuards } from '@nestjs/common';
 
-import { JwtGuard } from '@/auth/guards/jwt.guard';
-import { OptionalJwtGuard } from '@/auth/guards/optional-jwt.guard';
+import { JwtGuard } from '../auth/guards/jwt.guard';
+import { OptionalJwtGuard } from '../auth/guards/optional-jwt.guard';
 
-import { CreateCommentDto } from '@/comments/dto/createComment.dto';
-import { UpdateCommentDto } from '@/comments/dto/updateComment.dto';
+import { CreateCommentDto } from './dto/createComment.dto';
+import { UpdateCommentDto } from './dto/updateComment.dto';
 
-import { CommentsService } from '@/comments/comments.service';
+import { CommentsService } from './comments.service';
 
 import type { Request as ExpressRequest } from 'express';
-import type { JwtPayload } from '@/auth/interfaces/jwt.interface';
+import type { JwtPayload } from '../auth/interfaces/jwt.interface';
 
 @Controller('posts/:postId/comments')
 export class CommentsController {

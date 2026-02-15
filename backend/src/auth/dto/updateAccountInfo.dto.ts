@@ -1,7 +1,7 @@
 import { IsDateString, IsEmail, IsOptional, IsString, MaxLength } from 'class-validator';
 
-import { PHONE_CONFIG } from '@/constants/config/phone.config';
-import { AUTH_VALIDATION_MESSAGES } from '@/constants/message/auth.messages';
+import { PHONE_CONFIG } from '../../constants/config/phone.config';
+import { AUTH_VALIDATION_MESSAGES } from '../../constants/message/auth.messages';
 
 // 계정 정보 수정
 export class UpdateAccountInfoDto {

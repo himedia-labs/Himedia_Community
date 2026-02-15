@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { createTransport, type Transporter } from 'nodemailer';
 
-import appConfig from '@/common/config/app.config';
-import { type EmailVerificationPurpose } from '@/auth/dto/sendEmailVerificationCode.types';
+import appConfig from '../common/config/app.config';
+import { type EmailVerificationPurpose } from '../auth/dto/sendEmailVerificationCode.types';
 
 import type { ConfigType } from '@nestjs/config';
 

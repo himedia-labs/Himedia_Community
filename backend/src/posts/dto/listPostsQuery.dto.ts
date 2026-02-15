@@ -1,12 +1,12 @@
 import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
-import { PostStatus } from '@/posts/entities/post.entity';
-import { POST_FEED_OPTIONS } from '@/posts/posts.constants';
-import { POST_VALIDATION_MESSAGES } from '@/constants/message/post.messages';
-import { PostSortOption, SortOrder } from '@/posts/posts.types';
+import { PostStatus } from '../entities/post.entity';
+import { POST_FEED_OPTIONS } from '../posts.constants';
+import { POST_VALIDATION_MESSAGES } from '../../constants/message/post.messages';
+import { PostSortOption, SortOrder } from '../posts.types';
 
-import type { PostFeedOption } from '@/posts/posts.types';
+import type { PostFeedOption } from '../posts.types';
 
 // 게시글 목록 조회 쿼리
 export class ListPostsQueryDto {

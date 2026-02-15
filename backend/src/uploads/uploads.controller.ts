@@ -9,21 +9,21 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
-import { JwtGuard } from '@/auth/guards/jwt.guard';
+import { JwtGuard } from '../auth/guards/jwt.guard';
 
-import { ERROR_CODES } from '@/constants/error/error-codes';
+import { ERROR_CODES } from '../constants/error/error-codes';
 
-import { UploadsService } from '@/uploads/uploads.service';
+import { UploadsService } from './uploads.service';
 import {
   ALLOWED_IMAGE_TYPES,
   IMAGE_LIMITS,
   IMAGE_ONLY_MESSAGE,
   IMAGE_REQUIRED_MESSAGE,
-} from '@/uploads/uploads.constants';
+} from './uploads.constants';
 
 import type { Request as ExpressRequest } from 'express';
-import type { JwtPayload } from '@/auth/interfaces/jwt.interface';
-import type { UploadFileFilterCallback, UploadFileFilterPayload, UploadedFilePayload } from '@/uploads/uploads.types';
+import type { JwtPayload } from '../auth/interfaces/jwt.interface';
+import type { UploadFileFilterCallback, UploadFileFilterPayload, UploadedFilePayload } from './uploads.types';
 
 // 타입 정의
 type AuthRequest = ExpressRequest & { user: JwtPayload };

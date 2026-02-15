@@ -1,7 +1,7 @@
 import { Check, Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
-import { User } from '@/auth/entities/user.entity';
-import { Comment } from '@/comments/entities/comment.entity';
+import { User } from '../../auth/entities/user.entity';
+import { Comment } from './comment.entity';
 
 // 댓글 리액션 타입
 export enum CommentReactionType {

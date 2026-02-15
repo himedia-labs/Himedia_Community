@@ -2,10 +2,10 @@ import { BadRequestException, CanActivate, ExecutionContext, Injectable } from '
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 
-import { LoginDto } from '@/auth/dto/login.dto';
+import { LoginDto } from '../dto/login.dto';
 
-import { ERROR_CODES } from '@/constants/error/error-codes';
-import { COMMON_VALIDATION_MESSAGES } from '@/constants/message/common.messages';
+import { ERROR_CODES } from '../../constants/error/error-codes';
+import { COMMON_VALIDATION_MESSAGES } from '../../constants/message/common.messages';
 
 import type { Request } from 'express';
 import type { ValidationError } from 'class-validator';

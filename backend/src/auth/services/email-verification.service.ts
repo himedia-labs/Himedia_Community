@@ -3,30 +3,30 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { LessThan, MoreThanOrEqual, Repository } from 'typeorm';
 import { ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 
-import { SendEmailVerificationCodeDto } from '@/auth/dto/sendEmailVerificationCode.dto';
-import { VerifyEmailVerificationCodeDto } from '@/auth/dto/verifyEmailVerificationCode.dto';
+import { SendEmailVerificationCodeDto } from '../dto/sendEmailVerificationCode.dto';
+import { VerifyEmailVerificationCodeDto } from '../dto/verifyEmailVerificationCode.dto';
 
-import { UserService } from '@/auth/services/user.service';
+import { UserService } from './user.service';
 
-import { EmailVerification } from '@/auth/entities/emailVerification.entity';
+import { EmailVerification } from '../entities/emailVerification.entity';
 
-import { EmailService } from '@/email/email.service';
-import { ERROR_CODES } from '@/constants/error/error-codes';
-import { SnowflakeService } from '@/common/services/snowflake.service';
+import { EmailService } from '../../email/email.service';
+import { ERROR_CODES } from '../../constants/error/error-codes';
+import { SnowflakeService } from '../../common/services/snowflake.service';
 
-import { AUTH_CONFIG } from '@/constants/config/auth.config';
-import { EMAIL_VERIFICATION_CONFIG } from '@/constants/config/email-verification.config';
+import { AUTH_CONFIG } from '../../constants/config/auth.config';
+import { EMAIL_VERIFICATION_CONFIG } from '../../constants/config/email-verification.config';
 
-import { AUTH_ERROR_MESSAGES } from '@/constants/message/auth.messages';
+import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
 import {
   EMAIL_VERIFICATION_ERROR_MESSAGES,
   EMAIL_VERIFICATION_SUCCESS_MESSAGES,
-} from '@/constants/message/email-verification.messages';
+} from '../../constants/message/email-verification.messages';
 
-import { comparePassword, hashWithAuthRounds } from '@/auth/utils/bcrypt.util';
+import { comparePassword, hashWithAuthRounds } from '../utils/bcrypt.util';
 
-import type { EmailVerificationPurpose } from '@/auth/dto/sendEmailVerificationCode.types';
-import type { EmailVerificationValidation } from '@/auth/interfaces/emailVerification.interface';
+import type { EmailVerificationPurpose } from '../dto/sendEmailVerificationCode.types';
+import type { EmailVerificationValidation } from '../interfaces/emailVerification.interface';
 
 /**
  * 이메일 인증 서비스

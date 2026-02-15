@@ -3,13 +3,13 @@ import { randomUUID } from 'crypto';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 
-import appConfig from '@/common/config/app.config';
-import { ERROR_CODES } from '@/constants/error/error-codes';
-import { MIME_EXTENSION_MAP } from '@/uploads/uploads.constants';
-import { IMAGE_REQUIRED_MESSAGE } from '@/uploads/uploads.constants';
+import appConfig from '../common/config/app.config';
+import { ERROR_CODES } from '../constants/error/error-codes';
+import { MIME_EXTENSION_MAP } from './uploads.constants';
+import { IMAGE_REQUIRED_MESSAGE } from './uploads.constants';
 
 import type { ConfigType } from '@nestjs/config';
-import type { UploadedFilePayload } from '@/uploads/uploads.types';
+import type { UploadedFilePayload } from './uploads.types';
 
 @Injectable()
 export class UploadsService {

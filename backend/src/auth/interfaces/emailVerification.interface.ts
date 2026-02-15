@@ -1,4 +1,4 @@
-import type { EmailVerification } from '@/auth/entities/emailVerification.entity';
+import type { EmailVerification } from '../entities/emailVerification.entity';
 
 export interface EmailVerificationValidation {
   verification: EmailVerification;

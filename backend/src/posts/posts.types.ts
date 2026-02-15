@@ -1,8 +1,8 @@
 import type { Request as ExpressRequest } from 'express';
 
-import { POST_FEED_OPTIONS } from '@/posts/posts.constants';
+import { POST_FEED_OPTIONS } from './posts.constants';
 
-import type { JwtPayload } from '@/auth/interfaces/jwt.interface';
+import type { JwtPayload } from '../auth/interfaces/jwt.interface';
 
 // 타입/정의
 export type AuthRequest = ExpressRequest & { user: JwtPayload };

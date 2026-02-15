@@ -1,14 +1,14 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 
-import { RateLimitService } from '@/auth/services/rateLimit.service';
+import { RateLimitService } from '../services/rateLimit.service';
 
-import { ERROR_CODES } from '@/constants/error/error-codes';
-import { AUTH_ERROR_MESSAGES } from '@/constants/message/auth.messages';
-import { LOGIN_RATE_LIMIT_CONFIG } from '@/constants/config/rate-limit.config';
+import { ERROR_CODES } from '../../constants/error/error-codes';
+import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
+import { LOGIN_RATE_LIMIT_CONFIG } from '../../constants/config/rate-limit.config';
 
 import type { Request } from 'express';
-import type { ErrorCode } from '@/constants/error/error-codes';
-import type { RateLimitRule } from '@/auth/interfaces/rateLimit.interface';
+import type { ErrorCode } from '../../constants/error/error-codes';
+import type { RateLimitRule } from '../interfaces/rateLimit.interface';
 
 /**
  * 로그인 레이트 리밋 가드

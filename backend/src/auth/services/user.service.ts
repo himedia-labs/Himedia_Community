@@ -2,12 +2,12 @@ import { ILike, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 
-import { User } from '@/auth/entities/user.entity';
-import { ERROR_CODES } from '@/constants/error/error-codes';
-import { formatPhoneNumber, normalizePhoneNumber } from '@/auth/utils/phone.util';
-import { AUTH_ERROR_MESSAGES, AUTH_VALIDATION_MESSAGES } from '@/constants/message/auth.messages';
+import { User } from '../entities/user.entity';
+import { ERROR_CODES } from '../../constants/error/error-codes';
+import { formatPhoneNumber, normalizePhoneNumber } from '../utils/phone.util';
+import { AUTH_ERROR_MESSAGES, AUTH_VALIDATION_MESSAGES } from '../../constants/message/auth.messages';
 
-import type { AuthUserProfile, PublicUserProfile } from '@/auth/interfaces/user.interface';
+import type { AuthUserProfile, PublicUserProfile } from '../interfaces/user.interface';
 
 /**
  * 사용자 서비스

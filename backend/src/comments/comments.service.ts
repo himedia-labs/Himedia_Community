@@ -2,26 +2,26 @@ import { In, IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 
-import { SnowflakeService } from '@/common/services/snowflake.service';
+import { SnowflakeService } from '../common/services/snowflake.service';
 
-import { CreateCommentDto } from '@/comments/dto/createComment.dto';
-import { UpdateCommentDto } from '@/comments/dto/updateComment.dto';
+import { CreateCommentDto } from './dto/createComment.dto';
+import { UpdateCommentDto } from './dto/updateComment.dto';
 
-import { Follow } from '@/follows/entities/follow.entity';
-import { Comment } from '@/comments/entities/comment.entity';
-import { Post, PostStatus } from '@/posts/entities/post.entity';
-import { NotificationType } from '@/notifications/entities/notification.entity';
-import { CommentReaction, CommentReactionType } from '@/comments/entities/commentReaction.entity';
+import { Follow } from '../follows/entities/follow.entity';
+import { Comment } from './entities/comment.entity';
+import { Post, PostStatus } from '../posts/entities/post.entity';
+import { NotificationType } from '../notifications/entities/notification.entity';
+import { CommentReaction, CommentReactionType } from './entities/commentReaction.entity';
 
-import { POST_ERROR_MESSAGES } from '@/constants/message/post.messages';
-import { COMMENT_ERROR_MESSAGES, COMMENT_VALIDATION_MESSAGES } from '@/constants/message/comment.messages';
+import { POST_ERROR_MESSAGES } from '../constants/message/post.messages';
+import { COMMENT_ERROR_MESSAGES, COMMENT_VALIDATION_MESSAGES } from '../constants/message/comment.messages';
 
-import { NotificationsService } from '@/notifications/notifications.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
-import { sanitizeCommentContent } from '@/comments/utils/comment-content.util';
+import { sanitizeCommentContent } from './utils/comment-content.util';
 
-import { ERROR_CODES } from '@/constants/error/error-codes';
-import type { ErrorCode } from '@/constants/error/error-codes';
+import { ERROR_CODES } from '../constants/error/error-codes';
+import type { ErrorCode } from '../constants/error/error-codes';
 
 @Injectable()
 export class CommentsService {

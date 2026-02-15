@@ -1,7 +1,7 @@
 import { CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
-import { Tag } from '@/posts/entities/tag.entity';
-import { Post } from '@/posts/entities/post.entity';
+import { Tag } from './tag.entity';
+import { Post } from './post.entity';
 
 @Entity({ name: 'post_tags' })
 @Index(['tagId'])

@@ -1,5 +1,5 @@
 import { IsString, MaxLength, MinLength } from 'class-validator';
-import { PASSWORD_VALIDATION_MESSAGES } from '@/constants/message/password.messages';
+import { PASSWORD_VALIDATION_MESSAGES } from '../../constants/message/password.messages';
 
 // 회원탈퇴 요청
 export class WithdrawAccountDto {
