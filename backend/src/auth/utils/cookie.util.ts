@@ -8,12 +8,19 @@ import type { ConfigType } from '@nestjs/config';
  * 쿠키 기본 옵션 생성
  * @description 환경에 따른 보안 쿠키 설정
  */
-const getCookieOptions = (env?: string) => ({
-  httpOnly: true,
-  secure: env === 'production',
-  sameSite: 'lax' as const,
-  path: '/',
-});
+const getCookieOptions = (env?: string) => {
+  // 배포(production): 프론트/백엔드가 다른 도메인이므로 SameSite=None + Secure 필수
+  // 로컬(development): http 환경이므로 SameSite=Lax 유지
+  const isProduction = env === 'production';
+  const sameSite = isProduction ? ('none' as const) : ('lax' as const);
+
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite,
+    path: '/',
+  };
+};
 
 /**
  * 인증 쿠키 설정
