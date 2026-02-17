@@ -230,3 +230,8 @@
 .submitButton:active {
   transform: translateY(1px);
 }
+
+.submitButton:disabled {
+  background: #ffb3b3;
+  cursor: not-allowed;
+}

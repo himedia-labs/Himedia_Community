@@ -53,6 +53,7 @@ export default function LoginPage() {
   // 폼 상태
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoginSubmitting, setIsLoginSubmitting] = useState(false);
 
   // 에러 상태
   const [emailError, setEmailError] = useState('');
@@ -67,9 +68,11 @@ export default function LoginPage() {
   const handleLogin = authenticateUser({
     email,
     password,
+    isLoginSubmitting,
     setEmailError,
     setPasswordError,
-    onWithdrawnAccount: _message => {
+    setIsLoginSubmitting,
+    onWithdrawnAccount: () => {
       setWithdrawnMessage(LOGIN_WITHDRAW_MODAL_MESSAGES.description);
       setRestoreEmail(email.trim().toLowerCase());
       setRestoreCode('');
@@ -166,6 +169,7 @@ export default function LoginPage() {
                 type="email"
                 id="email"
                 value={email}
+                disabled={isLoginSubmitting || loginMutation.isPending}
                 onChange={e => {
                   setEmail(e.target.value);
                   const next = e.target.value;
@@ -189,6 +193,7 @@ export default function LoginPage() {
                 type="password"
                 id="password"
                 value={password}
+                disabled={isLoginSubmitting || loginMutation.isPending}
                 onChange={e => {
                   setPassword(e.target.value);
                   if (passwordError) setPasswordError('');
@@ -213,8 +218,12 @@ export default function LoginPage() {
                   비밀번호 찾기
                 </Link>
               </div>
-              <button type="submit" className={styles.submitButton}>
-                로그인
+              <button
+                type="submit"
+                className={styles.submitButton}
+                disabled={isLoginSubmitting || loginMutation.isPending}
+              >
+                {isLoginSubmitting || loginMutation.isPending ? '로그인 중...' : '로그인'}
               </button>
             </div>
           </form>

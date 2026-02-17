@@ -15,8 +15,10 @@ import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.
 export const authenticateUser = (params: {
   email: string;
   password: string;
+  isLoginSubmitting: boolean;
   setEmailError: (value: string) => void;
   setPasswordError: (value: string) => void;
+  setIsLoginSubmitting: (value: boolean) => void;
   onWithdrawnAccount?: (message?: string) => void;
   redirectTo?: string | null;
   loginMutation: UseMutationResult<AuthResponse, Error, LoginRequest>;
@@ -28,7 +30,8 @@ export const authenticateUser = (params: {
   return (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (params.loginMutation.isPending) return;
+    if (params.isLoginSubmitting || params.loginMutation.isPending) return;
+    params.setIsLoginSubmitting(true);
 
     let hasError = false;
     if (!params.email) {
@@ -40,6 +43,7 @@ export const authenticateUser = (params: {
       hasError = true;
     }
     if (hasError) {
+      params.setIsLoginSubmitting(false);
       params.showToast({ message: LOGIN_MESSAGES.missingCredentials, type: 'warning' });
       return;
     }
@@ -58,6 +62,7 @@ export const authenticateUser = (params: {
 
           // 로그인 응답의 사용자 정보를 React Query 캐시에 저장 (GET /auth/me 중복 호출 방지)
           params.queryClient.setQueryData(params.authKeys.currentUser, data.user);
+          params.setIsLoginSubmitting(false);
           params.showToast({ message: LOGIN_MESSAGES.success, type: 'success' });
           params.router.push(params.redirectTo ?? '/');
         },
@@ -65,6 +70,7 @@ export const authenticateUser = (params: {
         onError: (error: unknown) => {
           const axiosError = error as AxiosError<ApiErrorResponse>;
           const { code, message } = axiosError.response?.data || {};
+          params.setIsLoginSubmitting(false);
 
           if (code === 'AUTH_ACCOUNT_WITHDRAWN') {
             params.onWithdrawnAccount?.(message);
