@@ -1,6 +1,6 @@
 import { TOOLBAR_ITEMS } from '@/app/shared/constants/config/editor-toolbar.config';
 
-import styles from '@/app/shared/styles/markdownEditor.module.css';
+import styles from '@/app/shared/components/markdown-editor/markdownEditor.module.css';
 
 import type { EditorToolbarProps } from '@/app/shared/types/post';
 

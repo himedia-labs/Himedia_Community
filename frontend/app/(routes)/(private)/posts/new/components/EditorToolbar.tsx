@@ -14,7 +14,7 @@ import {
   HiOutlineUnderline,
 } from 'react-icons/hi2';
 
-import styles from '@/app/shared/styles/markdownEditor.module.css';
+import styles from '@/app/shared/components/markdown-editor/markdownEditor.module.css';
 
 import type { EditorToolbarProps, ToolbarItem } from '@/app/shared/types/post';
 

@@ -26,7 +26,7 @@ import {
 import { formatDateLabel, renderMarkdownPreview } from '@/app/(routes)/(private)/posts/new/utils';
 import { EditorToolbar, PostPreview, PostDetailsForm } from '@/app/(routes)/(private)/posts/new/components';
 
-import markdownEditorStyles from '@/app/shared/styles/markdownEditor.module.css';
+import markdownEditorStyles from '@/app/shared/components/markdown-editor/markdownEditor.module.css';
 import styles from '@/app/(routes)/(private)/posts/new/PostCreate.module.css';
 
 import type { DraftData } from '@/app/shared/types/post';

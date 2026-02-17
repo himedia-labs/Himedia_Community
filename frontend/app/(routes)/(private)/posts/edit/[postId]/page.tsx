@@ -12,10 +12,15 @@ import { createEditPreview } from '@/app/(routes)/(private)/posts/edit/[postId]/
 import { createExitHandler } from '@/app/(routes)/(private)/posts/edit/[postId]/handlers';
 import { EditorToolbar, PostPreview, PostDetailsForm } from '@/app/(routes)/(private)/posts/new/components';
 import { usePostEditInitializer, usePostEditSaver } from '@/app/(routes)/(private)/posts/edit/[postId]/hooks';
-import { useMarkdownEditor, usePostForm, useTagInput, useThumbnailUpload } from '@/app/(routes)/(private)/posts/new/hooks';
+import {
+  useMarkdownEditor,
+  usePostForm,
+  useTagInput,
+  useThumbnailUpload,
+} from '@/app/(routes)/(private)/posts/new/hooks';
 
 import styles from '@/app/(routes)/(private)/posts/new/PostCreate.module.css';
-import markdownEditorStyles from '@/app/shared/styles/markdownEditor.module.css';
+import markdownEditorStyles from '@/app/shared/components/markdown-editor/markdownEditor.module.css';
 
 /**
  * 게시물 수정 페이지

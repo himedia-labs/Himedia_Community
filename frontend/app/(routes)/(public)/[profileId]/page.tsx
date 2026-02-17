@@ -13,7 +13,7 @@ import { useProfileByHandleQuery } from '@/app/api/auth/auth.queries';
 import { renderMarkdownPreview } from '@/app/shared/utils/markdown';
 import { formatDateLabel, formatSummary } from '@/app/(routes)/(public)/[profileId]/utils';
 
-import markdownStyles from '@/app/shared/styles/markdown.module.css';
+import markdownStyles from '@/app/shared/components/markdown-editor/markdown.module.css';
 import styles from '@/app/(routes)/(public)/[profileId]/ProfilePage.module.css';
 
 /**

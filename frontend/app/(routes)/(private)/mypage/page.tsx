@@ -57,9 +57,9 @@ import {
 import { useWithdrawAccountMutation } from '@/app/api/auth/auth.mutations';
 
 import 'react-loading-skeleton/dist/skeleton.css';
-import markdownStyles from '@/app/shared/styles/markdown.module.css';
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
-import markdownEditorStyles from '@/app/shared/styles/markdownEditor.module.css';
+import markdownEditorStyles from '@/app/shared/components/markdown-editor/markdownEditor.module.css';
+import markdownStyles from '@/app/shared/components/markdown-editor/markdown.module.css';
 import commentStyles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useAuthStore } from '@/app/shared/store/authStore';

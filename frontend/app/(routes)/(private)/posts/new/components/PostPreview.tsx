@@ -2,7 +2,7 @@ import { RiTwitterXFill } from 'react-icons/ri';
 import { FaFacebookSquare, FaGithub, FaLinkedin } from 'react-icons/fa';
 import { FiEye, FiHeart, FiMail, FiMessageCircle, FiTag } from 'react-icons/fi';
 
-import markdownStyles from '@/app/shared/styles/markdown.module.css';
+import markdownStyles from '@/app/shared/components/markdown-editor/markdown.module.css';
 import styles from '../PostCreate.module.css';
 
 import type { PostPreviewProps } from '@/app/shared/types/post';
