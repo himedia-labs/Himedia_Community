@@ -142,7 +142,7 @@
 .headerDivider {
   max-width: 960px;
   height: 1px;
-  margin: 2rem auto 2rem;
+  margin: 2rem auto;
   background: rgba(0, 0, 0, 0.08);
 }
 
@@ -239,7 +239,7 @@
 
 .mainContent {
   max-width: 960px;
-  margin: 0 auto;
+  /* margin: 0 auto; */
   width: 100%;
 }
 
@@ -310,9 +310,7 @@
 }
 
 .authorProfileNameRow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
+  display: block;
 }
 
 .authorProfileName,
@@ -331,46 +329,36 @@
   text-decoration: underline;
 }
 
+.authorProfileRoleLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  vertical-align: middle;
+}
+
+.authorProfileNameLinkIcon {
+  width: 0.85rem;
+  height: 0.85rem;
+  color: #97a3b5;
+}
+
 .authorProfileRole {
+  display: inline;
   font-size: 1.06rem;
+  margin-left: 0.55rem;
   color: #8291a8;
+  vertical-align: middle;
 }
 
 .authorProfileBio {
-  display: -webkit-box;
+  display: block;
   margin: 0;
   font-size: 1.16rem;
   line-height: 1.5;
   color: #5f6c80;
   overflow: hidden;
+  white-space: nowrap;
   text-overflow: ellipsis;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.authorProfileBio :global(h1),
-.authorProfileBio :global(h2),
-.authorProfileBio :global(h3),
-.authorProfileBio :global(p),
-.authorProfileBio :global(ul),
-.authorProfileBio :global(ol),
-.authorProfileBio :global(li),
-.authorProfileBio :global(blockquote),
-.authorProfileBio :global(pre),
-.authorProfileBio :global(code) {
-  display: inline;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  font-size: inherit;
-  font-weight: inherit;
-  line-height: inherit;
-  color: inherit;
-}
-
-.authorProfileBio :global(br) {
-  display: none;
 }
 
 .authorProfileMeta {
@@ -456,7 +444,7 @@
 
 .commentDivider {
   height: 1px;
-  margin: 3rem 0;
+  margin: 2rem 0;
   background: rgba(0, 0, 0, 0.08);
 }
 

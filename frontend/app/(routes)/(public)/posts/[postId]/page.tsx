@@ -14,6 +14,7 @@ import {
   FiClock,
   FiEdit2,
   FiEye,
+  FiExternalLink,
   FiFlag,
   FiGithub,
   FiGlobe,
@@ -36,7 +37,8 @@ import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
 import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import { isCommentContentTooLong } from '@/app/shared/utils/comment.utils';
-import { renderMarkdownPreview } from '@/app/shared/utils/markdown';
+import { stripInlineMarkdown } from '@/app/shared/utils/markdown/helpers';
+import { truncateWithEllipsis } from '@/app/shared/utils/truncateWithEllipsis.utils';
 import { createTocClickHandler } from '@/app/(routes)/(public)/posts/[postId]/handlers';
 import {
   usePostDetailComments,
@@ -52,15 +54,18 @@ import {
 } from '@/app/(routes)/(public)/posts/[postId]/utils';
 
 import 'react-loading-skeleton/dist/skeleton.css';
-import markdownStyles from '@/app/shared/styles/markdown.module.css';
-import styles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
 import { useToast } from '@/app/shared/components/toast/toast';
+import markdownStyles from '@/app/shared/components/markdown-editor/markdown.module.css';
+import styles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
 
 /**
  * 게시물 상세 페이지
  * @description 게시물 상세 내용과 반응 정보를 표시
  */
 export default function PostDetailPage() {
+  // 소개글 길이 설정
+  const AUTHOR_PROFILE_BIO_SUMMARY_LIMIT = 60;
+
   // 라우트 데이터
   const params = useParams();
   const postId = typeof params?.postId === 'string' ? params.postId : '';
@@ -92,9 +97,24 @@ export default function PostDetailPage() {
   const canShowAuthorFollowButton = Boolean(currentUser?.id && postAuthorId && currentUser.id !== postAuthorId);
   const authorProfileBio = data?.author?.profileBio?.trim() ?? '';
   const authorProfileBioPreview = useMemo(() => {
-    const previewBlocks = renderMarkdownPreview(authorProfileBio);
-    return previewBlocks.flatMap((block, index) => (index ? [' ', block] : [block]));
-  }, [authorProfileBio]);
+    const normalized = authorProfileBio
+      .split('\n')
+      .map(line => line.trim())
+      .filter(Boolean)
+      .map(line =>
+        line
+          .replace(/^#{1,3}\s+/, '')
+          .replace(/^>\s?/, '')
+          .replace(/^-+\s+/, '')
+          .replace(/^\d+\.\s+/, ''),
+      )
+      .map(line => stripInlineMarkdown(line))
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    return truncateWithEllipsis(normalized, AUTHOR_PROFILE_BIO_SUMMARY_LIMIT);
+  }, [AUTHOR_PROFILE_BIO_SUMMARY_LIMIT, authorProfileBio]);
   const authorSocialLinks = [
     {
       href: data?.author?.profileContactEmail?.trim() ? `mailto:${data.author.profileContactEmail.trim()}` : '',
@@ -659,62 +679,62 @@ export default function PostDetailPage() {
   return (
     <section className={styles.container} aria-label="게시물 상세">
       <div className={styles.header}>
-          <div className={styles.categoryRow}>
-            <div className={styles.category}>{data.category?.name ?? 'ALL'}</div>
-            {isMyPost ? (
-              <div className={styles.postMoreWrapper}>
-                <button
-                  type="button"
-                  className={styles.postMoreButton}
-                  aria-label="게시글 옵션"
-                  onClick={handlePostMenuToggle}
-                >
-                  <FiMoreHorizontal aria-hidden="true" />
-                </button>
-                {isPostMenuOpen ? (
-                  <div className={styles.postMoreMenu} role="menu">
-                    <button type="button" className={styles.postMoreItem} role="menuitem" onClick={handlePostEdit}>
-                      <FiEdit2 aria-hidden="true" />
-                      수정
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.postMoreItem}
-                      role="menuitem"
-                      disabled={isPostDeleting}
-                      onClick={handlePostDelete}
-                    >
-                      <FiTrash2 aria-hidden="true" />
-                      삭제
-                    </button>
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-          <h1 className={styles.title}>{data.title}</h1>
-          <div className={styles.metaRow}>
-            <span className={styles.metaItem}>{formatDate(data.publishedAt ?? data.createdAt)}</span>
-            <span className={styles.metaDivider} aria-hidden="true">
-              ·
-            </span>
-            <span className={styles.metaItem}>
-              {data.author?.name ?? '익명'} {data.author?.role && `${formatRole(data.author.role)}`}
-            </span>
-          </div>
-          {data.tags.length ? (
-            <div className={styles.metaTagRow}>
-              <CiShoppingTag className={styles.metaTagIcon} aria-hidden="true" />
-              <div className={styles.metaTagList}>
-                {data.tags.map(tag => (
-                  <span key={tag.id} className={styles.metaTagItem}>
-                    #{tag.name}
-                  </span>
-                ))}
-              </div>
+        <div className={styles.categoryRow}>
+          <div className={styles.category}>{data.category?.name ?? 'ALL'}</div>
+          {isMyPost ? (
+            <div className={styles.postMoreWrapper}>
+              <button
+                type="button"
+                className={styles.postMoreButton}
+                aria-label="게시글 옵션"
+                onClick={handlePostMenuToggle}
+              >
+                <FiMoreHorizontal aria-hidden="true" />
+              </button>
+              {isPostMenuOpen ? (
+                <div className={styles.postMoreMenu} role="menu">
+                  <button type="button" className={styles.postMoreItem} role="menuitem" onClick={handlePostEdit}>
+                    <FiEdit2 aria-hidden="true" />
+                    수정
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.postMoreItem}
+                    role="menuitem"
+                    disabled={isPostDeleting}
+                    onClick={handlePostDelete}
+                  >
+                    <FiTrash2 aria-hidden="true" />
+                    삭제
+                  </button>
+                </div>
+              ) : null}
             </div>
           ) : null}
         </div>
+        <h1 className={styles.title}>{data.title}</h1>
+        <div className={styles.metaRow}>
+          <span className={styles.metaItem}>{formatDate(data.publishedAt ?? data.createdAt)}</span>
+          <span className={styles.metaDivider} aria-hidden="true">
+            ·
+          </span>
+          <span className={styles.metaItem}>
+            {data.author?.name ?? '익명'} {data.author?.role && `${formatRole(data.author.role)}`}
+          </span>
+        </div>
+        {data.tags.length ? (
+          <div className={styles.metaTagRow}>
+            <CiShoppingTag className={styles.metaTagIcon} aria-hidden="true" />
+            <div className={styles.metaTagList}>
+              {data.tags.map(tag => (
+                <span key={tag.id} className={styles.metaTagItem}>
+                  #{tag.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </div>
       <div className={styles.headerDivider} aria-hidden="true" />
 
       <div className={styles.body}>
@@ -807,14 +827,22 @@ export default function PostDetailPage() {
                         className={styles.authorProfileNameLink}
                         href={`/@${data.author.profileHandle.replace(/^@/, '')}`}
                       >
-                        {data.author.name}
+                        <span className={styles.authorProfileName}>{data.author.name}</span>
+                        <span className={`${styles.authorProfileRole} ${styles.authorProfileRoleLink}`}>
+                          <span>{formatRole(data.author.role)}</span>
+                          <FiExternalLink className={styles.authorProfileNameLinkIcon} aria-hidden="true" />
+                        </span>
                       </Link>
                     ) : (
-                      <span className={styles.authorProfileName}>{data.author.name}</span>
+                      <>
+                        <span className={styles.authorProfileName}>{data.author.name}</span>
+                        <span className={styles.authorProfileRole}>{formatRole(data.author.role)}</span>
+                      </>
                     )}
-                    <span className={styles.authorProfileRole}>{formatRole(data.author.role)}</span>
                   </div>
-                  {authorProfileBio ? <div className={styles.authorProfileBio}>{authorProfileBioPreview}</div> : null}
+                  {authorProfileBioPreview ? (
+                    <p className={styles.authorProfileBio}>{authorProfileBioPreview}</p>
+                  ) : null}
                   <span className={styles.authorProfileMeta}>팔로워 {authorFollowerCount.toLocaleString()}</span>
                 </div>
               </div>
