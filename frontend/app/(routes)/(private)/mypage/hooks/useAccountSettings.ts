@@ -25,10 +25,7 @@ import type { ChangeEvent } from 'react';
 import type { AxiosError } from 'axios';
 import type { User } from '@/app/shared/types/auth';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
-import type {
-  AccountEditField,
-  UseAccountSettingsParams,
-} from '@/app/(routes)/(private)/mypage/hooks/useAccountSettings.types';
+import type { AccountEditField, UseAccountSettingsParams } from '@/app/shared/types/useAccountSettings.types';
 
 /**
  * 계정 설정 훅
@@ -62,6 +59,7 @@ export const useAccountSettings = ({ birthDate, email, phone }: UseAccountSettin
   // 공통 유틸
   const isSaving = isUpdatingAccount || isChangingPassword;
   const normalizeEmail = (value: string) => value.trim().toLowerCase();
+  const currentEmail = normalizeEmail(email);
   const applyCurrentUser = (nextUser: User) => queryClient.setQueryData(authKeys.currentUser, nextUser);
   const extractErrorMessage = (error: unknown, fallback: string) => {
     const axiosError = error as AxiosError<ApiErrorResponse>;
@@ -144,7 +142,7 @@ export const useAccountSettings = ({ birthDate, email, phone }: UseAccountSettin
       showToast({ message: EMAIL_MESSAGES.invalid, type: 'warning' });
       return;
     }
-    if (nextEmail === email) {
+    if (nextEmail === currentEmail) {
       showToast({ message: '기존 이메일과 동일합니다.', type: 'warning' });
       return;
     }
@@ -193,7 +191,7 @@ export const useAccountSettings = ({ birthDate, email, phone }: UseAccountSettin
   // 항목 저장
   const saveEmail = async () => {
     const nextEmail = normalizeEmail(emailValue);
-    if (!nextEmail || nextEmail === email) {
+    if (!nextEmail || nextEmail === currentEmail) {
       cancelEdit();
       return;
     }
