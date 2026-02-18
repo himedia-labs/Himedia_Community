@@ -38,6 +38,7 @@ import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
 import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import { isCommentContentTooLong } from '@/app/shared/utils/comment.utils';
+import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
 import { createTocClickHandler } from '@/app/(routes)/(public)/posts/[postId]/handlers';
 import {
   usePostDetailComments,
@@ -92,6 +93,7 @@ export default function PostDetailPage() {
   const isMyPost = Boolean(currentUser?.id && postAuthorId && currentUser.id === postAuthorId);
   const canShowAuthorFollowButton = Boolean(currentUser?.id && postAuthorId && currentUser.id !== postAuthorId);
   const authorProfileBio = data?.author?.profileBio?.trim() ?? '';
+  const authorProfileBioPreview = formatPostPreview(authorProfileBio);
   const authorSocialLinks = [
     {
       href: data?.author?.profileContactEmail?.trim() ? `mailto:${data.author.profileContactEmail.trim()}` : '',
@@ -817,9 +819,9 @@ export default function PostDetailPage() {
                       </>
                     )}
                   </div>
-                  {authorProfileBio ? (
+                  {authorProfileBioPreview ? (
                     <LinesEllipsis
-                      text={authorProfileBio}
+                      text={authorProfileBioPreview}
                       maxLine="1"
                       ellipsis="..."
                       trimRight
