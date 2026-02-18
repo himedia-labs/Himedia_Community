@@ -1,5 +1,4 @@
 import { formatDate } from '@/app/(routes)/(public)/main/components/postList/utils/formatDate';
-import { buildSummary } from '@/app/(routes)/(public)/main/components/postList/utils/buildSummary';
 import { extractImageUrl } from '@/app/(routes)/(public)/main/components/postList/utils/extractImageUrl';
 import { buildRelativeTime } from '@/app/(routes)/(public)/main/components/postList/utils/buildRelativeTime';
 
@@ -14,9 +13,7 @@ export const toViewPost = (item: PostListItem): Post => {
   return {
     id: item.id,
     title: item.title,
-    summary: buildSummary(item.content),
-    cardSummary: buildSummary(item.content, { maxLength: 390, previewLength: 350 }),
-    longSummary: buildSummary(item.content, { maxLength: 4000, previewLength: 3900 }),
+    content: item.content ?? '',
     imageUrl,
     authorId: item.author?.id ?? '',
     category: item.category?.name ?? 'ALL',

@@ -18,26 +18,9 @@ import {
   createHandleCreatePost,
   createHandleSortFilter,
 } from '@/app/(routes)/(public)/main/components/postList/handlers';
-import { truncateWithEllipsis } from '@/app/(routes)/(public)/main/components/postList/utils/truncateWithEllipsis';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
-
-// {텍스트 길이 상수}
-// {리스트 썸네일 요약}
-const LIST_SUMMARY_LIMIT_WITH_THUMB = 188;
-// {리스트 무썸네일 요약}
-const LIST_SUMMARY_LIMIT_NO_THUMB = 301;
-
-// {카드 썸네일 제목}
-const CARD_TITLE_LIMIT_WITH_THUMB = 37;
-// {카드 무썸네일 제목}
-const CARD_TITLE_LIMIT_NO_THUMB = 98;
-
-// {카드 썸네일 요약}
-const CARD_SUMMARY_LIMIT_WITH_THUMB = 122;
-// {카드 무썸네일 요약}
-const CARD_SUMMARY_LIMIT_NO_THUMB = 868;
 
 /**
  * 메인 포스트 리스트
@@ -189,8 +172,6 @@ export default function PostListSection() {
                   const isMyPost = !!currentUser?.id && currentUser.id === post.authorId;
                   const hasThumbnail = Boolean(post.imageUrl);
                   const listTags = post.tags.slice(0, 5);
-                  const listSummaryLimit = hasThumbnail ? LIST_SUMMARY_LIMIT_WITH_THUMB : LIST_SUMMARY_LIMIT_NO_THUMB;
-                  const listSummary = truncateWithEllipsis(post.cardSummary, listSummaryLimit);
                   return (
                     <Fragment key={post.id}>
                       <li>
@@ -200,7 +181,7 @@ export default function PostListSection() {
                           >
                             <div className={styles.listBody}>
                               <h3>{post.title}</h3>
-                              <p className={styles.summary}>{listSummary}</p>
+                              {post.content ? <p className={styles.summary}>{post.content}</p> : null}
                               {listTags.length > 0 ? (
                                 <ul className={styles.listTagList} aria-label="태그 목록">
                                   {listTags.map(tagName => (
@@ -363,14 +344,10 @@ export default function PostListSection() {
               : filteredPosts.map(post => {
                   const hasThumbnail = Boolean(post.imageUrl);
                   const cardTags = post.tags.slice(0, 5);
-                  const displayCardTags = cardTags.map(tagName => truncateWithEllipsis(`#${tagName}`, 9));
+                  const displayCardTags = cardTags.map(tagName => `#${tagName}`);
                   const hasCardTags = cardTags.length > 0;
                   const noThumbNoTag = !hasThumbnail && !hasCardTags;
-                  const cardTitleLimit = hasThumbnail ? CARD_TITLE_LIMIT_WITH_THUMB : CARD_TITLE_LIMIT_NO_THUMB;
-                  const cardTitle = truncateWithEllipsis(post.title, cardTitleLimit);
-                  const sourceSummary = hasThumbnail ? post.cardSummary : post.longSummary;
-                  const cardSummaryLimit = hasThumbnail ? CARD_SUMMARY_LIMIT_WITH_THUMB : CARD_SUMMARY_LIMIT_NO_THUMB;
-                  const cardSummary = truncateWithEllipsis(sourceSummary, cardSummaryLimit);
+                  const cardTitle = post.title;
                   const cardFooterClassName = `${styles.cardFooter} ${styles.cardFooterWithThumb}`;
                   const isMyPost = !!currentUser?.id && currentUser.id === post.authorId;
                   return (
@@ -402,7 +379,7 @@ export default function PostListSection() {
                                 }
                               >
                                 <h3>{cardTitle}</h3>
-                                <p className={styles.summary}>{cardSummary}</p>
+                                {post.content ? <p className={styles.summary}>{post.content}</p> : null}
                               </div>
                             </div>
                           </div>

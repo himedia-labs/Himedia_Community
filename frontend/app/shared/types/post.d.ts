@@ -18,9 +18,7 @@ export type SortFilter = 'latest' | 'top' | 'following';
 export type Post = {
   id: string;
   title: string;
-  summary: string;
-  cardSummary: string;
-  longSummary: string;
+  content: string;
   imageUrl?: string;
   authorId: string;
   category: string;
