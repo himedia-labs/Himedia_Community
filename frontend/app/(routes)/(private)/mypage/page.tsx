@@ -38,11 +38,7 @@ import EditorToolbar from '@/app/shared/components/markdown-editor/EditorToolbar
 import { splitCommentMentions } from '@/app/(routes)/(public)/posts/[postId]/utils';
 import { WITHDRAW_MODAL_MESSAGES } from '@/app/shared/constants/messages/modal.message';
 import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
-import {
-  formatDateLabel,
-  formatDateTimeLabel,
-  sortPostsByKey,
-} from '@/app/(routes)/(private)/mypage/utils';
+import { formatDateLabel, formatDateTimeLabel, sortPostsByKey } from '@/app/(routes)/(private)/mypage/utils';
 import {
   useAccountSettings,
   useActivitySort,
@@ -880,7 +876,9 @@ export default function MyPage() {
                                           </div>
                                           <span className={postListStyles.cardAuthorText}>
                                             <span className={postListStyles.cardAuthorBy}>by.</span>
-                                            <span className={postListStyles.cardAuthorName}>{post.author?.name ?? '알 수 없음'}</span>
+                                            <span className={postListStyles.cardAuthorName}>
+                                              {post.author?.name ?? '알 수 없음'}
+                                            </span>
                                           </span>
                                         </div>
                                         <span className={postListStyles.separator} aria-hidden="true">
@@ -914,12 +912,12 @@ export default function MyPage() {
                                   </div>
                                   {hasThumbnail ? (
                                     <div className={styles.listThumb} aria-hidden="true">
-                                          <img
-                                            className={postListStyles.listThumbImage}
-                                            src={thumbnailUrl}
-                                            alt=""
-                                            loading="lazy"
-                                          />
+                                      <img
+                                        className={postListStyles.listThumbImage}
+                                        src={thumbnailUrl}
+                                        alt=""
+                                        loading="lazy"
+                                      />
                                     </div>
                                   ) : null}
                                 </article>
@@ -1868,15 +1866,13 @@ export default function MyPage() {
                                     basedOn="letters"
                                     className={postListStyles.summary}
                                   />
-                                  {((post.tags ?? []).slice(0, 5).length > 0) ? (
+                                  {(post.tags ?? []).slice(0, 5).length > 0 ? (
                                     <ul className={postListStyles.listTagList} aria-label="태그 목록">
-                                      {(post.tags ?? [])
-                                        .slice(0, 5)
-                                        .map(tag => (
-                                          <li key={`${post.id}-list-${tag.id}`} className={postListStyles.listTagItem}>
-                                            #{tag.name}
-                                          </li>
-                                        ))}
+                                      {(post.tags ?? []).slice(0, 5).map(tag => (
+                                        <li key={`${post.id}-list-${tag.id}`} className={postListStyles.listTagItem}>
+                                          #{tag.name}
+                                        </li>
+                                      ))}
                                     </ul>
                                   ) : null}
                                   <div className={postListStyles.meta}>
@@ -1903,7 +1899,9 @@ export default function MyPage() {
                                         </div>
                                         <span className={postListStyles.cardAuthorText}>
                                           <span className={postListStyles.cardAuthorBy}>by.</span>
-                                          <span className={postListStyles.cardAuthorName}>{post.author?.name ?? '알 수 없음'}</span>
+                                          <span className={postListStyles.cardAuthorName}>
+                                            {post.author?.name ?? '알 수 없음'}
+                                          </span>
                                         </span>
                                       </div>
                                       <span className={postListStyles.separator} aria-hidden="true">
