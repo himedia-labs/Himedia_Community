@@ -18,8 +18,12 @@ import type { NotificationListResponse } from '@/app/shared/types/notification';
  * 알림 메뉴 훅
  * @description 알림 드롭다운 메뉴 상태와 핸들러를 관리
  */
-export const useNotificationMenu = (params: { isLoggedIn: boolean; router: AppRouterInstance }) => {
-  const { isLoggedIn, router } = params;
+export const useNotificationMenu = (params: {
+  isLoggedIn: boolean;
+  router: AppRouterInstance;
+  canFetchNotifications: boolean;
+}) => {
+  const { isLoggedIn, router, canFetchNotifications } = params;
 
   // UI 상태
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -34,7 +38,7 @@ export const useNotificationMenu = (params: { isLoggedIn: boolean; router: AppRo
   const markReadMutation = useMarkNotificationReadMutation();
   const markAllReadMutation = useMarkNotificationsReadAllMutation();
 
-  const { data: notificationsData } = useNotificationsQuery({ enabled: isLoggedIn });
+  const { data: notificationsData } = useNotificationsQuery({ enabled: canFetchNotifications });
 
   // 알림 파생 상태
   const notifications = notificationsData?.items;

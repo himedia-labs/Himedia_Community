@@ -46,6 +46,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
 
   // 로그인 상태 (초기화 전: 서버 쿠키 기반, 초기화 후: 클라이언트 토큰 기반)
   const isLoggedIn = isInitialized ? !!accessToken : !!accessToken || initialIsLoggedIn;
+  const canFetchNotifications = isInitialized && !!accessToken;
 
   // 데이터
   const { data: currentUser } = useCurrentUserQuery();
@@ -77,7 +78,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
     handleNotificationClick,
     handleMarkAllRead,
     toggleNotifications,
-  } = useNotificationMenu({ isLoggedIn, router });
+  } = useNotificationMenu({ isLoggedIn, router, canFetchNotifications });
 
   // 메뉴 토글 핸들러
   const handleToggleNotifications = () => toggleNotifications(closeProfileMenu);
