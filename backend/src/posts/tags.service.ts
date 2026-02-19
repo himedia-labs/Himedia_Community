@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 
 import { Tag } from './entities/tag.entity';
 import { TagSuggestQueryDto } from './dto/tagSuggestQuery.dto';
+import { TagSuggestionRow } from './tags.types';
 
 @Injectable()
 export class TagsService {
@@ -44,7 +45,7 @@ export class TagsService {
     }
 
     // 결과/변환
-    const tags = await queryBuilder.getRawMany();
+    const tags = await queryBuilder.getRawMany<TagSuggestionRow>();
 
     return tags.map(tag => ({
       id: tag.id,
