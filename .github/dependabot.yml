@@ -8,6 +8,7 @@ updates:
   # 프론트엔드 npm 의존성 업데이트
   - package-ecosystem: 'npm'
     directory: '/frontend'
+    target-branch: 'dev'
     # 매주 월요일 KST 00:00에 업데이트 PR 생성
     schedule:
       interval: 'weekly'
@@ -20,6 +21,7 @@ updates:
   # 백엔드 npm 의존성 업데이트
   - package-ecosystem: 'npm'
     directory: '/backend'
+    target-branch: 'dev'
     # 매주 월요일 KST 00:00에 업데이트 PR 생성
     schedule:
       interval: 'weekly'
