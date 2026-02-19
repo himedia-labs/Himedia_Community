@@ -864,11 +864,13 @@ export default function MyPage() {
                                             aria-hidden="true"
                                           >
                                             {post.author?.profileImageUrl ? (
-                                              <img
+                                              <Image
                                                 className={postListStyles.cardAuthorImage}
                                                 src={post.author.profileImageUrl}
                                                 alt=""
-                                                loading="lazy"
+                                                width={24}
+                                                height={24}
+                                                unoptimized
                                               />
                                             ) : (
                                               <FaUser />
@@ -912,11 +914,15 @@ export default function MyPage() {
                                   </div>
                                   {hasThumbnail ? (
                                     <div className={styles.listThumb} aria-hidden="true">
-                                      <img
+                                      <Image
                                         className={postListStyles.listThumbImage}
                                         src={thumbnailUrl}
                                         alt=""
-                                        loading="lazy"
+                                        width={0}
+                                        height={0}
+                                        sizes="100vw"
+                                        unoptimized
+                                        style={{ width: '100%', height: '100%' }}
                                       />
                                     </div>
                                   ) : null}
@@ -1887,11 +1893,13 @@ export default function MyPage() {
                                           aria-hidden="true"
                                         >
                                           {post.author?.profileImageUrl ? (
-                                            <img
+                                            <Image
                                               className={postListStyles.cardAuthorImage}
                                               src={post.author.profileImageUrl}
                                               alt=""
-                                              loading="lazy"
+                                              width={24}
+                                              height={24}
+                                              unoptimized
                                             />
                                           ) : (
                                             <FaUser />
@@ -1935,11 +1943,15 @@ export default function MyPage() {
                                 </div>
                                 {hasThumbnail ? (
                                   <div className={styles.listThumb} aria-hidden="true">
-                                    <img
+                                    <Image
                                       className={postListStyles.listThumbImage}
                                       src={thumbnailUrl}
                                       alt=""
-                                      loading="lazy"
+                                      width={0}
+                                      height={0}
+                                      sizes="100vw"
+                                      unoptimized
+                                      style={{ width: '100%', height: '100%' }}
                                     />
                                   </div>
                                 ) : null}

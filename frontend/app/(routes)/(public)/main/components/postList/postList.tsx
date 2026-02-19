@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Fragment, useEffect, useRef } from 'react';
@@ -213,11 +214,13 @@ export default function PostListSection() {
                                       aria-hidden="true"
                                     >
                                       {post.authorProfileImageUrl ? (
-                                        <img
+                                        <Image
                                           className={styles.cardAuthorImage}
                                           src={post.authorProfileImageUrl}
                                           alt=""
-                                          loading="lazy"
+                                          width={24}
+                                          height={24}
+                                          unoptimized
                                         />
                                       ) : (
                                         <FaUser />
@@ -262,7 +265,16 @@ export default function PostListSection() {
                             </div>
                             {post.imageUrl ? (
                               <div className={styles.listThumb} aria-hidden="true">
-                                <img className={styles.listThumbImage} src={post.imageUrl} alt="" loading="lazy" />
+                                <Image
+                                  className={styles.listThumbImage}
+                                  src={post.imageUrl}
+                                  alt=""
+                                  width={0}
+                                  height={0}
+                                  sizes="100vw"
+                                  unoptimized
+                                  style={{ width: '100%', height: '100%' }}
+                                />
                               </div>
                             ) : null}
                           </article>
@@ -371,7 +383,16 @@ export default function PostListSection() {
                           <div className={styles.cardTop}>
                             {post.imageUrl ? (
                               <div className={styles.cardThumb} aria-hidden="true">
-                                <img className={styles.cardThumbImage} src={post.imageUrl} alt="" loading="lazy" />
+                                <Image
+                                  className={styles.cardThumbImage}
+                                  src={post.imageUrl}
+                                  alt=""
+                                  width={0}
+                                  height={0}
+                                  sizes="100vw"
+                                  unoptimized
+                                  style={{ width: '100%', height: '100%' }}
+                                />
                               </div>
                             ) : null}
                             <div
@@ -436,11 +457,13 @@ export default function PostListSection() {
                                   aria-hidden="true"
                                 >
                                   {post.authorProfileImageUrl ? (
-                                    <img
+                                    <Image
                                       className={styles.cardAuthorImage}
                                       src={post.authorProfileImageUrl}
                                       alt=""
-                                      loading="lazy"
+                                      width={24}
+                                      height={24}
+                                      unoptimized
                                     />
                                   ) : (
                                     <FaUser />

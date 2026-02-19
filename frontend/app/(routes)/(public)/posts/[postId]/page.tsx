@@ -317,7 +317,14 @@ export default function PostDetailPage() {
               <div className={styles.commentAvatarGroup}>
                 <span className={styles.commentAvatar} aria-hidden="true">
                   {comment.author?.profileImageUrl ? (
-                    <img className={styles.commentAvatarImage} src={comment.author.profileImageUrl} alt="" />
+                    <Image
+                      className={styles.commentAvatarImage}
+                      src={comment.author.profileImageUrl}
+                      alt=""
+                      width={32}
+                      height={32}
+                      unoptimized
+                    />
                   ) : (
                     <FaUser />
                   )}
@@ -518,7 +525,14 @@ export default function PostDetailPage() {
                 </span>
                 <span className={styles.commentAvatar} aria-hidden="true">
                   {comment.author?.profileImageUrl ? (
-                    <img className={styles.commentAvatarImage} src={comment.author.profileImageUrl} alt="" />
+                    <Image
+                      className={styles.commentAvatarImage}
+                      src={comment.author.profileImageUrl}
+                      alt=""
+                      width={32}
+                      height={32}
+                      unoptimized
+                    />
                   ) : (
                     <FaUser />
                   )}
@@ -550,6 +564,7 @@ export default function PostDetailPage() {
                             key={name}
                             type="button"
                             role="option"
+                            aria-selected="false"
                             className={styles.commentMentionItem}
                             onMouseDown={handleReplyMentionSelect(rootCommentId, name)}
                           >
@@ -794,7 +809,14 @@ export default function PostDetailPage() {
               <div className={styles.authorProfileMain}>
                 <div className={styles.authorProfileAvatar} aria-hidden="true">
                   {data.author.profileImageUrl ? (
-                    <img className={styles.authorProfileAvatarImage} src={data.author.profileImageUrl} alt="" />
+                    <Image
+                      className={styles.authorProfileAvatarImage}
+                      src={data.author.profileImageUrl}
+                      alt=""
+                      width={72}
+                      height={72}
+                      unoptimized
+                    />
                   ) : (
                     <FaUser />
                   )}
@@ -902,6 +924,7 @@ export default function PostDetailPage() {
                         key={name}
                         type="button"
                         role="option"
+                        aria-selected="false"
                         className={styles.commentMentionItem}
                         onMouseDown={handleCommentMentionSelect(name)}
                       >

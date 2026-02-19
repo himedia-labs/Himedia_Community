@@ -130,12 +130,19 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                           title={label}
                           onClick={handleToggleProfile}
                         >
-                          <span className={styles.profileIconMedia} aria-hidden="true">
-                            {currentUser?.profileImageUrl ? (
-                              <img className={styles.profileIconImage} src={currentUser.profileImageUrl} alt="" />
-                            ) : (
-                              <Icon className={styles.profileFallbackIcon} />
-                            )}
+                            <span className={styles.profileIconMedia} aria-hidden="true">
+                              {currentUser?.profileImageUrl ? (
+                              <Image
+                                className={styles.profileIconImage}
+                                src={currentUser.profileImageUrl}
+                                alt=""
+                                width={24}
+                                height={24}
+                                unoptimized
+                              />
+                              ) : (
+                                <Icon className={styles.profileFallbackIcon} />
+                              )}
                           </span>
                         </button>
                         {isProfileVisible ? (
