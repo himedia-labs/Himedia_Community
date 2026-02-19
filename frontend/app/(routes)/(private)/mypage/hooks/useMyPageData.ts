@@ -52,15 +52,15 @@ export const useMyPageData = () => {
   const userBirthDate = currentUser?.birthDate ?? '';
   const profileHandle = currentUser?.profileHandle ?? currentUser?.email?.split('@')[0] ?? '';
   const currentUserId = currentUser?.id ?? '';
-  const postItems = postsData?.items ?? [];
   const followerCount = followersData?.length ?? 0;
   const followingCount = followingsData?.length ?? 0;
 
   // 내 게시글 필터링
   const myPosts = useMemo(() => {
-    if (!postItems.length || !currentUserId) return [];
+    const postItems = postsData?.items;
+    if (!postItems?.length || !currentUserId) return [];
     return postItems.filter(item => item.author?.id === currentUserId && item.status === 'PUBLISHED');
-  }, [currentUserId, postItems]);
+  }, [currentUserId, postsData?.items]);
 
   return {
     accessToken,

@@ -37,12 +37,12 @@ export const useNotificationMenu = (params: { isLoggedIn: boolean; router: AppRo
   const { data: notificationsData } = useNotificationsQuery({ enabled: isLoggedIn });
 
   // 알림 파생 상태
-  const notifications = notificationsData?.items ?? [];
+  const notifications = notificationsData?.items;
   const unreadCount = notificationsData?.unreadCount ?? 0;
   const hasUnread = unreadCount > 0;
   const filteredNotifications = useMemo(
     () =>
-      notifications
+      (notifications ?? [])
         .filter(item => getNotificationSection(item.createdAtMs) === notificationTab)
         .sort((a, b) => b.createdAtMs - a.createdAtMs),
     [notificationTab, notifications],

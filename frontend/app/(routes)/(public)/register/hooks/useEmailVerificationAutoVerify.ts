@@ -12,26 +12,21 @@ export const useEmailVerificationAutoVerify = (params: {
   isVerifying: boolean;
   onVerify: () => void;
 }) => {
+  const { codeLength, emailCode, isEmailCodeSent, isEmailVerified, isVerifying, onVerify } = params;
+
   // 자동 검증 중복 방지
   const lastVerifiedCodeRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!params.isEmailCodeSent || params.isEmailVerified) return;
-    if (params.emailCode.length !== params.codeLength) {
+    if (!isEmailCodeSent || isEmailVerified) return;
+    if (emailCode.length !== codeLength) {
       lastVerifiedCodeRef.current = null;
       return;
     }
-    if (params.isVerifying) return;
-    if (lastVerifiedCodeRef.current === params.emailCode) return;
+    if (isVerifying) return;
+    if (lastVerifiedCodeRef.current === emailCode) return;
 
-    lastVerifiedCodeRef.current = params.emailCode;
-    params.onVerify();
-  }, [
-    params.codeLength,
-    params.emailCode,
-    params.isEmailCodeSent,
-    params.isEmailVerified,
-    params.isVerifying,
-    params.onVerify,
-  ]);
+    lastVerifiedCodeRef.current = emailCode;
+    onVerify();
+  }, [codeLength, emailCode, isEmailCodeSent, isEmailVerified, isVerifying, onVerify]);
 };

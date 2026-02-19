@@ -31,5 +31,5 @@ export const useAuthInitialize = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [setAccessToken, setInitialized]);
 };

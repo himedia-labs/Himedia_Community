@@ -114,7 +114,7 @@ export const usePostDetailActions = ({ data, postId }: PostDetailActionsParams) 
     } catch {
       showToast({ message: POST_DETAIL_MESSAGES.LIKE_COUNT_FAILURE, type: 'warning' });
     }
-  }, [accessToken, likePost, postId, showToast, updateDetailCache]);
+  }, [accessToken, likePost, postId, queryClient, showToast, updateDetailCache]);
 
   return { handleShareCopy, handleLikeClick, previewContent, tocItems };
 };
