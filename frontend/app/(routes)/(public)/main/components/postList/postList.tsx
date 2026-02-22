@@ -64,14 +64,6 @@ export default function PostListSection() {
   const categorySkeletons = Array.from({ length: 8 });
   const listTagSkeletonWidths = [48, 64, 56];
   const cardTagSkeletonWidths = [44, 58, 50];
-  const cardSkeletonVariants = [
-    { hasThumbnail: true, hasTags: true },
-    { hasThumbnail: true, hasTags: true },
-    { hasThumbnail: false, hasTags: true },
-    { hasThumbnail: false, hasTags: false },
-    { hasThumbnail: true, hasTags: true },
-    { hasThumbnail: false, hasTags: true },
-  ];
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const isFollowingEmpty = sortFilter === 'following' && !isLoading && filteredPosts.length === 0;
 
@@ -350,7 +342,6 @@ export default function PostListSection() {
                     index={index}
                     cardTagSkeletonWidths={cardTagSkeletonWidths}
                     skeletonKeyPrefix="card-skeleton"
-                    variant={cardSkeletonVariants[index % cardSkeletonVariants.length]}
                   />
                 ))
               : filteredPosts.map(post => {
@@ -502,7 +493,6 @@ export default function PostListSection() {
                     index={index}
                     cardTagSkeletonWidths={cardTagSkeletonWidths}
                     skeletonKeyPrefix="card-more-skeleton"
-                    variant={cardSkeletonVariants[index % cardSkeletonVariants.length]}
                   />
                 ))
               : null}
