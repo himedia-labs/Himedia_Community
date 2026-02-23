@@ -8,6 +8,8 @@
   position: relative;
   width: 100%;
   max-width: 1250px;
+  overflow: hidden;
+  border-radius: 15px;
 }
 
 .bannerImage {
@@ -15,7 +17,7 @@
   width: 100%;
   max-width: 1250px;
   height: auto;
-  border-radius: 15px;
+  border-radius: inherit;
 }
 
 .bannerIcon {
@@ -24,9 +26,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(3.5rem, 9vw, 7.5rem);
+  font-size: clamp(2rem, 9vw, 7.5rem);
   line-height: 1;
   color: #ffffff;
   text-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
   pointer-events: none;
+}
+
+/* 1024px 대응 */
+@media (max-width: 1024px) {
+  .banner {
+    margin: clamp(1rem, 4vw, 1.5rem) 0;
+  }
+
+  .bannerImage {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+  }
+}
+
+/* 425px 이하 배너 숨김 */
+@media (max-width: 425px) {
+  .banner {
+    display: none;
+  }
 }

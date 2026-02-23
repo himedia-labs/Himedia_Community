@@ -2,15 +2,9 @@ import Skeleton from 'react-loading-skeleton';
 
 import styles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
 
-type CardSkeletonVariant = {
-  hasTags: boolean;
-  hasThumbnail: boolean;
-};
-
 type CardPostSkeletonItemProps = {
   index: number;
   skeletonKeyPrefix: string;
-  variant: CardSkeletonVariant;
   cardTagSkeletonWidths: number[];
 };
 
@@ -20,36 +14,26 @@ type CardPostSkeletonItemProps = {
  */
 export default function CardPostSkeletonItem({
   index,
-  variant,
   skeletonKeyPrefix,
   cardTagSkeletonWidths,
 }: CardPostSkeletonItemProps) {
   // 상태 계산
-  const hasThumbnail = variant.hasThumbnail;
-  const hasCardTags = variant.hasTags;
-  const noThumbNoTag = !hasThumbnail && !hasCardTags;
-  const summaryLineCount = hasThumbnail && hasCardTags ? 4 : hasThumbnail ? 6 : hasCardTags ? 15 : 16;
+  const summaryLineCount = 4;
 
   // 클래스 계산
-  const cardItemClassName = noThumbNoTag ? `${styles.cardItem} ${styles.cardItemNoThumbNoTags}` : styles.cardItem;
-  const cardBodyClassName = hasThumbnail
-    ? styles.cardBody
-    : `${styles.cardBody} ${styles.cardBodyNoThumb} ${hasCardTags ? styles.cardBodyNoThumbWithTags : ''} ${
-        noThumbNoTag ? styles.cardBodyNoThumbNoTags : ''
-      }`;
-  const cardTextClassName = hasThumbnail ? `${styles.cardText} ${styles.cardTextWithThumb}` : styles.cardText;
-  const cardTagListClassName = hasThumbnail ? `${styles.cardTagList} ${styles.cardTagListWithThumb}` : styles.cardTagList;
+  const cardItemClassName = styles.cardItem;
+  const cardBodyClassName = styles.cardBody;
+  const cardTextClassName = `${styles.cardText} ${styles.cardTextWithThumb}`;
+  const cardTagListClassName = `${styles.cardTagList} ${styles.cardTagListWithThumb}`;
   const summarySkeletonLines = Array.from({ length: summaryLineCount });
 
   return (
     <li>
       <article className={cardItemClassName} aria-hidden="true">
         <div className={styles.cardTop}>
-          {hasThumbnail ? (
-            <div className={styles.cardThumb}>
-              <Skeleton width="100%" height="100%" />
-            </div>
-          ) : null}
+          <div className={styles.cardThumb}>
+            <Skeleton width="100%" height="100%" />
+          </div>
           <div className={cardBodyClassName}>
             <div className={cardTextClassName}>
               <Skeleton height={18} width="50%" />
@@ -61,15 +45,13 @@ export default function CardPostSkeletonItem({
             </div>
           </div>
         </div>
-        {hasCardTags ? (
-          <ul className={cardTagListClassName} aria-hidden="true">
-            {cardTagSkeletonWidths.map(width => (
-              <li key={`${skeletonKeyPrefix}-tag-${index}-${width}`} className={styles.cardTagItem}>
-                <Skeleton height={12} width={width} />
-              </li>
-            ))}
-          </ul>
-        ) : null}
+        <ul className={cardTagListClassName} aria-hidden="true">
+          {cardTagSkeletonWidths.map(width => (
+            <li key={`${skeletonKeyPrefix}-tag-${index}-${width}`} className={styles.cardTagItem}>
+              <Skeleton height={12} width={width} />
+            </li>
+          ))}
+        </ul>
         <div className={`${styles.cardFooter} ${styles.cardFooterWithThumb}`}>
           <div className={styles.cardDateRow}>
             <Skeleton width={140} height={12} />
