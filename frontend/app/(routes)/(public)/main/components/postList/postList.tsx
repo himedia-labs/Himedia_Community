@@ -9,7 +9,7 @@ import { PiList } from 'react-icons/pi';
 import Skeleton from 'react-loading-skeleton';
 import { FaUser } from 'react-icons/fa6';
 import { CiCalendar, CiGrid41 } from 'react-icons/ci';
-import { FiEye, FiHeart, FiMessageCircle, FiPlus, FiShare2 } from 'react-icons/fi';
+import { FiEye, FiFlag, FiHeart, FiMessageCircle, FiPlus, FiShare2 } from 'react-icons/fi';
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
@@ -78,6 +78,9 @@ export default function PostListSection() {
     <section className={styles.container} aria-label="포스트 하이라이트">
       <div className={styles.main}>
         <div className={styles.header}>
+          <button type="button" className={styles.bugReportButton} aria-label="버그 신고" title="버그 신고">
+            <FiFlag />
+          </button>
           <button
             type="button"
             className={styles.createButton}
@@ -117,6 +120,15 @@ export default function PostListSection() {
             onClick={() => handleSortFilter('following')}
           >
             피드
+          </button>
+          <span className={styles.sortDivider} aria-hidden="true">
+            |
+          </span>
+          <button type="button" className={styles.sortButton}>
+            Q&A
+          </button>
+          <button type="button" className={styles.sortButton}>
+            채용
           </button>
         </div>
 
