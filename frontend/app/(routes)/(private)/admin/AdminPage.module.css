@@ -664,6 +664,119 @@
   color: #d1435b;
 }
 
+.reportStatusOpen {
+  border-color: #c6d5ff;
+  background: #eef3ff;
+  color: #4762c9;
+}
+
+.reportTitleCell {
+  margin: 0;
+  min-width: 160px;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.reportTitleRow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.reportContentCell {
+  margin: 0;
+  min-width: 280px;
+  max-width: 440px;
+  margin-left: auto;
+  margin-right: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  font-size: 0.82rem;
+  color: #475467;
+}
+
+.reportContentRow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.reportCellExpanded {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  word-break: break-word;
+}
+
+.reportExpandButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #98a2b3;
+  cursor: pointer;
+}
+
+.reportExpandButton:hover {
+  background: #f2f4f7;
+  color: #667085;
+}
+
+.reportExpandIcon {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.18s ease;
+}
+
+.reportExpandIconOpen {
+  transform: rotate(180deg);
+}
+
+.reportActionGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.reportActionButton {
+  border: 1px solid #d8deea;
+  background: #fff;
+  border-radius: 8px;
+  height: 28px;
+  padding: 0 0.56rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1;
+  color: #4b5565;
+  cursor: pointer;
+  transition:
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.reportActionButton:hover {
+  border-color: #c5d2ee;
+  background: #f7f9fe;
+  color: #334155;
+}
+
 .accessAdminMeta {
   display: inline-block;
   margin-top: 0.18rem;

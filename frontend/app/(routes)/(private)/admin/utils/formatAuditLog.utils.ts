@@ -20,7 +20,8 @@ export const formatAuditTargetLabel = (
   targetEmail?: string | null,
 ) => {
   if (targetType === 'user') {
-    if (targetName && targetEmail) return `${targetName} (${targetId})`;
+    if (targetName && targetEmail) return `${targetName} (${targetEmail} / ${targetId})`;
+    if (targetEmail) return `${targetEmail} (${targetId})`;
     if (targetName) return `${targetName} (${targetId})`;
     return `회원 (${targetId})`;
   }
@@ -92,14 +93,18 @@ const formatSnapshot = (snapshot: Record<string, unknown> | null) => {
   if (!snapshot) return '없음';
   const entries = Object.entries(snapshot);
   if (!entries.length) return '없음';
-  return entries
+
+  const filteredEntries = entries.filter(([key]) => key !== 'handledAt');
+  if (!filteredEntries.length) return '없음';
+
+  return filteredEntries
     .map(([key, value]) => {
       const label = formatSnapshotKey(key);
       const formattedValue = formatSnapshotValue(key, value);
       if (!label) return formattedValue;
       return `${label}: ${formattedValue}`;
     })
-    .join(', ');
+    .join(' / ');
 };
 
 /**
@@ -109,7 +114,7 @@ const formatSnapshot = (snapshot: Record<string, unknown> | null) => {
 const formatSnapshotKey = (key: string) => {
   if (key === 'approved') return '';
   if (key === 'role') return '';
-  if (key === 'status') return '상태';
+  if (key === 'status') return '';
   if (key === 'handledAt') return '처리시각';
   return key;
 };
@@ -159,7 +164,7 @@ const formatUserRoleLabel = (role: string) => {
 const formatLegacyBeforeSnapshot = (payload: Record<string, unknown> | null) => {
   if (!payload) return '없음';
   if (typeof payload.approved === 'boolean') return '미승인';
-  if (typeof payload.status === 'string') return '상태: 없음, 처리시각: 없음';
+  if (typeof payload.status === 'string') return '없음';
   return '없음';
 };
 
@@ -170,9 +175,6 @@ const formatLegacyBeforeSnapshot = (payload: Record<string, unknown> | null) => 
 const formatLegacyAfterSnapshot = (payload: Record<string, unknown> | null) => {
   if (!payload) return '없음';
   if (typeof payload.approved === 'boolean') return payload.approved ? '승인' : '미승인';
-  if (typeof payload.status === 'string') {
-    const handledAt = typeof payload.handledAt === 'string' && payload.handledAt ? payload.handledAt : '없음';
-    return `상태: ${formatReportStatusLabel(payload.status)}, 처리시각: ${handledAt}`;
-  }
+  if (typeof payload.status === 'string') return formatReportStatusLabel(payload.status);
   return '없음';
 };
