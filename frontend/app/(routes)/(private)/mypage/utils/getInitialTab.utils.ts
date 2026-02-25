@@ -5,7 +5,14 @@ import type { TabKey } from '@/app/shared/types/mypage';
  * @description 쿼리 탭 값을 허용 목록으로 제한
  */
 export const getInitialTab = (value?: string | null, defaultTab: TabKey = 'posts') => {
-  if (value === 'comments' || value === 'likes' || value === 'posts' || value === 'settings' || value === 'account') {
+  if (
+    value === 'comments' ||
+    value === 'likes' ||
+    value === 'posts' ||
+    value === 'settings' ||
+    value === 'support' ||
+    value === 'account'
+  ) {
     return value;
   }
   return defaultTab;

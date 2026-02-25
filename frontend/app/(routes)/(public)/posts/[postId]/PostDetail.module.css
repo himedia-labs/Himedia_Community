@@ -774,7 +774,7 @@
 
 .commentDividerLine {
   height: 1px;
-  margin: 1.5rem 0;
+  margin: 2rem 0;
   background: rgba(0, 0, 0, 0.06);
 }
 
@@ -1070,6 +1070,7 @@
 }
 
 .commentBody {
+  margin: 0;
   font-size: 14px;
   font-weight: 500;
   color: #4e5968;
@@ -1100,7 +1101,7 @@
 .commentFooter {
   display: flex;
   align-items: center;
-  padding: 0.75rem 0 0;
+  padding: 1rem 0 0;
 }
 
 .commentActionButton {
