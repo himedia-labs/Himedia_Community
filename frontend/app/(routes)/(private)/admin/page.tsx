@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -8,7 +8,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { FiChevronDown, FiChevronRight, FiFileText, FiFlag, FiLogIn, FiUserCheck, FiUsers } from 'react-icons/fi';
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
-import { adminKeys } from '@/app/api/admin/admin.keys';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useAuthStore } from '@/app/shared/store/authStore';
 import {
@@ -27,35 +26,48 @@ import {
 import { ADMIN_MENU_LABELS } from '@/app/(routes)/(private)/admin/constants/menu.constants';
 import { ADMIN_QUERY_KEYS } from '@/app/(routes)/(private)/admin/constants/query.constants';
 import { ADMIN_PENDING_SORT } from '@/app/(routes)/(private)/admin/constants/sort.constants';
+import { createHandleSelectMenu, createHandleSelectSort, createSyncAdminUrlState } from '@/app/(routes)/(private)/admin/handlers/adminUrl.handlers';
+import {
+  createToggleRoleSort,
+  createToggleCourseSort,
+  createTogglePendingSort,
+  createHandleSelectRoleFilter,
+  createHandleSelectCourseFilter,
+  createHandleSelectPendingSort,
+} from '@/app/(routes)/(private)/admin/handlers/adminFilter.handlers';
+import { createHandleStatusChange } from '@/app/(routes)/(private)/admin/handlers/adminReport.handlers';
+import {
+  createHandleUserEdit,
+  createHandleUserApprove,
+  createHandleSaveAllUserRoles,
+  createHandleChangeUserRoleDraft,
+} from '@/app/(routes)/(private)/admin/handlers/adminUser.handlers';
 import { useAdminAccessGuard } from '@/app/(routes)/(private)/admin/hooks/useAdminAccessGuard';
+import { useTrackAdminAccess } from '@/app/(routes)/(private)/admin/hooks/useTrackAdminAccess';
+import { useAccessLogsInfiniteScroll } from '@/app/(routes)/(private)/admin/hooks/useAccessLogsInfiniteScroll';
 import { usePendingUsersSort } from '@/app/(routes)/(private)/admin/hooks/usePendingUsersSort';
 import { formatDateTime } from '@/app/(routes)/(private)/admin/utils/formatDateTime.utils';
 import {
+  getRoleBadgeClassName,
+  formatReporterLabel,
+  getReportStatusLabel,
+  getAccessStatusBadgeClassName,
+  getReportStatusBadgeClassName,
+  getAuditResultBadgeClassName,
+} from '@/app/(routes)/(private)/admin/utils/adminDisplay.utils';
+import {
   parseAdminMenuFromQuery,
   parseAdminSortFromQuery,
-  serializeAdminMenuToQuery,
-  serializeAdminSortToQuery,
 } from '@/app/(routes)/(private)/admin/utils/adminUrlState.utils';
 import { formatRoleLabel } from '@/app/(routes)/(private)/admin/utils/formatRoleLabel.utils';
 import { formatPhoneNumber } from '@/app/(routes)/(private)/admin/utils/formatPhoneNumber.utils';
 import { getRelativeTimeLabel } from '@/app/(routes)/(private)/admin/utils/getRelativeTimeLabel.utils';
 import { formatUserAgentLabel } from '@/app/(routes)/(private)/admin/utils/formatUserAgentLabel.utils';
 import { formatSessionDuration } from '@/app/(routes)/(private)/admin/utils/formatSessionDuration.utils';
-import {
-  formatAuditAfterLabel,
-  formatAuditActionLabel,
-  formatAuditBeforeLabel,
-  formatAuditResultLabel,
-  getAuditResultTone,
-  formatAuditTargetLabel,
-} from '@/app/(routes)/(private)/admin/utils/formatAuditLog.utils';
-import { handleAdminUserApprove } from '@/app/(routes)/(private)/admin/handlers/handleAdminUserApprove.handlers';
-import { handleAdminReportStatusChange } from '@/app/(routes)/(private)/admin/handlers/handleAdminReportStatusChange.handlers';
+import { formatAuditAfterLabel, formatAuditActionLabel, formatAuditBeforeLabel, formatAuditResultLabel, formatAuditTargetLabel } from '@/app/(routes)/(private)/admin/utils/formatAuditLog.utils';
 
 import styles from '@/app/(routes)/(private)/admin/AdminPage.module.css';
 
-import type { AdminReportStatus } from '@/app/shared/types/admin';
-import type { AdminMenuLabel, AdminPendingSort } from '@/app/(routes)/(private)/admin/constants/admin.types';
 import type { IconType } from 'react-icons';
 
 /**
@@ -92,12 +104,12 @@ export default function AdminPage() {
   const approveUserMutation = useApproveAdminUserMutation();
   const updateUserRoleMutation = useUpdateAdminUserRoleMutation();
   const trackAdminAccessMutation = useTrackAdminAccessMutation();
-  const hasTrackedAccessRef = useRef(false);
   const accessLogsLoadMoreRef = useRef<HTMLDivElement | null>(null);
   const [isRoleSortOpen, setIsRoleSortOpen] = useState(false);
   const [isCourseSortOpen, setIsCourseSortOpen] = useState(false);
   const [isPendingSortOpen, setIsPendingSortOpen] = useState(false);
   const [isUsersEditMode, setIsUsersEditMode] = useState(false);
+  const [expandedReports, setExpandedReports] = useState<Record<string, boolean>>({});
   const [userRoleDrafts, setUserRoleDrafts] = useState<Record<string, string>>({});
   const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>('ALL');
   const [selectedCourseFilter, setSelectedCourseFilter] = useState<string>('ALL');
@@ -133,256 +145,55 @@ export default function AdminPage() {
   const CurrentMenuIcon = menuIconMap[selectedMenu] ?? FiUserCheck;
 
   useAdminAccessGuard({ accessToken, isInitialized, isUserLoading, isAdmin });
+  useTrackAdminAccess({
+    canAccess,
+    queryClient,
+    mutate: trackAdminAccessMutation.mutate,
+  });
+  useAccessLogsInfiniteScroll({
+    selectedMenu,
+    hasNextPage: hasNextAccessLogsPage,
+    isFetchingNextPage: isAccessLogsFetchingMore,
+    loadMoreRef: accessLogsLoadMoreRef,
+    fetchNextPage: fetchNextAccessLogsPage,
+  });
 
-  useEffect(() => {
-    if (!canAccess || hasTrackedAccessRef.current) return;
-    hasTrackedAccessRef.current = true;
-    trackAdminAccessMutation.mutate(undefined, {
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: adminKeys.accessLogs() });
-      },
-    });
-  }, [canAccess, queryClient, trackAdminAccessMutation]);
-
-  useEffect(() => {
-    const element = accessLogsLoadMoreRef.current;
-    if (!element) return;
-    if (selectedMenu !== ADMIN_MENU_LABELS.ACCESS_LOGS) return;
-    if (!hasNextAccessLogsPage) return;
-    if (isAccessLogsFetchingMore) return;
-
-    const observer = new IntersectionObserver(entries => {
-      const entry = entries[0];
-      if (!entry?.isIntersecting) return;
-      void fetchNextAccessLogsPage();
-    });
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [fetchNextAccessLogsPage, hasNextAccessLogsPage, isAccessLogsFetchingMore, selectedMenu]);
-
-  /**
-   * URL 상태 동기화
-   * @description 현재 메뉴/정렬 상태를 쿼리스트링으로 반영
-   */
-  const syncAdminUrlState = (nextMenu: AdminMenuLabel, nextSort: AdminPendingSort) => {
-    const nextParams = new URLSearchParams(searchParams.toString());
-    nextParams.set(ADMIN_QUERY_KEYS.TAB, serializeAdminMenuToQuery(nextMenu));
-    nextParams.set(ADMIN_QUERY_KEYS.SORT, serializeAdminSortToQuery(nextSort));
-    router.replace(`${pathname}?${nextParams.toString()}`);
-  };
-
-  /**
-   * 메뉴 선택 핸들러
-   * @description 메뉴 상태를 갱신하고 URL에 반영
-   */
-  const handleSelectMenu = (nextMenu: AdminMenuLabel) => {
-    syncAdminUrlState(nextMenu, pendingSort);
-  };
-
-  /**
-   * 정렬 선택 핸들러
-   * @description 정렬 상태를 갱신하고 URL에 반영
-   */
-  const handleSelectSort = (nextSort: AdminPendingSort) => {
-    syncAdminUrlState(selectedMenu, nextSort);
-  };
-
-  /**
-   * 역할 정렬 토글
-   * @description 역할 정렬 드롭다운 열림 상태를 토글
-   */
-  const toggleRoleSort = () => {
-    setIsPendingSortOpen(false);
-    setIsCourseSortOpen(false);
-    setIsRoleSortOpen(prev => !prev);
-  };
-
-  /**
-   * 과정 정렬 토글
-   * @description 과정 정렬 드롭다운 열림 상태를 토글
-   */
-  const toggleCourseSort = () => {
-    setIsPendingSortOpen(false);
-    setIsRoleSortOpen(false);
-    setIsCourseSortOpen(prev => !prev);
-  };
-
-  /**
-   * 가입일 정렬 토글
-   * @description 가입일 정렬 드롭다운 열림 상태를 토글
-   */
-  const togglePendingSort = () => {
-    setIsRoleSortOpen(false);
-    setIsCourseSortOpen(false);
-    setIsPendingSortOpen(prev => !prev);
-  };
-
-  /**
-   * 역할 필터 선택
-   * @description 선택한 역할로 승인대기 목록을 필터링
-   */
-  const handleSelectRoleFilter = (nextRole: string) => {
-    setSelectedRoleFilter(nextRole);
-    setIsRoleSortOpen(false);
-  };
-
-  /**
-   * 과정 필터 선택
-   * @description 선택한 과정으로 승인대기 목록을 필터링
-   */
-  const handleSelectCourseFilter = (nextCourse: string) => {
-    setSelectedCourseFilter(nextCourse);
-    setIsCourseSortOpen(false);
-  };
-
-  /**
-   * 가입일 정렬 선택
-   * @description 가입일 정렬 값을 변경 후 드롭다운을 닫음
-   */
-  const handleSelectPendingSort = (nextSort: AdminPendingSort) => {
-    handleSelectSort(nextSort);
-    setIsPendingSortOpen(false);
-  };
-
-  // 액션 핸들러
-  const handleStatusChange = async (reportId: string, status: AdminReportStatus) => {
-    await handleAdminReportStatusChange({
-      queryClient,
-      mutateAsync: updateStatusMutation.mutateAsync,
-      reportId,
-      status,
-    });
-  };
-
-  const handleUserApprove = async (userId: string) => {
-    try {
-      await handleAdminUserApprove({
-        queryClient,
-        mutateAsync: approveUserMutation.mutateAsync,
-        userId,
-      });
-      showToast({ message: '회원 승인이 완료되었습니다.', type: 'success' });
-    } catch (error) {
-      const message =
-        typeof error === 'object' &&
-        error &&
-        'response' in error &&
-        typeof error.response === 'object' &&
-        error.response &&
-        'data' in error.response &&
-        typeof error.response.data === 'object' &&
-        error.response.data &&
-        'message' in error.response.data &&
-        typeof error.response.data.message === 'string'
-          ? error.response.data.message
-          : '회원 승인 처리에 실패했습니다.';
-      showToast({ message, type: 'error' });
-    }
-  };
-
-  /**
-   * 회원 편집 버튼
-   * @description 전체 회원의 역할 편집 모드를 토글
-   */
-  const handleUserEdit = () => {
-    setIsUsersEditMode(prev => !prev);
-  };
-
-  /**
-   * 회원 역할 일괄 저장
-   * @description 편집 모드에서 변경된 회원 역할을 일괄 저장 후 편집 모드를 종료
-   */
-  const handleSaveAllUserRoles = async () => {
-    const changedUsers = Object.entries(userRoleDrafts)
-      .map(([userId, draftRole]) => {
-        const user = allUsers.find(item => item.id === userId);
-        if (!user) return null;
-        if (draftRole === user.role) return null;
-        return { userId, role: draftRole as 'TRAINEE' | 'GRADUATE' | 'MENTOR' | 'INSTRUCTOR' };
-      })
-      .filter(item => item !== null);
-    if (!changedUsers.length) {
-      showToast({ message: '변경된 역할이 없습니다.', type: 'info' });
-      setIsUsersEditMode(false);
-      return;
-    }
-
-    try {
-      await Promise.all(
-        changedUsers.map(user =>
-          updateUserRoleMutation.mutateAsync({
-            userId: user.userId,
-            role: user.role,
-          }),
-        ),
-      );
-      await queryClient.invalidateQueries({ queryKey: adminKeys.users() });
-      await queryClient.invalidateQueries({ queryKey: adminKeys.auditLogs() });
-      setIsUsersEditMode(false);
-      showToast({ message: '회원 역할이 저장되었습니다.', type: 'success' });
-    } catch (error) {
-      const message =
-        typeof error === 'object' &&
-        error &&
-        'response' in error &&
-        typeof error.response === 'object' &&
-        error.response &&
-        'data' in error.response &&
-        typeof error.response.data === 'object' &&
-        error.response.data &&
-        'message' in error.response.data &&
-        typeof error.response.data.message === 'string'
-          ? error.response.data.message
-          : '회원 역할 저장에 실패했습니다.';
-      showToast({ message, type: 'error' });
-    }
-  };
-
-  /**
-   * 회원 역할 변경 입력
-   * @description 전체 회원 목록에서 역할 선택값을 임시 상태로 반영
-   */
-  const handleChangeUserRoleDraft = (userId: string, role: string) => {
-    setUserRoleDrafts(prev => ({ ...prev, [userId]: role }));
+  const syncAdminUrlState = createSyncAdminUrlState({ pathname, router, searchParams });
+  const handleSelectMenu = createHandleSelectMenu({ pendingSort, syncAdminUrlState });
+  const handleSelectSort = createHandleSelectSort({ selectedMenu, syncAdminUrlState });
+  const toggleRoleSort = createToggleRoleSort({ setIsRoleSortOpen, setIsCourseSortOpen, setIsPendingSortOpen });
+  const toggleCourseSort = createToggleCourseSort({ setIsRoleSortOpen, setIsCourseSortOpen, setIsPendingSortOpen });
+  const togglePendingSort = createTogglePendingSort({ setIsRoleSortOpen, setIsCourseSortOpen, setIsPendingSortOpen });
+  const handleSelectRoleFilter = createHandleSelectRoleFilter({ setSelectedRoleFilter, setIsRoleSortOpen });
+  const handleSelectCourseFilter = createHandleSelectCourseFilter({ setSelectedCourseFilter, setIsCourseSortOpen });
+  const handleSelectPendingSort = createHandleSelectPendingSort({ handleSelectSort, setIsPendingSortOpen });
+  const handleStatusChange = createHandleStatusChange({
+    queryClient,
+    mutateAsync: updateStatusMutation.mutateAsync,
+    showToast,
+  });
+  const handleUserApprove = createHandleUserApprove({
+    queryClient,
+    mutateAsync: approveUserMutation.mutateAsync,
+    showToast,
+  });
+  const handleUserEdit = createHandleUserEdit(setIsUsersEditMode);
+  const handleSaveAllUserRoles = createHandleSaveAllUserRoles({
+    allUsers,
+    userRoleDrafts,
+    queryClient,
+    setIsUsersEditMode,
+    mutateAsync: updateUserRoleMutation.mutateAsync,
+    showToast,
+  });
+  const handleChangeUserRoleDraft = createHandleChangeUserRoleDraft(setUserRoleDrafts);
+  const handleToggleReportExpand = (reportId: string) => {
+    setExpandedReports(prev => ({ ...prev, [reportId]: !prev[reportId] }));
   };
 
   if (!isInitialized || !accessToken || isUserLoading || !isAdmin) {
     return null;
   }
-
-  /**
-   * 역할 배지 클래스
-   * @description 신청 역할별 배지 색상 클래스를 반환
-   */
-  const getRoleBadgeClassName = (role: string | null | undefined) => {
-    if (role === 'GRADUATE') return styles.roleBadgeGraduate;
-    if (role === 'MENTOR') return styles.roleBadgeMentor;
-    if (role === 'INSTRUCTOR') return styles.roleBadgeInstructor;
-    return styles.roleBadgeTrainee;
-  };
-
-  /**
-   * 감사 결과 배지 클래스
-   * @description 감사 로그 payload 결과값에 맞는 배지 색상 클래스를 반환
-   */
-  const getAuditResultBadgeClassName = (payload: Record<string, unknown> | null) => {
-    const tone = getAuditResultTone(payload);
-    if (tone === 'success') return styles.auditResultSuccess;
-    if (tone === 'error') return styles.auditResultError;
-    return styles.auditResultWarning;
-  };
-
-  /**
-   * 접속일지 상태 배지 클래스
-   * @description 접속일지 상태값에 맞는 배지 색상 클래스를 반환
-   */
-  const getAccessStatusBadgeClassName = (status: string) => {
-    if (status === '접속중') return styles.auditResultSuccess;
-    if (status === '종료') return styles.auditResultError;
-    if (status === '강제 만료') return styles.auditResultError;
-    return styles.auditResultWarning;
-  };
 
   return (
     <section className={styles.container} aria-label="관리자 페이지">
@@ -634,7 +445,7 @@ export default function AdminPage() {
                                 <td>{user.birthDate ?? '-'}</td>
                                 <td>
                                   <span
-                                    className={`${styles.roleBadge} ${getRoleBadgeClassName(user.requestedRole ?? user.role)}`}
+                                    className={`${styles.roleBadge} ${getRoleBadgeClassName(styles, user.requestedRole ?? user.role)}`}
                                   >
                                     {formatRoleLabel(user.requestedRole ?? user.role)}
                                   </span>
@@ -705,7 +516,7 @@ export default function AdminPage() {
                                   </select>
                                 ) : (
                                   <span
-                                    className={`${styles.roleBadge} ${getRoleBadgeClassName(user.requestedRole ?? user.role)}`}
+                                    className={`${styles.roleBadge} ${getRoleBadgeClassName(styles, user.requestedRole ?? user.role)}`}
                                   >
                                     {formatRoleLabel(user.requestedRole ?? user.role)}
                                   </span>
@@ -725,44 +536,92 @@ export default function AdminPage() {
               ) : null}
 
               {selectedMenu === ADMIN_MENU_LABELS.REPORTS ? (
-                <article className={styles.card}>
+                <article className={`${styles.card} ${styles.tableCard}`}>
                   {isReportsLoading ? (
                     <p className={styles.notice}>불러오는 중입니다.</p>
                   ) : reports.length ? (
-                    <ul className={styles.list}>
-                      {reports.map(report => (
-                        <li key={report.id} className={styles.item}>
-                          <div className={styles.itemText}>
-                            <strong>{report.title}</strong>
-                            <p>{report.content}</p>
-                            <span>현재 상태: {report.status}</span>
-                          </div>
-                          <div className={styles.actions}>
-                            <button
-                              type="button"
-                              className={styles.actionButton}
-                              onClick={() => handleStatusChange(report.id, 'IN_PROGRESS')}
-                            >
-                              진행중
-                            </button>
-                            <button
-                              type="button"
-                              className={styles.actionButton}
-                              onClick={() => handleStatusChange(report.id, 'RESOLVED')}
-                            >
-                              해결
-                            </button>
-                            <button
-                              type="button"
-                              className={styles.actionButton}
-                              onClick={() => handleStatusChange(report.id, 'REJECTED')}
-                            >
-                              반려
-                            </button>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
+                    <div className={styles.tableWrap}>
+                      <table className={styles.pendingTable}>
+                        <thead className={styles.pendingTableHead}>
+                          <tr>
+                            <th>순서</th>
+                            <th>제목</th>
+                            <th>내용</th>
+                            <th>신고자</th>
+                            <th>접수일</th>
+                            <th>상태</th>
+                            <th>처리</th>
+                          </tr>
+                        </thead>
+                        <tbody className={styles.pendingTableBody}>
+                          {reports.map((report, index) => {
+                            const isExpanded = Boolean(expandedReports[report.id]);
+                            const canExpand = report.title.length > 26 || report.content.length > 80;
+
+                            return (
+                              <tr key={report.id}>
+                                <td>#{index + 1}</td>
+                                <td>
+                                  <div className={styles.reportTitleRow}>
+                                    <p className={`${styles.reportTitleCell} ${isExpanded ? styles.reportCellExpanded : ''}`}>
+                                      {report.title}
+                                    </p>
+                                    {canExpand ? (
+                                      <button
+                                        type="button"
+                                        className={styles.reportExpandButton}
+                                        onClick={() => handleToggleReportExpand(report.id)}
+                                        aria-label={isExpanded ? '신고 내용 접기' : '신고 내용 펼치기'}
+                                      >
+                                        <FiChevronDown
+                                          className={`${styles.reportExpandIcon} ${isExpanded ? styles.reportExpandIconOpen : ''}`}
+                                          aria-hidden="true"
+                                        />
+                                      </button>
+                                    ) : null}
+                                  </div>
+                                </td>
+                                <td>
+                                  <div className={styles.reportContentRow}>
+                                    <p className={`${styles.reportContentCell} ${isExpanded ? styles.reportCellExpanded : ''}`}>
+                                      {report.content}
+                                    </p>
+                                  </div>
+                                </td>
+                                <td>{formatReporterLabel(report.reporterUserId, report.reporterName, report.reporterEmail)}</td>
+                                <td>{formatDateTime(report.createdAt)}</td>
+                                <td>
+                                  <span
+                                    className={`${styles.auditResultBadge} ${getReportStatusBadgeClassName(styles, report.status)}`}
+                                  >
+                                    <span className={styles.auditResultDot} aria-hidden="true" />
+                                    {getReportStatusLabel(report.status)}
+                                  </span>
+                                </td>
+                                <td>
+                                  <div className={styles.reportActionGroup}>
+                                    <button
+                                      type="button"
+                                      className={styles.reportActionButton}
+                                      onClick={() => handleStatusChange(report.id, 'RESOLVED')}
+                                    >
+                                      해결
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className={styles.reportActionButton}
+                                      onClick={() => handleStatusChange(report.id, 'REJECTED')}
+                                    >
+                                      반려
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
                   ) : (
                     <p className={styles.notice}>신고 내역이 없습니다.</p>
                   )}
@@ -806,7 +665,7 @@ export default function AdminPage() {
                               <td>{formatDateTime(log.createdAt)}</td>
                               <td>
                                 <span
-                                  className={`${styles.auditResultBadge} ${getAuditResultBadgeClassName(log.payload)}`}
+                                  className={`${styles.auditResultBadge} ${getAuditResultBadgeClassName(styles, log.payload)}`}
                                 >
                                   <span className={styles.auditResultDot} aria-hidden="true" />
                                   {formatAuditResultLabel(log.payload)}
@@ -855,7 +714,7 @@ export default function AdminPage() {
                                 <td>{formatSessionDuration(log.sessionDurationSec)}</td>
                                 <td>
                                   <span
-                                    className={`${styles.auditResultBadge} ${getAccessStatusBadgeClassName(log.status)}`}
+                                    className={`${styles.auditResultBadge} ${getAccessStatusBadgeClassName(styles, log.status)}`}
                                   >
                                     <span className={styles.auditResultDot} aria-hidden="true" />
                                     {log.status}
