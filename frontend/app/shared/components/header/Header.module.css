@@ -449,12 +449,14 @@
 }
 
 .notificationMessage {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  display: block;
+  line-height: 1.35;
   font-size: 0.8rem;
   color: #64748b;
+}
+
+.notificationMessageLine {
+  display: block;
 }
 
 .notificationTime {

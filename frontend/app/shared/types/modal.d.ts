@@ -4,6 +4,7 @@ export type ActionModalProps = {
   body: ReactNode;
   leftAction?: ReactNode;
   title: string;
+  subtitle?: string;
   onClose: () => void;
   onConfirm: () => void;
   confirmVariant?: 'primary' | 'danger';
