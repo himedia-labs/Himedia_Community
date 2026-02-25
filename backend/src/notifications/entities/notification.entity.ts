@@ -9,9 +9,15 @@ export enum NotificationType {
   POST_COMMENT = 'POST_COMMENT',
   COMMENT_LIKE = 'COMMENT_LIKE',
   COMMENT_REPLY = 'COMMENT_REPLY',
+  REPORT_RECEIVED = 'REPORT_RECEIVED',
+  REPORT_RESOLVED = 'REPORT_RESOLVED',
+  REPORT_REJECTED = 'REPORT_REJECTED',
 }
 
-@Check('notifications_type_check', "\"type\" IN ('POST_LIKE', 'POST_COMMENT', 'COMMENT_LIKE', 'COMMENT_REPLY')")
+@Check(
+  'notifications_type_check',
+  "\"type\" IN ('POST_LIKE', 'POST_COMMENT', 'COMMENT_LIKE', 'COMMENT_REPLY', 'REPORT_RECEIVED', 'REPORT_RESOLVED', 'REPORT_REJECTED')",
+)
 @Entity({ name: 'notifications' })
 @Index(['targetUserId', 'createdAt'])
 @Index(['targetUserId', 'readAt'])

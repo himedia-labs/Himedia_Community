@@ -50,7 +50,13 @@ export class NotificationsService {
     const safeActorId = this.normalizeUserId(actorUserId);
     const safeTargetId = this.normalizeUserId(targetUserId);
 
-    if (safeActorId === safeTargetId) return;
+    if (
+      safeActorId === safeTargetId &&
+      type !== NotificationType.REPORT_RECEIVED &&
+      type !== NotificationType.REPORT_RESOLVED &&
+      type !== NotificationType.REPORT_REJECTED
+    )
+      return;
 
     // 엔티티/생성
     const notification = this.notificationsRepository.create({
@@ -202,6 +208,21 @@ export class NotificationsService {
         if (notification.commentId) {
           href = `/posts/${notification.postId}#comment-${notification.commentId}`;
         }
+        break;
+      case NotificationType.REPORT_RECEIVED:
+        title = '버그 제보가 접수되어 처리중입니다';
+        description = '운영팀에서 내용을 확인 중이며 처리 상태는 신고 관리에서 반영됩니다.';
+        href = '/';
+        break;
+      case NotificationType.REPORT_RESOLVED:
+        title = '버그 제보가 해결 처리되었습니다';
+        description = '처리 결과를 확인해 주세요.';
+        href = '/';
+        break;
+      case NotificationType.REPORT_REJECTED:
+        title = '버그 제보가 반려 처리되었습니다';
+        description = '신고 관리에서 반려 상태를 확인할 수 있습니다.';
+        href = '/';
         break;
       default:
         break;
