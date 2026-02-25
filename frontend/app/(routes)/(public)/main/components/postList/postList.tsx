@@ -3,24 +3,18 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Fragment, useRef, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { Fragment, useRef } from 'react';
 
 import { PiList } from 'react-icons/pi';
 import Skeleton from 'react-loading-skeleton';
 import { FaUser } from 'react-icons/fa6';
 import { CiCalendar, CiGrid41 } from 'react-icons/ci';
-import { FiEye, FiFlag, FiHeart, FiMessageCircle, FiPlus, FiShare2 } from 'react-icons/fi';
+import { FiEye, FiHeart, FiMessageCircle, FiPlus, FiShare2 } from 'react-icons/fi';
 
-import { adminApi } from '@/app/api/admin/admin.api';
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
-import { notificationsKeys } from '@/app/api/notifications/notifications.keys';
-import { uploadsApi } from '@/app/api/uploads/uploads.api';
-import ActionModal from '@/app/shared/components/modal/ActionModal';
-import { useToast } from '@/app/shared/components/toast/toast';
 import { useAuthStore } from '@/app/shared/store/authStore';
 
-import BugReportForm from '@/app/(routes)/(public)/main/components/bugReport/BugReportForm';
+import BugReportEntry from '@/app/(routes)/(public)/main/components/bugReport/BugReportEntry';
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 import { usePostList, usePostListInfiniteScroll } from '@/app/(routes)/(public)/main/components/postList/hooks';
 import {
@@ -33,13 +27,6 @@ import { getVisibleCardTags } from '@/app/(routes)/(public)/main/components/post
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
 
-import type { KeyboardEvent } from 'react';
-
-const NOTICE_TITLE_MAX_LENGTH = 30;
-const NOTICE_CONTENT_MAX_LENGTH = 3000;
-const NOTICE_ATTACHMENT_MAX_COUNT = 3;
-type NoticeAttachment = { name: string; url: string };
-
 /**
  * 메인 포스트 리스트
  * @description 게시물 목록과 카테고리, 인기글 영역을 표시
@@ -47,18 +34,10 @@ type NoticeAttachment = { name: string; url: string };
 export default function PostListSection() {
   // 라우트 훅
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const { showToast } = useToast();
 
   // 인증 상태
   const { accessToken } = useAuthStore();
   const { data: currentUser } = useCurrentUserQuery();
-  const [isNoticeModalOpen, setIsNoticeModalOpen] = useState(false);
-  const [isNoticeSubmitting, setIsNoticeSubmitting] = useState(false);
-  const [isNoticeImageUploading, setIsNoticeImageUploading] = useState(false);
-  const [noticeTitle, setNoticeTitle] = useState('');
-  const [noticeContent, setNoticeContent] = useState('');
-  const [noticeAttachments, setNoticeAttachments] = useState<NoticeAttachment[]>([]);
 
   // 목록 상태
   const {
@@ -87,227 +66,11 @@ export default function PostListSection() {
   const listTagSkeletonWidths = [48, 64, 56];
   const cardTagSkeletonWidths = [44, 58, 50];
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const noticeTitleLimitToastAtRef = useRef(0);
-  const noticeContentLimitToastAtRef = useRef(0);
-  const noticeImageInputRef = useRef<HTMLInputElement | null>(null);
   const isFollowingEmpty = sortFilter === 'following' && !isLoading && filteredPosts.length === 0;
 
   // 핸들러
   const handleCreatePost = createHandleCreatePost({ router });
   const handleSortFilter = createHandleSortFilter({ accessToken, router, setSortFilter });
-
-  /**
-   * 공지 입력 모달 열기
-   * @description 좌측 하단 버튼 클릭 시 입력 모달을 연다
-   */
-  const handleOpenNoticeModal = () => {
-    setIsNoticeModalOpen(true);
-  };
-
-  /**
-   * 공지 입력 모달 닫기
-   * @description 입력값을 초기화하고 모달을 닫는다
-   */
-  const handleCloseNoticeModal = () => {
-    setNoticeTitle('');
-    setNoticeContent('');
-    setNoticeAttachments([]);
-    setIsNoticeImageUploading(false);
-    setIsNoticeModalOpen(false);
-  };
-
-  /**
-   * 공지 입력 등록
-   * @description 간단 입력값 유효성 검증 후 신고 데이터를 저장한다
-   */
-  const handleSubmitNotice = async () => {
-    if (!noticeTitle.trim() || !noticeContent.trim()) {
-      showToast({ message: '제목과 내용을 입력해주세요.', type: 'warning' });
-      return;
-    }
-    if (noticeTitle.trim().length > NOTICE_TITLE_MAX_LENGTH) {
-      showToast({ message: `제목은 최대 ${NOTICE_TITLE_MAX_LENGTH}자까지 입력할 수 있습니다.`, type: 'warning' });
-      return;
-    }
-    if (noticeContent.trim().length > NOTICE_CONTENT_MAX_LENGTH) {
-      showToast({ message: `내용은 최대 ${NOTICE_CONTENT_MAX_LENGTH}자까지 입력할 수 있습니다.`, type: 'warning' });
-      return;
-    }
-
-    try {
-      setIsNoticeSubmitting(true);
-      const attachmentText = noticeAttachments.length
-        ? `\n\n첨부 이미지:\n${noticeAttachments.map(item => `- ${item.url}`).join('\n')}`
-        : '';
-      const contentWithImage = `${noticeContent.trim()}${attachmentText}`;
-      await adminApi.createReport({ title: noticeTitle.trim(), content: contentWithImage });
-      await queryClient.invalidateQueries({ queryKey: notificationsKeys.list() });
-      showToast({ message: '버그 제보가 접수되었습니다.', type: 'success' });
-      handleCloseNoticeModal();
-    } catch {
-      showToast({ message: '버그 제보 등록에 실패했습니다.', type: 'error' });
-    } finally {
-      setIsNoticeSubmitting(false);
-    }
-  };
-
-  /**
-   * 제목 입력 제한
-   * @description 최대 글자수 초과 입력을 차단하고 안내 토스트를 표시한다
-   */
-  const handleNoticeTitleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    const target = event.currentTarget;
-    const key = event.key;
-    const isControlKey =
-      key === 'Backspace' ||
-      key === 'Delete' ||
-      key === 'ArrowLeft' ||
-      key === 'ArrowRight' ||
-      key === 'ArrowUp' ||
-      key === 'ArrowDown' ||
-      key === 'Home' ||
-      key === 'End' ||
-      key === 'Tab' ||
-      key === 'Enter';
-
-    if (event.nativeEvent.isComposing || event.metaKey || event.ctrlKey || event.altKey || isControlKey) return;
-    if (target.selectionStart !== target.selectionEnd) return;
-    if (noticeTitle.length < NOTICE_TITLE_MAX_LENGTH) return;
-
-    event.preventDefault();
-
-    const now = Date.now();
-    if (now - noticeTitleLimitToastAtRef.current < 1000) return;
-    noticeTitleLimitToastAtRef.current = now;
-    showToast({ message: `제목은 최대 ${NOTICE_TITLE_MAX_LENGTH}자까지 입력할 수 있습니다.`, type: 'warning' });
-  };
-
-  /**
-   * 제목 변경 처리
-   * @description 붙여넣기/조합 입력까지 포함해 제목 길이를 최대값으로 고정한다
-   */
-  const handleNoticeTitleChange = (nextValue: string) => {
-    if (nextValue.length <= NOTICE_TITLE_MAX_LENGTH) {
-      setNoticeTitle(nextValue);
-      return;
-    }
-
-    const trimmedValue = nextValue.slice(0, NOTICE_TITLE_MAX_LENGTH);
-    setNoticeTitle(trimmedValue);
-
-    const now = Date.now();
-    if (now - noticeTitleLimitToastAtRef.current < 1000) return;
-    noticeTitleLimitToastAtRef.current = now;
-    showToast({ message: `제목은 최대 ${NOTICE_TITLE_MAX_LENGTH}자까지 입력할 수 있습니다.`, type: 'warning' });
-  };
-
-  /**
-   * 내용 입력 제한
-   * @description 최대 글자수 초과 입력을 차단하고 안내 토스트를 표시한다
-   */
-  const handleNoticeContentKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    const target = event.currentTarget;
-    const key = event.key;
-    const isControlKey =
-      key === 'Backspace' ||
-      key === 'Delete' ||
-      key === 'ArrowLeft' ||
-      key === 'ArrowRight' ||
-      key === 'ArrowUp' ||
-      key === 'ArrowDown' ||
-      key === 'Home' ||
-      key === 'End' ||
-      key === 'Tab';
-
-    if (event.nativeEvent.isComposing || event.metaKey || event.ctrlKey || event.altKey || isControlKey) return;
-    if (target.selectionStart !== target.selectionEnd) return;
-    if (noticeContent.length < NOTICE_CONTENT_MAX_LENGTH) return;
-
-    event.preventDefault();
-
-    const now = Date.now();
-    if (now - noticeContentLimitToastAtRef.current < 1000) return;
-    noticeContentLimitToastAtRef.current = now;
-    showToast({ message: `내용은 최대 ${NOTICE_CONTENT_MAX_LENGTH}자까지 입력할 수 있습니다.`, type: 'warning' });
-  };
-
-  /**
-   * 내용 변경 처리
-   * @description 붙여넣기/조합 입력까지 포함해 내용 길이를 최대값으로 고정한다
-   */
-  const handleNoticeContentChange = (nextValue: string) => {
-    if (nextValue.length <= NOTICE_CONTENT_MAX_LENGTH) {
-      setNoticeContent(nextValue);
-      return;
-    }
-
-    const trimmedValue = nextValue.slice(0, NOTICE_CONTENT_MAX_LENGTH);
-    setNoticeContent(trimmedValue);
-
-    const now = Date.now();
-    if (now - noticeContentLimitToastAtRef.current < 1000) return;
-    noticeContentLimitToastAtRef.current = now;
-    showToast({ message: `내용은 최대 ${NOTICE_CONTENT_MAX_LENGTH}자까지 입력할 수 있습니다.`, type: 'warning' });
-  };
-
-  /**
-   * 첨부 이미지 선택 클릭
-   * @description 숨김 파일 입력을 열어 첨부 이미지를 선택
-   */
-  const handleClickNoticeImageUpload = () => {
-    if (!accessToken) {
-      showToast({ message: '로그인 후 이미지 첨부가 가능합니다.', type: 'warning' });
-      return;
-    }
-    noticeImageInputRef.current?.click();
-  };
-
-  /**
-   * 첨부 이미지 업로드
-   * @description 선택한 이미지를 업로드하고 첨부 URL을 저장
-   */
-  const handleChangeNoticeImage = async (files: FileList | null) => {
-    if (!files?.length) return;
-    if (!accessToken) {
-      showToast({ message: '로그인 후 이미지 첨부가 가능합니다.', type: 'warning' });
-      return;
-    }
-
-    try {
-      const remainingCount = NOTICE_ATTACHMENT_MAX_COUNT - noticeAttachments.length;
-      if (remainingCount <= 0) {
-        showToast({ message: `이미지는 최대 ${NOTICE_ATTACHMENT_MAX_COUNT}개까지 첨부할 수 있습니다.`, type: 'warning' });
-        return;
-      }
-
-      if (files.length > remainingCount) {
-        showToast({ message: `이미지는 최대 ${NOTICE_ATTACHMENT_MAX_COUNT}개까지 첨부할 수 있습니다.`, type: 'warning' });
-      }
-
-      setIsNoticeImageUploading(true);
-      const selectedFiles = Array.from(files).slice(0, remainingCount);
-      const uploadedAttachments: NoticeAttachment[] = [];
-      for (const file of selectedFiles) {
-        const result = await uploadsApi.uploadImage(file);
-        uploadedAttachments.push({ name: file.name, url: result.url });
-      }
-      setNoticeAttachments(prev => [...prev, ...uploadedAttachments]);
-      showToast({ message: '이미지가 첨부되었습니다.', type: 'success' });
-    } catch {
-      showToast({ message: '이미지 첨부에 실패했습니다.', type: 'error' });
-    } finally {
-      setIsNoticeImageUploading(false);
-      if (noticeImageInputRef.current) noticeImageInputRef.current.value = '';
-    }
-  };
-
-  /**
-   * 첨부 파일 제거
-   * @description 선택한 첨부 파일을 목록에서 삭제
-   */
-  const handleRemoveNoticeAttachment = (targetUrl: string) => {
-    setNoticeAttachments(prev => prev.filter(item => item.url !== targetUrl));
-  };
 
   // 무한 스크롤
   usePostListInfiniteScroll({ fetchNextPage, hasNextPage, isFetchingNextPage, sentinelRef });
@@ -316,15 +79,7 @@ export default function PostListSection() {
     <section className={styles.container} aria-label="포스트 하이라이트">
       <div className={styles.main}>
         <div className={styles.header}>
-          <button
-            type="button"
-            className={styles.bugReportButton}
-            aria-label="버그 신고"
-            title="버그 신고"
-            onClick={handleOpenNoticeModal}
-          >
-            <FiFlag />
-          </button>
+          <BugReportEntry />
           <button
             type="button"
             className={styles.createButton}
@@ -756,37 +511,6 @@ export default function PostListSection() {
         )}
         {!isFollowingEmpty ? <div ref={sentinelRef} className={styles.infiniteSentinel} aria-hidden="true" /> : null}
       </div>
-
-      {isNoticeModalOpen ? (
-        <ActionModal
-          title="버그 제보"
-          body={
-            <BugReportForm
-              noticeTitle={noticeTitle}
-              noticeContent={noticeContent}
-              noticeAttachments={noticeAttachments}
-              isNoticeImageUploading={isNoticeImageUploading}
-              noticeTitleMaxLength={NOTICE_TITLE_MAX_LENGTH}
-              noticeContentMaxLength={NOTICE_CONTENT_MAX_LENGTH}
-              noticeImageInputRef={noticeImageInputRef}
-              onTitleKeyDown={handleNoticeTitleKeyDown}
-              onTitleChange={handleNoticeTitleChange}
-              onContentKeyDown={handleNoticeContentKeyDown}
-              onContentChange={handleNoticeContentChange}
-              onClickImageUpload={handleClickNoticeImageUpload}
-              onSelectImageFiles={handleChangeNoticeImage}
-              onRemoveAllAttachments={() => setNoticeAttachments([])}
-              onRemoveAttachment={handleRemoveNoticeAttachment}
-            />
-          }
-          confirmLabel="등록"
-          cancelLabel="닫기"
-          confirmDisabled={!noticeTitle.trim() || !noticeContent.trim() || isNoticeSubmitting || isNoticeImageUploading}
-          cancelDisabled={isNoticeSubmitting || isNoticeImageUploading}
-          onClose={isNoticeSubmitting || isNoticeImageUploading ? () => undefined : handleCloseNoticeModal}
-          onConfirm={handleSubmitNotice}
-        />
-      ) : null}
 
       <aside className={styles.sidebar} aria-label="TOP 5 인기글">
         <div className={styles.sidebarHeader}>

@@ -17,10 +17,8 @@ export default function CardPostSkeletonItem({
   skeletonKeyPrefix,
   cardTagSkeletonWidths,
 }: CardPostSkeletonItemProps) {
-  // 상태 계산
   const summaryLineCount = 4;
 
-  // 클래스 계산
   const cardItemClassName = styles.cardItem;
   const cardBodyClassName = styles.cardBody;
   const cardTextClassName = `${styles.cardText} ${styles.cardTextWithThumb}`;
