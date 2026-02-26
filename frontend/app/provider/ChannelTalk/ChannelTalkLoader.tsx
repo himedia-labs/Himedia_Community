@@ -22,12 +22,19 @@ export default function ChannelTalkLoader() {
     if (!pluginKey || !isInitialized || isBootedRef.current) return;
     if (accessToken && !user) return;
 
-    const initChannelTalk = async () => {
-      await ChannelService.loadScript();
+    const initChannelTalk = () => {
+      ChannelService.loadScript();
 
       ChannelService.boot({
         pluginKey,
-        // memberId 제거하고 테스트
+        ...(user && {
+          memberId: user.id,
+          profile: {
+            name: user.name,
+            email: user.email,
+            mobileNumber: user.phone,
+          },
+        }),
       });
 
       isBootedRef.current = true;

@@ -49,6 +49,7 @@ import appConfig from '../common/config/app.config';
 import { TOKEN_CONFIG } from '../constants/config/token.config';
 
 import { setCookies, clearCookies } from './utils/cookie.util';
+import { createChannelTalkMemberHash } from './utils/channel-talk.util';
 
 import { User } from './entities/user.entity';
 
@@ -195,8 +196,14 @@ export class AuthController {
    */
   @UseGuards(JwtGuard)
   @Get('me')
-  me(@Request() req: ExpressRequest & { user: JwtPayload }) {
-    return this.userService.getProfileById(req.user.sub);
+  async me(@Request() req: ExpressRequest & { user: JwtPayload }) {
+    const profile = await this.userService.getProfileById(req.user.sub);
+    const channelTalkMemberHash = createChannelTalkMemberHash(req.user.sub, this.config.channelTalk.secretKey);
+
+    return {
+      ...profile,
+      channelTalkMemberHash,
+    };
   }
 
   /**

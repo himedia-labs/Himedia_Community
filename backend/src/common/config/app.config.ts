@@ -27,6 +27,10 @@ export default registerAs('app', () => ({
     password: process.env.GMAIL_APP_PASSWORD!,
   },
 
+  channelTalk: {
+    secretKey: process.env.CHANNEL_TALK_SECRET_KEY!,
+  },
+
   r2: {
     accountId: process.env.R2_ACCOUNT_ID!,
     accessKeyId: process.env.R2_ACCESS_KEY_ID!,

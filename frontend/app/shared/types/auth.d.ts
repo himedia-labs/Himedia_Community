@@ -3,6 +3,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  channelTalkMemberHash?: string | null;
   role: 'TRAINEE' | 'GRADUATE' | 'MENTOR' | 'INSTRUCTOR' | 'ADMIN';
   phone: string;
   birthDate?: string | null;

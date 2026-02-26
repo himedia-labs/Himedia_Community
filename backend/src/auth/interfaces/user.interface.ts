@@ -4,6 +4,7 @@ export interface AuthUserProfile {
   id: string;
   name: string;
   email: string;
+  channelTalkMemberHash: string | null;
   role: UserRole;
   phone: string;
   course: string | null;
