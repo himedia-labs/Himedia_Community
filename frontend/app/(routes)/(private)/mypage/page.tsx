@@ -6,7 +6,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import LinesEllipsis from 'react-lines-ellipsis';
-import Skeleton from 'react-loading-skeleton';
 
 import { CiCalendar } from 'react-icons/ci';
 import { FaUser, FaUserEdit } from 'react-icons/fa';
@@ -33,6 +32,13 @@ import { MYPAGE_TABS } from '@/app/shared/constants/config/mypage.config';
 import { EMAIL_VERIFICATION_CODE_LENGTH, PHONE_CONFIG } from '@/app/shared/constants/config/register.config';
 
 import ActionModal from '@/app/shared/components/modal/ActionModal';
+import {
+  MyPageAccountSkeleton,
+  MyPageCommentsSkeleton,
+  MyPageIntroSkeleton,
+  MyPagePostListSkeleton,
+  MyPageValueSkeleton,
+} from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
 import { stopMenuPropagation } from '@/app/(routes)/(private)/mypage/handlers';
 import EditorToolbar from '@/app/shared/components/markdown-editor/EditorToolbar';
 import { splitCommentMentions } from '@/app/(routes)/(public)/posts/[postId]/utils';
@@ -53,7 +59,6 @@ import {
 } from '@/app/(routes)/(private)/mypage/hooks';
 import { useWithdrawAccountMutation } from '@/app/api/auth/auth.mutations';
 
-import 'react-loading-skeleton/dist/skeleton.css';
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 import postListStyles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
 import markdownEditorStyles from '@/app/shared/components/markdown-editor/markdownEditor.module.css';
@@ -83,6 +88,9 @@ export default function MyPage() {
     displayName,
     followerCount,
     followingCount,
+    isMyCommentsListLoading,
+    isLikedPostsListLoading,
+    isMyPostsLoading,
     isUserInfoLoading,
     likedPosts,
     myComments,
@@ -265,12 +273,12 @@ export default function MyPage() {
     });
   }, [selectedCategoryId, selectedTagId, sortedPosts]);
 
-  const accountNameValue = isUserInfoLoading ? <Skeleton width={88} height={18} /> : displayName || '사용자';
-  const accountEmailValue = isUserInfoLoading ? <Skeleton width={180} height={18} /> : userEmail || '미등록';
-  const accountPhoneValue = isUserInfoLoading ? <Skeleton width={140} height={18} /> : userPhone || '미등록';
-  const accountBirthDateValue = isUserInfoLoading ? <Skeleton width={120} height={18} /> : userBirthDate || '미등록';
-  const profileNameValue = isUserInfoLoading ? <Skeleton width={96} height={22} /> : displayName || '사용자';
-  const profileHandleValue = isUserInfoLoading ? <Skeleton width={86} height={16} /> : `@${profileHandle}`;
+  const accountNameValue = isUserInfoLoading ? <MyPageValueSkeleton width={88} height={18} /> : displayName || '사용자';
+  const accountEmailValue = isUserInfoLoading ? <MyPageValueSkeleton width={180} height={18} /> : userEmail || '미등록';
+  const accountPhoneValue = isUserInfoLoading ? <MyPageValueSkeleton width={140} height={18} /> : userPhone || '미등록';
+  const accountBirthDateValue = isUserInfoLoading ? <MyPageValueSkeleton width={120} height={18} /> : userBirthDate || '미등록';
+  const profileNameValue = isUserInfoLoading ? <MyPageValueSkeleton width={96} height={34} /> : displayName || '사용자';
+  const profileHandleValue = isUserInfoLoading ? <MyPageValueSkeleton width={86} height={18} /> : `@${profileHandle}`;
   const isProfileActionPending = isProfileSaving || isProfileUpdating;
   const profileSocialLinks = [
     { href: profileContactEmail ? `mailto:${profileContactEmail}` : '', label: '이메일', icon: FiMail },
@@ -393,7 +401,13 @@ export default function MyPage() {
                 {MYPAGE_TABS[3].label}
               </Link>
               <div className={styles.listDividerLine} aria-hidden="true" />
-              <Link className={styles.listLink} href={MYPAGE_TABS[4].href}>
+              <span className={styles.listGroupTitle}>설정</span>
+              <Link
+                className={
+                  activeTab === MYPAGE_TABS[4].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
+                }
+                href={MYPAGE_TABS[4].href}
+              >
                 {MYPAGE_TABS[4].label}
               </Link>
             </div>
@@ -469,56 +483,77 @@ export default function MyPage() {
                         팔로잉 <strong>{followingCount}</strong>
                       </span>
                     </div>
-                    {profileSocialLinks.length ? (
-                      <div className={styles.profileSocialRow} aria-label="소셜 링크">
-                        {profileSocialLinks.map(({ href, label, icon: Icon, external }) => (
-                          <a
-                            key={label}
-                            className={styles.profileSocialLink}
-                            href={href}
-                            aria-label={label}
-                            target={external ? '_blank' : undefined}
-                            rel={external ? 'noreferrer' : undefined}
-                          >
-                            <Icon aria-hidden="true" />
-                          </a>
-                        ))}
-                      </div>
-                    ) : null}
                   </div>
                 </div>
-                <div className={styles.profileActions}>
-                  {isProfileEditing ? (
-                    <>
-                      <button
-                        type="button"
-                        className={styles.profileDeleteButton}
-                        disabled={isProfileActionPending}
-                        onClick={handleAvatarRemove}
-                      >
-                        사진 지우기
-                      </button>
-                      <span className={styles.profileActionDivider} aria-hidden="true">
-                        |
+                <div className={styles.profileSide}>
+                  <div className={styles.profileActions}>
+                    {isUserInfoLoading ? (
+                      <span className={`${styles.profileEditButton} ${styles.profileButtonSkeleton}`} aria-hidden="true">
+                        <MyPageValueSkeleton width={54} height={14} />
                       </span>
-                      <button
-                        type="button"
-                        className={styles.profileCancelButton}
-                        disabled={isProfileActionPending}
-                        onClick={handleProfileCancelAll}
-                      >
-                        취소
-                      </button>
-                    </>
+                    ) : (
+                      <>
+                        {isProfileEditing ? (
+                          <>
+                            <button
+                              type="button"
+                              className={styles.profileDeleteButton}
+                              disabled={isProfileActionPending}
+                              onClick={handleAvatarRemove}
+                            >
+                              사진 지우기
+                            </button>
+                            <span className={styles.profileActionDivider} aria-hidden="true">
+                              |
+                            </span>
+                            <button
+                              type="button"
+                              className={styles.profileCancelButton}
+                              disabled={isProfileActionPending}
+                              onClick={handleProfileCancelAll}
+                            >
+                              취소
+                            </button>
+                          </>
+                        ) : null}
+                        <button
+                          type="button"
+                          className={styles.profileEditButton}
+                          disabled={isProfileActionPending}
+                          onClick={handleProfileAction}
+                        >
+                          {isProfileEditing ? '저장' : '프로필 수정'}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  {isUserInfoLoading ? (
+                    <div className={styles.profileSocialRow} aria-hidden="true">
+                      {Array.from({ length: 6 }).map((_, index) => (
+                        <span
+                          key={`profile-social-skeleton-${index}`}
+                          className={`${styles.profileSocialLink} ${styles.profileSocialLinkSkeleton}`}
+                        >
+                          <MyPageValueSkeleton width={16} height={16} />
+                        </span>
+                      ))}
+                    </div>
+                  ) : profileSocialLinks.length ? (
+                    <div className={styles.profileSocialRow} aria-label="소셜 링크">
+                      {profileSocialLinks.map(({ href, label, icon: Icon, external }) => (
+                        <a
+                          key={label}
+                          className={styles.profileSocialLink}
+                          href={href}
+                          aria-label={label}
+                          target={external ? '_blank' : undefined}
+                          rel={external ? 'noreferrer' : undefined}
+                        >
+                          <Icon aria-hidden="true" />
+                        </a>
+                      ))}
+                    </div>
                   ) : null}
-                  <button
-                    type="button"
-                    className={styles.profileEditButton}
-                    disabled={isProfileActionPending}
-                    onClick={handleProfileAction}
-                  >
-                    {isProfileEditing ? '저장' : '프로필 수정'}
-                  </button>
                 </div>
               </div>
               {isProfileEditing ? (
@@ -676,6 +711,8 @@ export default function MyPage() {
                       </button>
                     </div>
                   </div>
+                ) : isUserInfoLoading ? (
+                  <MyPageIntroSkeleton />
                 ) : profileBio ? (
                   <div className={markdownStyles.markdown}>{bioPreview}</div>
                 ) : (
@@ -686,7 +723,9 @@ export default function MyPage() {
                 )}
               </div>
             ) : activeTab === 'posts' ? (
-              myPosts.length ? (
+              isMyPostsLoading ? (
+                <MyPagePostListSkeleton label="내 블로그" />
+              ) : myPosts.length ? (
                 <div className={styles.postsMain}>
                   <div className={styles.settingsRow}>
                     <span className={styles.settingsLabel}>내 블로그</span>
@@ -774,24 +813,27 @@ export default function MyPage() {
                     </div>
                   </div>
                   {filteredPosts.length ? (
-                    <ul className={styles.listView}>
+                    <ul className={postListStyles.listView}>
                       {filteredPosts.map((post, index) => {
                         const isMyPost = Boolean(currentUserId) && post.author?.id === currentUserId;
                         const thumbnailUrl = post.thumbnailUrl ?? '';
                         const hasThumbnail = Boolean(thumbnailUrl);
                         const listTags = (post.tags ?? []).slice(0, 5);
+                        const hasListTags = listTags.length > 0;
                         return (
                           <Fragment key={post.id}>
                             <li>
-                              <Link className={styles.postLink} href={`/posts/${post.id}`}>
+                              <Link className={postListStyles.postLink} href={`/posts/${post.id}`}>
                                 <article
                                   className={
-                                    hasThumbnail ? styles.listItem : `${styles.listItem} ${styles.listItemNoThumb}`
+                                    hasThumbnail
+                                      ? postListStyles.listItem
+                                      : `${postListStyles.listItem} ${postListStyles.listItemNoThumb}`
                                   }
                                 >
-                                  <div className={styles.listBody}>
+                                  <div className={postListStyles.listBody}>
                                     <div className={styles.listHeaderRow}>
-                                      <h3>{post.title || '제목 없음'}</h3>
+                                      <h3 className={postListStyles.listTitle}>{post.title || '제목 없음'}</h3>
                                       <div className={styles.listMenuWrapper}>
                                         <button
                                           type="button"
@@ -841,9 +883,11 @@ export default function MyPage() {
                                       ellipsis="..."
                                       trimRight
                                       basedOn="letters"
-                                      className={postListStyles.summary}
+                                      className={
+                                        hasListTags ? postListStyles.listSummaryWithTags : postListStyles.listSummary
+                                      }
                                     />
-                                    {listTags.length > 0 ? (
+                                    {hasListTags ? (
                                       <ul className={postListStyles.listTagList} aria-label="태그 목록">
                                         {listTags.map(tag => (
                                           <li key={`${post.id}-list-${tag.id}`} className={postListStyles.listTagItem}>
@@ -913,7 +957,7 @@ export default function MyPage() {
                                     </div>
                                   </div>
                                   {hasThumbnail ? (
-                                    <div className={styles.listThumb} aria-hidden="true">
+                                    <div className={postListStyles.listThumb} aria-hidden="true">
                                       <Image
                                         className={postListStyles.listThumbImage}
                                         src={thumbnailUrl}
@@ -930,8 +974,8 @@ export default function MyPage() {
                               </Link>
                             </li>
                             {index < filteredPosts.length - 1 ? (
-                              <li className={styles.listDividerItem} aria-hidden="true">
-                                <div className={styles.listDivider} />
+                              <li className={postListStyles.listDividerItem} aria-hidden="true">
+                                <div className={postListStyles.listDivider} />
                               </li>
                             ) : null}
                           </Fragment>
@@ -1033,7 +1077,10 @@ export default function MyPage() {
                 </div>
               )
             ) : activeTab === 'account' ? (
-              <div className={styles.settingsSection}>
+              isUserInfoLoading ? (
+                <MyPageAccountSkeleton />
+              ) : (
+                <div className={styles.settingsSection}>
                 <div className={styles.settingsRow}>
                   <span className={styles.settingsLabel}>계정 설정</span>
                 </div>
@@ -1408,9 +1455,12 @@ export default function MyPage() {
                     회원탈퇴 <FiChevronRight aria-hidden="true" />
                   </button>
                 </div>
-              </div>
+                </div>
+              )
             ) : activeTab === 'comments' ? (
-              myComments.length ? (
+              isMyCommentsListLoading ? (
+                <MyPageCommentsSkeleton />
+              ) : myComments.length ? (
                 <>
                   <div className={styles.settingsRow}>
                     <span className={styles.settingsLabel}>남긴 댓글</span>
@@ -1434,8 +1484,8 @@ export default function MyPage() {
                       </button>
                     </div>
                   </div>
-                  <div className={`${commentStyles.commentList} ${styles.commentListReset}`}>
-                    {sortedComments.map(comment => {
+                  <div className={commentStyles.commentList}>
+                    {sortedComments.map((comment, index) => {
                       const postId = comment.post?.id ?? '';
                       const postTitle = comment.post?.title ?? '게시글 없음';
                       const commentLabel = comment.parentId ? '남긴 대댓글' : '남긴 댓글';
@@ -1443,308 +1493,155 @@ export default function MyPage() {
                       const commentDate = formatDateTimeLabel(comment.createdAt);
                       const isEditing = editingCommentId === comment.id;
                       const isLinkEnabled = Boolean(commentLink) && !isEditing;
+                      const commentPostLabel = `‘${postTitle}’에 ${commentLabel}`;
 
                       return (
                         <Fragment key={comment.id}>
-                          {isLinkEnabled ? (
-                            <Link className={styles.commentLink} href={commentLink}>
-                              <div
-                                className={`${commentStyles.commentItem} ${styles.commentBox}`}
-                                id={`comment-${comment.id}`}
-                              >
-                                <div className={commentStyles.commentInner}>
-                                  <div className={commentStyles.commentHeaderRow}>
-                                    <div className={commentStyles.commentProfile}>
-                                      <div className={commentStyles.commentAvatarGroup}>
-                                        <span className={commentStyles.commentAvatar} aria-hidden="true">
-                                          {profileAvatarUrl ? (
-                                            <Image
-                                              className={commentStyles.commentAvatarImage}
-                                              src={profileAvatarUrl}
-                                              alt=""
-                                              width={30}
-                                              height={30}
-                                              sizes="30px"
-                                              unoptimized
-                                            />
-                                          ) : (
-                                            <FaUser />
-                                          )}
-                                        </span>
-                                      </div>
-                                      <div className={commentStyles.commentMeta}>
-                                        <span className={commentStyles.commentAuthor}>
-                                          ‘{postTitle}’에 {commentLabel}
-                                        </span>
-                                        <span className={commentStyles.commentDate}>{commentDate}</span>
-                                      </div>
-                                    </div>
-                                    <div className={commentStyles.commentMoreWrapper}>
+                          <div className={commentStyles.commentItem} id={`comment-${comment.id}`}>
+                            <div className={commentStyles.commentInner}>
+                              <div className={commentStyles.commentHeaderRow}>
+                                <div className={commentStyles.commentProfile}>
+                                  <div className={commentStyles.commentAvatarGroup}>
+                                    <span className={commentStyles.commentAvatar} aria-hidden="true">
+                                      {profileAvatarUrl ? (
+                                        <Image
+                                          className={commentStyles.commentAvatarImage}
+                                          src={profileAvatarUrl}
+                                          alt=""
+                                          width={30}
+                                          height={30}
+                                          sizes="30px"
+                                          unoptimized
+                                        />
+                                      ) : (
+                                        <FaUser />
+                                      )}
+                                    </span>
+                                  </div>
+                                  <div className={commentStyles.commentMeta}>
+                                    {isLinkEnabled ? (
+                                      <Link className={commentStyles.commentAuthor} href={commentLink}>
+                                        {commentPostLabel}
+                                      </Link>
+                                    ) : (
+                                      <span className={commentStyles.commentAuthor}>{commentPostLabel}</span>
+                                    )}
+                                    <span className={commentStyles.commentDate}>{commentDate}</span>
+                                  </div>
+                                </div>
+                                <div className={commentStyles.commentMoreWrapper}>
+                                  <button
+                                    type="button"
+                                    className={commentStyles.commentMoreButton}
+                                    aria-label="댓글 옵션"
+                                    onClick={event => {
+                                      stopMenuPropagation(event);
+                                      handleCommentMenuToggle(comment.id);
+                                    }}
+                                  >
+                                    <FiMoreHorizontal aria-hidden="true" />
+                                  </button>
+                                  {openCommentMenuId === comment.id ? (
+                                    <div className={commentStyles.commentMoreMenu} role="menu" onClick={stopMenuPropagation}>
                                       <button
                                         type="button"
-                                        className={commentStyles.commentMoreButton}
-                                        aria-label="댓글 옵션"
+                                        className={commentStyles.commentMoreItem}
+                                        role="menuitem"
                                         onClick={event => {
                                           stopMenuPropagation(event);
-                                          handleCommentMenuToggle(comment.id);
+                                          handleEditStart(comment.id, comment.content);
                                         }}
                                       >
-                                        <FiMoreHorizontal aria-hidden="true" />
+                                        <FiEdit2 aria-hidden="true" />
+                                        수정
                                       </button>
-                                      {openCommentMenuId === comment.id ? (
-                                        <div
-                                          className={commentStyles.commentMoreMenu}
-                                          role="menu"
-                                          onClick={stopMenuPropagation}
-                                        >
-                                          <button
-                                            type="button"
-                                            className={commentStyles.commentMoreItem}
-                                            role="menuitem"
-                                            onClick={event => {
-                                              stopMenuPropagation(event);
-                                              handleEditStart(comment.id, comment.content);
-                                            }}
-                                          >
-                                            <FiEdit2 aria-hidden="true" />
-                                            수정
-                                          </button>
-                                          <button
-                                            type="button"
-                                            className={commentStyles.commentMoreItem}
-                                            role="menuitem"
-                                            disabled={isDeleting}
-                                            onClick={event => {
-                                              stopMenuPropagation(event);
-                                              handleDeleteComment(postId, comment.id);
-                                            }}
-                                          >
-                                            <FiTrash2 aria-hidden="true" />
-                                            삭제
-                                          </button>
-                                        </div>
-                                      ) : null}
+                                      <button
+                                        type="button"
+                                        className={commentStyles.commentMoreItem}
+                                        role="menuitem"
+                                        disabled={isDeleting}
+                                        onClick={event => {
+                                          stopMenuPropagation(event);
+                                          handleDeleteComment(postId, comment.id);
+                                        }}
+                                      >
+                                        <FiTrash2 aria-hidden="true" />
+                                        삭제
+                                      </button>
                                     </div>
-                                  </div>
-                                  <div className={commentStyles.commentContent}>
-                                    {isEditing ? (
-                                      <div className={commentStyles.commentEditForm} onClick={stopMenuPropagation}>
-                                        <textarea
-                                          className={`${commentStyles.commentTextarea} ${
-                                            hasEditingLengthError ? commentStyles.commentTextareaError : ''
-                                          }`}
-                                          name="comment-edit"
-                                          value={editingContent}
-                                          onChange={handleEditChange}
-                                        />
-                                        <div className={commentStyles.commentEditActions}>
-                                          {hasEditingLengthError ? (
-                                            <span className={commentStyles.commentError}>
-                                              1,000자까지 입력 가능해요.
-                                            </span>
-                                          ) : null}
-                                          <button
-                                            type="button"
-                                            className={commentStyles.commentCancelButton}
-                                            onClick={handleEditCancel}
-                                            disabled={isUpdating}
-                                          >
-                                            취소
-                                          </button>
-                                          <button
-                                            type="button"
-                                            className={
-                                              editingContent.trim()
-                                                ? `${commentStyles.commentButton} ${commentStyles.commentButtonActive}`
-                                                : commentStyles.commentButton
-                                            }
-                                            disabled={!editingContent.trim() || isUpdating || hasEditingLengthError}
-                                            onClick={() => handleEditSubmit(postId, comment.id)}
-                                          >
-                                            수정 완료
-                                          </button>
-                                        </div>
-                                      </div>
-                                    ) : (
-                                      <>
-                                        <p className={commentStyles.commentBody}>
-                                          {splitCommentMentions(comment.content).map((part, partIndex) =>
-                                            part.type === 'mention' ? (
-                                              <span
-                                                key={`${part.value}-${partIndex}`}
-                                                className={commentStyles.commentMention}
-                                              >
-                                                {part.value}
-                                              </span>
-                                            ) : (
-                                              <Fragment key={`${part.value}-${partIndex}`}>{part.value}</Fragment>
-                                            ),
-                                          )}
-                                        </p>
-                                        <div className={styles.commentMetaRow}>
-                                          <span className={styles.commentMetaItem}>
-                                            <FiHeart aria-hidden="true" />
-                                            {comment.likeCount.toLocaleString()}
-                                          </span>
-                                          <span className={styles.commentMetaItem}>
-                                            <FiMessageCircle aria-hidden="true" />
-                                            {comment.replyCount.toLocaleString()}
-                                          </span>
-                                        </div>
-                                      </>
-                                    )}
-                                  </div>
+                                  ) : null}
                                 </div>
                               </div>
-                            </Link>
-                          ) : (
-                            <div
-                              className={`${commentStyles.commentItem} ${styles.commentBox}`}
-                              id={`comment-${comment.id}`}
-                            >
-                              <div className={commentStyles.commentInner}>
-                                <div className={commentStyles.commentHeaderRow}>
-                                  <div className={commentStyles.commentProfile}>
-                                    <div className={commentStyles.commentAvatarGroup}>
-                                      <span className={commentStyles.commentAvatar} aria-hidden="true">
-                                        {profileAvatarUrl ? (
-                                          <Image
-                                            className={commentStyles.commentAvatarImage}
-                                            src={profileAvatarUrl}
-                                            alt=""
-                                            width={30}
-                                            height={30}
-                                            sizes="30px"
-                                            unoptimized
-                                          />
-                                        ) : (
-                                          <FaUser />
-                                        )}
-                                      </span>
-                                    </div>
-                                    <div className={commentStyles.commentMeta}>
-                                      <span className={commentStyles.commentAuthor}>
-                                        ‘{postTitle}’에 {commentLabel}
-                                      </span>
-                                      <span className={commentStyles.commentDate}>{commentDate}</span>
-                                    </div>
-                                  </div>
-                                  <div className={commentStyles.commentMoreWrapper}>
-                                    <button
-                                      type="button"
-                                      className={commentStyles.commentMoreButton}
-                                      aria-label="댓글 옵션"
-                                      onClick={event => {
-                                        stopMenuPropagation(event);
-                                        handleCommentMenuToggle(comment.id);
-                                      }}
-                                    >
-                                      <FiMoreHorizontal aria-hidden="true" />
-                                    </button>
-                                    {openCommentMenuId === comment.id ? (
-                                      <div
-                                        className={commentStyles.commentMoreMenu}
-                                        role="menu"
-                                        onClick={stopMenuPropagation}
+                              <div className={commentStyles.commentContent}>
+                                {isEditing ? (
+                                  <div className={commentStyles.commentEditForm} onClick={stopMenuPropagation}>
+                                    <textarea
+                                      className={`${commentStyles.commentTextarea} ${
+                                        hasEditingLengthError ? commentStyles.commentTextareaError : ''
+                                      }`}
+                                      name="comment-edit"
+                                      value={editingContent}
+                                      onChange={handleEditChange}
+                                    />
+                                    <div className={commentStyles.commentEditActions}>
+                                      {hasEditingLengthError ? (
+                                        <span className={commentStyles.commentError}>1,000자까지 입력 가능해요.</span>
+                                      ) : null}
+                                      <button
+                                        type="button"
+                                        className={commentStyles.commentCancelButton}
+                                        onClick={handleEditCancel}
+                                        disabled={isUpdating}
                                       >
-                                        <button
-                                          type="button"
-                                          className={commentStyles.commentMoreItem}
-                                          role="menuitem"
-                                          onClick={event => {
-                                            stopMenuPropagation(event);
-                                            handleEditStart(comment.id, comment.content);
-                                          }}
-                                        >
-                                          <FiEdit2 aria-hidden="true" />
-                                          수정
-                                        </button>
-                                        <button
-                                          type="button"
-                                          className={commentStyles.commentMoreItem}
-                                          role="menuitem"
-                                          disabled={isDeleting}
-                                          onClick={event => {
-                                            stopMenuPropagation(event);
-                                            handleDeleteComment(postId, comment.id);
-                                          }}
-                                        >
-                                          <FiTrash2 aria-hidden="true" />
-                                          삭제
-                                        </button>
-                                      </div>
-                                    ) : null}
-                                  </div>
-                                </div>
-                                <div className={commentStyles.commentContent}>
-                                  {isEditing ? (
-                                    <div className={commentStyles.commentEditForm} onClick={stopMenuPropagation}>
-                                      <textarea
-                                        className={`${commentStyles.commentTextarea} ${
-                                          hasEditingLengthError ? commentStyles.commentTextareaError : ''
-                                        }`}
-                                        name="comment-edit"
-                                        value={editingContent}
-                                        onChange={handleEditChange}
-                                      />
-                                      <div className={commentStyles.commentEditActions}>
-                                        {hasEditingLengthError ? (
-                                          <span className={commentStyles.commentError}>1,000자까지 입력 가능해요.</span>
-                                        ) : null}
-                                        <button
-                                          type="button"
-                                          className={commentStyles.commentCancelButton}
-                                          onClick={handleEditCancel}
-                                          disabled={isUpdating}
-                                        >
-                                          취소
-                                        </button>
-                                        <button
-                                          type="button"
-                                          className={
-                                            editingContent.trim()
-                                              ? `${commentStyles.commentButton} ${commentStyles.commentButtonActive}`
-                                              : commentStyles.commentButton
-                                          }
-                                          disabled={!editingContent.trim() || isUpdating || hasEditingLengthError}
-                                          onClick={() => handleEditSubmit(postId, comment.id)}
-                                        >
-                                          수정 완료
-                                        </button>
-                                      </div>
+                                        취소
+                                      </button>
+                                      <button
+                                        type="button"
+                                        className={
+                                          editingContent.trim()
+                                            ? `${commentStyles.commentButton} ${commentStyles.commentButtonActive}`
+                                            : commentStyles.commentButton
+                                        }
+                                        disabled={!editingContent.trim() || isUpdating || hasEditingLengthError}
+                                        onClick={() => handleEditSubmit(postId, comment.id)}
+                                      >
+                                        수정 완료
+                                      </button>
                                     </div>
-                                  ) : (
-                                    <>
-                                      <p className={commentStyles.commentBody}>
-                                        {splitCommentMentions(comment.content).map((part, partIndex) =>
-                                          part.type === 'mention' ? (
-                                            <span
-                                              key={`${part.value}-${partIndex}`}
-                                              className={commentStyles.commentMention}
-                                            >
-                                              {part.value}
-                                            </span>
-                                          ) : (
-                                            <Fragment key={`${part.value}-${partIndex}`}>{part.value}</Fragment>
-                                          ),
-                                        )}
-                                      </p>
-                                      <div className={styles.commentMetaRow}>
-                                        <span className={styles.commentMetaItem}>
-                                          <FiHeart aria-hidden="true" />
-                                          {comment.likeCount.toLocaleString()}
-                                        </span>
-                                        <span className={styles.commentMetaItem}>
-                                          <FiMessageCircle aria-hidden="true" />
+                                  </div>
+                                ) : (
+                                  <>
+                                    <p className={commentStyles.commentBody}>
+                                      {splitCommentMentions(comment.content).map((part, partIndex) =>
+                                        part.type === 'mention' ? (
+                                          <span key={`${part.value}-${partIndex}`} className={commentStyles.commentMention}>
+                                            {part.value}
+                                          </span>
+                                        ) : (
+                                          <Fragment key={`${part.value}-${partIndex}`}>{part.value}</Fragment>
+                                        ),
+                                      )}
+                                    </p>
+                                    <div className={commentStyles.commentFooter}>
+                                      <span className={commentStyles.commentActionButton}>
+                                        <FiHeart aria-hidden="true" />
+                                        <span className={commentStyles.commentActionValue}>{comment.likeCount.toLocaleString()}</span>
+                                      </span>
+                                      <span className={commentStyles.commentActionButton}>
+                                        <FiMessageCircle aria-hidden="true" />
+                                        <span className={commentStyles.commentActionValue}>
                                           {comment.replyCount.toLocaleString()}
                                         </span>
-                                      </div>
-                                    </>
-                                  )}
-                                </div>
+                                      </span>
+                                    </div>
+                                  </>
+                                )}
                               </div>
                             </div>
-                          )}
+                          </div>
+                          {index < sortedComments.length - 1 ? (
+                            <div className={commentStyles.commentDividerLine} aria-hidden="true" />
+                          ) : null}
                         </Fragment>
                       );
                     })}
@@ -1778,7 +1675,10 @@ export default function MyPage() {
                 </>
               )
             ) : activeTab === 'likes' ? (
-              <>
+              isLikedPostsListLoading ? (
+                <MyPagePostListSkeleton label="좋아한 포스트" showFilters={false} />
+              ) : (
+                <>
                 <div className={styles.settingsRow}>
                   <span className={styles.settingsLabel}>좋아한 포스트</span>
                   <div className={styles.settingsSortGroup}>
@@ -1802,23 +1702,27 @@ export default function MyPage() {
                   </div>
                 </div>
                 {sortedLikedPosts.length ? (
-                  <ul className={styles.listView}>
+                  <ul className={postListStyles.listView}>
                     {sortedLikedPosts.map((post, index) => {
                       const isMyPost = Boolean(currentUserId) && post.author?.id === currentUserId;
                       const thumbnailUrl = post.thumbnailUrl ?? '';
                       const hasThumbnail = Boolean(thumbnailUrl);
+                      const listTags = (post.tags ?? []).slice(0, 5);
+                      const hasListTags = listTags.length > 0;
                       return (
                         <Fragment key={post.id}>
                           <li>
-                            <Link className={styles.postLink} href={`/posts/${post.id}`}>
+                            <Link className={postListStyles.postLink} href={`/posts/${post.id}`}>
                               <article
                                 className={
-                                  hasThumbnail ? styles.listItem : `${styles.listItem} ${styles.listItemNoThumb}`
+                                  hasThumbnail
+                                    ? postListStyles.listItem
+                                    : `${postListStyles.listItem} ${postListStyles.listItemNoThumb}`
                                 }
                               >
-                                <div className={styles.listBody}>
+                                <div className={postListStyles.listBody}>
                                   <div className={styles.listHeaderRow}>
-                                    <h3>{post.title || '제목 없음'}</h3>
+                                    <h3 className={postListStyles.listTitle}>{post.title || '제목 없음'}</h3>
                                     {isMyPost ? (
                                       <div className={styles.listMenuWrapper}>
                                         <button
@@ -1870,11 +1774,13 @@ export default function MyPage() {
                                     ellipsis="..."
                                     trimRight
                                     basedOn="letters"
-                                    className={postListStyles.summary}
+                                    className={
+                                      hasListTags ? postListStyles.listSummaryWithTags : postListStyles.listSummary
+                                    }
                                   />
-                                  {(post.tags ?? []).slice(0, 5).length > 0 ? (
+                                  {hasListTags ? (
                                     <ul className={postListStyles.listTagList} aria-label="태그 목록">
-                                      {(post.tags ?? []).slice(0, 5).map(tag => (
+                                      {listTags.map(tag => (
                                         <li key={`${post.id}-list-${tag.id}`} className={postListStyles.listTagItem}>
                                           #{tag.name}
                                         </li>
@@ -1942,7 +1848,7 @@ export default function MyPage() {
                                   </div>
                                 </div>
                                 {hasThumbnail ? (
-                                  <div className={styles.listThumb} aria-hidden="true">
+                                  <div className={postListStyles.listThumb} aria-hidden="true">
                                     <Image
                                       className={postListStyles.listThumbImage}
                                       src={thumbnailUrl}
@@ -1959,8 +1865,8 @@ export default function MyPage() {
                             </Link>
                           </li>
                           {index < sortedLikedPosts.length - 1 ? (
-                            <li className={styles.listDividerItem} aria-hidden="true">
-                              <div className={styles.listDivider} />
+                            <li className={postListStyles.listDividerItem} aria-hidden="true">
+                              <div className={postListStyles.listDivider} />
                             </li>
                           ) : null}
                         </Fragment>
@@ -1970,7 +1876,8 @@ export default function MyPage() {
                 ) : (
                   <div className={styles.empty}>아직 좋아요한 게시물이 없습니다.</div>
                 )}
-              </>
+                </>
+              )
             ) : null}
           </div>
         </div>

@@ -68,7 +68,6 @@
 .emptyDescription {
   margin: 0;
   font-size: 0.95rem;
-  line-height: 1.6;
 }
 
 .infiniteSentinel {
@@ -87,7 +86,7 @@
   width: clamp(48px, 6vw, 56px);
   height: clamp(48px, 6vw, 56px);
   border: none;
-  border-radius: clamp(16px, 2.5vw, 24px);
+  border-radius: 24px;
   background-color: rgba(247, 247, 248, 0.9);
   box-shadow:
     rgba(255, 255, 255, 0.2) 0 0 0 1px inset,
@@ -102,28 +101,6 @@
   position: fixed;
   bottom: clamp(5.25rem, 10vw, 6rem);
   right: clamp(1rem, 3vw, 1.5rem);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: clamp(48px, 6vw, 56px);
-  height: clamp(48px, 6vw, 56px);
-  border: none;
-  border-radius: clamp(16px, 2.5vw, 24px);
-  background-color: rgba(247, 247, 248, 0.9);
-  box-shadow:
-    rgba(255, 255, 255, 0.2) 0 0 0 1px inset,
-    rgba(0, 0, 0, 0.1) 0 4px 6px,
-    rgba(0, 0, 0, 0.15) 0 8px 30px;
-  color: #555;
-  font-size: 22px;
-  cursor: pointer;
-}
-
-.bugReportButton {
-  position: fixed;
-  bottom: clamp(1rem, 3vw, 1.5rem);
-  left: clamp(1rem, 3vw, 1.5rem);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -158,71 +135,6 @@
 
 .toggleButton:active {
   transform: translateY(1px) scale(0.92);
-}
-
-.bugReportButton:focus-visible {
-  outline: 2px solid rgba(0, 0, 0, 0.2);
-  outline-offset: 4px;
-}
-
-.bugReportButton:active {
-  transform: translateY(1px) scale(0.92);
-}
-
-.noticeModalBody {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.noticeField {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.noticeLabel {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #667085;
-}
-
-.noticeInput,
-.noticeTextarea {
-  box-sizing: border-box;
-  display: block;
-  width: 100%;
-  border: 1px solid #d9e0ea;
-  border-radius: 8px;
-  background: #fff;
-  color: #1f2937;
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
-
-.noticeInput {
-  height: 38px;
-  padding: 0 11px;
-}
-
-.noticeTextarea {
-  height: 180px;
-  padding: 10px 11px;
-  resize: none;
-  overflow-y: auto;
-}
-
-.noticeInput:focus,
-.noticeTextarea:focus {
-  outline: none;
-  border-color: #8faee9;
-}
-
-.noticeCount {
-  align-self: flex-end;
-  margin-top: 2px;
-  font-size: 0.75rem;
-  color: #98a2b3;
 }
 
 .listView {
@@ -278,7 +190,6 @@
   margin: 0;
   font-size: clamp(20px, 2.6vw, 24px);
   width: 100%;
-  line-height: 1.4;
 }
 
 .listThumb {
@@ -304,9 +215,9 @@
   -webkit-line-clamp: 3;
   overflow: hidden;
   font-size: 14px;
+  line-height: 1.5;
   margin: 0;
   color: #757575;
-  line-height: 1.7;
   align-self: start;
 }
 
@@ -314,11 +225,11 @@
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  line-height: 1.5;
   overflow: hidden;
   font-size: 14px;
   margin: 0;
   color: #757575;
-  line-height: 1.7;
   align-self: start;
 }
 
@@ -330,7 +241,6 @@
   align-items: center;
 
   font-size: 12px;
-  line-height: 1;
   color: #9b9b9b;
   align-self: end;
 }
@@ -353,7 +263,6 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  line-height: 1;
 }
 
 .metaItem :global(svg) {
@@ -426,7 +335,6 @@
   margin: 0;
   font-size: 1.1rem;
   width: 100%;
-  line-height: 1.4;
 }
 
 .cardBody {
@@ -455,7 +363,6 @@
   font-size: 14px;
   margin: 0;
   color: #757575;
-  line-height: 1.7;
 }
 
 .cardSummaryThumb {
@@ -466,7 +373,6 @@
   font-size: 14px;
   margin: 0;
   color: #757575;
-  line-height: 1.7;
 }
 
 .cardSummaryTag {
@@ -477,7 +383,6 @@
   font-size: 14px;
   margin: 0;
   color: #757575;
-  line-height: 1.7;
 }
 
 .cardSummary {
@@ -488,7 +393,6 @@
   font-size: 14px;
   margin: 0;
   color: #757575;
-  line-height: 1.7;
 }
 
 .cardBodyNoThumb {
@@ -529,7 +433,6 @@
   flex-shrink: 0;
   align-items: center;
   font-size: 12px;
-  line-height: 1;
 }
 
 .cardTagList {
@@ -557,7 +460,6 @@
   width: fit-content;
   height: 24px;
   font-size: 12px;
-  line-height: 1;
   white-space: nowrap;
   border-radius: 4px;
   background: #f5f5f5;
@@ -612,7 +514,6 @@
   min-width: 0;
   display: inline-flex;
   gap: 8px;
-  line-height: normal;
   align-items: center;
   justify-content: flex-start;
 }
@@ -622,7 +523,6 @@
   height: 24px;
   display: flex;
   flex-shrink: 0;
-  line-height: 0;
   border: 1px solid transparent;
   border-radius: 50%;
   align-items: center;
@@ -655,7 +555,6 @@
   max-width: 100px;
   color: #444;
   font-size: 0.82rem;
-  line-height: 1;
 
   white-space: nowrap;
   overflow: hidden;
@@ -667,8 +566,6 @@
   align-items: center;
   gap: 2px;
   min-width: 0;
-
-  line-height: 1;
 }
 
 .cardAuthorBy {
@@ -677,7 +574,6 @@
 
   color: #909090;
   font-size: 0.68rem;
-  line-height: 1;
 
   letter-spacing: 0.02em;
   text-transform: lowercase;
@@ -718,7 +614,6 @@
 .cardStatCount {
   display: grid;
   place-items: center;
-  line-height: 1;
 }
 
 .sidebar {
@@ -955,7 +850,6 @@
   .listSummary,
   .listSummaryWithTags {
     font-size: 12px;
-    line-height: 1.6;
   }
 
   .listTagList {

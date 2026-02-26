@@ -38,7 +38,6 @@
   text-align: left;
   font-size: 1.25rem;
   font-weight: bold;
-  line-height: 1.1;
 }
 
 .brandSub {
@@ -419,7 +418,6 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  line-height: 1.2;
 }
 
 .consentIcon {

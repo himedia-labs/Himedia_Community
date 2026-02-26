@@ -13,6 +13,7 @@ export default function ActionModal({
   body,
   leftAction,
   title,
+  subtitle,
   onClose,
   onConfirm,
   confirmVariant = 'primary',
@@ -37,7 +38,10 @@ export default function ActionModal({
   return (
     <div className={styles.overlay} role="presentation" onClick={handleOverlayClick}>
       <section className={styles.modal} role="dialog" aria-modal="true" aria-label={title}>
-        <h2 className={styles.title}>{title}</h2>
+        <div className={styles.header}>
+          <h2 className={styles.title}>{title}</h2>
+          {subtitle ? <p className={styles.subtitle}>{subtitle}</p> : null}
+        </div>
         <div className={styles.body}>{body}</div>
         <div className={styles.buttons}>
           <div className={styles.leftActions}>{leftAction}</div>

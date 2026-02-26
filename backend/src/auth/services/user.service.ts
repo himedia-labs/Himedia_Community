@@ -97,6 +97,7 @@ export class UserService {
       id: user.id,
       name: user.name,
       email: user.email,
+      channelTalkMemberHash: null,
       role: user.role,
       phone: user.phone,
       course: user.course ?? null,

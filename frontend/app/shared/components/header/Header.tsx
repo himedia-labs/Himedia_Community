@@ -336,7 +336,18 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                                           ) : null}
                                           <span className={styles.notificationItemTitle}>{notification.title}</span>
                                         </span>
-                                        <span className={styles.notificationMessage}>{notification.description}</span>
+                                        {notification.type === 'REPORT_RECEIVED' ? (
+                                          <span className={styles.notificationMessage}>
+                                            <span className={styles.notificationMessageLine}>
+                                              운영팀에서 내용을 확인 중입니다.
+                                            </span>
+                                            <span className={styles.notificationMessageLine}>
+                                              처리 상태는 신고 관리에서 반영됩니다.
+                                            </span>
+                                          </span>
+                                        ) : (
+                                          <span className={styles.notificationMessage}>{notification.description}</span>
+                                        )}
                                       </span>
                                       <span className={styles.notificationTime}>
                                         {formatNotificationTime(notification.createdAtMs)}

@@ -5,4 +5,3 @@ export const MYPAGE_TABS = [
   { key: 'likes', label: '좋아한 포스트', href: '/mypage?tab=likes' },
   { key: 'account', label: '계정 설정', href: '/mypage?tab=account' },
 ] as const;
-

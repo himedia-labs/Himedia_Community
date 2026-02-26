@@ -22,12 +22,24 @@ export const useMyPageData = () => {
   } = useCurrentUserQuery();
   const { data: followersData } = useFollowersQuery({ enabled: Boolean(accessToken) });
   const { data: followingsData } = useFollowingsQuery({ enabled: Boolean(accessToken) });
-  const { data: myCommentsData } = useMyCommentsQuery({ enabled: Boolean(accessToken) });
-  const { data: likedPostsData } = useLikedPostsQuery(
+  const {
+    data: myCommentsData,
+    isFetching: isMyCommentsFetching,
+    isLoading: isMyCommentsLoading,
+  } = useMyCommentsQuery({ enabled: Boolean(accessToken) });
+  const {
+    data: likedPostsData,
+    isFetching: isLikedPostsFetching,
+    isLoading: isLikedPostsLoading,
+  } = useLikedPostsQuery(
     { sort: 'createdAt', order: 'DESC', limit: 30 },
     { enabled: Boolean(accessToken) },
   );
-  const { data: postsData } = usePostsQuery(
+  const {
+    data: postsData,
+    isFetching: isPostsFetching,
+    isLoading: isPostsLoading,
+  } = usePostsQuery(
     { sort: 'createdAt', order: 'DESC', limit: 30 },
     { enabled: Boolean(accessToken) },
   );
@@ -35,7 +47,13 @@ export const useMyPageData = () => {
   // 파생 데이터
   const isAuthInitializing = !isInitialized;
   const isCurrentUserPending = Boolean(accessToken) && (isCurrentUserLoading || isCurrentUserFetching || !currentUser);
+  const isPostsPending = Boolean(accessToken) && (isPostsLoading || isPostsFetching) && !postsData;
+  const isCommentsPending = Boolean(accessToken) && (isMyCommentsLoading || isMyCommentsFetching) && !myCommentsData;
+  const isLikedPostsPending = Boolean(accessToken) && (isLikedPostsLoading || isLikedPostsFetching) && !likedPostsData;
   const isUserInfoLoading = isAuthInitializing || isCurrentUserPending;
+  const isMyPostsLoading = isUserInfoLoading || isPostsPending;
+  const isMyCommentsListLoading = isUserInfoLoading || isCommentsPending;
+  const isLikedPostsListLoading = isUserInfoLoading || isLikedPostsPending;
   const myComments = myCommentsData ?? [];
   const likedPosts = likedPostsData?.items ?? [];
   const userBio = currentUser?.profileBio ?? '';
@@ -68,6 +86,9 @@ export const useMyPageData = () => {
     displayName,
     followerCount,
     followingCount,
+    isMyCommentsListLoading,
+    isLikedPostsListLoading,
+    isMyPostsLoading,
     isUserInfoLoading,
     userBirthDate,
     userEmail,

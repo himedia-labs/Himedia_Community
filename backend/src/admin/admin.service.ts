@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LessThan, In, Not, Repository } from 'typeorm';
 
@@ -6,6 +6,8 @@ import { SnowflakeService } from '../common/services/snowflake.service';
 import { User, UserRole } from '../auth/entities/user.entity';
 import { ERROR_CODES } from '../constants/error/error-codes';
 import { ADMIN_ERROR_MESSAGES } from '../constants/message/admin.messages';
+import { NotificationType } from '../notifications/entities/notification.entity';
+import { NotificationsService } from '../notifications/notifications.service';
 
 import { AdminAuditLog } from './entities/adminAuditLog.entity';
 import { AdminReport, AdminReportStatus } from './entities/adminReport.entity';
@@ -16,6 +18,8 @@ import { AdminReport, AdminReportStatus } from './entities/adminReport.entity';
  */
 @Injectable()
 export class AdminService {
+  private readonly logger = new Logger(AdminService.name);
+
   /**
    * 관리자 서비스
    * @description 관리자 기능 처리에 필요한 의존성을 주입
@@ -27,6 +31,7 @@ export class AdminService {
     private readonly adminAuditLogsRepository: Repository<AdminAuditLog>,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    private readonly notificationsService: NotificationsService,
     private readonly snowflakeService: SnowflakeService,
   ) {}
 
@@ -50,6 +55,45 @@ export class AdminService {
     const where = status ? { status } : undefined;
     const reports = await this.adminReportsRepository.find({
       where,
+      order: { createdAt: 'DESC' },
+      take: safeLimit,
+    });
+
+    // 신고자/조회
+    const reporterUserIds = Array.from(
+      new Set(
+        reports
+          .map(report => report.reporterUserId)
+          .filter((reporterUserId): reporterUserId is string => Boolean(reporterUserId)),
+      ),
+    );
+    const reporters = reporterUserIds.length
+      ? await this.usersRepository.find({
+          where: { id: In(reporterUserIds) },
+          select: ['id', 'name', 'email'],
+        })
+      : [];
+    const reporterMap = new Map(reporters.map(reporter => [reporter.id, reporter]));
+
+    return {
+      items: reports.map(report => ({
+        ...report,
+        reporterName: report.reporterUserId ? (reporterMap.get(report.reporterUserId)?.name ?? null) : null,
+        reporterEmail: report.reporterUserId ? (reporterMap.get(report.reporterUserId)?.email ?? null) : null,
+      })),
+    };
+  }
+
+  /**
+   * 내 신고 목록 조회
+   * @description 신고자가 본인인 신고 목록을 최신순으로 반환
+   */
+  async getMyReports(reporterUserId: string, limit?: number) {
+    const normalizedReporterUserId = reporterUserId.trim();
+    const safeLimit = Number.isFinite(limit) ? Math.min(Math.max(Number(limit), 1), 100) : 30;
+
+    const reports = await this.adminReportsRepository.find({
+      where: { reporterUserId: normalizedReporterUserId },
       order: { createdAt: 'DESC' },
       take: safeLimit,
     });
@@ -398,6 +442,23 @@ export class AdminService {
       },
     });
 
+    // 알림/생성
+    const reportNotificationType = this.resolveReportStatusNotificationType(status);
+    const normalizedReporterUserId = report.reporterUserId?.trim() ?? null;
+    if (reportNotificationType && normalizedReporterUserId) {
+      try {
+        await this.notificationsService.createNotification({
+          actorUserId: normalizedAdminUserId,
+          targetUserId: normalizedReporterUserId,
+          type: reportNotificationType,
+        });
+      } catch {
+        this.logger.warn(
+          `신고 상태 변경 알림 생성 실패 (reportId=${report.id}, reporterUserId=${normalizedReporterUserId}, status=${status})`,
+        );
+      }
+    }
+
     return { id: report.id, status: report.status, handledAt: report.handledAt };
   }
 
@@ -419,6 +480,23 @@ export class AdminService {
 
     // 저장/반환
     await this.adminReportsRepository.save(report);
+
+    // 알림/생성
+    const normalizedReporterUserId = reporterUserId?.trim() ?? null;
+    if (normalizedReporterUserId) {
+      try {
+        await this.notificationsService.createNotification({
+          actorUserId: normalizedReporterUserId,
+          targetUserId: normalizedReporterUserId,
+          type: NotificationType.REPORT_RECEIVED,
+        });
+      } catch {
+        this.logger.warn(
+          `REPORT_RECEIVED 알림 생성 실패 (reportId=${report.id}, reporterUserId=${normalizedReporterUserId})`,
+        );
+      }
+    }
+
     return report;
   }
 
@@ -471,6 +549,16 @@ export class AdminService {
     if (!payload) return null;
     const value = payload[key];
     return typeof value === 'number' && Number.isFinite(value) ? value : null;
+  }
+
+  /**
+   * 신고 상태 알림 타입
+   * @description 신고 상태값을 사용자 알림 타입으로 변환
+   */
+  private resolveReportStatusNotificationType(status: AdminReportStatus) {
+    if (status === AdminReportStatus.RESOLVED) return NotificationType.REPORT_RESOLVED;
+    if (status === AdminReportStatus.REJECTED) return NotificationType.REPORT_REJECTED;
+    return null;
   }
 
   /**

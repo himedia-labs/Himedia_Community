@@ -16,6 +16,7 @@ import { ERROR_CODES } from '../../constants/error/error-codes';
 import { TOKEN_CONFIG } from '../../constants/config/token.config';
 import { TOKEN_ERROR_MESSAGES } from '../../constants/message/token.messages';
 
+import { createChannelTalkMemberHash } from '../utils/channel-talk.util';
 import { hashRefreshTokenSecret, verifyRefreshTokenSecret } from '../utils/token-hash.util';
 
 import type { ConfigType } from '@nestjs/config';
@@ -232,13 +233,17 @@ export class TokenService {
   async buildAuthResponseForUser(user: User, userAgent?: string, ipAddress?: string): Promise<AuthResponse> {
     // 프로필 생성
     const profile = this.userService.buildUserProfile(user);
+    const channelTalkMemberHash = createChannelTalkMemberHash(user.id, this.config.channelTalk.secretKey);
 
     // 토큰 생성
     const tokens = await this.generateTokens(user, userAgent, ipAddress);
 
     return {
       ...tokens,
-      user: profile,
+      user: {
+        ...profile,
+        channelTalkMemberHash,
+      },
     };
   }
 

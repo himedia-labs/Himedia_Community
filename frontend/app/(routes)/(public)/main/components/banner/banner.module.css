@@ -27,7 +27,6 @@
   align-items: center;
   justify-content: center;
   font-size: clamp(2rem, 9vw, 7.5rem);
-  line-height: 1;
   color: #ffffff;
   text-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
   pointer-events: none;

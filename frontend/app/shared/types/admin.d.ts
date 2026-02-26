@@ -6,6 +6,8 @@ export interface AdminReport {
   content: string;
   status: AdminReportStatus;
   reporterUserId: string | null;
+  reporterName: string | null;
+  reporterEmail: string | null;
   handlerAdminId: string | null;
   handledAt: string | null;
   createdAt: string;
@@ -13,6 +15,10 @@ export interface AdminReport {
 }
 
 export interface AdminReportsResponse {
+  items: AdminReport[];
+}
+
+export interface AdminMyReportsResponse {
   items: AdminReport[];
 }
 

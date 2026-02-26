@@ -1,4 +1,4 @@
-import { FiHeart, FiMessageCircle } from 'react-icons/fi';
+import { FiFlag, FiHeart, FiMessageCircle } from 'react-icons/fi';
 
 import type { NotificationType } from '@/app/shared/types/notification';
 
@@ -9,6 +9,12 @@ const DAY_MS = 24 * 60 * 60 * 1000;
  * @description 알림 타입에 따른 아이콘 컴포넌트 반환
  */
 export const getNotificationIcon = (type: NotificationType) => {
+  if (
+    type === 'REPORT_RECEIVED' ||
+    type === 'REPORT_RESOLVED' ||
+    type === 'REPORT_REJECTED'
+  )
+    return FiFlag;
   if (type === 'POST_COMMENT' || type === 'COMMENT_REPLY') return FiMessageCircle;
   return FiHeart;
 };
