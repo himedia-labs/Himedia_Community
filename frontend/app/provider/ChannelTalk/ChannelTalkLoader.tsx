@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 
 import * as ChannelService from '@channel.io/channel-web-sdk-loader';
 
@@ -12,9 +13,11 @@ import { useAuthStore } from '@/app/shared/store/authStore';
  * @description 채널톡 스크립트 로드 및 유저 정보 연동
  */
 export default function ChannelTalkLoader() {
+  const pathname = usePathname();
   const { accessToken, isInitialized } = useAuthStore();
   const { data: user } = useCurrentUserQuery();
   const isBootedRef = useRef(false);
+  const shouldHideChannelButton = pathname === '/posts/new';
 
   useEffect(() => {
     const pluginKey = process.env.NEXT_PUBLIC_CHANNEL_TALK_PLUGIN_KEY;
@@ -39,10 +42,28 @@ export default function ChannelTalkLoader() {
       });
 
       isBootedRef.current = true;
+
+      if (shouldHideChannelButton) {
+        ChannelService.hideChannelButton();
+        return;
+      }
+
+      ChannelService.showChannelButton();
     };
 
     initChannelTalk();
-  }, [isInitialized, accessToken, user]);
+  }, [isInitialized, accessToken, user, shouldHideChannelButton]);
+
+  useEffect(() => {
+    if (!isBootedRef.current) return;
+
+    if (shouldHideChannelButton) {
+      ChannelService.hideChannelButton();
+      return;
+    }
+
+    ChannelService.showChannelButton();
+  }, [shouldHideChannelButton]);
 
   return null;
 }
