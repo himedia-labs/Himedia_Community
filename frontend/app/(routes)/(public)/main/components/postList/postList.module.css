@@ -68,7 +68,6 @@
 .emptyDescription {
   margin: 0;
   font-size: 0.95rem;
-  line-height: 1.6;
 }
 
 .infiniteSentinel {
@@ -87,7 +86,7 @@
   width: clamp(48px, 6vw, 56px);
   height: clamp(48px, 6vw, 56px);
   border: none;
-  border-radius: clamp(16px, 2.5vw, 24px);
+  border-radius: 24px;
   background-color: rgba(247, 247, 248, 0.9);
   box-shadow:
     rgba(255, 255, 255, 0.2) 0 0 0 1px inset,
@@ -191,7 +190,6 @@
   margin: 0;
   font-size: clamp(20px, 2.6vw, 24px);
   width: 100%;
-  line-height: 1.4;
 }
 
 .listThumb {
@@ -217,9 +215,9 @@
   -webkit-line-clamp: 3;
   overflow: hidden;
   font-size: 14px;
+  line-height: 1.5;
   margin: 0;
   color: #757575;
-  line-height: 1.7;
   align-self: start;
 }
 
@@ -227,11 +225,11 @@
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  line-height: 1.5;
   overflow: hidden;
   font-size: 14px;
   margin: 0;
   color: #757575;
-  line-height: 1.7;
   align-self: start;
 }
 
@@ -243,7 +241,6 @@
   align-items: center;
 
   font-size: 12px;
-  line-height: 1;
   color: #9b9b9b;
   align-self: end;
 }
@@ -266,7 +263,6 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  line-height: 1;
 }
 
 .metaItem :global(svg) {
@@ -339,7 +335,6 @@
   margin: 0;
   font-size: 1.1rem;
   width: 100%;
-  line-height: 1.4;
 }
 
 .cardBody {
@@ -368,7 +363,6 @@
   font-size: 14px;
   margin: 0;
   color: #757575;
-  line-height: 1.7;
 }
 
 .cardSummaryThumb {
@@ -379,7 +373,6 @@
   font-size: 14px;
   margin: 0;
   color: #757575;
-  line-height: 1.7;
 }
 
 .cardSummaryTag {
@@ -390,7 +383,6 @@
   font-size: 14px;
   margin: 0;
   color: #757575;
-  line-height: 1.7;
 }
 
 .cardSummary {
@@ -401,7 +393,6 @@
   font-size: 14px;
   margin: 0;
   color: #757575;
-  line-height: 1.7;
 }
 
 .cardBodyNoThumb {
@@ -442,7 +433,6 @@
   flex-shrink: 0;
   align-items: center;
   font-size: 12px;
-  line-height: 1;
 }
 
 .cardTagList {
@@ -470,7 +460,6 @@
   width: fit-content;
   height: 24px;
   font-size: 12px;
-  line-height: 1;
   white-space: nowrap;
   border-radius: 4px;
   background: #f5f5f5;
@@ -525,7 +514,6 @@
   min-width: 0;
   display: inline-flex;
   gap: 8px;
-  line-height: normal;
   align-items: center;
   justify-content: flex-start;
 }
@@ -535,7 +523,6 @@
   height: 24px;
   display: flex;
   flex-shrink: 0;
-  line-height: 0;
   border: 1px solid transparent;
   border-radius: 50%;
   align-items: center;
@@ -568,7 +555,6 @@
   max-width: 100px;
   color: #444;
   font-size: 0.82rem;
-  line-height: 1;
 
   white-space: nowrap;
   overflow: hidden;
@@ -580,8 +566,6 @@
   align-items: center;
   gap: 2px;
   min-width: 0;
-
-  line-height: 1;
 }
 
 .cardAuthorBy {
@@ -590,7 +574,6 @@
 
   color: #909090;
   font-size: 0.68rem;
-  line-height: 1;
 
   letter-spacing: 0.02em;
   text-transform: lowercase;
@@ -631,7 +614,6 @@
 .cardStatCount {
   display: grid;
   place-items: center;
-  line-height: 1;
 }
 
 .sidebar {
@@ -868,7 +850,6 @@
   .listSummary,
   .listSummaryWithTags {
     font-size: 12px;
-    line-height: 1.6;
   }
 
   .listTagList {
