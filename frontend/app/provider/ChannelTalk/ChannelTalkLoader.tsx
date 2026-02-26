@@ -29,6 +29,7 @@ export default function ChannelTalkLoader() {
         pluginKey,
         ...(user && {
           memberId: user.id,
+          memberHash: user.channelTalkMemberHash!,
           profile: {
             name: user.name,
             email: user.email,
