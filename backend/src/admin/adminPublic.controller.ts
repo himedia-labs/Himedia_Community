@@ -1,18 +1,10 @@
 import { Body, Controller, Get, Post, Query, Request, UseGuards } from '@nestjs/common';
-import type { Request as ExpressRequest } from 'express';
 
 import { JwtGuard } from '../auth/guards/jwt.guard';
-import { OptionalJwtGuard } from '../auth/guards/optional-jwt.guard';
 
 import { AdminService } from './admin.service';
 import { CreateAdminReportDto } from './dto/createAdminReport.dto';
 import type { AdminAuthRequest } from './admin.types';
-
-type OptionalAuthRequest = ExpressRequest & {
-  user?: {
-    sub?: string;
-  };
-};
 
 /**
  * 관리자 공개 컨트롤러
@@ -44,10 +36,8 @@ export class AdminPublicController {
    * @description 메인 화면에서 입력한 신고를 저장
    */
   @Post()
-  @UseGuards(OptionalJwtGuard)
-  createReport(@Body() body: CreateAdminReportDto, @Request() req: OptionalAuthRequest) {
-    const reporterUserId = req.user?.sub?.trim() ? req.user.sub : null;
-
-    return this.adminService.createReport(body.title, body.content, reporterUserId);
+  @UseGuards(JwtGuard)
+  createReport(@Body() body: CreateAdminReportDto, @Request() req: AdminAuthRequest) {
+    return this.adminService.createReport(body.title, body.content, req.user.sub);
   }
 }
