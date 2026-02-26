@@ -401,7 +401,7 @@ export default function MyPage() {
                 {MYPAGE_TABS[3].label}
               </Link>
               <div className={styles.listDividerLine} aria-hidden="true" />
-              <span className={styles.listGroupTitle}>고객지원</span>
+              <span className={styles.listGroupTitle}>설정</span>
               <Link
                 className={
                   activeTab === MYPAGE_TABS[4].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
@@ -409,16 +409,6 @@ export default function MyPage() {
                 href={MYPAGE_TABS[4].href}
               >
                 {MYPAGE_TABS[4].label}
-              </Link>
-              <div className={styles.listDividerLine} aria-hidden="true" />
-              <span className={styles.listGroupTitle}>설정</span>
-              <Link
-                className={
-                  activeTab === MYPAGE_TABS[5].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
-                }
-                href={MYPAGE_TABS[5].href}
-              >
-                {MYPAGE_TABS[5].label}
               </Link>
             </div>
           </nav>
@@ -493,56 +483,77 @@ export default function MyPage() {
                         팔로잉 <strong>{followingCount}</strong>
                       </span>
                     </div>
-                    {profileSocialLinks.length ? (
-                      <div className={styles.profileSocialRow} aria-label="소셜 링크">
-                        {profileSocialLinks.map(({ href, label, icon: Icon, external }) => (
-                          <a
-                            key={label}
-                            className={styles.profileSocialLink}
-                            href={href}
-                            aria-label={label}
-                            target={external ? '_blank' : undefined}
-                            rel={external ? 'noreferrer' : undefined}
-                          >
-                            <Icon aria-hidden="true" />
-                          </a>
-                        ))}
-                      </div>
-                    ) : null}
                   </div>
                 </div>
-                <div className={styles.profileActions}>
-                  {isProfileEditing ? (
-                    <>
-                      <button
-                        type="button"
-                        className={styles.profileDeleteButton}
-                        disabled={isProfileActionPending}
-                        onClick={handleAvatarRemove}
-                      >
-                        사진 지우기
-                      </button>
-                      <span className={styles.profileActionDivider} aria-hidden="true">
-                        |
+                <div className={styles.profileSide}>
+                  <div className={styles.profileActions}>
+                    {isUserInfoLoading ? (
+                      <span className={`${styles.profileEditButton} ${styles.profileButtonSkeleton}`} aria-hidden="true">
+                        <MyPageValueSkeleton width={54} height={14} />
                       </span>
-                      <button
-                        type="button"
-                        className={styles.profileCancelButton}
-                        disabled={isProfileActionPending}
-                        onClick={handleProfileCancelAll}
-                      >
-                        취소
-                      </button>
-                    </>
+                    ) : (
+                      <>
+                        {isProfileEditing ? (
+                          <>
+                            <button
+                              type="button"
+                              className={styles.profileDeleteButton}
+                              disabled={isProfileActionPending}
+                              onClick={handleAvatarRemove}
+                            >
+                              사진 지우기
+                            </button>
+                            <span className={styles.profileActionDivider} aria-hidden="true">
+                              |
+                            </span>
+                            <button
+                              type="button"
+                              className={styles.profileCancelButton}
+                              disabled={isProfileActionPending}
+                              onClick={handleProfileCancelAll}
+                            >
+                              취소
+                            </button>
+                          </>
+                        ) : null}
+                        <button
+                          type="button"
+                          className={styles.profileEditButton}
+                          disabled={isProfileActionPending}
+                          onClick={handleProfileAction}
+                        >
+                          {isProfileEditing ? '저장' : '프로필 수정'}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  {isUserInfoLoading ? (
+                    <div className={styles.profileSocialRow} aria-hidden="true">
+                      {Array.from({ length: 6 }).map((_, index) => (
+                        <span
+                          key={`profile-social-skeleton-${index}`}
+                          className={`${styles.profileSocialLink} ${styles.profileSocialLinkSkeleton}`}
+                        >
+                          <MyPageValueSkeleton width={16} height={16} />
+                        </span>
+                      ))}
+                    </div>
+                  ) : profileSocialLinks.length ? (
+                    <div className={styles.profileSocialRow} aria-label="소셜 링크">
+                      {profileSocialLinks.map(({ href, label, icon: Icon, external }) => (
+                        <a
+                          key={label}
+                          className={styles.profileSocialLink}
+                          href={href}
+                          aria-label={label}
+                          target={external ? '_blank' : undefined}
+                          rel={external ? 'noreferrer' : undefined}
+                        >
+                          <Icon aria-hidden="true" />
+                        </a>
+                      ))}
+                    </div>
                   ) : null}
-                  <button
-                    type="button"
-                    className={styles.profileEditButton}
-                    disabled={isProfileActionPending}
-                    onClick={handleProfileAction}
-                  >
-                    {isProfileEditing ? '저장' : '프로필 수정'}
-                  </button>
                 </div>
               </div>
               {isProfileEditing ? (
