@@ -10,4 +10,19 @@ regexes = [
   '''profileTwitterUrl''',
   '''PROFILE_LINKEDIN_PREFIX''',
   '''PROFILE_TWITTER_PREFIX''',
+  '''NEXT_PUBLIC_HM_CHANNEL_TALK_PLUGIN_KEY''',
+  '''NEXT_PUBLIC_HM_API_BASE_URL''',
+  '''NEXT_PUBLIC_HM_AXIOS_TIMEOUT_MS''',
 ]
+
+[[rules]]
+id = "himedia-prefixed-secret"
+description = "Potential Himedia prefixed secret value"
+regex = '''(?i)\b(HIMEDIA_(?:API|SECRET|TOKEN|KEY)_[A-Z0-9]{16,})\b'''
+tags = ["key", "himedia", "custom"]
+
+[[rules]]
+id = "hardcoded-sensitive-config"
+description = "Hardcoded sensitive config value"
+regex = '''(?i)\b(HM_JWT_SECRET|HM_REFRESH_TOKEN_HASH_SECRET|HM_DB_PASSWORD|HM_CHANNEL_TALK_SECRET_KEY|DATABASE_URL)\b\s*[:=]\s*["'][^"'\n]{8,}["']'''
+tags = ["config", "secret", "custom"]
