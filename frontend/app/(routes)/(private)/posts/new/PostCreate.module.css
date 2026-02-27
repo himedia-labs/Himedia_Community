@@ -324,34 +324,81 @@
   outline-offset: 2px;
 }
 
-select.metaControl {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  padding-inline-start: 0;
-  -webkit-padding-start: 0;
-  -moz-padding-start: 0;
-  text-align: left;
-  background-image: none;
-  padding-right: 20px;
-  width: 100%;
-}
-
 .selectWrapper {
   position: relative;
 }
 
+.categoryTrigger {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 0 0 12px;
+  background: transparent;
+  color: #1f1f1f;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.categoryTrigger:disabled {
+  cursor: not-allowed;
+  color: #b8b8b8;
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+.categoryTriggerText {
+  font-size: 1rem;
+  text-align: left;
+}
+
 .selectIcon {
-  position: absolute;
-  right: 0;
-  bottom: 0.75rem;
-  pointer-events: none;
+  flex-shrink: 0;
   font-size: 1.1rem;
   color: #666;
 }
 
-.metaControl:focus {
-  border-bottom-color: #111;
+.categoryTrigger:focus-visible {
+  outline: 2px solid rgba(0, 0, 0, 0.2);
+  outline-offset: 2px;
+}
+
+.categoryMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  max-height: 260px;
+  padding: 6px;
+  box-sizing: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.categoryOption {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #1f1f1f;
+  cursor: pointer;
+}
+
+.categoryOption:hover {
+  background: #f4f4f5;
+}
+
+.categoryOptionActive {
+  background: #eef4ff;
+  color: #1850b8;
 }
 
 .tagInput {
@@ -820,11 +867,11 @@ select.metaControl {
 .actionButton {
   min-width: 120px;
   height: 42px;
+  font-size: 0.9rem;
   border-radius: 0.5rem;
   border: 1px solid rgba(0, 0, 0, 0.12);
   background: #fff;
   color: #1f1f1f;
-  font-weight: 600;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -833,6 +880,21 @@ select.metaControl {
   transition:
     background-color 0.15s ease,
     border-color 0.15s ease;
+}
+
+.actionLabel {
+  display: inline-flex;
+  align-items: center;
+}
+
+.actionIcon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+}
+
+.actionIconSave {
+  display: none;
 }
 
 .actionButtonExit {
@@ -883,10 +945,30 @@ select.metaControl {
 .draftListButton:active {
   transform: translateY(1px) scale(0.92);
 }
-@media (width <= 900px) {
+
+@media (width <= 1024px) {
   .container {
     width: 100%;
     margin-left: 0;
+  }
+
+  .header {
+    padding: 1.1rem 1.25rem;
+    gap: 1rem;
+  }
+
+  .headerTitle {
+    font-size: 1.45rem;
+  }
+
+  .headerDescription {
+    font-size: 0.88rem;
+  }
+
+  .headerActionText {
+    min-width: 104px;
+    padding: 0 12px;
+    font-size: 0.86rem;
   }
 
   .split {
@@ -898,10 +980,111 @@ select.metaControl {
   }
 
   .preview {
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    display: none;
   }
 
   .metaRow {
     grid-template-columns: 1fr;
+  }
+
+  .actionFooter {
+    height: auto;
+    min-height: 72px;
+    padding: 0.8rem 1.25rem;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .actionButton {
+    min-width: 108px;
+    height: 40px;
+    padding: 0 12px;
+    font-size: 0.75rem;
+  }
+
+  .actionButtonExit {
+    margin-right: auto;
+  }
+}
+
+@media (width <= 768px) {
+  .categoryTriggerText,
+  .categoryOption {
+    font-size: 1.08rem;
+  }
+
+  .header {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .headerCopy {
+    width: 100%;
+  }
+
+  .headerTitle {
+    font-size: 1.28rem;
+  }
+
+  .headerDescription {
+    font-size: 0.83rem;
+  }
+
+  .headerActions {
+    width: 100%;
+  }
+
+  .headerActionText {
+    width: 100%;
+    min-width: 0;
+    justify-content: center;
+  }
+
+  .form {
+    padding: 1.1rem 1.25rem;
+    gap: 20px;
+  }
+
+  .titleInput {
+    font-size: 1.3rem;
+  }
+
+  .actionFooter {
+    justify-content: stretch;
+    padding: 0.7rem 1rem;
+    gap: 6px;
+  }
+
+  .actionButton,
+  .actionButtonExit {
+    margin-right: 0;
+    min-width: 0;
+    flex: 1 1 calc(33.333% - 4px);
+  }
+}
+
+@media (width <= 425px) {
+  .actionButton {
+    min-width: 42px;
+    height: 42px;
+    padding: 0;
+    gap: 0;
+  }
+
+  .actionLabel,
+  .footerDivider,
+  .footerCount {
+    display: none;
+  }
+
+  .actionIcon {
+    display: inline-flex;
+    width: 18px;
+    height: 18px;
+  }
+
+  .actionIconSave {
+    display: inline-flex;
   }
 }

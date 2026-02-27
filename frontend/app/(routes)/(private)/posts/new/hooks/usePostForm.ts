@@ -51,8 +51,8 @@ export const usePostForm = () => {
   );
 
   // 셀렉트 핸들러
-  const handleCategoryChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    setCategoryId(event.target.value);
+  const handleCategoryChange = (nextCategoryId: string) => {
+    setCategoryId(nextCategoryId);
   };
 
   // 본문 핸들러

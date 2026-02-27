@@ -280,7 +280,7 @@ export type PostDetailsFormCategory = {
   categoryId: string;
   categories: Array<{ id: string; name: string }> | undefined;
   isLoading: boolean;
-  onCategoryChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+  onCategoryChange: (nextCategoryId: string) => void;
 };
 
 export type PostDetailsFormThumbnail = {

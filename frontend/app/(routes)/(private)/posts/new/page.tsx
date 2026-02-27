@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from 'react';
 
-import { FiSend } from 'react-icons/fi';
+import { FiSend, FiSave, FiLogOut } from 'react-icons/fi';
 import { RxWidth } from 'react-icons/rx';
 import { CiImport } from 'react-icons/ci';
 import { useRouter } from 'next/navigation';
@@ -236,8 +236,10 @@ export default function PostCreatePage() {
           type="button"
           className={`${styles.actionButton} ${styles.actionButtonExit}`}
           onClick={() => router.push('/')}
+          aria-label="나가기"
         >
-          <span>나가기</span>
+          <span className={styles.actionLabel}>나가기</span>
+          <FiLogOut className={styles.actionIcon} aria-hidden="true" />
         </button>
         <button
           type="button"
@@ -246,15 +248,16 @@ export default function PostCreatePage() {
           title="임시저장"
           onClick={() => saveDraft()}
         >
-          <span>저장하기</span>
+          <span className={styles.actionLabel}>저장하기</span>
+          <FiSave className={`${styles.actionIcon} ${styles.actionIconSave}`} aria-hidden="true" />
           <span className={styles.footerDivider} aria-hidden="true">
             |
           </span>
           <span className={styles.footerCount}>{draftCount}</span>
         </button>
         <button type="button" className={styles.actionButton} onClick={openDraftList}>
-          <span>불러오기</span>
-          <CiImport aria-hidden="true" />
+          <span className={styles.actionLabel}>불러오기</span>
+          <CiImport className={styles.actionIcon} aria-hidden="true" />
         </button>
       </footer>
     </section>
