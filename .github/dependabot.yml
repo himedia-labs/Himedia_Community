@@ -17,6 +17,16 @@ updates:
       timezone: 'Asia/Seoul'
     # 동시에 열어둘 PR 최대 개수
     open-pull-requests-limit: 5
+    labels:
+      - 'dependencies'
+      - 'frontend'
+    groups:
+      frontend-patch-minor:
+        patterns:
+          - '*'
+        update-types:
+          - 'minor'
+          - 'patch'
 
   # 백엔드 npm 의존성 업데이트
   - package-ecosystem: 'npm'
@@ -30,3 +40,28 @@ updates:
       timezone: 'Asia/Seoul'
     # 동시에 열어둘 PR 최대 개수
     open-pull-requests-limit: 5
+    labels:
+      - 'dependencies'
+      - 'backend'
+    groups:
+      backend-patch-minor:
+        patterns:
+          - '*'
+        update-types:
+          - 'minor'
+          - 'patch'
+
+  # GitHub Actions 의존성 업데이트
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    target-branch: 'dev'
+    # 매주 월요일 KST 00:00에 업데이트 PR 생성
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '00:00'
+      timezone: 'Asia/Seoul'
+    open-pull-requests-limit: 5
+    labels:
+      - 'dependencies'
+      - 'github-actions'
