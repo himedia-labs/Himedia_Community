@@ -738,16 +738,6 @@
   gap: 12px;
 }
 
-.previewMetaActions {
-  display: inline-flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 4px 12px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 999px;
-  background: #fff;
-}
-
 .previewMetaItem {
   display: inline-flex;
   align-items: center;
@@ -760,23 +750,8 @@
   transform: translateY(-1.5px);
 }
 
-.previewMetaAction {
-  display: inline-flex;
-  align-items: center;
-  color: inherit;
-}
-
-.previewMetaAction :global(svg) {
-  font-size: 1rem;
-}
-
 .previewMetaSeparator {
   color: #d0d0d0;
-}
-
-.previewActionsRow {
-  display: flex;
-  justify-content: flex-end;
 }
 
 .previewDivider {
@@ -846,6 +821,110 @@
 .previewTag {
   font-size: 0.85rem;
   color: #666;
+}
+
+.previewAuthorProfileCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.3rem 1.4rem;
+  border: 1px solid #ebeff5;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+}
+
+.previewAuthorProfileMain {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.previewAuthorProfileAvatar {
+  width: 72px;
+  height: 72px;
+  border: 1px solid #dce6f4;
+  border-radius: 50%;
+  background: #f3f6fb;
+  color: #6b7280;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.previewAuthorProfileAvatar :global(svg) {
+  width: 24px;
+  height: 24px;
+}
+
+.previewAuthorProfileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.previewAuthorProfileNameRow {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.previewAuthorProfileName {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.previewAuthorProfileRole {
+  font-size: 0.9rem;
+  color: #8291a8;
+}
+
+.previewAuthorProfileBio {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #5f6c80;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.previewAuthorProfileMeta {
+  font-size: 0.92rem;
+  color: #8793a3;
+}
+
+.previewAuthorProfileSocialDivider {
+  width: 100%;
+  height: 1px;
+  background: #e8edf4;
+}
+
+.previewAuthorProfileSocialRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.previewAuthorProfileSocialLink {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #dde5f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #6d7c94;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.previewAuthorProfileSocialLink :global(svg) {
+  width: 16px;
+  height: 16px;
 }
 
 .actionFooter {

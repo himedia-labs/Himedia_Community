@@ -7,7 +7,12 @@ import { RxWidth } from 'react-icons/rx';
 import { CiImport } from 'react-icons/ci';
 import { useRouter } from 'next/navigation';
 
+import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
+import { useFollowersQuery, useFollowingsQuery } from '@/app/api/follows/follows.queries';
+import { usePostsQuery } from '@/app/api/posts/posts.queries';
+
+import { useAuthStore } from '@/app/shared/store/authStore';
 
 import {
   DEFAULT_AUTHOR_NAME,
@@ -37,6 +42,7 @@ import type { DraftData } from '@/app/shared/types/post';
 export default function PostCreatePage() {
   // 라우트 훅
   const router = useRouter();
+  const { accessToken } = useAuthStore();
 
   // 기본 폼 상태
   const { state: formState, setters: formSetters, handlers: formHandlers } = usePostForm();
@@ -93,6 +99,14 @@ export default function PostCreatePage() {
 
   // 카테고리 목록
   const { data: categories, isLoading } = useCategoriesQuery();
+  const { data: currentUser } = useCurrentUserQuery();
+  const currentUserId = currentUser?.id;
+  const { data: followersData } = useFollowersQuery({ enabled: Boolean(accessToken) });
+  const { data: followingsData } = useFollowingsQuery({ enabled: Boolean(accessToken) });
+  const { data: myPostsData } = usePostsQuery(
+    { authorId: currentUserId, status: 'PUBLISHED', sort: 'createdAt', order: 'DESC', page: 1, limit: 1 },
+    { enabled: Boolean(accessToken && currentUserId) },
+  );
 
   // 미리보기 데이터
   const categoryName = categories?.find(category => String(category.id) === categoryId)?.name ?? DEFAULT_CATEGORY_LABEL;
@@ -100,6 +114,11 @@ export default function PostCreatePage() {
   const previewStats = DEFAULT_PREVIEW_STATS;
   const authorName = DEFAULT_AUTHOR_NAME;
   const draftCount = draftList?.items?.length ?? 0;
+  const authorStats = {
+    postCount: myPostsData?.total ?? 0,
+    followerCount: followersData?.length ?? 0,
+    followingCount: followingsData?.length ?? 0,
+  };
   const previewContent = useMemo(() => renderMarkdownPreview(content), [content]);
 
   return (
@@ -219,6 +238,7 @@ export default function PostCreatePage() {
             categoryName={categoryName}
             authorName={authorName}
             dateLabel={dateLabel}
+            authorStats={authorStats}
             previewStats={previewStats}
             content={
               content ? (

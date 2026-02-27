@@ -89,7 +89,9 @@ export interface PostAuthorRef {
   profileTwitterUrl?: string | null;
   profileFacebookUrl?: string | null;
   profileWebsiteUrl?: string | null;
+  postCount?: number;
   followerCount?: number;
+  followingCount?: number;
   isFollowing?: boolean;
 }
 
@@ -341,6 +343,11 @@ export type PostPreviewProps = {
   categoryName: string;
   authorName: string;
   dateLabel: string;
+  authorStats: {
+    postCount: number;
+    followerCount: number;
+    followingCount: number;
+  };
   previewStats: {
     views: number;
     likeCount: number;
