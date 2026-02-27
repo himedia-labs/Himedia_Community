@@ -7,9 +7,9 @@ import { Fragment, useRef } from 'react';
 
 import { PiList } from 'react-icons/pi';
 import Skeleton from 'react-loading-skeleton';
-import { FaUser } from 'react-icons/fa6';
+import { FaUser, FaRegPenToSquare } from 'react-icons/fa6';
 import { CiCalendar, CiGrid41 } from 'react-icons/ci';
-import { FiEye, FiHeart, FiMessageCircle, FiPlus, FiShare2 } from 'react-icons/fi';
+import { FiEye, FiHeart, FiMessageCircle, FiShare2 } from 'react-icons/fi';
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
@@ -78,13 +78,8 @@ export default function PostListSection() {
     <section className={styles.container} aria-label="포스트 하이라이트">
       <div className={styles.main}>
         <div className={styles.header}>
-          <button
-            type="button"
-            className={styles.createButton}
-            aria-label="게시물 작성"
-            onClick={handleCreatePost}
-          >
-            <FiPlus />
+          <button type="button" className={styles.createButton} aria-label="게시물 작성" onClick={handleCreatePost}>
+            <FaRegPenToSquare />
           </button>
           <button
             type="button"
@@ -193,11 +188,7 @@ export default function PostListSection() {
                       <li>
                         <Link className={styles.postLink} href={`/posts/${post.id}`}>
                           <article
-                            className={
-                              hasThumbnail
-                                ? styles.listItem
-                                : `${styles.listItem} ${styles.listItemNoThumb}`
-                            }
+                            className={hasThumbnail ? styles.listItem : `${styles.listItem} ${styles.listItemNoThumb}`}
                           >
                             <div className={styles.listBody}>
                               <h3 className={styles.listTitle}>{post.title}</h3>
@@ -419,74 +410,76 @@ export default function PostListSection() {
                               </div>
                             </div>
                           </div>
-                          {hasVisibleCardTags ? (
-                            <ul className={cardTagListClassName} aria-label="태그 목록">
-                              {visibleTags.map((displayTag, index) => (
-                                <li key={`${post.id}-card-${index}-${displayTag}`} className={styles.cardTagItem}>
-                                  {displayTag}
-                                </li>
-                              ))}
-                              {hiddenCount > 0 ? (
-                                <li className={styles.cardTagItem} aria-label={`숨겨진 태그 ${hiddenCount}개`}>
-                                  +{hiddenCount}
-                                </li>
-                              ) : null}
-                            </ul>
-                          ) : null}
-                          <div className={cardFooterClassName}>
-                            <div className={styles.cardDateRow}>
-                              <span>{post.date}</span>
-                              <span>·</span>
-                              <span>{post.timeAgo}</span>
-                            </div>
-                            <div className={styles.cardFooterDivider} aria-hidden="true" />
-                            <div className={styles.cardMetaRow}>
-                              <div className={styles.cardAuthor}>
-                                <div
-                                  className={
-                                    isMyPost
-                                      ? `${styles.cardAuthorAvatar} ${styles.cardAuthorAvatarMine}`
-                                      : styles.cardAuthorAvatar
-                                  }
-                                  aria-hidden="true"
-                                >
-                                  {post.authorProfileImageUrl ? (
-                                    <Image
-                                      className={styles.cardAuthorImage}
-                                      src={post.authorProfileImageUrl}
-                                      alt=""
-                                      width={24}
-                                      height={24}
-                                      unoptimized
-                                    />
-                                  ) : (
-                                    <FaUser />
-                                  )}
-                                </div>
-                                <span className={styles.cardAuthorText}>
-                                  <span className={styles.cardAuthorBy}>by.</span>
-                                  <span className={styles.cardAuthorName}>{post.authorName}</span>
-                                </span>
+                          <div className={styles.cardBottom}>
+                            {hasVisibleCardTags ? (
+                              <ul className={cardTagListClassName} aria-label="태그 목록">
+                                {visibleTags.map((displayTag, index) => (
+                                  <li key={`${post.id}-card-${index}-${displayTag}`} className={styles.cardTagItem}>
+                                    {displayTag}
+                                  </li>
+                                ))}
+                                {hiddenCount > 0 ? (
+                                  <li className={styles.cardTagItem} aria-label={`숨겨진 태그 ${hiddenCount}개`}>
+                                    +{hiddenCount}
+                                  </li>
+                                ) : null}
+                              </ul>
+                            ) : null}
+                            <div className={cardFooterClassName}>
+                              <div className={styles.cardDateRow}>
+                                <span>{post.date}</span>
+                                <span>·</span>
+                                <span>{post.timeAgo}</span>
                               </div>
-                              <div className={styles.cardStats}>
-                                <span className={styles.cardStat}>
-                                  <span className={styles.cardStatIcon}>
-                                    <FiHeart aria-hidden="true" />
+                              <div className={styles.cardFooterDivider} aria-hidden="true" />
+                              <div className={styles.cardMetaRow}>
+                                <div className={styles.cardAuthor}>
+                                  <div
+                                    className={
+                                      isMyPost
+                                        ? `${styles.cardAuthorAvatar} ${styles.cardAuthorAvatarMine}`
+                                        : styles.cardAuthorAvatar
+                                    }
+                                    aria-hidden="true"
+                                  >
+                                    {post.authorProfileImageUrl ? (
+                                      <Image
+                                        className={styles.cardAuthorImage}
+                                        src={post.authorProfileImageUrl}
+                                        alt=""
+                                        width={24}
+                                        height={24}
+                                        unoptimized
+                                      />
+                                    ) : (
+                                      <FaUser />
+                                    )}
+                                  </div>
+                                  <span className={styles.cardAuthorText}>
+                                    <span className={styles.cardAuthorBy}>by.</span>
+                                    <span className={styles.cardAuthorName}>{post.authorName}</span>
                                   </span>
-                                  <span className={styles.cardStatCount}>{post.likeCount.toLocaleString()}</span>
-                                </span>
-                                <span className={styles.cardStat}>
-                                  <span className={styles.cardStatIcon}>
-                                    <FiEye aria-hidden="true" />
+                                </div>
+                                <div className={styles.cardStats}>
+                                  <span className={styles.cardStat}>
+                                    <span className={styles.cardStatIcon}>
+                                      <FiHeart aria-hidden="true" />
+                                    </span>
+                                    <span className={styles.cardStatCount}>{post.likeCount.toLocaleString()}</span>
                                   </span>
-                                  <span className={styles.cardStatCount}>{post.views.toLocaleString()}</span>
-                                </span>
-                                <span className={styles.cardStat}>
-                                  <span className={styles.cardStatIcon}>
-                                    <FiShare2 aria-hidden="true" />
+                                  <span className={styles.cardStat}>
+                                    <span className={styles.cardStatIcon}>
+                                      <FiEye aria-hidden="true" />
+                                    </span>
+                                    <span className={styles.cardStatCount}>{post.views.toLocaleString()}</span>
                                   </span>
-                                  <span className={styles.cardStatCount}>{post.shareCount.toLocaleString()}</span>
-                                </span>
+                                  <span className={styles.cardStat}>
+                                    <span className={styles.cardStatIcon}>
+                                      <FiShare2 aria-hidden="true" />
+                                    </span>
+                                    <span className={styles.cardStatCount}>{post.shareCount.toLocaleString()}</span>
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           </div>
