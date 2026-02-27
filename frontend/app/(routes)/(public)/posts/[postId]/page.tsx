@@ -51,6 +51,7 @@ import {
   getMentionHighlightSegments,
   splitCommentMentions,
 } from '@/app/(routes)/(public)/posts/[postId]/utils';
+import { buildRelativeTime } from '@/app/shared/utils/date.utils';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import { useToast } from '@/app/shared/components/toast/toast';
@@ -706,7 +707,9 @@ export default function PostDetailPage() {
         </div>
         <h1 className={styles.title}>{data.title}</h1>
         <div className={styles.metaRow}>
-          <span className={styles.metaItem}>{formatDate(data.publishedAt ?? data.createdAt)}</span>
+          <span className={styles.metaItem}>
+            {formatDate(data.publishedAt ?? data.createdAt)} ({buildRelativeTime(data.publishedAt ?? data.createdAt)})
+          </span>
           <span className={styles.metaDivider} aria-hidden="true">
             ·
           </span>
