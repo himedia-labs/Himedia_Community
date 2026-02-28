@@ -366,3 +366,8 @@ export type ListPostTagListProps = {
   tags: string[];
   postId: number | string;
 };
+
+export type VisibleTagsResult = {
+  hiddenCount: number;
+  visibleTags: string[];
+};

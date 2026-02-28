@@ -13,6 +13,7 @@ import { FiClock, FiEdit3, FiEye, FiHeart, FiMessageCircle, FiShare2, FiTrending
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
+import { getVisibleTags } from '@/app/shared/utils/postTag.utils';
 
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 import { usePostList, usePostListInfiniteScroll } from '@/app/(routes)/(public)/main/components/postList/hooks';
@@ -21,7 +22,6 @@ import {
   createHandleSortFilter,
 } from '@/app/(routes)/(public)/main/components/postList/handlers';
 import CardPostSkeletonItem from '@/app/(routes)/(public)/main/components/postList/postList.skeleton';
-import { getVisibleCardTags } from '@/app/(routes)/(public)/main/components/postList/utils';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
@@ -128,13 +128,6 @@ export default function PostListSection() {
             onClick={() => setSelectedCategory('Q&A')}
           >
             Q&A
-          </button>
-          <button
-            type="button"
-            className={selectedCategory === '채용' ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
-            onClick={() => setSelectedCategory('채용')}
-          >
-            채용
           </button>
           {isCategorySelected ? (
             <div style={{ marginLeft: 'auto' }}>
@@ -391,7 +384,7 @@ export default function PostListSection() {
                   const hasThumbnail = Boolean(thumbnailImageUrl);
                   const cardTags = post.tags.slice(0, 5);
                   const displayCardTags = cardTags.map(tagName => `#${tagName}`);
-                  const { hiddenCount, visibleTags } = getVisibleCardTags(displayCardTags);
+                  const { hiddenCount, visibleTags } = getVisibleTags(displayCardTags);
                   const hasCardTags = cardTags.length > 0;
                   const noThumbNoTag = !hasThumbnail && !hasCardTags;
                   const hasVisibleCardTags = visibleTags.length > 0;
