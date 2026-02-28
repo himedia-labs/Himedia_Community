@@ -9,10 +9,11 @@ import { PiList } from 'react-icons/pi';
 import Skeleton from 'react-loading-skeleton';
 import { FaUser } from 'react-icons/fa6';
 import { CiCalendar, CiGrid41 } from 'react-icons/ci';
-import { FiEye, FiHeart, FiMessageCircle, FiPlus, FiShare2 } from 'react-icons/fi';
+import { FiClock, FiEdit3, FiEye, FiHeart, FiMessageCircle, FiShare2, FiTrendingUp } from 'react-icons/fi';
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
+import { getVisibleTags } from '@/app/shared/utils/postTag.utils';
 
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 import { usePostList, usePostListInfiniteScroll } from '@/app/(routes)/(public)/main/components/postList/hooks';
@@ -21,7 +22,6 @@ import {
   createHandleSortFilter,
 } from '@/app/(routes)/(public)/main/components/postList/handlers';
 import CardPostSkeletonItem from '@/app/(routes)/(public)/main/components/postList/postList.skeleton';
-import { getVisibleCardTags } from '@/app/(routes)/(public)/main/components/postList/utils';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
@@ -49,12 +49,16 @@ export default function PostListSection() {
     setSortFilter,
     selectedCategory,
     setSelectedCategory,
+    categoryOrder,
+    setCategoryOrder,
     categoryNames,
     filteredPosts,
     topPosts,
     isLoading,
     isCategoriesLoading,
     isTopPostsLoading,
+    isFollowingEmpty,
+    isCategoryEmpty,
   } = usePostList();
 
   // 스켈레톤
@@ -65,7 +69,9 @@ export default function PostListSection() {
   const listTagSkeletonWidths = [48, 64, 56];
   const cardTagSkeletonWidths = [44, 58, 50];
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const isFollowingEmpty = sortFilter === 'following' && !isLoading && filteredPosts.length === 0;
+
+  // 카테고리 선택 시 정렬 버튼 비활성화 표시
+  const isCategorySelected = selectedCategory !== 'ALL';
 
   // 핸들러
   const handleCreatePost = createHandleCreatePost({ router });
@@ -78,13 +84,8 @@ export default function PostListSection() {
     <section className={styles.container} aria-label="포스트 하이라이트">
       <div className={styles.main}>
         <div className={styles.header}>
-          <button
-            type="button"
-            className={styles.createButton}
-            aria-label="게시물 작성"
-            onClick={handleCreatePost}
-          >
-            <FiPlus />
+          <button type="button" className={styles.createButton} aria-label="게시물 작성" onClick={handleCreatePost}>
+            <FiEdit3 />
           </button>
           <button
             type="button"
@@ -99,21 +100,21 @@ export default function PostListSection() {
         <div className={styles.sortBar}>
           <button
             type="button"
-            className={sortFilter === 'latest' ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+            className={sortFilter === 'latest' && !isCategorySelected ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
             onClick={() => handleSortFilter('latest')}
           >
             최신
           </button>
           <button
             type="button"
-            className={sortFilter === 'top' ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+            className={sortFilter === 'top' && !isCategorySelected ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
             onClick={() => handleSortFilter('top')}
           >
             TOP
           </button>
           <button
             type="button"
-            className={sortFilter === 'following' ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+            className={sortFilter === 'following' && !isCategorySelected ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
             onClick={() => handleSortFilter('following')}
           >
             피드
@@ -121,18 +122,49 @@ export default function PostListSection() {
           <span className={styles.sortDivider} aria-hidden="true">
             |
           </span>
-          <button type="button" className={styles.sortButton}>
+          <button
+            type="button"
+            className={selectedCategory === 'Q&A' ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+            onClick={() => setSelectedCategory('Q&A')}
+          >
             Q&A
           </button>
-          <button type="button" className={styles.sortButton}>
-            채용
-          </button>
+          {isCategorySelected ? (
+            <div style={{ marginLeft: 'auto' }}>
+              <button
+                type="button"
+                className={styles.categoryOrderButton}
+                onClick={() => setCategoryOrder(categoryOrder === 'latest' ? 'popular' : 'latest')}
+              >
+                {categoryOrder === 'popular' ? (
+                  <>
+                    <FiTrendingUp className={styles.categoryOrderIcon} aria-hidden="true" />
+                    인기순
+                  </>
+                ) : (
+                  <>
+                    <FiClock className={styles.categoryOrderIcon} aria-hidden="true" />
+                    최신순
+                  </>
+                )}
+              </button>
+            </div>
+          ) : null}
         </div>
 
-        {isFollowingEmpty ? (
+        {isFollowingEmpty || isCategoryEmpty ? (
           <div className={styles.emptyState} role="status">
-            <p className={styles.emptyTitle}>팔로우한 작성자가 없어요.</p>
-            <p className={styles.emptyDescription}>관심있는 작성자를 팔로우하면 피드에 모아서 볼 수 있어요.</p>
+            {isFollowingEmpty ? (
+              <>
+                <p className={styles.emptyTitle}>팔로우한 작성자가 없어요.</p>
+                <p className={styles.emptyDescription}>관심있는 작성자를 팔로우하면 피드에 모아서 볼 수 있어요.</p>
+              </>
+            ) : (
+              <>
+                <p className={styles.emptyTitle}>해당 카테고리에 게시물이 없어요.</p>
+                <p className={styles.emptyDescription}>다른 카테고리를 선택하거나 첫 번째 글을 작성해보세요.</p>
+              </>
+            )}
           </div>
         ) : viewMode === 'list' ? (
           <ul className={styles.listView}>
@@ -193,11 +225,7 @@ export default function PostListSection() {
                       <li>
                         <Link className={styles.postLink} href={`/posts/${post.id}`}>
                           <article
-                            className={
-                              hasThumbnail
-                                ? styles.listItem
-                                : `${styles.listItem} ${styles.listItemNoThumb}`
-                            }
+                            className={hasThumbnail ? styles.listItem : `${styles.listItem} ${styles.listItemNoThumb}`}
                           >
                             <div className={styles.listBody}>
                               <h3 className={styles.listTitle}>{post.title}</h3>
@@ -356,7 +384,7 @@ export default function PostListSection() {
                   const hasThumbnail = Boolean(thumbnailImageUrl);
                   const cardTags = post.tags.slice(0, 5);
                   const displayCardTags = cardTags.map(tagName => `#${tagName}`);
-                  const { hiddenCount, visibleTags } = getVisibleCardTags(displayCardTags);
+                  const { hiddenCount, visibleTags } = getVisibleTags(displayCardTags);
                   const hasCardTags = cardTags.length > 0;
                   const noThumbNoTag = !hasThumbnail && !hasCardTags;
                   const hasVisibleCardTags = visibleTags.length > 0;
@@ -419,74 +447,76 @@ export default function PostListSection() {
                               </div>
                             </div>
                           </div>
-                          {hasVisibleCardTags ? (
-                            <ul className={cardTagListClassName} aria-label="태그 목록">
-                              {visibleTags.map((displayTag, index) => (
-                                <li key={`${post.id}-card-${index}-${displayTag}`} className={styles.cardTagItem}>
-                                  {displayTag}
-                                </li>
-                              ))}
-                              {hiddenCount > 0 ? (
-                                <li className={styles.cardTagItem} aria-label={`숨겨진 태그 ${hiddenCount}개`}>
-                                  +{hiddenCount}
-                                </li>
-                              ) : null}
-                            </ul>
-                          ) : null}
-                          <div className={cardFooterClassName}>
-                            <div className={styles.cardDateRow}>
-                              <span>{post.date}</span>
-                              <span>·</span>
-                              <span>{post.timeAgo}</span>
-                            </div>
-                            <div className={styles.cardFooterDivider} aria-hidden="true" />
-                            <div className={styles.cardMetaRow}>
-                              <div className={styles.cardAuthor}>
-                                <div
-                                  className={
-                                    isMyPost
-                                      ? `${styles.cardAuthorAvatar} ${styles.cardAuthorAvatarMine}`
-                                      : styles.cardAuthorAvatar
-                                  }
-                                  aria-hidden="true"
-                                >
-                                  {post.authorProfileImageUrl ? (
-                                    <Image
-                                      className={styles.cardAuthorImage}
-                                      src={post.authorProfileImageUrl}
-                                      alt=""
-                                      width={24}
-                                      height={24}
-                                      unoptimized
-                                    />
-                                  ) : (
-                                    <FaUser />
-                                  )}
-                                </div>
-                                <span className={styles.cardAuthorText}>
-                                  <span className={styles.cardAuthorBy}>by.</span>
-                                  <span className={styles.cardAuthorName}>{post.authorName}</span>
-                                </span>
+                          <div className={styles.cardBottom}>
+                            {hasVisibleCardTags ? (
+                              <ul className={cardTagListClassName} aria-label="태그 목록">
+                                {visibleTags.map((displayTag, index) => (
+                                  <li key={`${post.id}-card-${index}-${displayTag}`} className={styles.cardTagItem}>
+                                    {displayTag}
+                                  </li>
+                                ))}
+                                {hiddenCount > 0 ? (
+                                  <li className={styles.cardTagItem} aria-label={`숨겨진 태그 ${hiddenCount}개`}>
+                                    +{hiddenCount}
+                                  </li>
+                                ) : null}
+                              </ul>
+                            ) : null}
+                            <div className={cardFooterClassName}>
+                              <div className={styles.cardDateRow}>
+                                <span>{post.date}</span>
+                                <span>·</span>
+                                <span>{post.timeAgo}</span>
                               </div>
-                              <div className={styles.cardStats}>
-                                <span className={styles.cardStat}>
-                                  <span className={styles.cardStatIcon}>
-                                    <FiHeart aria-hidden="true" />
+                              <div className={styles.cardFooterDivider} aria-hidden="true" />
+                              <div className={styles.cardMetaRow}>
+                                <div className={styles.cardAuthor}>
+                                  <div
+                                    className={
+                                      isMyPost
+                                        ? `${styles.cardAuthorAvatar} ${styles.cardAuthorAvatarMine}`
+                                        : styles.cardAuthorAvatar
+                                    }
+                                    aria-hidden="true"
+                                  >
+                                    {post.authorProfileImageUrl ? (
+                                      <Image
+                                        className={styles.cardAuthorImage}
+                                        src={post.authorProfileImageUrl}
+                                        alt=""
+                                        width={24}
+                                        height={24}
+                                        unoptimized
+                                      />
+                                    ) : (
+                                      <FaUser />
+                                    )}
+                                  </div>
+                                  <span className={styles.cardAuthorText}>
+                                    <span className={styles.cardAuthorBy}>by.</span>
+                                    <span className={styles.cardAuthorName}>{post.authorName}</span>
                                   </span>
-                                  <span className={styles.cardStatCount}>{post.likeCount.toLocaleString()}</span>
-                                </span>
-                                <span className={styles.cardStat}>
-                                  <span className={styles.cardStatIcon}>
-                                    <FiEye aria-hidden="true" />
+                                </div>
+                                <div className={styles.cardStats}>
+                                  <span className={styles.cardStat}>
+                                    <span className={styles.cardStatIcon}>
+                                      <FiHeart aria-hidden="true" />
+                                    </span>
+                                    <span className={styles.cardStatCount}>{post.likeCount.toLocaleString()}</span>
                                   </span>
-                                  <span className={styles.cardStatCount}>{post.views.toLocaleString()}</span>
-                                </span>
-                                <span className={styles.cardStat}>
-                                  <span className={styles.cardStatIcon}>
-                                    <FiShare2 aria-hidden="true" />
+                                  <span className={styles.cardStat}>
+                                    <span className={styles.cardStatIcon}>
+                                      <FiEye aria-hidden="true" />
+                                    </span>
+                                    <span className={styles.cardStatCount}>{post.views.toLocaleString()}</span>
                                   </span>
-                                  <span className={styles.cardStatCount}>{post.shareCount.toLocaleString()}</span>
-                                </span>
+                                  <span className={styles.cardStat}>
+                                    <span className={styles.cardStatIcon}>
+                                      <FiShare2 aria-hidden="true" />
+                                    </span>
+                                    <span className={styles.cardStatCount}>{post.shareCount.toLocaleString()}</span>
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -507,7 +537,9 @@ export default function PostListSection() {
               : null}
           </ul>
         )}
-        {!isFollowingEmpty ? <div ref={sentinelRef} className={styles.infiniteSentinel} aria-hidden="true" /> : null}
+        {!isFollowingEmpty && !isCategoryEmpty ? (
+          <div ref={sentinelRef} className={styles.infiniteSentinel} aria-hidden="true" />
+        ) : null}
       </div>
 
       <aside className={styles.sidebar} aria-label="TOP 5 인기글">

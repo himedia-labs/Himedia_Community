@@ -81,3 +81,32 @@
   white-space: nowrap;
   border: 0;
 }
+
+@media (width <= 1440px) {
+  .headingToolbar {
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+  }
+
+  .headingToolbar::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .headingToolbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.24);
+    border-radius: 999px;
+  }
+
+  .headingToolbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.08);
+  }
+
+  .headingButton,
+  .headingSeparator {
+    flex-shrink: 0;
+  }
+}

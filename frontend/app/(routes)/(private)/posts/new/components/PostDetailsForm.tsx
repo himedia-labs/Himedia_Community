@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { IoIosArrowDown, IoMdCheckmark } from 'react-icons/io';
 
 import styles from '../PostCreate.module.css';
@@ -11,6 +12,12 @@ import type { PostDetailsFormProps } from '@/app/shared/types/post';
 export default function PostDetailsForm({ category, tag }: PostDetailsFormProps) {
   // 카테고리
   const { categoryId, categories, isLoading, onCategoryChange } = category;
+  const categoryRef = useRef<HTMLDivElement | null>(null);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const selectedCategoryLabel = useMemo(
+    () => categories?.find(item => String(item.id) === categoryId)?.name ?? '카테고리를 선택하세요',
+    [categories, categoryId],
+  );
 
   // 태그
   const {
@@ -28,6 +35,19 @@ export default function PostDetailsForm({ category, tag }: PostDetailsFormProps)
     onTagSuggestionMouseDown,
   } = tag;
 
+  useEffect(() => {
+    if (!isCategoryOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!categoryRef.current) return;
+      if (categoryRef.current.contains(event.target as Node)) return;
+      setIsCategoryOpen(false);
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isCategoryOpen]);
+
   return (
     <>
       <div className={styles.metaRow}>
@@ -35,22 +55,51 @@ export default function PostDetailsForm({ category, tag }: PostDetailsFormProps)
           <label className={styles.metaLabel} htmlFor="post-category">
             카테고리
           </label>
-          <div className={styles.selectWrapper}>
-            <select
+          <div className={styles.selectWrapper} ref={categoryRef}>
+            <button
               id="post-category"
-              className={styles.metaControl}
-              value={categoryId}
-              onChange={onCategoryChange}
+              type="button"
+              className={styles.categoryTrigger}
+              onClick={() => setIsCategoryOpen(prev => !prev)}
               disabled={isLoading}
+              aria-haspopup="listbox"
+              aria-expanded={isCategoryOpen}
             >
-              <option value="">카테고리를 선택하세요</option>
-              {(categories ?? []).map(category => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-            <IoIosArrowDown className={styles.selectIcon} aria-hidden />
+              <span className={styles.categoryTriggerText}>{selectedCategoryLabel}</span>
+              <IoIosArrowDown className={styles.selectIcon} aria-hidden />
+            </button>
+            {isCategoryOpen ? (
+              <div className={styles.categoryMenu} role="listbox" aria-label="카테고리 목록">
+                <button
+                  type="button"
+                  className={!categoryId ? `${styles.categoryOption} ${styles.categoryOptionActive}` : styles.categoryOption}
+                  onClick={() => {
+                    onCategoryChange('');
+                    setIsCategoryOpen(false);
+                  }}
+                >
+                  카테고리를 선택하세요
+                </button>
+                {(categories ?? []).map(category => {
+                  const isActive = String(category.id) === categoryId;
+                  const className = isActive ? `${styles.categoryOption} ${styles.categoryOptionActive}` : styles.categoryOption;
+
+                  return (
+                    <button
+                      key={category.id}
+                      type="button"
+                      className={className}
+                      onClick={() => {
+                        onCategoryChange(String(category.id));
+                        setIsCategoryOpen(false);
+                      }}
+                    >
+                      {category.name}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : null}
           </div>
         </div>
 

@@ -2,12 +2,17 @@
 
 import { useCallback, useMemo } from 'react';
 
-import { FiSend } from 'react-icons/fi';
+import { FiSend, FiSave, FiLogOut } from 'react-icons/fi';
 import { RxWidth } from 'react-icons/rx';
 import { CiImport } from 'react-icons/ci';
 import { useRouter } from 'next/navigation';
 
+import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
+import { useFollowersQuery, useFollowingsQuery } from '@/app/api/follows/follows.queries';
+import { usePostsQuery } from '@/app/api/posts/posts.queries';
+
+import { useAuthStore } from '@/app/shared/store/authStore';
 
 import {
   DEFAULT_AUTHOR_NAME,
@@ -37,6 +42,7 @@ import type { DraftData } from '@/app/shared/types/post';
 export default function PostCreatePage() {
   // 라우트 훅
   const router = useRouter();
+  const { accessToken } = useAuthStore();
 
   // 기본 폼 상태
   const { state: formState, setters: formSetters, handlers: formHandlers } = usePostForm();
@@ -93,6 +99,14 @@ export default function PostCreatePage() {
 
   // 카테고리 목록
   const { data: categories, isLoading } = useCategoriesQuery();
+  const { data: currentUser } = useCurrentUserQuery();
+  const currentUserId = currentUser?.id;
+  const { data: followersData } = useFollowersQuery({ enabled: Boolean(accessToken) });
+  const { data: followingsData } = useFollowingsQuery({ enabled: Boolean(accessToken) });
+  const { data: myPostsData } = usePostsQuery(
+    { authorId: currentUserId, status: 'PUBLISHED', sort: 'createdAt', order: 'DESC', page: 1, limit: 1 },
+    { enabled: Boolean(accessToken && currentUserId) },
+  );
 
   // 미리보기 데이터
   const categoryName = categories?.find(category => String(category.id) === categoryId)?.name ?? DEFAULT_CATEGORY_LABEL;
@@ -100,6 +114,11 @@ export default function PostCreatePage() {
   const previewStats = DEFAULT_PREVIEW_STATS;
   const authorName = DEFAULT_AUTHOR_NAME;
   const draftCount = draftList?.items?.length ?? 0;
+  const authorStats = {
+    postCount: myPostsData?.total ?? 0,
+    followerCount: followersData?.length ?? 0,
+    followingCount: followingsData?.length ?? 0,
+  };
   const previewContent = useMemo(() => renderMarkdownPreview(content), [content]);
 
   return (
@@ -219,6 +238,7 @@ export default function PostCreatePage() {
             categoryName={categoryName}
             authorName={authorName}
             dateLabel={dateLabel}
+            authorStats={authorStats}
             previewStats={previewStats}
             content={
               content ? (
@@ -236,8 +256,10 @@ export default function PostCreatePage() {
           type="button"
           className={`${styles.actionButton} ${styles.actionButtonExit}`}
           onClick={() => router.push('/')}
+          aria-label="나가기"
         >
-          <span>나가기</span>
+          <span className={styles.actionLabel}>나가기</span>
+          <FiLogOut className={styles.actionIcon} aria-hidden="true" />
         </button>
         <button
           type="button"
@@ -246,15 +268,16 @@ export default function PostCreatePage() {
           title="임시저장"
           onClick={() => saveDraft()}
         >
-          <span>저장하기</span>
+          <span className={styles.actionLabel}>저장하기</span>
+          <FiSave className={`${styles.actionIcon} ${styles.actionIconSave}`} aria-hidden="true" />
           <span className={styles.footerDivider} aria-hidden="true">
             |
           </span>
           <span className={styles.footerCount}>{draftCount}</span>
         </button>
         <button type="button" className={styles.actionButton} onClick={openDraftList}>
-          <span>불러오기</span>
-          <CiImport aria-hidden="true" />
+          <span className={styles.actionLabel}>불러오기</span>
+          <CiImport className={styles.actionIcon} aria-hidden="true" />
         </button>
       </footer>
     </section>

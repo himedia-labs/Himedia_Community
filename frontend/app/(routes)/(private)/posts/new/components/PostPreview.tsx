@@ -1,5 +1,5 @@
 import { RiTwitterXFill } from 'react-icons/ri';
-import { FaFacebookSquare, FaGithub, FaLinkedin } from 'react-icons/fa';
+import { FaFacebookSquare, FaGithub, FaLinkedin, FaUser } from 'react-icons/fa';
 import { FiEye, FiHeart, FiMail, FiMessageCircle, FiTag } from 'react-icons/fi';
 
 import markdownStyles from '@/app/shared/components/markdown-editor/markdown.module.css';
@@ -16,6 +16,7 @@ export default function PostPreview({
   categoryName,
   authorName,
   dateLabel,
+  authorStats,
   previewStats,
   content,
   tags,
@@ -69,25 +70,42 @@ export default function PostPreview({
           ))}
         </div>
       ) : null}
-      <div className={styles.previewActionsRow}>
-        <span className={styles.previewMetaActions}>
-          <span className={styles.previewMetaAction} role="img" aria-label="이메일">
+      <section className={styles.previewAuthorProfileCard} aria-label="작성자 프로필 미리보기">
+        <div className={styles.previewAuthorProfileMain}>
+          <div className={styles.previewAuthorProfileAvatar} aria-hidden="true">
+            <FaUser />
+          </div>
+          <div className={styles.previewAuthorProfileInfo}>
+            <div className={styles.previewAuthorProfileNameRow}>
+              <span className={styles.previewAuthorProfileName}>{authorName}</span>
+              <span className={styles.previewAuthorProfileRole}>작성자</span>
+            </div>
+            <p className={styles.previewAuthorProfileBio}>작성자 소개글이 여기에 표시됩니다.</p>
+            <span className={styles.previewAuthorProfileMeta}>
+              글 {authorStats.postCount.toLocaleString()} · 팔로워 {authorStats.followerCount.toLocaleString()} · 팔로잉{' '}
+              {authorStats.followingCount.toLocaleString()}
+            </span>
+          </div>
+        </div>
+        <div className={styles.previewAuthorProfileSocialDivider} aria-hidden="true" />
+        <div className={styles.previewAuthorProfileSocialRow} aria-label="소셜 링크 미리보기">
+          <span className={styles.previewAuthorProfileSocialLink} role="img" aria-label="이메일">
             <FiMail aria-hidden="true" />
           </span>
-          <span className={styles.previewMetaAction} role="img" aria-label="깃허브">
+          <span className={styles.previewAuthorProfileSocialLink} role="img" aria-label="깃허브">
             <FaGithub aria-hidden="true" />
           </span>
-          <span className={styles.previewMetaAction} role="img" aria-label="트위터">
+          <span className={styles.previewAuthorProfileSocialLink} role="img" aria-label="트위터">
             <RiTwitterXFill aria-hidden="true" />
           </span>
-          <span className={styles.previewMetaAction} role="img" aria-label="페이스북">
+          <span className={styles.previewAuthorProfileSocialLink} role="img" aria-label="페이스북">
             <FaFacebookSquare aria-hidden="true" />
           </span>
-          <span className={styles.previewMetaAction} role="img" aria-label="링크드인">
+          <span className={styles.previewAuthorProfileSocialLink} role="img" aria-label="링크드인">
             <FaLinkedin aria-hidden="true" />
           </span>
-        </span>
-      </div>
+        </div>
+      </section>
     </article>
   );
 }

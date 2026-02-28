@@ -51,6 +51,7 @@ import {
   getMentionHighlightSegments,
   splitCommentMentions,
 } from '@/app/(routes)/(public)/posts/[postId]/utils';
+import { buildRelativeTime } from '@/app/shared/utils/date.utils';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import { useToast } from '@/app/shared/components/toast/toast';
@@ -87,7 +88,10 @@ export default function PostDetailPage() {
   const likeCount = data?.likeCount ?? 0;
   const shareCount = data?.shareCount ?? 0;
   const commentCount = data?.commentCount ?? 0;
+  const authorPostCount = data?.author?.postCount ?? 0;
+  const authorFollowingCount = data?.author?.followingCount ?? 0;
   const postAuthorId = data?.author?.id ?? null;
+  const authorProfilePath = data?.author?.profileHandle ? `/@${data.author.profileHandle.replace(/^@/, '')}` : '';
   const isMyPost = Boolean(currentUser?.id && postAuthorId && currentUser.id === postAuthorId);
   const canShowAuthorFollowButton = Boolean(currentUser?.id && postAuthorId && currentUser.id !== postAuthorId);
   const authorProfileBio = data?.author?.profileBio?.trim() ?? '';
@@ -703,7 +707,9 @@ export default function PostDetailPage() {
         </div>
         <h1 className={styles.title}>{data.title}</h1>
         <div className={styles.metaRow}>
-          <span className={styles.metaItem}>{formatDate(data.publishedAt ?? data.createdAt)}</span>
+          <span className={styles.metaItem}>
+            {formatDate(data.publishedAt ?? data.createdAt)} ({buildRelativeTime(data.publishedAt ?? data.createdAt)})
+          </span>
           <span className={styles.metaDivider} aria-hidden="true">
             ·
           </span>
@@ -782,10 +788,7 @@ export default function PostDetailPage() {
           </aside>
 
           {data.author ? (
-            <section
-              className={`${styles.authorProfileCard} ${canShowAuthorFollowButton ? styles.authorProfileCardWithFollow : ''}`}
-              aria-label="작성자 프로필"
-            >
+            <section className={styles.authorProfileCard} aria-label="작성자 프로필">
               <div className={styles.authorProfileMain}>
                 <div className={styles.authorProfileAvatar} aria-hidden="true">
                   {data.author.profileImageUrl ? (
@@ -803,42 +806,46 @@ export default function PostDetailPage() {
                 </div>
                 <div className={styles.authorProfileInfo}>
                   <div className={styles.authorProfileNameRow}>
-                    {data.author.profileHandle ? (
-                      <Link
-                        className={styles.authorProfileNameLink}
-                        href={`/@${data.author.profileHandle.replace(/^@/, '')}`}
+                    <div className={styles.authorProfileNameGroup}>
+                      {authorProfilePath ? (
+                        <Link className={styles.authorProfileNameLink} href={authorProfilePath}>
+                          <span className={styles.authorProfileName}>{data.author.name}</span>
+                          <span className={`${styles.authorProfileRole} ${styles.authorProfileRoleLink}`}>
+                            <span>{formatRole(data.author.role)}</span>
+                            <FiExternalLink className={styles.authorProfileNameLinkIcon} aria-hidden="true" />
+                          </span>
+                        </Link>
+                      ) : (
+                        <>
+                          <span className={styles.authorProfileName}>{data.author.name}</span>
+                          <span className={styles.authorProfileRole}>{formatRole(data.author.role)}</span>
+                        </>
+                      )}
+                    </div>
+                    {canShowAuthorFollowButton ? (
+                      <button
+                        type="button"
+                        className={`${styles.authorFollowButton} ${
+                          isAuthorFollowing ? styles.authorFollowButtonActive : ''
+                        }`}
+                        disabled={isAuthorFollowLoading || !postAuthorId}
+                        onMouseEnter={() => setIsAuthorFollowHover(true)}
+                        onMouseLeave={() => setIsAuthorFollowHover(false)}
+                        onClick={handleAuthorFollowToggle}
                       >
-                        <span className={styles.authorProfileName}>{data.author.name}</span>
-                        <span className={`${styles.authorProfileRole} ${styles.authorProfileRoleLink}`}>
-                          <span>{formatRole(data.author.role)}</span>
-                          <FiExternalLink className={styles.authorProfileNameLinkIcon} aria-hidden="true" />
-                        </span>
-                      </Link>
-                    ) : (
-                      <>
-                        <span className={styles.authorProfileName}>{data.author.name}</span>
-                        <span className={styles.authorProfileRole}>{formatRole(data.author.role)}</span>
-                      </>
-                    )}
+                        {isAuthorFollowing ? (isAuthorFollowHover ? '언팔로우' : '팔로잉') : '팔로우'}
+                      </button>
+                    ) : null}
                   </div>
                   {authorProfileBioPreview ? (
                     <p className={styles.authorProfileBio}>{authorProfileBioPreview}</p>
                   ) : null}
-                  <span className={styles.authorProfileMeta}>팔로워 {authorFollowerCount.toLocaleString()}</span>
+                  <span className={styles.authorProfileMeta}>
+                    글 {authorPostCount.toLocaleString()} · 팔로워 {authorFollowerCount.toLocaleString()} · 팔로잉{' '}
+                    {authorFollowingCount.toLocaleString()}
+                  </span>
                 </div>
               </div>
-              {canShowAuthorFollowButton ? (
-                <button
-                  type="button"
-                  className={`${styles.authorFollowButton} ${isAuthorFollowing ? styles.authorFollowButtonActive : ''}`}
-                  disabled={isAuthorFollowLoading || !postAuthorId}
-                  onMouseEnter={() => setIsAuthorFollowHover(true)}
-                  onMouseLeave={() => setIsAuthorFollowHover(false)}
-                  onClick={handleAuthorFollowToggle}
-                >
-                  {isAuthorFollowing ? (isAuthorFollowHover ? '언팔로우' : '팔로잉') : '팔로우'}
-                </button>
-              ) : null}
               {authorSocialLinks.length ? (
                 <>
                   <div className={styles.authorProfileSocialDivider} aria-hidden="true" />

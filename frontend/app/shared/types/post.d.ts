@@ -89,7 +89,9 @@ export interface PostAuthorRef {
   profileTwitterUrl?: string | null;
   profileFacebookUrl?: string | null;
   profileWebsiteUrl?: string | null;
+  postCount?: number;
   followerCount?: number;
+  followingCount?: number;
   isFollowing?: boolean;
 }
 
@@ -280,7 +282,7 @@ export type PostDetailsFormCategory = {
   categoryId: string;
   categories: Array<{ id: string; name: string }> | undefined;
   isLoading: boolean;
-  onCategoryChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+  onCategoryChange: (nextCategoryId: string) => void;
 };
 
 export type PostDetailsFormThumbnail = {
@@ -341,6 +343,11 @@ export type PostPreviewProps = {
   categoryName: string;
   authorName: string;
   dateLabel: string;
+  authorStats: {
+    postCount: number;
+    followerCount: number;
+    followingCount: number;
+  };
   previewStats: {
     views: number;
     likeCount: number;
@@ -358,4 +365,9 @@ export type PostsQueryOptions = {
 export type ListPostTagListProps = {
   tags: string[];
   postId: number | string;
+};
+
+export type VisibleTagsResult = {
+  hiddenCount: number;
+  visibleTags: string[];
 };
