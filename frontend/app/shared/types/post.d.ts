@@ -371,3 +371,19 @@ export type VisibleTagsResult = {
   hiddenCount: number;
   visibleTags: string[];
 };
+
+export type PostListActionHandlers = {
+  openPostMenuId?: string | null;
+  isPostDeleting?: boolean;
+  onPostDelete?: (postId: string) => void;
+  onPostEdit?: (postId: string) => void;
+  onPostMenuToggle?: (postId: string) => void;
+};
+
+export interface PostSummaryListProps {
+  posts: PostListItem[];
+  emptyText: string;
+  currentUserId?: string | null;
+  emptyClassName?: string;
+  actionHandlers?: PostListActionHandlers;
+}
