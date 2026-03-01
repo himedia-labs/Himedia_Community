@@ -1,3 +1,4 @@
+# main 브랜치 대상 PR 또는 수동 실행 시 SBOM(CycloneDX)을 생성해 아티팩트로 보관합니다.
 name: SBOM
 
 on:

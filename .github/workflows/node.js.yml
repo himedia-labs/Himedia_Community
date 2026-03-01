@@ -1,5 +1,4 @@
-# @Node.js CI(install/lint/build/test) 자동 검증 워크플로우
-
+# main 브랜치 대상 PR에서 프론트/백엔드 설치, 린트, 빌드를 실행해 기본 품질을 검증합니다.
 name: Node.js CI
 
 on:

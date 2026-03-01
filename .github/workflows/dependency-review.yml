@@ -1,3 +1,4 @@
+# main 브랜치 대상 PR에서 새로 추가/변경된 의존성의 보안 위험도를 검사합니다.
 name: Dependency Review
 
 on:
