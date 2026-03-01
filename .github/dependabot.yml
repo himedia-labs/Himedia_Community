@@ -1,11 +1,7 @@
 # @npm 의존성 업데이트 PR 자동 생성 설정
-
-# Dependabot 설정 버전
 version: 2
 
-# 업데이트 대상 목록
 updates:
-  # 프론트엔드 npm 의존성 업데이트
   - package-ecosystem: 'npm'
     directory: '/frontend'
     target-branch: 'dev'

@@ -783,7 +783,7 @@
 .settingsGroup {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 7px;
 }
 
 .settingsBlock {

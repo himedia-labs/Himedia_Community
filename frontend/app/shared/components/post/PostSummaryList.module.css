@@ -1,0 +1,88 @@
+.listHeaderRow {
+  display: block;
+  position: relative;
+  padding-right: 40px;
+}
+
+.listMenuWrapper {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.listMenuButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  border: none;
+
+  background: transparent;
+
+  color: #8a8a8a;
+
+  cursor: pointer;
+}
+
+.listMenuButton:hover {
+  color: #6b7280;
+}
+
+.listMenuButton :global(svg) {
+  width: 18px;
+  height: 18px;
+}
+
+.listMenu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  z-index: 5;
+
+  width: max-content;
+  min-width: max-content;
+
+  padding: 0.35rem;
+
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+
+  background: #fff;
+
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
+}
+
+.listMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+
+  width: max-content;
+  min-width: 100%;
+
+  padding: 0.45rem 0.6rem;
+
+  border: none;
+  border-radius: 8px;
+
+  background: transparent;
+
+  font-size: 0.85rem;
+  color: #4e5968;
+  text-align: left;
+  white-space: nowrap;
+
+  cursor: pointer;
+}
+
+.listMenuItem:hover {
+  background: #f3f4f6;
+}
+
+.listMenuItem :global(svg) {
+  width: 14px;
+  height: 14px;
+}

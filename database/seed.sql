@@ -23,6 +23,7 @@ VALUES
   (17, 'Troubleshooting'),
   (18, 'Dev Tools'),
   (19, 'Tech Essay'),
-  (20, 'Study Note');
+  (20, 'Study Note'),
+  (21, 'Q&A');
 
 COMMIT;

@@ -1,3 +1,4 @@
+# dev 브랜치로 열린 Dependabot PR 중 patch/minor 업데이트만 자동 병합합니다.
 name: Dependabot Auto Merge
 
 on:
