@@ -1,130 +1,82 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 
 import { FaUser } from 'react-icons/fa';
-import { FaFacebookF, FaLinkedinIn, FaXTwitter } from 'react-icons/fa6';
-import { FiChevronDown, FiClock, FiGithub, FiGlobe, FiMail, FiTrendingUp } from 'react-icons/fi';
+import { FiChevronDown, FiClock, FiTrendingUp } from 'react-icons/fi';
 
-import { usePostsQuery } from '@/app/api/posts/posts.queries';
-import { useProfileByHandleQuery } from '@/app/api/auth/auth.queries';
-import PostSummaryList from '@/app/shared/components/post/PostSummaryList';
-import { renderMarkdownPreview } from '@/app/shared/utils/markdown';
-import { sortPostsByKey } from '@/app/(routes)/(private)/mypage/utils';
 import { ProfilePageSkeleton, ProfilePostListSkeleton } from '@/app/(routes)/(public)/[profileId]/ProfilePage.skeleton';
-
-import markdownStyles from '@/app/shared/components/markdown-editor/markdown.module.css';
+import { useProfileData } from '@/app/(routes)/(public)/[profileId]/hooks/useProfileData';
+import { useProfileFilters } from '@/app/(routes)/(public)/[profileId]/hooks/useProfileFilters';
+import { useProfileFollow } from '@/app/(routes)/(public)/[profileId]/hooks/useProfileFollow';
+import PostSummaryList from '@/app/shared/components/post/PostSummaryList';
+import { useToast } from '@/app/shared/components/toast/toast';
 import myPageStyles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
+import postListStyles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
+import postDetailStyles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
 import styles from '@/app/(routes)/(public)/[profileId]/ProfilePage.module.css';
+import markdownStyles from '@/app/shared/components/markdown-editor/markdown.module.css';
 
 /**
  * 프로필 페이지
  * @description 사용자 공개 프로필과 게시글 목록을 표시
  */
 export default function ProfilePage() {
-  // 필터 상태
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [isTagOpen, setIsTagOpen] = useState(false);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
-  const [sortKey, setSortKey] = useState<'latest' | 'popular'>('latest');
-
   // 라우트 파라미터
   const params = useParams();
-  const profileId = Array.isArray(params?.profileId) ? params.profileId[0] : (params?.profileId ?? '');
-  const decodedProfileId = decodeURIComponent(profileId);
-  const hasAtPrefix = decodedProfileId.startsWith('@');
-  const normalizedProfileId = decodedProfileId.replace(/^@/, '');
+  const profileIdParam = Array.isArray(params?.profileId) ? params.profileId[0] : params?.profileId;
+  const { showToast } = useToast();
 
-  // 조회 데이터
-  const { data: profile, isLoading: isProfileLoading } = useProfileByHandleQuery(normalizedProfileId);
-  const { data: postsData, isLoading: isPostsLoading } = usePostsQuery(
-    {
-      authorId: profile?.id,
-      status: 'PUBLISHED',
-      sort: 'publishedAt',
-      order: 'DESC',
-      limit: 30,
-    },
-    { enabled: Boolean(profile?.id) },
-  );
+  // 데이터 상태
+  const {
+    accessToken,
+    author,
+    profileSocialLinks,
+    bioPreview,
+    decodedProfileId,
+    followings,
+    hasAtPrefix,
+    handleText,
+    isMyProfile,
+    isPostsLoading,
+    isProfileLoading,
+    postCount,
+    posts,
+    profile,
+    followingCount,
+  } = useProfileData(profileIdParam);
 
-  // 파생 데이터
-  const posts = postsData?.items ?? [];
-  const author = posts[0]?.author;
-  const postCount = posts.length;
-  const followerCount = author?.followerCount ?? 0;
-  const followingCount = author?.followingCount ?? 0;
-  const handleText = profile?.profileHandle ? `@${profile.profileHandle}` : `@${normalizedProfileId}`;
-  const bioPreview = useMemo(() => renderMarkdownPreview(profile?.profileBio ?? ''), [profile?.profileBio]);
-  const profileSocialLinks = [
-    { href: profile?.profileContactEmail ? `mailto:${profile.profileContactEmail}` : '', label: '이메일', icon: FiMail },
-    { href: profile?.profileGithubUrl, label: '깃허브', icon: FiGithub, external: true },
-    { href: profile?.profileLinkedinUrl, label: '링크드인', icon: FaLinkedinIn, external: true },
-    { href: profile?.profileTwitterUrl, label: 'X', icon: FaXTwitter, external: true },
-    { href: profile?.profileFacebookUrl, label: '페이스북', icon: FaFacebookF, external: true },
-    { href: profile?.profileWebsiteUrl, label: '홈페이지', icon: FiGlobe, external: true },
-  ].filter(item => Boolean(item.href));
-  const postCategories = useMemo(() => {
-    const counter = new Map<string, { id: string; name: string; count: number }>();
-    posts.forEach(post => {
-      const category = post.category;
-      if (!category) return;
-      const existing = counter.get(category.id);
-      if (existing) {
-        existing.count += 1;
-        return;
-      }
-      counter.set(category.id, { id: category.id, name: category.name, count: 1 });
+  // 필터 상태
+  const {
+    isCategoryOpen,
+    isTagOpen,
+    postCategories,
+    postTags,
+    sortKey,
+    selectedTagId,
+    selectedTagLabel,
+    selectedCategoryId,
+    selectedCategoryLabel,
+    filteredPosts,
+    emptyText,
+    toggleCategory,
+    handleSortToggle,
+    handleTagSelect,
+    toggleTag,
+    handleCategorySelect,
+  } = useProfileFilters(posts);
+
+  // 팔로우 상태
+  const { isFollowHover, isFollowLoading, isFollowing, followerCount, setIsFollowHover, handleFollowToggle } =
+    useProfileFollow({
+      accessToken,
+      isMyProfile,
+      showToast,
+      profileId: profile?.id,
+      author: author ?? undefined,
+      followings,
     });
-    return Array.from(counter.values()).sort((a, b) => b.count - a.count);
-  }, [posts]);
-  const postTags = useMemo(() => {
-    const counter = new Map<string, { id: string; name: string; count: number }>();
-    posts.forEach(post => {
-      post.tags?.forEach(tag => {
-        const existing = counter.get(tag.id);
-        if (existing) {
-          existing.count += 1;
-          return;
-        }
-        counter.set(tag.id, { id: tag.id, name: tag.name, count: 1 });
-      });
-    });
-    return Array.from(counter.values()).sort((a, b) => b.count - a.count);
-  }, [posts]);
-  const sortedPosts = useMemo(() => sortPostsByKey(posts, sortKey), [posts, sortKey]);
-  const filteredPosts = useMemo(() => {
-    if (!selectedCategoryId && !selectedTagId) return sortedPosts;
-    return sortedPosts.filter(post => {
-      const matchesCategory = selectedCategoryId ? post.category?.id === selectedCategoryId : true;
-      const matchesTag = selectedTagId ? post.tags?.some(tag => tag.id === selectedTagId) : true;
-      return matchesCategory && matchesTag;
-    });
-  }, [selectedCategoryId, selectedTagId, sortedPosts]);
-  const selectedCategoryLabel = postCategories.find(category => category.id === selectedCategoryId)?.name;
-  const selectedTagLabel = postTags.find(tag => tag.id === selectedTagId)?.name;
-  const toggleCategory = () => {
-    setIsTagOpen(false);
-    setIsCategoryOpen(prev => !prev);
-  };
-  const toggleTag = () => {
-    setIsCategoryOpen(false);
-    setIsTagOpen(prev => !prev);
-  };
-  const handleCategorySelect = (categoryId: string) => {
-    setSelectedCategoryId(prev => (prev === categoryId ? null : categoryId));
-    setIsCategoryOpen(false);
-  };
-  const handleTagSelect = (tagId: string) => {
-    setSelectedTagId(prev => (prev === tagId ? null : tagId));
-    setIsTagOpen(false);
-  };
-  const handleSortToggle = () => setSortKey(prev => (prev === 'latest' ? 'popular' : 'latest'));
-  const emptyText = selectedCategoryId || selectedTagId ? '조건에 맞는 게시물이 없습니다.' : '아직 작성한 게시물이 없습니다.';
 
   // 프로필 : 파라미터 대기
   if (!decodedProfileId) {
@@ -140,10 +92,12 @@ export default function ProfilePage() {
     );
   }
 
+  // 프로필 : 로딩
   if (isProfileLoading) {
     return <ProfilePageSkeleton />;
   }
 
+  // 프로필 : 없음
   if (!profile) {
     return (
       <section className={styles.container} aria-label="프로필">
@@ -195,20 +149,36 @@ export default function ProfilePage() {
                 </div>
               </div>
               <div className={styles.profileSide}>
+                {!isMyProfile ? (
+                  <button
+                    type="button"
+                    className={`${postDetailStyles.authorFollowButton} ${
+                      isFollowing ? postDetailStyles.authorFollowButtonActive : ''
+                    }`}
+                    disabled={isFollowLoading}
+                    onMouseEnter={() => setIsFollowHover(true)}
+                    onMouseLeave={() => setIsFollowHover(false)}
+                    onClick={handleFollowToggle}
+                  >
+                    {isFollowing ? (isFollowHover ? '언팔로우' : '팔로잉') : '팔로우'}
+                  </button>
+                ) : null}
                 {profileSocialLinks.length ? (
-                  <div className={myPageStyles.profileSocialRow} aria-label="소셜 링크">
-                    {profileSocialLinks.map(({ href, label, icon: Icon, external }) => (
-                      <a
-                        key={label}
-                        className={myPageStyles.profileSocialLink}
-                        href={href ?? ''}
-                        aria-label={label}
-                        target={external ? '_blank' : undefined}
-                        rel={external ? 'noreferrer' : undefined}
-                      >
-                        <Icon aria-hidden="true" />
-                      </a>
-                    ))}
+                  <div className={styles.profileSocialBottom}>
+                    <div className={myPageStyles.profileSocialRow} aria-label="소셜 링크">
+                      {profileSocialLinks.map(({ href, label, icon: Icon, external }) => (
+                        <a
+                          key={label}
+                          className={myPageStyles.profileSocialLink}
+                          href={href}
+                          aria-label={label}
+                          target={external ? '_blank' : undefined}
+                          rel={external ? 'noreferrer' : undefined}
+                        >
+                          <Icon aria-hidden="true" />
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 ) : null}
               </div>
@@ -225,8 +195,9 @@ export default function ProfilePage() {
           {profile.profileBio ? (
             <div className={markdownStyles.markdown}>{bioPreview}</div>
           ) : (
-            <div className={myPageStyles.settingsEmpty}>
-              <p className={myPageStyles.settingsText}>아직 작성한 소개가 없습니다.</p>
+            <div className={postListStyles.emptyState}>
+              <p className={postListStyles.emptyTitle}>아직 소개가 없어요</p>
+              <p className={postListStyles.emptyDescription}>첫 소개가 등록되면 여기에 보여드릴게요.</p>
             </div>
           )}
         </div>
@@ -269,8 +240,15 @@ export default function ProfilePage() {
                 ) : null}
               </div>
               <div className={myPageStyles.filterDropdown}>
-                <button type="button" className={myPageStyles.filterButton} onClick={toggleTag} disabled={!postTags.length}>
-                  <span className={myPageStyles.tagFilterLabel}>{selectedTagLabel ? `#${selectedTagLabel}` : '#태그'}</span>
+                <button
+                  type="button"
+                  className={myPageStyles.filterButton}
+                  onClick={toggleTag}
+                  disabled={!postTags.length}
+                >
+                  <span className={myPageStyles.tagFilterLabel}>
+                    {selectedTagLabel ? `#${selectedTagLabel}` : '#태그'}
+                  </span>
                   <FiChevronDown className={myPageStyles.filterChevron} aria-hidden="true" />
                 </button>
                 {isTagOpen ? (
