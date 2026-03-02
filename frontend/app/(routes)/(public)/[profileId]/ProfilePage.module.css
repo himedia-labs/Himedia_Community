@@ -26,7 +26,11 @@
   align-items: flex-end;
   gap: 12px;
   align-self: stretch;
-  justify-content: flex-end;
+  justify-content: flex-start;
+}
+
+.profileSocialBottom {
+  margin-top: auto;
 }
 
 .headerMain {
