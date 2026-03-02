@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { createFollowToggleHandler } from '@/app/(routes)/(public)/[profileId]/handlers';
 
 import type { FollowListResponse } from '@/app/shared/types/follow';
 import type { PostAuthorRef } from '@/app/shared/types/post';
+import type { Dispatch, SetStateAction } from 'react';
 
 type UseProfileFollowParams = {
   profileId?: string;
@@ -22,19 +23,33 @@ export const useProfileFollow = (params: UseProfileFollowParams) => {
   // 팔로우 상태
   const [isFollowHover, setIsFollowHover] = useState(false);
   const [isFollowLoading, setIsFollowLoading] = useState(false);
-  const [followerCount, setFollowerCount] = useState(0);
-  const [isFollowing, setIsFollowing] = useState(false);
+  const [overrideProfileId, setOverrideProfileId] = useState<string>();
+  const [overrideIsFollowing, setOverrideIsFollowing] = useState<boolean | null>(null);
+  const [overrideFollowerCount, setOverrideFollowerCount] = useState<number | null>(null);
 
-  // 팔로우 상태 동기화
-  useEffect(() => {
-    const fallbackFollowing = Boolean(params.author?.isFollowing);
-    const followingByList = params.profileId
-      ? Boolean(params.followings?.some(item => item.id === params.profileId))
-      : false;
+  // 팔로우 파생 상태
+  const fallbackFollowing = Boolean(params.author?.isFollowing);
+  const followingByList = params.profileId ? Boolean(params.followings?.some(item => item.id === params.profileId)) : false;
+  const baseIsFollowing = params.accessToken ? followingByList : fallbackFollowing;
+  const baseFollowerCount = params.author?.followerCount ?? 0;
+  const hasOverride = Boolean(params.profileId && overrideProfileId === params.profileId);
+  const isFollowing = hasOverride && overrideIsFollowing !== null ? overrideIsFollowing : baseIsFollowing;
+  const followerCount = hasOverride && overrideFollowerCount !== null ? overrideFollowerCount : baseFollowerCount;
 
-    setIsFollowing(params.accessToken ? followingByList : fallbackFollowing);
-    setFollowerCount(params.author?.followerCount ?? 0);
-  }, [params.accessToken, params.author?.followerCount, params.author?.isFollowing, params.followings, params.profileId]);
+  // 팔로우 상태 setter 어댑터
+  const setIsFollowing: Dispatch<SetStateAction<boolean>> = nextState => {
+    const currentState = isFollowing;
+    const resolvedState = typeof nextState === 'function' ? nextState(currentState) : nextState;
+    setOverrideProfileId(params.profileId);
+    setOverrideIsFollowing(resolvedState);
+  };
+
+  const setFollowerCount: Dispatch<SetStateAction<number>> = nextState => {
+    const currentState = followerCount;
+    const resolvedState = typeof nextState === 'function' ? nextState(currentState) : nextState;
+    setOverrideProfileId(params.profileId);
+    setOverrideFollowerCount(resolvedState);
+  };
 
   // 팔로우 토글
   const handleFollowToggle = createFollowToggleHandler({
