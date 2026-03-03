@@ -13,15 +13,15 @@
   },
   "dependencies": {
     "@channel.io/channel-web-sdk-loader": "^2.0.2",
-    "@number-flow/react": "^0.5.14",
+    "@number-flow/react": "^0.6.0",
     "@tanstack/react-query": "^5.90.21",
-    "axios": "^1.13.5",
+    "axios": "^1.13.6",
     "downshift": "^9.3.2",
     "next": "^16.1.6",
     "normalize.css": "^8.0.1",
     "react": "^19.2.1",
     "react-dom": "^19.2.4",
-    "react-icons": "^5.5.0",
+    "react-icons": "^5.6.0",
     "react-lines-ellipsis": "^0.16.1",
     "react-loading-skeleton": "^3.5.0",
     "zustand": "^5.0.11"
