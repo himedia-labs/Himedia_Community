@@ -3,7 +3,12 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { postsKeys } from '@/app/api/posts/posts.keys';
-import { useLikePostMutation, useSharePostMutation, useViewPostMutation } from '@/app/api/posts/posts.mutations';
+import {
+  useLikePostMutation,
+  useSharePostMutation,
+  useTrackRecentViewMutation,
+  useViewPostMutation,
+} from '@/app/api/posts/posts.mutations';
 
 import { useToast } from '@/app/shared/components/toast/toast';
 import { VIEW_DELAY_MS } from '@/app/shared/constants/config/post.config';
@@ -30,10 +35,12 @@ export const usePostDetailActions = ({ data, postId }: PostDetailActionsParams) 
   const { mutateAsync: likePost } = useLikePostMutation();
   const { mutateAsync: viewPost } = useViewPostMutation();
   const { mutateAsync: sharePost } = useSharePostMutation();
+  const { mutateAsync: trackRecentView } = useTrackRecentViewMutation();
 
   // 타이머 ref
   const viewTimerRef = useRef<number | null>(null);
   const viewedPostIdRef = useRef<string | null>(null);
+  const recentTrackedPostIdRef = useRef<string | null>(null);
 
   // 캐시 갱신
   const updateDetailCache = useCallback(
@@ -93,6 +100,19 @@ export const usePostDetailActions = ({ data, postId }: PostDetailActionsParams) 
       }
     };
   }, [data, postId, updateDetailCache, viewPost]);
+
+  // 최근 읽음 트래킹
+  useEffect(() => {
+    if (!postId || !data || !accessToken) return;
+    if (recentTrackedPostIdRef.current === postId) return;
+
+    recentTrackedPostIdRef.current = postId;
+    trackRecentView(postId)
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: postsKeys.recent() });
+      })
+      .catch(() => null);
+  }, [accessToken, data, postId, queryClient, trackRecentView]);
 
   // 프리뷰 계산
   const previewContent = useMemo(() => renderMarkdownPreview(data?.content ?? ''), [data?.content]);

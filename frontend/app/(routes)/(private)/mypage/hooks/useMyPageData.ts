@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useMyCommentsQuery } from '@/app/api/comments/comments.queries';
-import { useLikedPostsQuery, usePostsQuery } from '@/app/api/posts/posts.queries';
+import { useLikedPostsQuery, usePostsQuery, useRecentPostsQuery } from '@/app/api/posts/posts.queries';
 import { useFollowersQuery, useFollowingsQuery } from '@/app/api/follows/follows.queries';
 
 import { useAuthStore } from '@/app/shared/store/authStore';
@@ -43,6 +43,14 @@ export const useMyPageData = () => {
     { sort: 'createdAt', order: 'DESC', limit: 30 },
     { enabled: Boolean(accessToken) },
   );
+  const {
+    data: recentPostsData,
+    isFetching: isRecentPostsFetching,
+    isLoading: isRecentPostsLoading,
+  } = useRecentPostsQuery(
+    { order: 'DESC', limit: 30 },
+    { enabled: Boolean(accessToken) },
+  );
 
   // 파생 데이터
   const isAuthInitializing = !isInitialized;
@@ -50,12 +58,16 @@ export const useMyPageData = () => {
   const isPostsPending = Boolean(accessToken) && (isPostsLoading || isPostsFetching) && !postsData;
   const isCommentsPending = Boolean(accessToken) && (isMyCommentsLoading || isMyCommentsFetching) && !myCommentsData;
   const isLikedPostsPending = Boolean(accessToken) && (isLikedPostsLoading || isLikedPostsFetching) && !likedPostsData;
+  const isRecentPostsPending =
+    Boolean(accessToken) && (isRecentPostsLoading || isRecentPostsFetching) && !recentPostsData;
   const isUserInfoLoading = isAuthInitializing || isCurrentUserPending;
   const isMyPostsLoading = isUserInfoLoading || isPostsPending;
   const isMyCommentsListLoading = isUserInfoLoading || isCommentsPending;
   const isLikedPostsListLoading = isUserInfoLoading || isLikedPostsPending;
+  const isRecentPostsListLoading = isUserInfoLoading || isRecentPostsPending;
   const myComments = myCommentsData ?? [];
   const likedPosts = likedPostsData?.items ?? [];
+  const recentPosts = recentPostsData?.items ?? [];
   const userBio = currentUser?.profileBio ?? '';
   const profileContactEmail = currentUser?.profileContactEmail ?? '';
   const profileGithubUrl = currentUser?.profileGithubUrl ?? '';
@@ -88,12 +100,14 @@ export const useMyPageData = () => {
     followingCount,
     isMyCommentsListLoading,
     isLikedPostsListLoading,
+    isRecentPostsListLoading,
     isMyPostsLoading,
     isUserInfoLoading,
     userBirthDate,
     userEmail,
     userPhone,
     likedPosts,
+    recentPosts,
     myComments,
     myPosts,
     profileImageUrl,

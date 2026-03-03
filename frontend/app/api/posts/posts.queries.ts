@@ -37,6 +37,16 @@ export const useLikedPostsQuery = (params?: PostListQuery, options?: PostsQueryO
   });
 };
 
+// 최근 읽은 게시글 목록 조회
+export const useRecentPostsQuery = (params?: PostListQuery, options?: PostsQueryOptions) => {
+  return useQuery<PostListResponse, Error>({
+    queryKey: postsKeys.recent(params),
+    queryFn: () => postsApi.getRecentPosts(params),
+    enabled: options?.enabled ?? true,
+    placeholderData: previousData => previousData,
+  });
+};
+
 // 임시저장 목록 조회
 export const useDraftsQuery = (params?: PostListQuery, options?: PostsQueryOptions) => {
   return useQuery<PostListResponse, Error>({

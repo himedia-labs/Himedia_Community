@@ -9,6 +9,7 @@ export const getInitialTab = (value?: string | null, defaultTab: TabKey = 'posts
     value === 'comments' ||
     value === 'drafts' ||
     value === 'likes' ||
+    value === 'recent' ||
     value === 'posts' ||
     value === 'settings' ||
     value === 'account'

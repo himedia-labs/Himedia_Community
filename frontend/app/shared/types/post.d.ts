@@ -106,6 +106,7 @@ export interface PostListItem {
   shareCount: number;
   commentCount: number;
   createdAt: string;
+  updatedAt?: string;
   publishedAt: string | null;
   category: PostCategoryRef | null;
   tags?: PostTagRef[];
@@ -227,6 +228,10 @@ export interface PostShareResponse {
 
 export interface PostViewResponse {
   viewCount: number;
+}
+
+export interface PostRecentViewResponse {
+  postId: string;
 }
 
 export interface PostLikeResponse {

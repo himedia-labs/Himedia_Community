@@ -6,6 +6,7 @@ import type {
   CreatePostRequest,
   CreatePostResponse,
   PostLikeResponse,
+  PostRecentViewResponse,
   PostShareResponse,
   PostViewResponse,
   UpdatePostRequest,
@@ -37,6 +38,13 @@ export const useSharePostMutation = () => {
 export const useViewPostMutation = () => {
   return useMutation<PostViewResponse, Error, string>({
     mutationFn: postsApi.viewPost,
+  });
+};
+
+// 최근 읽음 기록
+export const useTrackRecentViewMutation = () => {
+  return useMutation<PostRecentViewResponse, Error, string>({
+    mutationFn: postsApi.trackRecentView,
   });
 };
 

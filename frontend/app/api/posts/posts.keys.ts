@@ -9,4 +9,5 @@ export const postsKeys = {
   drafts: (params?: PostListQuery) => [...postsKeys.all, 'drafts', params ?? {}] as const,
   draft: (postId?: string) => [...postsKeys.all, 'draft', postId ?? ''] as const,
   liked: (params?: PostListQuery) => [...postsKeys.all, 'liked', params ?? {}] as const,
+  recent: (params?: PostListQuery) => [...postsKeys.all, 'recent', params ?? {}] as const,
 };

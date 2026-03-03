@@ -95,9 +95,11 @@ export default function MyPage() {
     followingCount,
     isMyCommentsListLoading,
     isLikedPostsListLoading,
+    isRecentPostsListLoading,
     isMyPostsLoading,
     isUserInfoLoading,
     likedPosts,
+    recentPosts,
     myComments,
     myPosts,
     userBirthDate,
@@ -119,6 +121,7 @@ export default function MyPage() {
   const handleSortToggle = () => handleSortChange(sortKey === 'latest' ? 'popular' : 'latest');
   const { categories: postCategories, tags: postTags } = usePostSidebarData(myPosts);
   const sortedLikedPosts = useMemo(() => sortPostsByKey(likedPosts, sortKey), [likedPosts, sortKey]);
+  const sortedRecentPosts = useMemo(() => sortPostsByKey(recentPosts, sortKey), [recentPosts, sortKey]);
 
   // 프로필 편집
   const {
@@ -416,8 +419,6 @@ export default function MyPage() {
               >
                 {MYPAGE_TABS[4].label}
               </Link>
-              <div className={styles.listDividerLine} aria-hidden="true" />
-              <span className={styles.listGroupTitle}>설정</span>
               <Link
                 className={
                   activeTab === MYPAGE_TABS[5].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
@@ -425,6 +426,16 @@ export default function MyPage() {
                 href={MYPAGE_TABS[5].href}
               >
                 {MYPAGE_TABS[5].label}
+              </Link>
+              <div className={styles.listDividerLine} aria-hidden="true" />
+              <span className={styles.listGroupTitle}>설정</span>
+              <Link
+                className={
+                  activeTab === MYPAGE_TABS[6].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
+                }
+                href={MYPAGE_TABS[6].href}
+              >
+                {MYPAGE_TABS[6].label}
               </Link>
             </div>
           </nav>
@@ -1758,6 +1769,54 @@ export default function MyPage() {
                 ) : (
                   <div className={styles.empty}>아직 좋아요한 게시물이 없습니다.</div>
                 )}
+                </>
+              )
+            ) : activeTab === 'recent' ? (
+              isRecentPostsListLoading ? (
+                <MyPagePostListSkeleton label="최근 읽은 포스트" showFilters={false} />
+              ) : (
+                <>
+                  <div className={styles.settingsRow}>
+                    <span className={styles.settingsLabel}>최근 읽은 포스트</span>
+                    <div className={styles.settingsSortGroup}>
+                      <button
+                        type="button"
+                        className={`${styles.settingsSortButton} ${styles.settingsSortButtonActive}`}
+                        onClick={handleSortToggle}
+                      >
+                        {sortKey === 'popular' ? (
+                          <>
+                            <FiTrendingUp className={styles.settingsSortIcon} aria-hidden="true" />
+                            인기순
+                          </>
+                        ) : (
+                          <>
+                            <FiClock className={styles.settingsSortIcon} aria-hidden="true" />
+                            최신순
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  {sortedRecentPosts.length ? (
+                    <PostSummaryList
+                      posts={sortedRecentPosts}
+                      emptyText="아직 최근 읽은 게시물이 없습니다."
+                      currentUserId={currentUserId}
+                      actionHandlers={{
+                        isPostDeleting,
+                        openPostMenuId,
+                        onPostDelete: handlePostDelete,
+                        onPostEdit: handlePostEdit,
+                        onPostMenuToggle: handlePostMenuToggle,
+                      }}
+                    />
+                  ) : (
+                    <div className={styles.settingsEmpty}>
+                      <p className={styles.settingsText}>아직 최근 읽은 게시물이 없습니다.</p>
+                      <span className={styles.settingsSubtext}>게시글을 읽으면 이곳에 표시됩니다.</span>
+                    </div>
+                  )}
                 </>
               )
             ) : null}
