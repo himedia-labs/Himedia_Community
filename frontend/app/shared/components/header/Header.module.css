@@ -157,6 +157,11 @@
   border-radius: 8px;
 }
 
+.navLinkActive {
+  color: #1f1f1f;
+  background: #f3f4f6;
+}
+
 .profileIconButton {
   appearance: none;
   background: #e9edf4;
@@ -539,7 +544,6 @@
   .wrap {
     height: 4rem;
   }
-
   .logoMark {
     width: 30px;
     height: 24px;

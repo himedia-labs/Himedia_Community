@@ -1,19 +1,21 @@
 'use client';
 
+import { Fragment, useEffect, useRef, useState } from 'react';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Fragment, useRef } from 'react';
 
 import { PiList } from 'react-icons/pi';
 import Skeleton from 'react-loading-skeleton';
 import { FaUser } from 'react-icons/fa6';
-import { CiCalendar, CiGrid41 } from 'react-icons/ci';
+import { CiCalendar, CiGrid41, CiSearch } from 'react-icons/ci';
 import { FiClock, FiEdit3, FiEye, FiHeart, FiMessageCircle, FiShare2, FiTrendingUp } from 'react-icons/fi';
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { getVisibleTags } from '@/app/shared/utils/postTag.utils';
+import EmptyState from '@/app/shared/components/empty/EmptyState';
 
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 import { usePostList, usePostListInfiniteScroll } from '@/app/(routes)/(public)/main/components/postList/hooks';
@@ -25,6 +27,8 @@ import CardPostSkeletonItem from '@/app/(routes)/(public)/main/components/postLi
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
+
+import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 
 /**
  * 메인 포스트 리스트
@@ -47,6 +51,10 @@ export default function PostListSection() {
     setViewMode,
     sortFilter,
     setSortFilter,
+    isSearchMode,
+    setSearchMode,
+    searchKeyword,
+    setSearchKeyword,
     selectedCategory,
     setSelectedCategory,
     categoryOrder,
@@ -59,6 +67,8 @@ export default function PostListSection() {
     isTopPostsLoading,
     isFollowingEmpty,
     isCategoryEmpty,
+    isSearchEmpty,
+    isGeneralEmpty,
   } = usePostList();
 
   // 스켈레톤
@@ -69,6 +79,7 @@ export default function PostListSection() {
   const listTagSkeletonWidths = [48, 64, 56];
   const cardTagSkeletonWidths = [44, 58, 50];
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const [searchInputValue, setSearchInputValue] = useState(searchKeyword);
 
   // 카테고리 선택 시 정렬 버튼 비활성화 표시
   const isCategorySelected = selectedCategory !== 'ALL';
@@ -76,13 +87,33 @@ export default function PostListSection() {
   // 핸들러
   const handleCreatePost = createHandleCreatePost({ router });
   const handleSortFilter = createHandleSortFilter({ accessToken, router, setSortFilter });
+  const handleSearchInputKeyDown = (event: ReactKeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== 'Enter') return;
+    if (event.nativeEvent.isComposing) return;
+    setSearchKeyword(searchInputValue);
+  };
+
+  // 검색 입력 동기화
+  useEffect(() => {
+    setSearchInputValue(searchKeyword);
+  }, [searchKeyword]);
+
+  // 검색 모드 인기순 고정
+  useEffect(() => {
+    if (!isSearchMode) return;
+    if (sortFilter === 'top') return;
+    setSortFilter('top');
+  }, [isSearchMode, setSortFilter, sortFilter]);
 
   // 무한 스크롤
   usePostListInfiniteScroll({ fetchNextPage, hasNextPage, isFetchingNextPage, sentinelRef });
 
   return (
-    <section className={styles.container} aria-label="포스트 하이라이트">
-      <div className={styles.main}>
+    <section
+      className={isSearchMode ? `${styles.container} ${styles.containerSearch}` : styles.container}
+      aria-label="포스트 하이라이트"
+    >
+      <div className={isSearchMode ? `${styles.main} ${styles.mainSearch}` : styles.main}>
         <div className={styles.header}>
           <button type="button" className={styles.createButton} aria-label="게시물 작성" onClick={handleCreatePost}>
             <FiEdit3 />
@@ -97,40 +128,56 @@ export default function PostListSection() {
           </button>
         </div>
 
-        <div className={styles.sortBar}>
-          <button
-            type="button"
-            className={sortFilter === 'latest' && !isCategorySelected ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
-            onClick={() => handleSortFilter('latest')}
-          >
-            최신
-          </button>
-          <button
-            type="button"
-            className={sortFilter === 'top' && !isCategorySelected ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
-            onClick={() => handleSortFilter('top')}
-          >
-            TOP
-          </button>
-          <button
-            type="button"
-            className={sortFilter === 'following' && !isCategorySelected ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
-            onClick={() => handleSortFilter('following')}
-          >
-            피드
-          </button>
-          <span className={styles.sortDivider} aria-hidden="true">
-            |
-          </span>
-          <button
-            type="button"
-            className={selectedCategory === 'Q&A' ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
-            onClick={() => setSelectedCategory('Q&A')}
-          >
-            Q&A
-          </button>
-          {isCategorySelected ? (
-            <div style={{ marginLeft: 'auto' }}>
+        <div className={isSearchMode ? `${styles.sortBar} ${styles.sortBarSearch}` : styles.sortBar}>
+          {!isSearchMode ? (
+            <>
+              <button
+                type="button"
+                className={
+                  sortFilter === 'latest' && !isCategorySelected
+                    ? `${styles.sortButton} ${styles.active}`
+                    : styles.sortButton
+                }
+                onClick={() => handleSortFilter('latest')}
+              >
+                최신
+              </button>
+              <button
+                type="button"
+                className={
+                  sortFilter === 'top' && !isCategorySelected
+                    ? `${styles.sortButton} ${styles.active}`
+                    : styles.sortButton
+                }
+                onClick={() => handleSortFilter('top')}
+              >
+                TOP
+              </button>
+              <button
+                type="button"
+                className={
+                  sortFilter === 'following' && !isCategorySelected
+                    ? `${styles.sortButton} ${styles.active}`
+                    : styles.sortButton
+                }
+                onClick={() => handleSortFilter('following')}
+              >
+                피드
+              </button>
+              <span className={styles.sortDivider} aria-hidden="true">
+                |
+              </span>
+              <button
+                type="button"
+                className={selectedCategory === 'Q&A' ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+                onClick={() => setSelectedCategory('Q&A')}
+              >
+                Q&A
+              </button>
+            </>
+          ) : null}
+          <div className={styles.sortRightGroup}>
+            {!isSearchMode && isCategorySelected ? (
               <button
                 type="button"
                 className={styles.categoryOrderButton}
@@ -148,25 +195,65 @@ export default function PostListSection() {
                   </>
                 )}
               </button>
-            </div>
-          ) : null}
-        </div>
-
-        {isFollowingEmpty || isCategoryEmpty ? (
-          <div className={styles.emptyState} role="status">
-            {isFollowingEmpty ? (
-              <>
-                <p className={styles.emptyTitle}>팔로우한 작성자가 없어요.</p>
-                <p className={styles.emptyDescription}>관심있는 작성자를 팔로우하면 피드에 모아서 볼 수 있어요.</p>
-              </>
-            ) : (
-              <>
-                <p className={styles.emptyTitle}>해당 카테고리에 게시물이 없어요.</p>
-                <p className={styles.emptyDescription}>다른 카테고리를 선택하거나 첫 번째 글을 작성해보세요.</p>
-              </>
-            )}
+            ) : null}
+            {isSearchMode ? (
+              <label className={styles.sortSearchField} htmlFor="main-sort-search">
+                <input
+                  id="main-sort-search"
+                  type="text"
+                  className={styles.sortSearchInput}
+                  placeholder="제목, 내용, 작성자, 태그 검색"
+                  value={searchInputValue}
+                  onKeyDown={handleSearchInputKeyDown}
+                  onChange={event => setSearchInputValue(event.target.value)}
+                />
+                <button
+                  type="button"
+                  className={styles.sortSearchIconButton}
+                  aria-label="검색 닫기"
+                  onClick={() => setSearchMode(false)}
+                >
+                  <CiSearch aria-hidden="true" />
+                </button>
+              </label>
+            ) : null}
           </div>
-        ) : viewMode === 'list' ? (
+        </div>
+        {isSearchMode ? (
+          searchKeyword ? (
+            <p className={styles.searchResultCount}>
+              아티클 갯수 <span className={styles.searchResultCountNumber}>{filteredPosts.length}개</span>
+            </p>
+          ) : (
+            <div className={styles.searchTopicCopy}>
+              <p className={styles.searchTopicTitle}>어떤 글을 찾고 계신가요?</p>
+              <p className={styles.searchTopicHint}>요즘 많이 보는 주제</p>
+            </div>
+          )
+        ) : null}
+
+        {isSearchEmpty || isFollowingEmpty || isCategoryEmpty || isGeneralEmpty ? (
+          <EmptyState
+            title={
+              isSearchEmpty
+                ? '검색 결과가 없어요.'
+                : isFollowingEmpty
+                  ? '팔로우한 작성자가 없어요.'
+                  : isCategoryEmpty
+                    ? '해당 카테고리에 게시물이 없어요.'
+                    : '아직 게시물이 없어요.'
+            }
+            description={
+              isSearchEmpty
+                ? '다른 키워드로 다시 검색해보세요.'
+                : isFollowingEmpty
+                  ? '관심있는 작성자를 팔로우하면 피드에 모아서 볼 수 있어요.'
+                  : isCategoryEmpty
+                    ? '다른 카테고리를 선택하거나 첫 번째 글을 작성해보세요.'
+                    : '첫 번째 글을 작성해보세요.'
+            }
+          />
+        ) : isSearchMode || viewMode === 'list' ? (
           <ul className={styles.listView}>
             {isLoading
               ? listSkeletons.map((_, index) => (
@@ -542,59 +629,74 @@ export default function PostListSection() {
         ) : null}
       </div>
 
-      <aside className={styles.sidebar} aria-label="TOP 5 인기글">
-        <div className={styles.sidebarHeader}>
-          <p className={styles.sidebarLabel}>
-            TOP 5 <span className={styles.sidebarSubLabel}>(인기있는 글)</span>
-          </p>
-        </div>
-        <ol className={styles.topList}>
-          {isTopPostsLoading
-            ? topSkeletons.map((_, index) => (
-                <li key={`top-skeleton-${index}`} aria-hidden="true">
-                  <span className={styles.rank}>
-                    <Skeleton width="1.2ch" height={14} />
-                  </span>
-                  <span className={styles.topTitle}>
-                    <Skeleton height={14} width="80%" />
-                  </span>
-                </li>
-              ))
-            : topPosts.map((item, index) => (
-                <li key={item.id}>
-                  <span className={styles.rank}>{index + 1}</span>
-                  <Link className={styles.topTitle} href={`/posts/${item.id}`}>
-                    {item.title}
-                  </Link>
-                </li>
-              ))}
-        </ol>
-        <div className={styles.sidebarDivider} aria-hidden="true" />
+      {!isSearchMode ? (
+        <aside className={styles.sidebar} aria-label="TOP 5 인기글">
+          <div className={styles.sidebarHeader}>
+            <p className={styles.sidebarLabel}>
+              TOP 5 <span className={styles.sidebarSubLabel}>(인기있는 글)</span>
+            </p>
+          </div>
+          <ol className={styles.topList}>
+            {isTopPostsLoading
+              ? topSkeletons.map((_, index) => (
+                  <li key={`top-skeleton-${index}`} aria-hidden="true">
+                    <span className={styles.rank}>
+                      <Skeleton width="1.2ch" height={14} />
+                    </span>
+                    <span className={styles.topTitle}>
+                      <Skeleton height={14} width="80%" />
+                    </span>
+                  </li>
+                ))
+              : topPosts.map((item, index) => (
+                  <li key={item.id}>
+                    <span className={styles.rank}>{index + 1}</span>
+                    <Link className={styles.topTitle} href={`/posts/${item.id}`}>
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+            {!isTopPostsLoading && topPosts.length === 0 ? (
+              <li className={styles.topListEmpty}>
+                <EmptyState
+                  title="아직 인기 게시물이 없어요."
+                  description="첫 번째 인기 글이 이곳에 표시됩니다."
+                  size="compact"
+                  align="left"
+                  className={styles.topListEmptyState}
+                />
+              </li>
+            ) : null}
+          </ol>
+          <div className={styles.sidebarDivider} aria-hidden="true" />
 
-        <div className={styles.sidebarHeader}>
-          <p className={styles.sidebarLabel}>
-            CATEGORY <span className={styles.sidebarSubLabel}>(카테고리)</span>
-          </p>
-        </div>
-        <div className={styles.categoryList}>
-          {isCategoriesLoading
-            ? categorySkeletons.map((_, index) => (
-                <Skeleton key={`category-skeleton-${index}`} height={32} width={80} borderRadius={20} />
-              ))
-            : categoryNames.map(category => (
-                <button
-                  key={category}
-                  type="button"
-                  className={
-                    selectedCategory === category ? `${styles.categoryButton} ${styles.active}` : styles.categoryButton
-                  }
-                  onClick={() => setSelectedCategory(category)}
-                >
-                  {category}
-                </button>
-              ))}
-        </div>
-      </aside>
+          <div className={styles.sidebarHeader}>
+            <p className={styles.sidebarLabel}>
+              CATEGORY <span className={styles.sidebarSubLabel}>(카테고리)</span>
+            </p>
+          </div>
+          <div className={styles.categoryList}>
+            {isCategoriesLoading
+              ? categorySkeletons.map((_, index) => (
+                  <Skeleton key={`category-skeleton-${index}`} height={32} width={80} borderRadius={20} />
+                ))
+              : categoryNames.map(category => (
+                  <button
+                    key={category}
+                    type="button"
+                    className={
+                      selectedCategory === category
+                        ? `${styles.categoryButton} ${styles.active}`
+                        : styles.categoryButton
+                    }
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {category}
+                  </button>
+                ))}
+          </div>
+        </aside>
+      ) : null}
     </section>
   );
 }

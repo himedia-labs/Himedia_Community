@@ -6,6 +6,7 @@ import type {
   DeletePostResponse,
   PostDetailResponse,
   PostLikeResponse,
+  PostRecentViewResponse,
   PostListQuery,
   PostListResponse,
   PostShareResponse,
@@ -44,6 +45,12 @@ const getLikedPosts = async (params?: PostListQuery): Promise<PostListResponse> 
   return res.data;
 };
 
+// 최근 읽은 게시물 조회
+const getRecentPosts = async (params?: PostListQuery): Promise<PostListResponse> => {
+  const res = await axiosInstance.get<PostListResponse>('/posts/recent', { params });
+  return res.data;
+};
+
 // 게시물 상세 조회
 const getPostDetail = async (postId: string): Promise<PostDetailResponse> => {
   const res = await axiosInstance.get<PostDetailResponse>(`/posts/${postId}`);
@@ -59,6 +66,12 @@ const sharePost = async (postId: string): Promise<PostShareResponse> => {
 // 게시물 조회수 증가
 const viewPost = async (postId: string): Promise<PostViewResponse> => {
   const res = await axiosInstance.post<PostViewResponse>(`/posts/${postId}/view`);
+  return res.data;
+};
+
+// 최근 읽음 기록
+const trackRecentView = async (postId: string): Promise<PostRecentViewResponse> => {
+  const res = await axiosInstance.post<PostRecentViewResponse>(`/posts/${postId}/recent-view`);
   return res.data;
 };
 
@@ -87,9 +100,11 @@ export const postsApi = {
   getDrafts,
   getDraftDetail,
   getLikedPosts,
+  getRecentPosts,
   getPostDetail,
   sharePost,
   viewPost,
+  trackRecentView,
   likePost,
   updatePost,
   deletePost,

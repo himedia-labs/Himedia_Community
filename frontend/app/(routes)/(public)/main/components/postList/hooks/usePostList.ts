@@ -10,6 +10,19 @@ import type { SortFilter, TopPost, ViewMode } from '@/app/shared/types/post';
 
 const ALL_CATEGORY = 'ALL';
 
+const buildNextUrl = (pathname: string, params: URLSearchParams) => {
+  const nextParams = new URLSearchParams(params.toString());
+  const hasSearchFlag = pathname === '/' && nextParams.has('search');
+  nextParams.delete('search');
+  const queryString = nextParams.toString();
+
+  if (!hasSearchFlag) {
+    return queryString ? `${pathname}?${queryString}` : pathname;
+  }
+
+  return queryString ? `${pathname}?search&${queryString}` : `${pathname}?search`;
+};
+
 /**
  * 메인 포스트 목록 훅
  * @description 메인 포스트 목록의 상태와 데이터를 제공
@@ -27,6 +40,8 @@ export const usePostList = () => {
   const viewMode: ViewMode = searchParams.get('view') === 'card' ? 'card' : 'list';
   const sortParam = searchParams.get('sort');
   const sortFilter: SortFilter = sortParam === 'top' || sortParam === 'following' ? sortParam : 'latest';
+  const isSearchMode = searchParams.has('search');
+  const searchKeyword = (searchParams.get('q') ?? '').trim();
   const selectedCategory = searchParams.get('category') || ALL_CATEGORY;
   const categoryOrder = searchParams.get('order') === 'popular' ? 'popular' : 'latest';
 
@@ -35,8 +50,7 @@ export const usePostList = () => {
     if (sortFilter === 'following' && !accessToken) {
       const nextSearchParams = new URLSearchParams(searchParams.toString());
       nextSearchParams.delete('sort');
-      const nextQueryString = nextSearchParams.toString();
-      const nextUrl = nextQueryString ? `${pathname}?${nextQueryString}` : pathname;
+      const nextUrl = buildNextUrl(pathname, nextSearchParams);
       router.replace(nextUrl);
     }
   }, [sortFilter, accessToken, router, pathname, searchParams]);
@@ -49,8 +63,7 @@ export const usePostList = () => {
     } else {
       nextSearchParams.set('view', nextViewMode);
     }
-    const nextQueryString = nextSearchParams.toString();
-    const nextUrl = nextQueryString ? `${pathname}?${nextQueryString}` : pathname;
+    const nextUrl = buildNextUrl(pathname, nextSearchParams);
     router.replace(nextUrl);
   };
 
@@ -65,8 +78,7 @@ export const usePostList = () => {
     // 정렬 필터 선택 시 카테고리 리셋
     nextSearchParams.delete('category');
     nextSearchParams.delete('order');
-    const nextQueryString = nextSearchParams.toString();
-    const nextUrl = nextQueryString ? `${pathname}?${nextQueryString}` : pathname;
+    const nextUrl = buildNextUrl(pathname, nextSearchParams);
     router.replace(nextUrl);
   };
 
@@ -81,8 +93,34 @@ export const usePostList = () => {
       // 카테고리 선택 시 정렬 필터 리셋
       nextSearchParams.delete('sort');
     }
-    const nextQueryString = nextSearchParams.toString();
-    const nextUrl = nextQueryString ? `${pathname}?${nextQueryString}` : pathname;
+    const nextUrl = buildNextUrl(pathname, nextSearchParams);
+    router.replace(nextUrl);
+  };
+
+  // 검색 모드 변경
+  const setSearchMode = (enabled: boolean) => {
+    const nextSearchParams = new URLSearchParams(searchParams.toString());
+    if (enabled) {
+      nextSearchParams.set('search', '');
+    } else {
+      nextSearchParams.delete('search');
+      nextSearchParams.delete('q');
+    }
+    const nextUrl = buildNextUrl(pathname, nextSearchParams);
+    router.replace(nextUrl);
+  };
+
+  // 검색어 변경
+  const setSearchKeyword = (keyword: string) => {
+    const nextSearchParams = new URLSearchParams(searchParams.toString());
+    const normalizedKeyword = keyword.trim();
+    nextSearchParams.set('search', '');
+    if (normalizedKeyword) {
+      nextSearchParams.set('q', normalizedKeyword);
+    } else {
+      nextSearchParams.delete('q');
+    }
+    const nextUrl = buildNextUrl(pathname, nextSearchParams);
     router.replace(nextUrl);
   };
 
@@ -94,8 +132,7 @@ export const usePostList = () => {
     } else {
       nextSearchParams.set('order', order);
     }
-    const nextQueryString = nextSearchParams.toString();
-    const nextUrl = nextQueryString ? `${pathname}?${nextQueryString}` : pathname;
+    const nextUrl = buildNextUrl(pathname, nextSearchParams);
     router.replace(nextUrl);
   };
 
@@ -128,13 +165,29 @@ export const usePostList = () => {
   const dynamicCategoryNames = (categories ?? []).map(category => category.name);
   const categoryNames = [ALL_CATEGORY, ...dynamicCategoryNames];
   const posts = (data?.pages ?? []).flatMap(page => page.items).map(item => toViewPost(item));
-  const filteredPosts =
+  const categoryFilteredPosts =
     selectedCategory === ALL_CATEGORY ? posts : posts.filter(post => post.category === selectedCategory);
+  const filteredPosts = !isSearchMode
+    ? categoryFilteredPosts
+    : categoryFilteredPosts.filter(post => {
+        const searchTarget = [
+          post.title,
+          post.content,
+          post.authorName,
+          post.category,
+          ...(post.tags ?? []),
+        ]
+          .join(' ')
+          .toLowerCase();
+        return searchTarget.includes(searchKeyword.toLowerCase());
+      });
   const topPosts: TopPost[] = (topPostsData?.items ?? []).map(post => ({ id: post.id, title: post.title }));
 
   // 빈 상태 체크
   const isFollowingEmpty = sortFilter === 'following' && !isLoading && filteredPosts.length === 0;
   const isCategoryEmpty = selectedCategory !== ALL_CATEGORY && !isLoading && filteredPosts.length === 0;
+  const isSearchEmpty = isSearchMode && !isLoading && filteredPosts.length === 0;
+  const isGeneralEmpty = !isLoading && filteredPosts.length === 0 && !isSearchMode && selectedCategory === ALL_CATEGORY;
 
   return {
     fetchNextPage,
@@ -144,6 +197,10 @@ export const usePostList = () => {
     setViewMode,
     sortFilter,
     setSortFilter,
+    isSearchMode,
+    setSearchMode,
+    searchKeyword,
+    setSearchKeyword,
     selectedCategory,
     setSelectedCategory,
     categoryOrder,
@@ -156,5 +213,7 @@ export const usePostList = () => {
     isTopPostsLoading,
     isFollowingEmpty,
     isCategoryEmpty,
+    isSearchEmpty,
+    isGeneralEmpty,
   };
 };

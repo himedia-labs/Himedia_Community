@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useQueryClient } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { FaUser } from 'react-icons/fa6';
 import { CiChat1, CiFileOn, CiHeart, CiLogin, CiLogout, CiMenuBurger, CiUser } from 'react-icons/ci';
@@ -30,6 +30,19 @@ import styles from '@/app/shared/components/header/Header.module.css';
 
 import type { HeaderProps } from '@/app/shared/types/header';
 
+const buildMainSearchUrl = (params: URLSearchParams) => {
+  const nextParams = new URLSearchParams(params.toString());
+  const hasSearchFlag = nextParams.has('search');
+  nextParams.delete('search');
+  const queryString = nextParams.toString();
+
+  if (!hasSearchFlag) {
+    return queryString ? `/?${queryString}` : '/';
+  }
+
+  return queryString ? `/?search&${queryString}` : '/?search';
+};
+
 /**
  * 공통 헤더
  * @description 로그인 상태에 따라 메뉴를 표시
@@ -38,11 +51,13 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
   // 라우터
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
 
   // 인증 상태
   const { accessToken, isInitialized } = useAuthStore();
   const clearAuth = useAuthStore(state => state.clearAuth);
+  const isMainSearchMode = pathname === '/' && searchParams.has('search');
 
   // 로그인 상태 (초기화 전: 서버 쿠키 기반, 초기화 후: 클라이언트 토큰 기반)
   const isLoggedIn = isInitialized ? !!accessToken : !!accessToken || initialIsLoggedIn;
@@ -84,6 +99,29 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
   const handleToggleNotifications = () => toggleNotifications(closeProfileMenu);
   const handleToggleProfile = () => toggleProfileMenu(() => {});
 
+  const handleSearchClick = () => {
+    const nextSearchParams = pathname === '/' ? new URLSearchParams(searchParams.toString()) : new URLSearchParams();
+    const nextIsSearchMode = pathname === '/' && searchParams.has('search');
+
+    if (nextIsSearchMode) {
+      nextSearchParams.delete('search');
+      nextSearchParams.delete('q');
+      nextSearchParams.delete('sort');
+      nextSearchParams.delete('category');
+      nextSearchParams.delete('order');
+      const nextUrl = buildMainSearchUrl(nextSearchParams);
+      router.push(nextUrl);
+      return;
+    }
+
+    nextSearchParams.set('search', '');
+    nextSearchParams.set('sort', 'top');
+    nextSearchParams.delete('category');
+    nextSearchParams.delete('order');
+    const nextUrl = buildMainSearchUrl(nextSearchParams);
+    router.push(nextUrl);
+  };
+
   // 특정 경로에서는 Header 숨김
   if (pathname?.startsWith('/admin')) return null;
   if (!isVisible) return null;
@@ -111,7 +149,6 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
             <span className={styles.logoSub}>HIMEDIA COMMUNITY</span>
           </span>
         </Link>
-
         <nav className={styles.nav} aria-label="주요 메뉴">
           <ul>
             {HeaderConfig.navItems.map(item => {
@@ -172,6 +209,25 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                               <CiFileOn aria-hidden="true" />내 블로그
                             </Link>
                             <Link
+                              href="/mypage?tab=drafts"
+                              className={styles.profileItem}
+                              role="menuitem"
+                              onClick={closeProfileMenu}
+                            >
+                              <CiFileOn aria-hidden="true" />
+                              임시저장 목록
+                            </Link>
+                            <Link
+                              href="/mypage?tab=recent"
+                              className={styles.profileItem}
+                              role="menuitem"
+                              onClick={closeProfileMenu}
+                            >
+                              <CiFileOn aria-hidden="true" />
+                              최근 읽은 포스트
+                            </Link>
+                            <div className={styles.profileDivider} aria-hidden="true" />
+                            <Link
                               href="/mypage?tab=comments"
                               className={styles.profileItem}
                               role="menuitem"
@@ -188,6 +244,16 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                             >
                               <CiHeart aria-hidden="true" />
                               좋아한 포스트
+                            </Link>
+                            <div className={styles.profileDivider} aria-hidden="true" />
+                            <Link
+                              href="/mypage?tab=account"
+                              className={styles.profileItem}
+                              role="menuitem"
+                              onClick={closeProfileMenu}
+                            >
+                              <CiUser aria-hidden="true" />
+                              계정 설정
                             </Link>
                             <div className={styles.profileDivider} aria-hidden="true" />
                             <button
@@ -222,6 +288,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
 
               const isLink = Boolean(item.href);
               const isBellItem = item.label === '알림';
+              const isSearchItem = item.label === '검색';
               const IconComponent = item.Icon!;
 
               return (
@@ -381,6 +448,20 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                     >
                       <IconComponent aria-hidden="true" focusable="false" />
                     </Link>
+                  ) : isSearchItem ? (
+                    <button
+                      type="button"
+                      className={
+                        isMainSearchMode
+                          ? `${styles.navLink} ${styles.navButton} ${styles.navLinkActive}`
+                          : `${styles.navLink} ${styles.navButton}`
+                      }
+                      aria-label={item.label}
+                      title={item.label}
+                      onClick={handleSearchClick}
+                    >
+                      <IconComponent aria-hidden="true" focusable="false" />
+                    </button>
                   ) : (
                     <button
                       type="button"

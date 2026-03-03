@@ -121,6 +121,16 @@ export class PostsController {
   }
 
   /**
+   * 최근 읽은 목록
+   * @description 사용자의 최근 읽은 게시글을 반환
+   */
+  @UseGuards(JwtGuard)
+  @Get('recent')
+  getRecentPosts(@Query() query: ListPostsQueryDto, @Request() req: AuthRequest) {
+    return this.postsService.getRecentPosts(query, req.user.sub);
+  }
+
+  /**
    * 게시글 수정
    * @description 게시글을 수정
    */
@@ -183,6 +193,16 @@ export class PostsController {
     const anonymousId = this.getAnonymousId(req, res);
 
     return this.postsService.incrementViewCount(postId, ip, userAgent, anonymousId);
+  }
+
+  /**
+   * 최근 읽음 기록
+   * @description 로그인 사용자의 최근 읽음 기록을 저장
+   */
+  @UseGuards(JwtGuard)
+  @Post(':postId/recent-view')
+  trackRecentView(@Param('postId') postId: string, @Request() req: AuthRequest): Promise<{ postId: string }> {
+    return this.postsService.trackRecentView(postId, req.user.sub);
   }
 
   /**

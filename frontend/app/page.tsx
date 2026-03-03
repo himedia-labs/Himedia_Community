@@ -1,14 +1,21 @@
 import Banner from './(routes)/(public)/main/components/banner/banner';
 import PostListSection from './(routes)/(public)/main/components/postList/postList';
 
+type HomePageProps = {
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
 /**
  * 홈 페이지
  * @description 메인 배너와 포스트 리스트를 표시
  */
-export default function Home() {
+export default async function Home({ searchParams }: HomePageProps) {
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const isSearchMode = Object.prototype.hasOwnProperty.call(resolvedSearchParams, 'search');
+
   return (
     <>
-      <Banner />
+      {!isSearchMode ? <Banner /> : null}
       <PostListSection />
     </>
   );

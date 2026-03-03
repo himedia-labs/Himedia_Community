@@ -130,6 +130,24 @@ CREATE TABLE post_view_logs (
 -- 인덱스
 CREATE INDEX idx_post_view_logs_lookup ON post_view_logs(post_id, anonymous_id, ip, user_agent, created_at);
 
+-- 사용자 최근 읽은 게시글 테이블
+CREATE TABLE user_recent_posts (
+    id BIGINT PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    post_id BIGINT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    viewed_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (user_id, post_id)
+);
+
+-- 인덱스
+CREATE INDEX idx_user_recent_posts_user_viewed_at ON user_recent_posts(user_id, viewed_at);
+
+-- 트리거
+CREATE TRIGGER update_user_recent_posts_updated_at BEFORE UPDATE ON user_recent_posts
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- 태그 테이블
 CREATE TABLE tags (
     id BIGINT PRIMARY KEY,

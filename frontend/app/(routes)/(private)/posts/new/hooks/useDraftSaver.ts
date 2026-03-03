@@ -104,7 +104,7 @@ export const useDraftSaver = ({ formData, draftId, isAuthenticated }: DraftSaver
       } else {
         const response = await createPostMutation.mutateAsync(payload);
         savedDraftId = response.id;
-        router.replace(`/posts/new?draftId=${response.id}`);
+        router.replace(`/posts/draftId?${response.id}`);
       }
 
       queryClient.invalidateQueries({ queryKey: postsKeys.drafts(), exact: false });

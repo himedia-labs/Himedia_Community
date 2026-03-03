@@ -1,7 +1,13 @@
 import { randomInt } from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LessThan, MoreThanOrEqual, Repository } from 'typeorm';
-import { ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 
 import { SendEmailVerificationCodeDto } from '../dto/sendEmailVerificationCode.dto';
 import { VerifyEmailVerificationCodeDto } from '../dto/verifyEmailVerificationCode.dto';
@@ -34,6 +40,8 @@ import type { EmailVerificationValidation } from '../interfaces/emailVerificatio
  */
 @Injectable()
 export class EmailVerificationService {
+  private readonly logger = new Logger(EmailVerificationService.name);
+
   constructor(
     @InjectRepository(EmailVerification)
     private readonly emailVerificationRepository: Repository<EmailVerification>,
@@ -100,10 +108,21 @@ export class EmailVerificationService {
     // 이메일/발송
     try {
       await this.emailService.sendEmailVerificationCode(dto.email, code, purpose);
-    } catch {
+    } catch (error) {
+      // 실패/로깅
+      this.logger.error(
+        `이메일 인증코드 발송 실패 (email=${dto.email}, purpose=${purpose})`,
+        error instanceof Error ? error.stack : undefined,
+      );
+
+      // 응답/구성
+      const detail = error instanceof Error ? error.message : '알 수 없는 오류';
+      const isProduction = process.env.NODE_ENV === 'production';
+
       throw new InternalServerErrorException({
         message: EMAIL_VERIFICATION_ERROR_MESSAGES.EMAIL_SEND_FAILED,
         code: ERROR_CODES.EMAIL_SEND_FAILED,
+        ...(isProduction ? {} : { detail }),
       });
     }
 

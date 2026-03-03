@@ -7,7 +7,9 @@ import type { TabKey } from '@/app/shared/types/mypage';
 export const getInitialTab = (value?: string | null, defaultTab: TabKey = 'posts') => {
   if (
     value === 'comments' ||
+    value === 'drafts' ||
     value === 'likes' ||
+    value === 'recent' ||
     value === 'posts' ||
     value === 'settings' ||
     value === 'account'
