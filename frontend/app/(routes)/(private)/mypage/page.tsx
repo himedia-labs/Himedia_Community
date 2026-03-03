@@ -12,6 +12,8 @@ import { FaUser, FaUserEdit } from 'react-icons/fa';
 import { FaFacebookF, FaLinkedinIn, FaXTwitter } from 'react-icons/fa6';
 import {
   FiAlertCircle,
+  FiArrowDown,
+  FiArrowUp,
   FiChevronDown,
   FiChevronRight,
   FiClock,
@@ -33,6 +35,7 @@ import { EMAIL_VERIFICATION_CODE_LENGTH, PHONE_CONFIG } from '@/app/shared/const
 
 import ActionModal from '@/app/shared/components/modal/ActionModal';
 import PostSummaryList from '@/app/shared/components/post/PostSummaryList';
+import MyPageDrafts from '@/app/(routes)/(private)/mypage/components/MyPageDrafts';
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 import {
   MyPageAccountSkeleton,
@@ -242,6 +245,7 @@ export default function MyPage() {
   // 필터 상태
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isTagOpen, setIsTagOpen] = useState(false);
+  const [draftSortOrder, setDraftSortOrder] = useState<'latest' | 'oldest'>('latest');
   const [showWithdrawPassword, setShowWithdrawPassword] = useState(false);
   const [withdrawPassword, setWithdrawPassword] = useState('');
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
@@ -394,6 +398,8 @@ export default function MyPage() {
               >
                 {MYPAGE_TABS[2].label}
               </Link>
+              <div className={styles.listDividerLine} aria-hidden="true" />
+              <span className={styles.listGroupTitle}>반응</span>
               <Link
                 className={
                   activeTab === MYPAGE_TABS[3].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
@@ -402,8 +408,6 @@ export default function MyPage() {
               >
                 {MYPAGE_TABS[3].label}
               </Link>
-              <div className={styles.listDividerLine} aria-hidden="true" />
-              <span className={styles.listGroupTitle}>설정</span>
               <Link
                 className={
                   activeTab === MYPAGE_TABS[4].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
@@ -411,6 +415,16 @@ export default function MyPage() {
                 href={MYPAGE_TABS[4].href}
               >
                 {MYPAGE_TABS[4].label}
+              </Link>
+              <div className={styles.listDividerLine} aria-hidden="true" />
+              <span className={styles.listGroupTitle}>설정</span>
+              <Link
+                className={
+                  activeTab === MYPAGE_TABS[5].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
+                }
+                href={MYPAGE_TABS[5].href}
+              >
+                {MYPAGE_TABS[5].label}
               </Link>
             </div>
           </nav>
@@ -922,6 +936,32 @@ export default function MyPage() {
                   <div className={styles.empty}>아직 작성한 게시물이 없습니다.</div>
                 </div>
               )
+            ) : activeTab === 'drafts' ? (
+              <div className={styles.postsMain}>
+                <div className={styles.settingsRow}>
+                  <span className={styles.settingsLabel}>임시저장 목록</span>
+                  <div className={styles.settingsSortGroup}>
+                    <button
+                      type="button"
+                      className={`${styles.settingsSortButton} ${styles.settingsSortButtonActive}`}
+                      onClick={() => setDraftSortOrder(prev => (prev === 'latest' ? 'oldest' : 'latest'))}
+                    >
+                      {draftSortOrder === 'latest' ? (
+                        <>
+                          <FiArrowDown className={styles.settingsSortIcon} aria-hidden="true" />
+                          최근 저장순
+                        </>
+                      ) : (
+                        <>
+                          <FiArrowUp className={styles.settingsSortIcon} aria-hidden="true" />
+                          오래된 저장순
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+                <MyPageDrafts sortOrder={draftSortOrder} />
+              </div>
             ) : activeTab === 'account' ? (
               isUserInfoLoading ? (
                 <MyPageAccountSkeleton />
