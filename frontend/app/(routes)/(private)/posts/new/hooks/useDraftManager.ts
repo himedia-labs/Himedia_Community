@@ -14,6 +14,19 @@ import { useDraftNotice } from '@/app/(routes)/(private)/posts/new/hooks/useDraf
 import type { DraftData } from '@/app/shared/types/post';
 
 /**
+ * draftId 추출
+ * @description 쿼리 키(draftId) 또는 숫자-only 단일 쿼리 키를 draftId로 해석
+ */
+const extractDraftId = (searchParams: ReadonlyURLSearchParams) => {
+  const draftIdParam = searchParams.get('draftId');
+  if (draftIdParam) return draftIdParam;
+
+  const firstKey = searchParams.keys().next().value;
+  if (!firstKey) return null;
+  return /^\d+$/.test(firstKey) ? firstKey : null;
+};
+
+/**
  * 임시저장 관리 훅
  * @description 임시저장 불러오기/저장/발행/자동저장을 통합 관리
  */
@@ -24,7 +37,7 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
 
   // URL 파라미터
   const searchParams = useSearchParams();
-  const searchDraftId = searchParams.get('draftId');
+  const searchDraftId = extractDraftId(searchParams);
 
   // State
   const prevSearchDraftIdRef = useRef<string>(searchDraftId);
@@ -68,7 +81,7 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
 
   // 임시저장 목록 열기
   const openDraftList = () => {
-    router.push('/posts/drafts');
+    router.push('/mypage?tab=drafts');
   };
 
   // 자동저장
