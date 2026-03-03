@@ -209,6 +209,25 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                               <CiFileOn aria-hidden="true" />내 블로그
                             </Link>
                             <Link
+                              href="/mypage?tab=drafts"
+                              className={styles.profileItem}
+                              role="menuitem"
+                              onClick={closeProfileMenu}
+                            >
+                              <CiFileOn aria-hidden="true" />
+                              임시저장 목록
+                            </Link>
+                            <Link
+                              href="/mypage?tab=recent"
+                              className={styles.profileItem}
+                              role="menuitem"
+                              onClick={closeProfileMenu}
+                            >
+                              <CiFileOn aria-hidden="true" />
+                              최근 읽은 포스트
+                            </Link>
+                            <div className={styles.profileDivider} aria-hidden="true" />
+                            <Link
                               href="/mypage?tab=comments"
                               className={styles.profileItem}
                               role="menuitem"
@@ -225,6 +244,16 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                             >
                               <CiHeart aria-hidden="true" />
                               좋아한 포스트
+                            </Link>
+                            <div className={styles.profileDivider} aria-hidden="true" />
+                            <Link
+                              href="/mypage?tab=account"
+                              className={styles.profileItem}
+                              role="menuitem"
+                              onClick={closeProfileMenu}
+                            >
+                              <CiUser aria-hidden="true" />
+                              계정 설정
                             </Link>
                             <div className={styles.profileDivider} aria-hidden="true" />
                             <button
