@@ -1,14 +1,15 @@
 'use client';
 
+import { Fragment, useEffect, useRef, useState } from 'react';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Fragment, useRef } from 'react';
 
 import { PiList } from 'react-icons/pi';
 import Skeleton from 'react-loading-skeleton';
 import { FaUser } from 'react-icons/fa6';
-import { CiCalendar, CiGrid41 } from 'react-icons/ci';
+import { CiCalendar, CiGrid41, CiSearch } from 'react-icons/ci';
 import { FiClock, FiEdit3, FiEye, FiHeart, FiMessageCircle, FiShare2, FiTrendingUp } from 'react-icons/fi';
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
@@ -25,6 +26,8 @@ import CardPostSkeletonItem from '@/app/(routes)/(public)/main/components/postLi
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
+
+import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 
 /**
  * 메인 포스트 리스트
@@ -47,6 +50,10 @@ export default function PostListSection() {
     setViewMode,
     sortFilter,
     setSortFilter,
+    isSearchMode,
+    setSearchMode,
+    searchKeyword,
+    setSearchKeyword,
     selectedCategory,
     setSelectedCategory,
     categoryOrder,
@@ -59,6 +66,7 @@ export default function PostListSection() {
     isTopPostsLoading,
     isFollowingEmpty,
     isCategoryEmpty,
+    isSearchEmpty,
   } = usePostList();
 
   // 스켈레톤
@@ -69,6 +77,7 @@ export default function PostListSection() {
   const listTagSkeletonWidths = [48, 64, 56];
   const cardTagSkeletonWidths = [44, 58, 50];
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const [searchInputValue, setSearchInputValue] = useState(searchKeyword);
 
   // 카테고리 선택 시 정렬 버튼 비활성화 표시
   const isCategorySelected = selectedCategory !== 'ALL';
@@ -76,13 +85,33 @@ export default function PostListSection() {
   // 핸들러
   const handleCreatePost = createHandleCreatePost({ router });
   const handleSortFilter = createHandleSortFilter({ accessToken, router, setSortFilter });
+  const handleSearchInputKeyDown = (event: ReactKeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== 'Enter') return;
+    if (event.nativeEvent.isComposing) return;
+    setSearchKeyword(searchInputValue);
+  };
+
+  // 검색 입력 동기화
+  useEffect(() => {
+    setSearchInputValue(searchKeyword);
+  }, [searchKeyword]);
+
+  // 검색 모드 인기순 고정
+  useEffect(() => {
+    if (!isSearchMode) return;
+    if (sortFilter === 'top') return;
+    setSortFilter('top');
+  }, [isSearchMode, setSortFilter, sortFilter]);
 
   // 무한 스크롤
   usePostListInfiniteScroll({ fetchNextPage, hasNextPage, isFetchingNextPage, sentinelRef });
 
   return (
-    <section className={styles.container} aria-label="포스트 하이라이트">
-      <div className={styles.main}>
+    <section
+      className={isSearchMode ? `${styles.container} ${styles.containerSearch}` : styles.container}
+      aria-label="포스트 하이라이트"
+    >
+      <div className={isSearchMode ? `${styles.main} ${styles.mainSearch}` : styles.main}>
         <div className={styles.header}>
           <button type="button" className={styles.createButton} aria-label="게시물 작성" onClick={handleCreatePost}>
             <FiEdit3 />
@@ -97,40 +126,44 @@ export default function PostListSection() {
           </button>
         </div>
 
-        <div className={styles.sortBar}>
-          <button
-            type="button"
-            className={sortFilter === 'latest' && !isCategorySelected ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
-            onClick={() => handleSortFilter('latest')}
-          >
-            최신
-          </button>
-          <button
-            type="button"
-            className={sortFilter === 'top' && !isCategorySelected ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
-            onClick={() => handleSortFilter('top')}
-          >
-            TOP
-          </button>
-          <button
-            type="button"
-            className={sortFilter === 'following' && !isCategorySelected ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
-            onClick={() => handleSortFilter('following')}
-          >
-            피드
-          </button>
-          <span className={styles.sortDivider} aria-hidden="true">
-            |
-          </span>
-          <button
-            type="button"
-            className={selectedCategory === 'Q&A' ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
-            onClick={() => setSelectedCategory('Q&A')}
-          >
-            Q&A
-          </button>
-          {isCategorySelected ? (
-            <div style={{ marginLeft: 'auto' }}>
+        <div className={isSearchMode ? `${styles.sortBar} ${styles.sortBarSearch}` : styles.sortBar}>
+          {!isSearchMode ? (
+            <>
+              <button
+                type="button"
+                className={sortFilter === 'latest' && !isCategorySelected ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+                onClick={() => handleSortFilter('latest')}
+              >
+                최신
+              </button>
+              <button
+                type="button"
+                className={sortFilter === 'top' && !isCategorySelected ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+                onClick={() => handleSortFilter('top')}
+              >
+                TOP
+              </button>
+              <button
+                type="button"
+                className={sortFilter === 'following' && !isCategorySelected ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+                onClick={() => handleSortFilter('following')}
+              >
+                피드
+              </button>
+              <span className={styles.sortDivider} aria-hidden="true">
+                |
+              </span>
+              <button
+                type="button"
+                className={selectedCategory === 'Q&A' ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+                onClick={() => setSelectedCategory('Q&A')}
+              >
+                Q&A
+              </button>
+            </>
+          ) : null}
+          <div className={styles.sortRightGroup}>
+            {!isSearchMode && isCategorySelected ? (
               <button
                 type="button"
                 className={styles.categoryOrderButton}
@@ -148,13 +181,51 @@ export default function PostListSection() {
                   </>
                 )}
               </button>
-            </div>
-          ) : null}
+              ) : null}
+            {isSearchMode ? (
+              <label className={styles.sortSearchField} htmlFor="main-sort-search">
+                <input
+                  id="main-sort-search"
+                  type="text"
+                  className={styles.sortSearchInput}
+                  placeholder="제목, 내용, 작성자, 태그 검색"
+                  value={searchInputValue}
+                  onKeyDown={handleSearchInputKeyDown}
+                  onChange={event => setSearchInputValue(event.target.value)}
+                />
+                <button
+                  type="button"
+                  className={styles.sortSearchIconButton}
+                  aria-label="검색 닫기"
+                  onClick={() => setSearchMode(false)}
+                >
+                  <CiSearch aria-hidden="true" />
+                </button>
+              </label>
+            ) : null}
+          </div>
         </div>
+        {isSearchMode ? (
+          searchKeyword ? (
+            <p className={styles.searchResultCount}>
+              아티클 갯수 <span className={styles.searchResultCountNumber}>{filteredPosts.length}개</span>
+            </p>
+          ) : (
+            <div className={styles.searchTopicCopy}>
+              <p className={styles.searchTopicTitle}>어떤 글을 찾고 계신가요?</p>
+              <p className={styles.searchTopicHint}>요즘 많이 보는 주제</p>
+            </div>
+          )
+        ) : null}
 
-        {isFollowingEmpty || isCategoryEmpty ? (
+        {isSearchEmpty || isFollowingEmpty || isCategoryEmpty ? (
           <div className={styles.emptyState} role="status">
-            {isFollowingEmpty ? (
+            {isSearchEmpty ? (
+              <>
+                <p className={styles.emptyTitle}>검색 결과가 없어요.</p>
+                <p className={styles.emptyDescription}>다른 키워드로 다시 검색해보세요.</p>
+              </>
+            ) : isFollowingEmpty ? (
               <>
                 <p className={styles.emptyTitle}>팔로우한 작성자가 없어요.</p>
                 <p className={styles.emptyDescription}>관심있는 작성자를 팔로우하면 피드에 모아서 볼 수 있어요.</p>
@@ -166,7 +237,7 @@ export default function PostListSection() {
               </>
             )}
           </div>
-        ) : viewMode === 'list' ? (
+        ) : isSearchMode || viewMode === 'list' ? (
           <ul className={styles.listView}>
             {isLoading
               ? listSkeletons.map((_, index) => (
@@ -542,7 +613,8 @@ export default function PostListSection() {
         ) : null}
       </div>
 
-      <aside className={styles.sidebar} aria-label="TOP 5 인기글">
+      {!isSearchMode ? (
+        <aside className={styles.sidebar} aria-label="TOP 5 인기글">
         <div className={styles.sidebarHeader}>
           <p className={styles.sidebarLabel}>
             TOP 5 <span className={styles.sidebarSubLabel}>(인기있는 글)</span>
@@ -594,7 +666,8 @@ export default function PostListSection() {
                 </button>
               ))}
         </div>
-      </aside>
+        </aside>
+      ) : null}
     </section>
   );
 }
