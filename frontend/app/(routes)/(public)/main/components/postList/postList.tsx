@@ -15,6 +15,7 @@ import { FiClock, FiEdit3, FiEye, FiHeart, FiMessageCircle, FiShare2, FiTrending
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { getVisibleTags } from '@/app/shared/utils/postTag.utils';
+import EmptyState from '@/app/shared/components/empty/EmptyState';
 
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 import { usePostList, usePostListInfiniteScroll } from '@/app/(routes)/(public)/main/components/postList/hooks';
@@ -67,6 +68,7 @@ export default function PostListSection() {
     isFollowingEmpty,
     isCategoryEmpty,
     isSearchEmpty,
+    isGeneralEmpty,
   } = usePostList();
 
   // 스켈레톤
@@ -131,21 +133,33 @@ export default function PostListSection() {
             <>
               <button
                 type="button"
-                className={sortFilter === 'latest' && !isCategorySelected ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+                className={
+                  sortFilter === 'latest' && !isCategorySelected
+                    ? `${styles.sortButton} ${styles.active}`
+                    : styles.sortButton
+                }
                 onClick={() => handleSortFilter('latest')}
               >
                 최신
               </button>
               <button
                 type="button"
-                className={sortFilter === 'top' && !isCategorySelected ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+                className={
+                  sortFilter === 'top' && !isCategorySelected
+                    ? `${styles.sortButton} ${styles.active}`
+                    : styles.sortButton
+                }
                 onClick={() => handleSortFilter('top')}
               >
                 TOP
               </button>
               <button
                 type="button"
-                className={sortFilter === 'following' && !isCategorySelected ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+                className={
+                  sortFilter === 'following' && !isCategorySelected
+                    ? `${styles.sortButton} ${styles.active}`
+                    : styles.sortButton
+                }
                 onClick={() => handleSortFilter('following')}
               >
                 피드
@@ -181,7 +195,7 @@ export default function PostListSection() {
                   </>
                 )}
               </button>
-              ) : null}
+            ) : null}
             {isSearchMode ? (
               <label className={styles.sortSearchField} htmlFor="main-sort-search">
                 <input
@@ -218,25 +232,27 @@ export default function PostListSection() {
           )
         ) : null}
 
-        {isSearchEmpty || isFollowingEmpty || isCategoryEmpty ? (
-          <div className={styles.emptyState} role="status">
-            {isSearchEmpty ? (
-              <>
-                <p className={styles.emptyTitle}>검색 결과가 없어요.</p>
-                <p className={styles.emptyDescription}>다른 키워드로 다시 검색해보세요.</p>
-              </>
-            ) : isFollowingEmpty ? (
-              <>
-                <p className={styles.emptyTitle}>팔로우한 작성자가 없어요.</p>
-                <p className={styles.emptyDescription}>관심있는 작성자를 팔로우하면 피드에 모아서 볼 수 있어요.</p>
-              </>
-            ) : (
-              <>
-                <p className={styles.emptyTitle}>해당 카테고리에 게시물이 없어요.</p>
-                <p className={styles.emptyDescription}>다른 카테고리를 선택하거나 첫 번째 글을 작성해보세요.</p>
-              </>
-            )}
-          </div>
+        {isSearchEmpty || isFollowingEmpty || isCategoryEmpty || isGeneralEmpty ? (
+          <EmptyState
+            title={
+              isSearchEmpty
+                ? '검색 결과가 없어요.'
+                : isFollowingEmpty
+                  ? '팔로우한 작성자가 없어요.'
+                  : isCategoryEmpty
+                    ? '해당 카테고리에 게시물이 없어요.'
+                    : '아직 게시물이 없어요.'
+            }
+            description={
+              isSearchEmpty
+                ? '다른 키워드로 다시 검색해보세요.'
+                : isFollowingEmpty
+                  ? '관심있는 작성자를 팔로우하면 피드에 모아서 볼 수 있어요.'
+                  : isCategoryEmpty
+                    ? '다른 카테고리를 선택하거나 첫 번째 글을 작성해보세요.'
+                    : '첫 번째 글을 작성해보세요.'
+            }
+          />
         ) : isSearchMode || viewMode === 'list' ? (
           <ul className={styles.listView}>
             {isLoading
@@ -615,57 +631,70 @@ export default function PostListSection() {
 
       {!isSearchMode ? (
         <aside className={styles.sidebar} aria-label="TOP 5 인기글">
-        <div className={styles.sidebarHeader}>
-          <p className={styles.sidebarLabel}>
-            TOP 5 <span className={styles.sidebarSubLabel}>(인기있는 글)</span>
-          </p>
-        </div>
-        <ol className={styles.topList}>
-          {isTopPostsLoading
-            ? topSkeletons.map((_, index) => (
-                <li key={`top-skeleton-${index}`} aria-hidden="true">
-                  <span className={styles.rank}>
-                    <Skeleton width="1.2ch" height={14} />
-                  </span>
-                  <span className={styles.topTitle}>
-                    <Skeleton height={14} width="80%" />
-                  </span>
-                </li>
-              ))
-            : topPosts.map((item, index) => (
-                <li key={item.id}>
-                  <span className={styles.rank}>{index + 1}</span>
-                  <Link className={styles.topTitle} href={`/posts/${item.id}`}>
-                    {item.title}
-                  </Link>
-                </li>
-              ))}
-        </ol>
-        <div className={styles.sidebarDivider} aria-hidden="true" />
+          <div className={styles.sidebarHeader}>
+            <p className={styles.sidebarLabel}>
+              TOP 5 <span className={styles.sidebarSubLabel}>(인기있는 글)</span>
+            </p>
+          </div>
+          <ol className={styles.topList}>
+            {isTopPostsLoading
+              ? topSkeletons.map((_, index) => (
+                  <li key={`top-skeleton-${index}`} aria-hidden="true">
+                    <span className={styles.rank}>
+                      <Skeleton width="1.2ch" height={14} />
+                    </span>
+                    <span className={styles.topTitle}>
+                      <Skeleton height={14} width="80%" />
+                    </span>
+                  </li>
+                ))
+              : topPosts.map((item, index) => (
+                  <li key={item.id}>
+                    <span className={styles.rank}>{index + 1}</span>
+                    <Link className={styles.topTitle} href={`/posts/${item.id}`}>
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+            {!isTopPostsLoading && topPosts.length === 0 ? (
+              <li className={styles.topListEmpty}>
+                <EmptyState
+                  title="아직 인기 게시물이 없어요."
+                  description="첫 번째 인기 글이 이곳에 표시됩니다."
+                  size="compact"
+                  align="left"
+                  className={styles.topListEmptyState}
+                />
+              </li>
+            ) : null}
+          </ol>
+          <div className={styles.sidebarDivider} aria-hidden="true" />
 
-        <div className={styles.sidebarHeader}>
-          <p className={styles.sidebarLabel}>
-            CATEGORY <span className={styles.sidebarSubLabel}>(카테고리)</span>
-          </p>
-        </div>
-        <div className={styles.categoryList}>
-          {isCategoriesLoading
-            ? categorySkeletons.map((_, index) => (
-                <Skeleton key={`category-skeleton-${index}`} height={32} width={80} borderRadius={20} />
-              ))
-            : categoryNames.map(category => (
-                <button
-                  key={category}
-                  type="button"
-                  className={
-                    selectedCategory === category ? `${styles.categoryButton} ${styles.active}` : styles.categoryButton
-                  }
-                  onClick={() => setSelectedCategory(category)}
-                >
-                  {category}
-                </button>
-              ))}
-        </div>
+          <div className={styles.sidebarHeader}>
+            <p className={styles.sidebarLabel}>
+              CATEGORY <span className={styles.sidebarSubLabel}>(카테고리)</span>
+            </p>
+          </div>
+          <div className={styles.categoryList}>
+            {isCategoriesLoading
+              ? categorySkeletons.map((_, index) => (
+                  <Skeleton key={`category-skeleton-${index}`} height={32} width={80} borderRadius={20} />
+                ))
+              : categoryNames.map(category => (
+                  <button
+                    key={category}
+                    type="button"
+                    className={
+                      selectedCategory === category
+                        ? `${styles.categoryButton} ${styles.active}`
+                        : styles.categoryButton
+                    }
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {category}
+                  </button>
+                ))}
+          </div>
         </aside>
       ) : null}
     </section>

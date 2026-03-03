@@ -187,6 +187,7 @@ export const usePostList = () => {
   const isFollowingEmpty = sortFilter === 'following' && !isLoading && filteredPosts.length === 0;
   const isCategoryEmpty = selectedCategory !== ALL_CATEGORY && !isLoading && filteredPosts.length === 0;
   const isSearchEmpty = isSearchMode && !isLoading && filteredPosts.length === 0;
+  const isGeneralEmpty = !isLoading && filteredPosts.length === 0 && !isSearchMode && selectedCategory === ALL_CATEGORY;
 
   return {
     fetchNextPage,
@@ -213,5 +214,6 @@ export const usePostList = () => {
     isFollowingEmpty,
     isCategoryEmpty,
     isSearchEmpty,
+    isGeneralEmpty,
   };
 };
