@@ -12,6 +12,7 @@ import Skeleton from 'react-loading-skeleton';
 import { postsApi } from '@/app/api/posts/posts.api';
 import { postsKeys } from '@/app/api/posts/posts.keys';
 import { useDraftsQuery } from '@/app/api/posts/posts.queries';
+import EmptyState from '@/app/shared/components/empty/EmptyState';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
@@ -128,16 +129,16 @@ export default function MyPageDrafts({ sortOrder }: MyPageDraftsProps) {
   }
 
   if (!drafts.length) {
-    return <div className={styles.empty}>임시저장된 게시물이 없습니다.</div>;
+    return <EmptyState title="임시저장된 게시물이 없습니다." description="임시저장한 글이 생기면 이곳에 표시됩니다." />;
   }
 
   return (
     <ul className={postListStyles.listView}>
       {sortedDrafts.map((draft, index) => {
-          const hasThumbnail = Boolean(draft.thumbnailUrl);
-          const displayTags = (draft.tags ?? []).slice(0, 5).map(tag => `#${tag.name}`);
-          const hasListTags = displayTags.length > 0;
-          const summary = formatPostPreview(draft.content, { emptyText: '내용 없음' });
+        const hasThumbnail = Boolean(draft.thumbnailUrl);
+        const displayTags = (draft.tags ?? []).slice(0, 5).map(tag => `#${tag.name}`);
+        const hasListTags = displayTags.length > 0;
+        const summary = formatPostPreview(draft.content, { emptyText: '내용 없음' });
 
         return (
           <Fragment key={draft.id}>
@@ -145,7 +146,9 @@ export default function MyPageDrafts({ sortOrder }: MyPageDraftsProps) {
               <Link className={postListStyles.postLink} href={`/posts/draftId?${draft.id}`}>
                 <article
                   className={
-                    hasThumbnail ? postListStyles.listItem : `${postListStyles.listItem} ${postListStyles.listItemNoThumb}`
+                    hasThumbnail
+                      ? postListStyles.listItem
+                      : `${postListStyles.listItem} ${postListStyles.listItemNoThumb}`
                   }
                 >
                   <div className={postListStyles.listBody}>

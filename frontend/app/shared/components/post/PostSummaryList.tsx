@@ -8,6 +8,7 @@ import { CiCalendar } from 'react-icons/ci';
 import { FaUser } from 'react-icons/fa';
 import { FiEdit2, FiEye, FiHeart, FiMessageCircle, FiMoreHorizontal, FiTrash2 } from 'react-icons/fi';
 
+import EmptyState from '@/app/shared/components/empty/EmptyState';
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 import { formatDateLabel } from '@/app/(routes)/(private)/mypage/utils';
 import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
@@ -45,7 +46,13 @@ export default function PostSummaryList({
 
   // 빈 목록 처리
   if (!posts.length) {
-    return <div className={emptyClassName}>{emptyText}</div>;
+    return (
+      <EmptyState
+        title={emptyText}
+        description="새 게시글이 등록되면 이곳에 표시됩니다."
+        className={emptyClassName}
+      />
+    );
   }
 
   return (
