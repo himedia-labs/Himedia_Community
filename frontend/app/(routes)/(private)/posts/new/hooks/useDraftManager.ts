@@ -12,6 +12,7 @@ import { useDraftSaver } from '@/app/(routes)/(private)/posts/new/hooks/useDraft
 import { useDraftNotice } from '@/app/(routes)/(private)/posts/new/hooks/useDraftNotice';
 
 import type { DraftData } from '@/app/shared/types/post';
+import type { ReadonlyURLSearchParams } from 'next/navigation';
 
 /**
  * draftId 추출
