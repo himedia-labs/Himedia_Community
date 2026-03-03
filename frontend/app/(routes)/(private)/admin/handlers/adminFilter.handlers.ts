@@ -1,4 +1,4 @@
-import type { AdminPendingSort } from '@/app/(routes)/(private)/admin/constants/admin.types';
+import type { AdminPendingSort } from '@/app/shared/types/admin';
 
 /**
  * 역할 필터 토글 핸들러 생성

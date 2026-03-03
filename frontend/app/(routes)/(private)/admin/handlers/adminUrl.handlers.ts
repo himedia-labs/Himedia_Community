@@ -5,7 +5,7 @@ import {
 
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import type { ReadonlyURLSearchParams } from 'next/navigation';
-import type { AdminMenuLabel, AdminPendingSort } from '@/app/(routes)/(private)/admin/constants/admin.types';
+import type { AdminMenuLabel, AdminPendingSort } from '@/app/shared/types/admin';
 
 /**
  * URL 상태 동기화 함수 생성
