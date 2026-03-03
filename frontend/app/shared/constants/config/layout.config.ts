@@ -5,6 +5,6 @@ import type { PathVisibilityConfig } from '@/app/shared/types/path';
  * @description Header/Footer 표시 여부 설정
  */
 export const LayoutVisibilityConfig: PathVisibilityConfig = {
-  hidePaths: ['/login', '/register', '/find-password', '/posts/new'],
+  hidePaths: ['/login', '/register', '/find-password', '/posts/new', '/posts/draftId'],
   hidePrefixes: ['/posts/edit', '/admin'],
 };

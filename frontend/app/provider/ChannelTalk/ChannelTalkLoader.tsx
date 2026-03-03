@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import * as ChannelService from '@channel.io/channel-web-sdk-loader';
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
+import { ChannelTalkConfig } from '@/app/shared/constants/config/channelTalk.config';
 import { useAuthStore } from '@/app/shared/store/authStore';
 
 /**
@@ -18,7 +19,10 @@ export default function ChannelTalkLoader() {
   const { data: user } = useCurrentUserQuery();
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const isBootedRef = useRef(false);
-  const shouldHideChannelButton = pathname === '/posts/new' || isMobileViewport;
+  const isHiddenPath = ChannelTalkConfig.hidePaths.includes(pathname ?? '');
+  const isHiddenPrefix = ChannelTalkConfig.hidePrefixes.some(prefix => pathname?.startsWith(prefix));
+  const shouldHideByViewport = ChannelTalkConfig.hideOnMobile && isMobileViewport;
+  const shouldHideChannelButton = isHiddenPath || isHiddenPrefix || shouldHideByViewport;
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 768px)');
