@@ -26,6 +26,7 @@ import { Post, PostStatus } from './entities/post.entity';
 import { PostViewLog } from './entities/postViewLog.entity';
 import { PostShareLog } from './entities/postShareLog.entity';
 import { PostImage, PostImageType } from './entities/postImage.entity';
+import { UserRecentPost } from './entities/userRecentPost.entity';
 
 import type { ErrorCode } from '../constants/error/error-codes';
 
@@ -199,6 +200,8 @@ export class PostsService {
     private readonly postShareLogRepository: Repository<PostShareLog>,
     @InjectRepository(PostViewLog)
     private readonly postViewLogRepository: Repository<PostViewLog>,
+    @InjectRepository(UserRecentPost)
+    private readonly userRecentPostRepository: Repository<UserRecentPost>,
     @InjectRepository(Comment)
     private readonly commentsRepository: Repository<Comment>,
     private readonly snowflakeService: SnowflakeService,
@@ -449,6 +452,47 @@ export class PostsService {
       category: post.category ? { id: post.category.id, name: post.category.name } : null,
       author: post.author ? { id: post.author.id, name: post.author.name } : null,
       tags: post.postTags?.map(postTag => ({ id: postTag.tag.id, name: postTag.tag.name })) ?? [],
+    };
+  }
+
+  /**
+   * 최근 읽은 게시글 목록
+   * @description 사용자가 최근에 읽은 게시글을 조회
+   */
+  async getRecentPosts(query: ListPostsQueryDto, userId: string) {
+    // 페이징/정렬
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+
+    // 목록/쿼리
+    const queryBuilder = this.userRecentPostRepository
+      .createQueryBuilder('recent')
+      .innerJoinAndSelect('recent.post', 'post')
+      .leftJoinAndSelect('post.category', 'category')
+      .leftJoinAndSelect('post.author', 'author')
+      .leftJoinAndSelect('post.postTags', 'postTags')
+      .leftJoinAndSelect('postTags.tag', 'tag')
+      .loadRelationCountAndMap('post.commentCount', 'post.comments', 'comment', qb =>
+        qb.andWhere('comment.deletedAt IS NULL'),
+      )
+      .where('recent.userId = :userId', { userId })
+      .andWhere('post.status = :status', { status: PostStatus.PUBLISHED })
+      .distinct(true);
+
+    // 목록/조회
+    const [recentItems, total] = await queryBuilder
+      .orderBy('recent.viewedAt', SortOrder.DESC)
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    // 응답/반환
+    return {
+      items: recentItems.map(recent => this.buildPostListItem(recent.post)),
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
     };
   }
 
@@ -930,6 +974,43 @@ export class PostsService {
     return {
       viewCount: post?.viewCount ?? 0,
     };
+  }
+
+  /**
+   * 최근 읽음 기록
+   * @description 사용자의 최근 읽음 게시글을 저장
+   */
+  async trackRecentView(postId: string, userId: string): Promise<{ postId: string }> {
+    // 대상/확인
+    const post = await this.postsRepository.findOne({
+      where: { id: postId, status: PostStatus.PUBLISHED },
+      select: { id: true },
+    });
+
+    // 예외/처리
+    if (!post) {
+      const code = ERROR_CODES.POST_NOT_FOUND as ErrorCode;
+      throw new NotFoundException({
+        message: POST_ERROR_MESSAGES.POST_NOT_FOUND,
+        code,
+      });
+    }
+
+    // 기록/업서트
+    await this.userRecentPostRepository.upsert(
+      {
+        id: this.snowflakeService.generate(),
+        postId,
+        userId,
+        viewedAt: new Date(),
+      },
+      {
+        conflictPaths: ['userId', 'postId'],
+        skipUpdateIfNoValuesChanged: true,
+      },
+    );
+
+    return { postId };
   }
 
   /**

@@ -21,6 +21,7 @@ import { PostLike } from './entities/postLike.entity';
 import { PostImage } from './entities/postImage.entity';
 import { PostViewLog } from './entities/postViewLog.entity';
 import { PostShareLog } from './entities/postShareLog.entity';
+import { UserRecentPost } from './entities/userRecentPost.entity';
 import { Follow } from '../follows/entities/follow.entity';
 
 @Module({
@@ -34,6 +35,7 @@ import { Follow } from '../follows/entities/follow.entity';
       PostImage,
       PostShareLog,
       PostViewLog,
+      UserRecentPost,
       Comment,
       Follow,
     ]),
