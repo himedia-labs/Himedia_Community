@@ -20,7 +20,8 @@ export default function MyPageSettingsTab({
   profileBio,
   showBioEditor,
   userBio,
-  refs,
+  bioEditorRef,
+  bioImageInputRef,
   handlers,
   toolbar,
 }: MyPageSettingsTabProps) {
@@ -51,7 +52,7 @@ export default function MyPageSettingsTab({
               onNumbered={toolbar.applyNumbered}
             />
             <input
-              ref={refs.bioImageInputRef}
+              ref={bioImageInputRef}
               className={markdownEditorStyles.srOnly}
               type="file"
               accept="image/*"
@@ -62,7 +63,7 @@ export default function MyPageSettingsTab({
               자기소개
             </label>
             <textarea
-              ref={refs.bioEditorRef}
+              ref={bioEditorRef}
               id="profile-bio"
               className={`${markdownEditorStyles.editor} ${styles.settingsEditor}`}
               placeholder="자기소개를 입력하세요."

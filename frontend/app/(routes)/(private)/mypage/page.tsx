@@ -634,7 +634,8 @@ export default function MyPage() {
                 profileBio={profileBio}
                 showBioEditor={showBioEditor}
                 userBio={userBio}
-                refs={{ bioEditorRef, bioImageInputRef }}
+                bioEditorRef={bioEditorRef}
+                bioImageInputRef={bioImageInputRef}
                 handlers={{ handleBioChange, handleBioSave, handleBioToggle, handleBioImageClick, handleBioImageSelect }}
                 toolbar={{ applyBullet, applyCode, applyHeading, applyInlineWrap, applyLink, applyNumbered, applyQuote }}
               />

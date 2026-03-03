@@ -36,7 +36,8 @@ export interface MyPageSettingsTabProps {
   profileBio: string;
   showBioEditor: boolean;
   userBio: string;
-  refs: { bioEditorRef: RefObject<HTMLTextAreaElement | null>; bioImageInputRef: RefObject<HTMLInputElement | null> };
+  bioEditorRef: RefObject<HTMLTextAreaElement | null>;
+  bioImageInputRef: RefObject<HTMLInputElement | null>;
   handlers: {
     handleBioChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
     handleBioImageClick: () => void;
