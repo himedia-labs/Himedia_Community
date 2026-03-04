@@ -3,6 +3,7 @@ import type { AxiosError } from 'axios';
 import type { SyntheticEvent } from 'react';
 
 import { isValidPassword } from '@/app/shared/utils/password';
+import { COURSE_NAME } from '@/app/shared/constants/config/register.config';
 import { REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 
 import type { ApiErrorResponse } from '@/app/shared/types/error';
@@ -55,7 +56,7 @@ export const registerSubmit = (params: RegisterSubmitParams) => {
       hasError = true;
     }
     const requiresCourse = params.role === 'trainee' || params.role === 'graduate';
-    if (requiresCourse && !params.course) {
+    if (requiresCourse && !params.courseTerm) {
       params.setCourseError(REGISTER_MESSAGES.missingCourse);
       hasError = true;
     }
@@ -75,6 +76,9 @@ export const registerSubmit = (params: RegisterSubmitParams) => {
     // role을 대문자로 변환
     const upperRole = params.role.toUpperCase() as 'TRAINEE' | 'GRADUATE' | 'MENTOR' | 'INSTRUCTOR';
 
+    // 과정명 + 기수 조합
+    const fullCourse = requiresCourse && params.courseTerm ? `${COURSE_NAME} ${params.courseTerm}` : undefined;
+
     params.registerMutation.mutate(
       {
         name: params.name,
@@ -83,7 +87,7 @@ export const registerSubmit = (params: RegisterSubmitParams) => {
         phone: phoneNumber,
         birthDate: params.birthDate,
         role: upperRole,
-        course: requiresCourse ? params.course || undefined : undefined,
+        course: fullCourse,
         privacyConsent: params.privacyConsent,
       },
       {

@@ -30,7 +30,7 @@ export const REGISTER_MESSAGES = {
   missingEmailVerification: '이메일 인증을 완료해주세요.',
   emailVerified: '이메일 인증이 완료되었습니다.',
   missingRole: '역할을 선택해주세요.',
-  missingCourse: '수강 과정을 입력해주세요.',
+  missingCourse: '기수를 선택해주세요.',
   missingPrivacyConsent: '개인정보 수집 및 이용에 동의해주세요.',
   missingRequired: '필수 정보를 모두 입력해주세요.',
 } as const;
