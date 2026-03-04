@@ -58,8 +58,6 @@ export default function RegisterPage() {
     errors,
     setErrors,
     handlers: { handleBirthDateChange, handlePhoneChange, clearFormCache, markKeepCache },
-    hasCache,
-    restoredFromKeep,
   } = useRegisterForm();
 
   // 폼 입력값 상태
