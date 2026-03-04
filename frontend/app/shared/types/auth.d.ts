@@ -1,3 +1,8 @@
+import type { ChangeEvent } from 'react';
+import type { QueryClient, UseMutationResult } from '@tanstack/react-query';
+import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import type { ToastOptions } from './toast';
+
 // User
 export interface User {
   id: string;
@@ -171,3 +176,90 @@ export interface VerifyEmailVerificationCodeResponse {
 
 // Find Password Page
 export type AuthStep = 'verify' | 'password';
+
+// Login Page
+export type LoginAuthKeys = {
+  currentUser: readonly string[];
+};
+
+export type AuthenticateUserParams = {
+  email: string;
+  password: string;
+  isLoginSubmitting: boolean;
+  setEmailError: (value: string) => void;
+  setPasswordError: (value: string) => void;
+  setIsLoginSubmitting: (value: boolean) => void;
+  onWithdrawnAccount?: (message?: string) => void;
+  redirectTo?: string | null;
+  loginMutation: UseMutationResult<AuthResponse, Error, LoginRequest>;
+  showToast: (options: ToastOptions) => void;
+  queryClient: QueryClient;
+  authKeys: LoginAuthKeys;
+  router: AppRouterInstance;
+};
+
+export type LoginEmailChangeParams = {
+  emailError: string;
+  setEmail: (value: string) => void;
+  setEmailError: (value: string) => void;
+  emailRegex: RegExp;
+};
+
+export type LoginPasswordChangeParams = {
+  passwordError: string;
+  setPassword: (value: string) => void;
+  setPasswordError: (value: string) => void;
+};
+
+export type LoginRestoreCodeChangeHandler = (event: ChangeEvent<HTMLInputElement>) => void;
+
+export type LoginWithdrawnAccountParams = {
+  email: string;
+  setRestoreCode: (value: string) => void;
+  setRestoreEmail: (value: string) => void;
+  setWithdrawnMessage: (value: string) => void;
+  setIsRestoreCodeSent: (value: boolean) => void;
+  setIsWithdrawnModalOpen: (value: boolean) => void;
+};
+
+export type LoginCloseWithdrawModalParams = {
+  isRestoreAccountPending: boolean;
+  isRestoreCodePending: boolean;
+  setRestoreCode: (value: string) => void;
+  setIsRestoreCodeSent: (value: boolean) => void;
+  setIsWithdrawnModalOpen: (value: boolean) => void;
+};
+
+export type LoginSendRestoreCodeParams = {
+  restoreEmail: string;
+  showToast: (options: ToastOptions) => void;
+  setIsRestoreCodeSent: (value: boolean) => void;
+  restoreCodeMutation: UseMutationResult<
+    SendEmailVerificationCodeResponse,
+    Error,
+    SendEmailVerificationCodeRequest
+  >;
+};
+
+export type LoginRestoreAccountParams = {
+  authKeys: LoginAuthKeys;
+  queryClient: QueryClient;
+  redirectTo: string;
+  restoreCode: string;
+  restoreEmail: string;
+  router: AppRouterInstance;
+  showToast: (options: ToastOptions) => void;
+  setRestoreCode: (value: string) => void;
+  setIsRestoreCodeSent: (value: boolean) => void;
+  setIsWithdrawnModalOpen: (value: boolean) => void;
+  restoreAccountMutation: UseMutationResult<
+    RestoreWithdrawnAccountResponse,
+    Error,
+    RestoreWithdrawnAccountRequest
+  >;
+};
+
+export type LoginRedirectToastParams = {
+  reason: string | null;
+  showToast: (options: ToastOptions) => void;
+};

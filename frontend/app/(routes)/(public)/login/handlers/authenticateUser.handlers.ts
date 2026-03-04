@@ -2,32 +2,16 @@ import { useAuthStore } from '@/app/shared/store/authStore';
 import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 
 import type { AxiosError } from 'axios';
-import type { QueryClient } from '@tanstack/react-query';
-import type { UseMutationResult } from '@tanstack/react-query';
+import type { SyntheticEvent } from 'react';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
-import type { LoginRequest, AuthResponse } from '@/app/shared/types/auth';
-import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import type { AuthenticateUserParams, AuthResponse } from '@/app/shared/types/auth';
 
 /**
  * 로그인 핸들러
  * @description 로그인 요청과 에러 처리를 수행
  */
-export const authenticateUser = (params: {
-  email: string;
-  password: string;
-  isLoginSubmitting: boolean;
-  setEmailError: (value: string) => void;
-  setPasswordError: (value: string) => void;
-  setIsLoginSubmitting: (value: boolean) => void;
-  onWithdrawnAccount?: (message?: string) => void;
-  redirectTo?: string | null;
-  loginMutation: UseMutationResult<AuthResponse, Error, LoginRequest>;
-  showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
-  queryClient: QueryClient;
-  authKeys: { currentUser: readonly string[] };
-  router: AppRouterInstance;
-}) => {
-  return (e: React.FormEvent) => {
+export const authenticateUser = (params: AuthenticateUserParams) => {
+  return (e: SyntheticEvent) => {
     e.preventDefault();
 
     if (params.isLoginSubmitting || params.loginMutation.isPending) return;
