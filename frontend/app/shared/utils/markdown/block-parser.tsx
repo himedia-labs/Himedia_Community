@@ -36,8 +36,28 @@ export const renderMarkdownPreview = (value: string): ReactNode[] => {
     }
 
     if (isFence(line)) {
-      index += 1;
       const codeLines: string[] = [];
+      const openingLine = line.trimStart();
+      const openingRemainder = openingLine.slice(3);
+      const openingInlineCloseIndex = openingRemainder.indexOf('```');
+
+      if (openingInlineCloseIndex >= 0) {
+        const openingInlineCode = openingRemainder.slice(0, openingInlineCloseIndex);
+        if (openingInlineCode) codeLines.push(openingInlineCode);
+        index += 1;
+        blocks.push(
+          <pre key={`code-${index}`}>
+            <code>{codeLines.join('\n')}</code>
+          </pre>,
+        );
+        continue;
+      }
+
+      if (openingRemainder) {
+        codeLines.push(openingRemainder);
+      }
+
+      index += 1;
       while (index < lines.length && !isFence(lines[index])) {
         const currentLine = lines[index];
         const trimmedLine = currentLine.trimEnd();
@@ -51,7 +71,15 @@ export const renderMarkdownPreview = (value: string): ReactNode[] => {
         codeLines.push(lines[index]);
         index += 1;
       }
-      if (index < lines.length && isFence(lines[index])) index += 1;
+      if (index < lines.length && isFence(lines[index])) {
+        const closingLine = lines[index].trimStart();
+        const trailingText = closingLine.slice(3);
+        index += 1;
+
+        if (trailingText) {
+          lines.splice(index, 0, trailingText);
+        }
+      }
       blocks.push(
         <pre key={`code-${index}`}>
           <code>{codeLines.join('\n')}</code>
