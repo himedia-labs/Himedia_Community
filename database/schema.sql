@@ -10,7 +10,7 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     phone VARCHAR(20) NOT NULL UNIQUE,
-    role VARCHAR(20) NOT NULL CHECK (role IN ('TRAINEE', 'MENTOR', 'INSTRUCTOR', 'ADMIN')),
+    role VARCHAR(20) NOT NULL CHECK (role IN ('TRAINEE', 'GRADUATE', 'MENTOR', 'INSTRUCTOR', 'ADMIN')),
     requested_role VARCHAR(20) CHECK (requested_role IN ('TRAINEE', 'GRADUATE', 'MENTOR', 'INSTRUCTOR')),
     course VARCHAR(255),
     birth_date DATE,
@@ -383,3 +383,101 @@ COMMENT ON COLUMN password_resets.code IS '인증코드 해시(bcrypt)';
 COMMENT ON COLUMN password_resets.expires_at IS '인증번호 만료 시간';
 COMMENT ON COLUMN password_resets.used IS '사용 여부';
 COMMENT ON COLUMN password_resets.created_at IS '생성 일시';
+
+-- 팔로우 테이블
+CREATE TABLE user_follows (
+    follower_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    following_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (follower_id, following_id)
+);
+
+-- 인덱스
+CREATE INDEX idx_user_follows_follower_id ON user_follows(follower_id);
+CREATE INDEX idx_user_follows_following_id ON user_follows(following_id);
+
+-- 이메일 인증 테이블
+CREATE TABLE email_verifications (
+    id BIGINT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    code VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    used BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 인덱스
+CREATE INDEX idx_email_verifications_email ON email_verifications(email);
+CREATE INDEX idx_email_verifications_code ON email_verifications(code);
+CREATE INDEX idx_email_verifications_expires_at ON email_verifications(expires_at);
+CREATE INDEX idx_email_verifications_email_code_used ON email_verifications(email, code, used);
+
+-- 관리자 신고 테이블
+CREATE TABLE admin_reports (
+    id BIGINT PRIMARY KEY,
+    reporter_user_id BIGINT,
+    handler_admin_id BIGINT,
+    title VARCHAR(120) NOT NULL,
+    content TEXT NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'OPEN' CHECK (status IN ('OPEN', 'IN_PROGRESS', 'RESOLVED', 'REJECTED')),
+    handled_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 인덱스
+CREATE INDEX idx_admin_reports_status_created_at ON admin_reports(status, created_at);
+CREATE INDEX idx_admin_reports_created_at ON admin_reports(created_at);
+
+-- 트리거
+CREATE TRIGGER update_admin_reports_updated_at BEFORE UPDATE ON admin_reports
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- 관리자 감사 로그 테이블
+CREATE TABLE admin_audit_logs (
+    id BIGINT PRIMARY KEY,
+    admin_user_id BIGINT NOT NULL,
+    target_type VARCHAR(40) NOT NULL,
+    target_id VARCHAR(100) NOT NULL,
+    action VARCHAR(80) NOT NULL,
+    payload JSONB,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 인덱스
+CREATE INDEX idx_admin_audit_logs_admin_user_id_created_at ON admin_audit_logs(admin_user_id, created_at);
+CREATE INDEX idx_admin_audit_logs_target_type_target_id_created_at ON admin_audit_logs(target_type, target_id, created_at);
+
+-- 코멘트
+COMMENT ON TABLE user_follows IS '사용자 팔로우 관계 테이블';
+COMMENT ON COLUMN user_follows.follower_id IS '팔로워 사용자 ID';
+COMMENT ON COLUMN user_follows.following_id IS '팔로잉 사용자 ID';
+COMMENT ON COLUMN user_follows.created_at IS '팔로우 시작 일시';
+
+COMMENT ON TABLE email_verifications IS '이메일 인증 테이블';
+COMMENT ON COLUMN email_verifications.id IS '고유 ID (Snowflake ID)';
+COMMENT ON COLUMN email_verifications.email IS '인증 대상 이메일';
+COMMENT ON COLUMN email_verifications.code IS '인증코드 해시';
+COMMENT ON COLUMN email_verifications.expires_at IS '인증코드 만료 시간';
+COMMENT ON COLUMN email_verifications.used IS '사용 여부';
+COMMENT ON COLUMN email_verifications.created_at IS '생성 일시';
+
+COMMENT ON TABLE admin_reports IS '관리자 신고 접수 테이블';
+COMMENT ON COLUMN admin_reports.id IS '고유 ID (Snowflake ID)';
+COMMENT ON COLUMN admin_reports.reporter_user_id IS '신고자 사용자 ID';
+COMMENT ON COLUMN admin_reports.handler_admin_id IS '처리 관리자 ID';
+COMMENT ON COLUMN admin_reports.title IS '신고 제목';
+COMMENT ON COLUMN admin_reports.content IS '신고 내용';
+COMMENT ON COLUMN admin_reports.status IS '처리 상태';
+COMMENT ON COLUMN admin_reports.handled_at IS '처리 일시';
+COMMENT ON COLUMN admin_reports.created_at IS '신고 접수 일시';
+COMMENT ON COLUMN admin_reports.updated_at IS '수정 일시';
+
+COMMENT ON TABLE admin_audit_logs IS '관리자 작업 감사 로그 테이블';
+COMMENT ON COLUMN admin_audit_logs.id IS '고유 ID (Snowflake ID)';
+COMMENT ON COLUMN admin_audit_logs.admin_user_id IS '관리자 사용자 ID';
+COMMENT ON COLUMN admin_audit_logs.target_type IS '대상 엔티티 타입';
+COMMENT ON COLUMN admin_audit_logs.target_id IS '대상 엔티티 ID';
+COMMENT ON COLUMN admin_audit_logs.action IS '수행한 작업';
+COMMENT ON COLUMN admin_audit_logs.payload IS '작업 상세 정보 (JSON)';
+COMMENT ON COLUMN admin_audit_logs.created_at IS '작업 일시';

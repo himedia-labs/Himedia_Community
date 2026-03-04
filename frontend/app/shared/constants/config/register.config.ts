@@ -1,16 +1,22 @@
-// 교육과정 리스트
-export const COURSE_OPTIONS = [
-  '프론트엔드 개발자 양성과정 1기',
-  '프론트엔드 개발자 양성과정 2기',
-  '백엔드 개발자 양성과정 1기',
-  '백엔드 개발자 양성과정 2기',
-  '풀스택 개발자 양성과정 1기',
-  '풀스택 개발자 양성과정 2기',
-  'AI 개발자 양성과정 1기',
-  'AI 개발자 양성과정 2기',
-  '데이터 분석 양성과정 1기',
-  '데이터 분석 양성과정 2기',
-  '기타',
+// 교육과정명 (고정)
+export const COURSE_NAME = '심화_생성형 AI활용 인재양성과정 (조별멘토)';
+
+// 기수 옵션
+export const COURSE_TERM_OPTIONS = [
+  { value: '1기', label: '1기' },
+  { value: '2기', label: '2기' },
+  { value: '3기', label: '3기' },
+  { value: '4기', label: '4기' },
+  { value: '5기', label: '5기' },
+  { value: '6기', label: '6기' },
+  { value: '7기', label: '7기' },
+  { value: '8기', label: '8기' },
+  { value: '9기', label: '9기' },
+  { value: '10기', label: '10기' },
+  { value: '11기', label: '11기' },
+  { value: '12기', label: '12기' },
+  { value: '기억안남', label: '기억 안남' },
+  { value: '해당없음', label: '해당 없음' },
 ] as const;
 
 // 폼 캐시 키
@@ -29,6 +35,7 @@ export const REGISTER_FORM_DEFAULT = {
   phone: '',
   role: '',
   course: '',
+  courseTerm: '',
   privacyConsent: false,
 };
 

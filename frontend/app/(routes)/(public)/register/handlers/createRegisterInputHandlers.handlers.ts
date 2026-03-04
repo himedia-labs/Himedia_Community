@@ -95,17 +95,18 @@ export const createRegisterInputHandlers = (params: RegisterInputHandlersParams)
     params.setFormField('role', value);
     if (shouldDisableCourse) {
       params.setFormField('course', '');
+      params.setFormField('courseTerm', '');
     }
     if (params.roleError) params.setRoleError('');
     if (params.courseError) params.setCourseError('');
   };
 
   /**
-   * 과정 선택 변경
-   * @description 과정 값을 반영하고 에러를 초기화
+   * 기수 선택 변경
+   * @description 기수 값을 반영하고 에러를 초기화
    */
   const handleCourseSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    params.setFormField('course', event.target.value);
+    params.setFormField('courseTerm', event.target.value);
     if (params.courseError) params.setCourseError('');
   };
 
@@ -130,6 +131,7 @@ export const createRegisterInputHandlers = (params: RegisterInputHandlersParams)
       params.phone ||
       params.role ||
       params.course ||
+      params.courseTerm ||
       params.passwordConfirm ||
       params.birthDate
     ) {

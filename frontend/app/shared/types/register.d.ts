@@ -7,5 +7,6 @@ export interface RegisterFormCache {
   phone: string;
   role: string;
   course: string;
+  courseTerm: string;
   privacyConsent: boolean;
 }

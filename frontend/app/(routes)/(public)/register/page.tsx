@@ -20,7 +20,8 @@ import {
 import { useToast } from '@/app/shared/components/toast/toast';
 import {
   BIRTH_DATE_CONFIG,
-  COURSE_OPTIONS,
+  COURSE_NAME,
+  COURSE_TERM_OPTIONS,
   EMAIL_VERIFICATION_CODE_LENGTH,
   PHONE_CONFIG,
 } from '@/app/shared/constants/config/register.config';
@@ -63,7 +64,7 @@ export default function RegisterPage() {
   } = useRegisterForm();
 
   // 폼 입력값 상태
-  const { name, email, birthDate, password, passwordConfirm, phone, role, course, privacyConsent } = form;
+  const { name, email, birthDate, password, passwordConfirm, phone, role, course, courseTerm, privacyConsent } = form;
   const isCourseDisabled = role === 'instructor' || role === 'mentor';
   // 폼 에러 상태
   const {
@@ -111,6 +112,7 @@ export default function RegisterPage() {
     birthDate,
     role,
     course,
+    courseTerm,
     privacyConsent,
     setNameError,
     setEmailError,
@@ -187,6 +189,7 @@ export default function RegisterPage() {
     phone,
     role,
     course,
+    courseTerm,
     emailCode,
     nameError,
     emailError,
@@ -443,25 +446,43 @@ export default function RegisterPage() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label htmlFor="course" className={styles.label}>
-                    <span className={styles.labelText}>과정명 및 기수</span>
-                  </label>
-                  <div className={styles.selectWrapper}>
-                    <select
-                      id="course"
-                      value={course}
-                      onChange={handleCourseSelectChange}
-                      className={courseError ? `${styles.select} ${styles.error}` : styles.select}
-                      disabled={isCourseDisabled}
-                    >
-                      <option value="">선택해주세요</option>
-                      {COURSE_OPTIONS.map(option => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                    <IoIosArrowDown className={styles.selectIcon} aria-hidden />
+                  <div className={styles.formRow}>
+                    <div className={styles.formCol}>
+                      <label htmlFor="course" className={styles.label}>
+                        <span className={styles.labelText}>과정명</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="course"
+                        value={COURSE_NAME}
+                        className={styles.input}
+                        disabled
+                        readOnly
+                      />
+                    </div>
+
+                    <div className={styles.formColAuto}>
+                      <label htmlFor="courseTerm" className={styles.label}>
+                        <span className={styles.labelText}>기수</span>
+                      </label>
+                      <div className={styles.selectWrapper}>
+                        <select
+                          id="courseTerm"
+                          value={courseTerm}
+                          onChange={handleCourseSelectChange}
+                          className={courseError ? `${styles.select} ${styles.error}` : styles.select}
+                          disabled={isCourseDisabled}
+                        >
+                          <option value="">선택</option>
+                          {COURSE_TERM_OPTIONS.map(option => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                        <IoIosArrowDown className={styles.selectIcon} aria-hidden />
+                      </div>
+                    </div>
                   </div>
                   {courseError && <p className={styles.errorMessage}>{courseError}</p>}
                 </div>

@@ -301,6 +301,7 @@ export type RegisterSubmitParams = {
   birthDate: string;
   role: string;
   course: string;
+  courseTerm: string;
   privacyConsent: boolean;
   setNameError: RegisterSetError;
   setEmailError: RegisterSetError;
@@ -365,6 +366,7 @@ export type RegisterInputHandlersParams = {
   phone: string;
   role: string;
   course: string;
+  courseTerm: string;
   emailCode: string;
   emailError: string;
   roleError: string;
