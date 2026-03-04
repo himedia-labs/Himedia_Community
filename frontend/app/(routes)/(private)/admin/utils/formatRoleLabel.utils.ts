@@ -1,4 +1,4 @@
-import { ADMIN_ROLE_LABEL_MAP } from '@/app/(routes)/(private)/admin/constants/role.constants';
+import { ADMIN_ROLE_LABEL_MAP } from '@/app/shared/constants/config/admin.config';
 
 /**
  * 역할 라벨 변환

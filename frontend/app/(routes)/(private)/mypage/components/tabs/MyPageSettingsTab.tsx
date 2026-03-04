@@ -1,6 +1,8 @@
+import { BIO_MAX_LENGTH } from '@/app/shared/constants/config/mypage.config';
+
 import EmptyState from '@/app/shared/components/empty/EmptyState';
 import EditorToolbar from '@/app/shared/components/markdown-editor/EditorToolbar';
-import { BIO_MAX_LENGTH } from '@/app/(routes)/(private)/mypage/constants';
+
 import { MyPageIntroSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
 
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';

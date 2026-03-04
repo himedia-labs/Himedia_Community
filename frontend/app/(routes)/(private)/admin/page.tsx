@@ -21,9 +21,9 @@ import {
   useTrackAdminAccessMutation,
   useUpdateAdminUserRoleMutation,
 } from '@/app/api/admin/admin.mutations';
-import { ADMIN_MENU_LABELS } from '@/app/(routes)/(private)/admin/constants/menu.constants';
-import { ADMIN_QUERY_KEYS } from '@/app/(routes)/(private)/admin/constants/query.constants';
-import { ADMIN_PENDING_SORT } from '@/app/(routes)/(private)/admin/constants/sort.constants';
+
+import { ADMIN_MENU_LABELS, ADMIN_PENDING_SORT, ADMIN_QUERY_KEYS } from '@/app/shared/constants/config/admin.config';
+
 import { createHandleSelectMenu, createHandleSelectSort, createSyncAdminUrlState } from '@/app/(routes)/(private)/admin/handlers/adminUrl.handlers';
 import {
   createToggleRoleSort,

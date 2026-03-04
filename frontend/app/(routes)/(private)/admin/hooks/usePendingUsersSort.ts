@@ -1,9 +1,8 @@
 import { useMemo } from 'react';
 
-import { ADMIN_PENDING_SORT } from '@/app/(routes)/(private)/admin/constants/sort.constants';
+import { ADMIN_PENDING_SORT } from '@/app/shared/constants/config/admin.config';
 
-import type { AdminPendingSort } from '@/app/shared/types/admin';
-import type { AdminPendingUser } from '@/app/shared/types/admin';
+import type { AdminPendingSort, AdminPendingUser } from '@/app/shared/types/admin';
 
 /**
  * 승인대기 회원 정렬

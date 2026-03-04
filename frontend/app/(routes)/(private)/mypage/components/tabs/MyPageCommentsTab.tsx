@@ -6,11 +6,13 @@ import Image from 'next/image';
 import { FaUser } from 'react-icons/fa';
 import { FiClock, FiEdit2, FiHeart, FiMessageCircle, FiMoreHorizontal, FiTrash2, FiTrendingUp } from 'react-icons/fi';
 
+import { COMMENT_MAX_LENGTH_MESSAGE } from '@/app/shared/constants/config/mypage.config';
+
 import EmptyState from '@/app/shared/components/empty/EmptyState';
-import { MyPageCommentsSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
-import { COMMENT_MAX_LENGTH_MESSAGE } from '@/app/(routes)/(private)/mypage/constants';
+
 import { stopMenuPropagation } from '@/app/(routes)/(private)/mypage/handlers';
 import { formatDateTimeLabel } from '@/app/(routes)/(private)/mypage/utils';
+import { MyPageCommentsSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
 import { splitCommentMentions } from '@/app/(routes)/(public)/posts/[postId]/utils';
 
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';

@@ -8,9 +8,7 @@ import { useRouter } from 'next/navigation';
 
 import { FaUser, FaUserEdit } from 'react-icons/fa';
 
-import { MYPAGE_TABS } from '@/app/shared/constants/config/mypage.config';
-
-import { PROFILE_SOCIAL_SKELETON_COUNT } from '@/app/(routes)/(private)/mypage/constants';
+import { MYPAGE_TABS, PROFILE_SOCIAL_SKELETON_COUNT } from '@/app/shared/constants/config/mypage.config';
 import {
   createCloseWithdrawModal,
   createHandleCategorySelect,
