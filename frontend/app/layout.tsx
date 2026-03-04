@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+
 import { cookies } from 'next/headers';
 
 import Footer from '@/app/shared/components/footer/Footer';
@@ -11,6 +13,22 @@ import ChannelTalkLoader from '@/app/provider/ChannelTalk/ChannelTalkLoader';
 import ScrollTopButton from '@/app/shared/components/scroll-top/ScrollTopButton';
 
 import '@/app/globals.css';
+
+export const metadata: Metadata = {
+  title: {
+    template: '%s',
+    default: '하이미디어 커뮤니티',
+  },
+  icons: {
+    icon: [
+      { url: '/favicon/favicon.ico', sizes: '48x48' },
+      { url: '/favicon/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
+    ],
+    apple: '/favicon/apple-touch-icon.png',
+  },
+  manifest: '/favicon/site.webmanifest',
+};
 
 export default async function RootLayout({
   children,

@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -159,6 +161,16 @@ export default function PostDetailPage() {
     refetchComments,
     refetchPost: refetch,
   });
+
+  // 페이지 제목 설정
+  useEffect(() => {
+    if (data?.title) {
+      document.title = data.title;
+    }
+    return () => {
+      document.title = '하이미디어 커뮤니티';
+    };
+  }, [data?.title]);
 
   if (!isInitialized || isLoading) {
     return <PostDetailSkeleton />;
