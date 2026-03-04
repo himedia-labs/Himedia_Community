@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -12,16 +12,20 @@ import {
   useVerifyResetCodeMutation,
 } from '@/app/api/auth/auth.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
-import { EMAIL_MESSAGES, REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import { EMAIL_REGEX, RESET_CODE_EXPIRY_SECONDS } from '@/app/shared/constants/config/auth.config';
 
-import { formatCode, formatRemainingTime, isValidPassword } from '@/app/(routes)/(public)/find-password/utils';
+import { formatRemainingTime, isValidPassword } from '@/app/(routes)/(public)/find-password/utils';
 import {
+  createHandleCodeChange,
+  createHandleEmailChange,
+  createHandleConfirmPasswordChange,
+  createHandleNewPasswordChange,
   resetPassword,
   resetPasswordState,
   sendCode,
   verifyCode,
 } from '@/app/(routes)/(public)/find-password/handlers';
+import { useResetCodeTimer } from '@/app/(routes)/(public)/find-password/hooks';
 
 import styles from '@/app/(routes)/(public)/find-password/find-password.module.css';
 
@@ -65,23 +69,13 @@ export default function ForgotPasswordPage() {
   const isVerifying = verifyCodeMutation.isPending;
   const isResetting = resetPasswordMutation.isPending;
 
-  // 인증번호 만료 타이머
-  useEffect(() => {
-    if (!codeSent || remainingSeconds <= 0) return undefined;
-
-    const timerId = window.setTimeout(() => {
-      setRemainingSeconds(prev => Math.max(prev - 1, 0));
-    }, 1000);
-
-    return () => window.clearTimeout(timerId);
-  }, [codeSent, remainingSeconds]);
-
-  // 만료 알림
-  useEffect(() => {
-    if (codeSent && remainingSeconds === 0) {
-      showToast({ message: '인증번호가 만료되었습니다. 다시 발송해주세요.', type: 'warning' });
-    }
-  }, [codeSent, remainingSeconds, showToast]);
+  // 인증코드 타이머
+  useResetCodeTimer({
+    codeSent,
+    remainingSeconds,
+    setRemainingSeconds,
+    showToast,
+  });
 
   // 상태 초기화
   const handleResetPasswordState = resetPasswordState({
@@ -130,6 +124,30 @@ export default function ForgotPasswordPage() {
     isValidPassword,
   });
 
+  // 입력 핸들러
+  const handleEmailChange = createHandleEmailChange({
+    emailError,
+    codeError,
+    setEmail,
+    setCodeError,
+    setEmailError,
+    emailRegex: EMAIL_REGEX,
+  });
+  const handleCodeChange = createHandleCodeChange({
+    codeError,
+    setCode,
+    setCodeError,
+  });
+  const handleNewPasswordChange = createHandleNewPasswordChange({
+    setNewPassword,
+    setNewPasswordError,
+  });
+  const handleConfirmPasswordChange = createHandleConfirmPasswordChange({
+    confirmPasswordError,
+    setConfirmPassword,
+    setConfirmPasswordError,
+  });
+
   return (
     <div className={styles.container}>
       <div className={styles.content}>
@@ -157,16 +175,7 @@ export default function ForgotPasswordPage() {
                   type="email"
                   id="email"
                   value={email}
-                  onChange={e => {
-                    const next = e.target.value;
-                    setEmail(next);
-                    if (!EMAIL_REGEX.test(next)) {
-                      setEmailError(EMAIL_MESSAGES.invalid);
-                    } else if (emailError) {
-                      setEmailError('');
-                    }
-                    if (codeError) setCodeError('');
-                  }}
+                  onChange={handleEmailChange}
                   className={emailError ? `${styles.input} ${styles.error}` : styles.input}
                   disabled={isSending || isVerifying || codeSent}
                   placeholder="example@email.com"
@@ -184,10 +193,7 @@ export default function ForgotPasswordPage() {
                     type="text"
                     id="code"
                     value={code}
-                    onChange={e => {
-                      setCode(formatCode(e.target.value));
-                      if (codeError) setCodeError('');
-                    }}
+                    onChange={handleCodeChange}
                     className={
                       codeError
                         ? `${styles.input} ${styles.error} ${styles.inputWithTimer}`
@@ -254,15 +260,7 @@ export default function ForgotPasswordPage() {
                   type="password"
                   id="newPassword"
                   value={newPassword}
-                  onChange={e => {
-                    const value = e.target.value;
-                    setNewPassword(value);
-                    if (value && !isValidPassword(value)) {
-                      setNewPasswordError(REGISTER_MESSAGES.invalidPassword);
-                    } else {
-                      setNewPasswordError('');
-                    }
-                  }}
+                  onChange={handleNewPasswordChange}
                   className={
                     newPasswordError
                       ? `${styles.input} ${styles.passwordInput} ${styles.error}`
@@ -283,10 +281,7 @@ export default function ForgotPasswordPage() {
                   type="password"
                   id="confirmPassword"
                   value={confirmPassword}
-                  onChange={e => {
-                    setConfirmPassword(e.target.value);
-                    if (confirmPasswordError) setConfirmPasswordError('');
-                  }}
+                  onChange={handleConfirmPasswordChange}
                   className={
                     confirmPasswordError
                       ? `${styles.input} ${styles.passwordInput} ${styles.error}`

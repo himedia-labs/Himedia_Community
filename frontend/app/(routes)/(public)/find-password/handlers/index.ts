@@ -2,3 +2,7 @@ export { sendCode } from '@/app/(routes)/(public)/find-password/handlers/sendCod
 export { verifyCode } from '@/app/(routes)/(public)/find-password/handlers/verifyCode.handlers';
 export { resetPassword } from '@/app/(routes)/(public)/find-password/handlers/resetPassword.handlers';
 export { resetPasswordState } from '@/app/(routes)/(public)/find-password/handlers/resetPasswordState.handlers';
+export { createHandleCodeChange } from '@/app/(routes)/(public)/find-password/handlers/findPasswordInput.handlers';
+export { createHandleEmailChange } from '@/app/(routes)/(public)/find-password/handlers/findPasswordInput.handlers';
+export { createHandleNewPasswordChange } from '@/app/(routes)/(public)/find-password/handlers/findPasswordInput.handlers';
+export { createHandleConfirmPasswordChange } from '@/app/(routes)/(public)/find-password/handlers/findPasswordInput.handlers';
