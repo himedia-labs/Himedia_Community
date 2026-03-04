@@ -10,7 +10,13 @@ import { COMMENT_MAX_LENGTH_MESSAGE } from '@/app/shared/constants/config/mypage
 
 import EmptyState from '@/app/shared/components/empty/EmptyState';
 
-import { stopMenuPropagation } from '@/app/(routes)/(private)/mypage/handlers';
+import {
+  stopMenuPropagation,
+  createHandleDeleteButtonClick,
+  createHandleEditStartButtonClick,
+  createHandleEditSubmitButtonClick,
+  createHandleCommentMenuButtonClick,
+} from '@/app/(routes)/(private)/mypage/handlers';
 import { formatDate } from '@/app/(routes)/(private)/mypage/utils';
 import { MyPageCommentsSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
 import { splitCommentMentions } from '@/app/(routes)/(public)/posts/[postId]/utils';
@@ -44,6 +50,11 @@ export default function MyPageCommentsTab({
   handleEditSubmit,
   handleSortToggle,
 }: MyPageCommentsTabProps) {
+  const handleCommentMenuButtonClick = createHandleCommentMenuButtonClick(handleCommentMenuToggle);
+  const handleEditStartButtonClick = createHandleEditStartButtonClick(handleEditStart);
+  const handleDeleteButtonClick = createHandleDeleteButtonClick(handleDeleteComment);
+  const handleEditSubmitButtonClick = createHandleEditSubmitButtonClick(handleEditSubmit);
+
   if (isMyCommentsListLoading) {
     return <MyPageCommentsSkeleton />;
   }
@@ -123,10 +134,8 @@ export default function MyPageCommentsTab({
                           type="button"
                           className={commentStyles.commentMoreButton}
                           aria-label="댓글 옵션"
-                          onClick={event => {
-                            stopMenuPropagation(event);
-                            handleCommentMenuToggle(comment.id);
-                          }}
+                          data-comment-id={comment.id}
+                          onClick={handleCommentMenuButtonClick}
                         >
                           <FiMoreHorizontal aria-hidden="true" />
                         </button>
@@ -136,10 +145,9 @@ export default function MyPageCommentsTab({
                               type="button"
                               className={commentStyles.commentMoreItem}
                               role="menuitem"
-                              onClick={event => {
-                                stopMenuPropagation(event);
-                                handleEditStart(comment.id, comment.content);
-                              }}
+                              data-comment-id={comment.id}
+                              data-comment-content={comment.content}
+                              onClick={handleEditStartButtonClick}
                             >
                               <FiEdit2 aria-hidden="true" />
                               수정
@@ -149,10 +157,9 @@ export default function MyPageCommentsTab({
                               className={commentStyles.commentMoreItem}
                               role="menuitem"
                               disabled={isDeleting}
-                              onClick={event => {
-                                stopMenuPropagation(event);
-                                handleDeleteComment(postId, comment.id);
-                              }}
+                              data-post-id={postId}
+                              data-comment-id={comment.id}
+                              onClick={handleDeleteButtonClick}
                             >
                               <FiTrash2 aria-hidden="true" />
                               삭제
@@ -192,7 +199,9 @@ export default function MyPageCommentsTab({
                                   : commentStyles.commentButton
                               }
                               disabled={!editingContent.trim() || isUpdating || hasEditingLengthError}
-                              onClick={() => handleEditSubmit(postId, comment.id)}
+                              data-post-id={postId}
+                              data-comment-id={comment.id}
+                              onClick={handleEditSubmitButtonClick}
                             >
                               수정 완료
                             </button>

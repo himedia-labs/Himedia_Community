@@ -19,7 +19,9 @@ import {
   createHandleCodeChange,
   createHandleEmailChange,
   createHandleConfirmPasswordChange,
+  createHandleBackToVerify,
   createHandleNewPasswordChange,
+  createHandleResendCodeClick,
   resetPassword,
   resetPasswordState,
   sendCode,
@@ -148,6 +150,9 @@ export default function ForgotPasswordPage() {
     setConfirmPasswordError,
   });
 
+  const handleResendCodeClick = createHandleResendCodeClick(handleSendCode);
+  const handleBackToVerify = createHandleBackToVerify({ setStep, handleResetPasswordState });
+
   return (
     <div className={styles.container}>
       <div className={styles.content}>
@@ -228,9 +233,7 @@ export default function ForgotPasswordPage() {
                         type="button"
                         className={`${styles.link} ${styles.linkButton}`}
                         disabled={isSending || isVerifying}
-                        onClick={() => {
-                          handleSendCode();
-                        }}
+                        onClick={handleResendCodeClick}
                       >
                         재전송
                       </button>
@@ -299,10 +302,7 @@ export default function ForgotPasswordPage() {
                   type="button"
                   className={styles.backButton}
                   tabIndex={-1}
-                  onClick={() => {
-                    setStep('verify');
-                    handleResetPasswordState();
-                  }}
+                  onClick={handleBackToVerify}
                 >
                   이전으로
                 </button>

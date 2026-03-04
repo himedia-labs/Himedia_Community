@@ -28,6 +28,10 @@ import {
   getMentionHighlightSegments,
   splitCommentMentions,
 } from '@/app/(routes)/(public)/posts/[postId]/utils';
+import {
+  createCommentFormSubmitHandler,
+  createCommentItemActionHandlers,
+} from '@/app/(routes)/(public)/posts/[postId]/handlers';
 
 import styles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
 
@@ -142,6 +146,30 @@ export const PostDetailCommentsSection = ({
     const replyMentionList = getReplyMentionSuggestions(replyState.mentionQuery);
     const isReplyMentionOpen = replyMentionList.length > 0 && replyState.mentionQuery !== null;
     const hasReplyLengthError = isCommentContentTooLong(replyState.content);
+    const {
+      handleMenuToggleClick,
+      handleEditStartClick,
+      handleDeleteClick,
+      handleFollowClick,
+      handleEditSubmitClick,
+      handleLikeToggleClick,
+      handleReplyToggleClick,
+      handleShareClick,
+      handleReplySubmitClick,
+    } = createCommentItemActionHandlers({
+      comment,
+      isReply,
+      rootCommentId,
+      handleCommentMenuToggle,
+      handleEditStart,
+      handleDeleteComment,
+      handleFollowToggle,
+      handleEditSubmit,
+      handleCommentLikeToggle,
+      handleReplyToggle,
+      handleCommentShare,
+      handleReplySubmit,
+    });
 
     return (
       <div
@@ -191,7 +219,7 @@ export const PostDetailCommentsSection = ({
                   type="button"
                   className={styles.commentMoreButton}
                   aria-label="댓글 옵션"
-                  onClick={() => handleCommentMenuToggle(comment.id)}
+                  onClick={handleMenuToggleClick}
                 >
                   <FiMoreHorizontal aria-hidden="true" />
                 </button>
@@ -201,7 +229,7 @@ export const PostDetailCommentsSection = ({
                       type="button"
                       className={styles.commentMoreItem}
                       role="menuitem"
-                      onClick={() => handleEditStart(comment.id, comment.content)}
+                      onClick={handleEditStartClick}
                     >
                       <FiEdit2 aria-hidden="true" />
                       수정
@@ -210,7 +238,7 @@ export const PostDetailCommentsSection = ({
                       type="button"
                       className={styles.commentMoreItem}
                       role="menuitem"
-                      onClick={() => handleDeleteComment(comment.id)}
+                      onClick={handleDeleteClick}
                     >
                       <FiTrash2 aria-hidden="true" />
                       삭제
@@ -225,7 +253,7 @@ export const PostDetailCommentsSection = ({
                     type="button"
                     className={styles.commentMoreButton}
                     aria-label="댓글 옵션"
-                    onClick={() => handleCommentMenuToggle(comment.id)}
+                    onClick={handleMenuToggleClick}
                   >
                     <FiMoreHorizontal aria-hidden="true" />
                   </button>
@@ -249,7 +277,7 @@ export const PostDetailCommentsSection = ({
                       ? `${styles.commentFollowButton} ${styles.commentFollowButtonActive}`
                       : styles.commentFollowButton
                   }
-                  onClick={() => handleFollowToggle(comment.author)}
+                  onClick={handleFollowClick}
                 >
                   {comment.author?.isFollowing ? '팔로잉' : '팔로우'}
                 </button>
@@ -276,7 +304,7 @@ export const PostDetailCommentsSection = ({
                       editingContent.trim() ? `${styles.commentButton} ${styles.commentButtonActive}` : styles.commentButton
                     }
                     disabled={!editingContent.trim() || isUpdating || hasEditingLengthError}
-                    onClick={() => handleEditSubmit(comment.id)}
+                    onClick={handleEditSubmitClick}
                   >
                     수정 완료
                   </button>
@@ -300,7 +328,7 @@ export const PostDetailCommentsSection = ({
                 type="button"
                 className={`${styles.commentActionButton} ${comment.liked ? styles.commentActionButtonLiked : ''}`}
                 aria-label="좋아요"
-                onClick={() => handleCommentLikeToggle(comment.id)}
+                onClick={handleLikeToggleClick}
               >
                 {comment.liked ? <FaHeart aria-hidden="true" /> : <FiHeart aria-hidden="true" />}
                 {comment.likeCount > 0 ? (
@@ -313,7 +341,7 @@ export const PostDetailCommentsSection = ({
                 type="button"
                 className={styles.commentActionButton}
                 aria-label={isReply ? '답글 달기' : '댓글'}
-                onClick={() => handleReplyToggle(rootCommentId, comment, isReply)}
+                onClick={handleReplyToggleClick}
               >
                 {isReply ? (
                   <>
@@ -336,7 +364,7 @@ export const PostDetailCommentsSection = ({
                   type="button"
                   className={styles.commentActionButton}
                   aria-label="공유"
-                  onClick={() => handleCommentShare(comment.id)}
+                  onClick={handleShareClick}
                 >
                   <FiShare2 aria-hidden="true" />
                 </button>
@@ -407,7 +435,7 @@ export const PostDetailCommentsSection = ({
                           : styles.commentInlineSubmit
                       }
                       disabled={!replyState.content.trim() || hasReplyLengthError}
-                      onClick={() => handleReplySubmit(rootCommentId)}
+                      onClick={handleReplySubmitClick}
                     >
                       답글 등록
                     </button>
@@ -433,6 +461,8 @@ export const PostDetailCommentsSection = ({
     );
   };
 
+  const handleCommentFormSubmit = createCommentFormSubmitHandler(handleCommentSubmit);
+
   return (
     <section aria-label="댓글 작성">
       <div className={styles.commentHeader}>
@@ -440,13 +470,7 @@ export const PostDetailCommentsSection = ({
           댓글 <span className={styles.commentCount}>{commentCount}</span>
         </h2>
       </div>
-      <form
-        className={styles.commentForm}
-        onSubmit={event => {
-          event.preventDefault();
-          handleCommentSubmit();
-        }}
-      >
+      <form className={styles.commentForm} onSubmit={handleCommentFormSubmit}>
         <div className={styles.commentTextareaWrapper}>
           <textarea
             className={`${styles.commentTextarea} ${hasLengthError ? styles.commentTextareaError : ''}`}

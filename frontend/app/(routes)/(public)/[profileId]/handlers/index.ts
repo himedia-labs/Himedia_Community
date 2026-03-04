@@ -4,3 +4,7 @@ export { createTagSelectHandler } from '@/app/(routes)/(public)/[profileId]/hand
 export { createFollowToggleHandler } from '@/app/(routes)/(public)/[profileId]/handlers/createFollowToggle.handlers';
 export { createToggleCategoryHandler } from '@/app/(routes)/(public)/[profileId]/handlers/createToggleCategory.handlers';
 export { createCategorySelectHandler } from '@/app/(routes)/(public)/[profileId]/handlers/createCategorySelect.handlers';
+export { createHandleCategoryButtonClick } from '@/app/(routes)/(public)/[profileId]/handlers/profilePageUi.handlers';
+export { createHandleTagButtonClick } from '@/app/(routes)/(public)/[profileId]/handlers/profilePageUi.handlers';
+export { createHandleFollowMouseEnter } from '@/app/(routes)/(public)/[profileId]/handlers/profilePageUi.handlers';
+export { createHandleFollowMouseLeave } from '@/app/(routes)/(public)/[profileId]/handlers/profilePageUi.handlers';

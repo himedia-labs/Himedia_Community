@@ -7,6 +7,12 @@ import { FaUser } from 'react-icons/fa';
 import { FiChevronDown, FiClock, FiTrendingUp } from 'react-icons/fi';
 
 import { ProfilePageSkeleton, ProfilePostListSkeleton } from '@/app/(routes)/(public)/[profileId]/ProfilePage.skeleton';
+import {
+  createHandleCategoryButtonClick,
+  createHandleFollowMouseEnter,
+  createHandleFollowMouseLeave,
+  createHandleTagButtonClick,
+} from '@/app/(routes)/(public)/[profileId]/handlers';
 import { useProfileData } from '@/app/(routes)/(public)/[profileId]/hooks/useProfileData';
 import { useProfileFilters } from '@/app/(routes)/(public)/[profileId]/hooks/useProfileFilters';
 import { useProfileFollow } from '@/app/(routes)/(public)/[profileId]/hooks/useProfileFollow';
@@ -77,6 +83,10 @@ export default function ProfilePage() {
       author: author ?? undefined,
       followings,
     });
+  const handleFollowMouseEnter = createHandleFollowMouseEnter(setIsFollowHover);
+  const handleFollowMouseLeave = createHandleFollowMouseLeave(setIsFollowHover);
+  const handleCategoryButtonClick = createHandleCategoryButtonClick(handleCategorySelect);
+  const handleTagButtonClick = createHandleTagButtonClick(handleTagSelect);
 
   // 프로필 : 파라미터 대기
   if (!decodedProfileId) {
@@ -156,8 +166,8 @@ export default function ProfilePage() {
                       isFollowing ? postDetailStyles.authorFollowButtonActive : ''
                     }`}
                     disabled={isFollowLoading}
-                    onMouseEnter={() => setIsFollowHover(true)}
-                    onMouseLeave={() => setIsFollowHover(false)}
+                    onMouseEnter={handleFollowMouseEnter}
+                    onMouseLeave={handleFollowMouseLeave}
                     onClick={handleFollowToggle}
                   >
                     {isFollowing ? (isFollowHover ? '언팔로우' : '팔로잉') : '팔로우'}
@@ -230,7 +240,8 @@ export default function ProfilePage() {
                         className={`${myPageStyles.filterItem} ${
                           selectedCategoryId === category.id ? myPageStyles.filterItemActive : ''
                         }`}
-                        onClick={() => handleCategorySelect(category.id)}
+                        data-category-id={category.id}
+                        onClick={handleCategoryButtonClick}
                       >
                         <span>{category.name}</span>
                         <span className={myPageStyles.filterCount}>{category.count}</span>
@@ -262,7 +273,8 @@ export default function ProfilePage() {
                             ? `${myPageStyles.filterItemActive} ${myPageStyles.tagFilterItemActive}`
                             : ''
                         }`}
-                        onClick={() => handleTagSelect(tag.id)}
+                        data-tag-id={tag.id}
+                        onClick={handleTagButtonClick}
                       >
                         <span className={myPageStyles.tagFilterName}>#{tag.name}</span>
                         <span className={myPageStyles.filterCount}>{tag.count}</span>

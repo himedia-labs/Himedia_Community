@@ -1,3 +1,4 @@
+import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import type { Dispatch, SetStateAction } from 'react';
 
 import { extractTags } from '@/app/(routes)/(private)/posts/new/utils';
@@ -72,5 +73,65 @@ export const createCommitTagInput = (params: { addTagsFromInput: TagCommit; setT
     if (!params.addTagsFromInput(value)) return false;
     params.setTagInput('');
     return true;
+  };
+};
+
+/**
+ * 작성 화면 종료 핸들러 생성
+ * @description 작성 페이지를 종료하고 홈으로 이동
+ */
+export const createHandleExit = (router: AppRouterInstance) => {
+  return () => {
+    router.push('/');
+  };
+};
+
+/**
+ * 임시저장 클릭 핸들러 생성
+ * @description 현재 작성 상태를 임시저장으로 저장
+ */
+export const createHandleSaveDraftClick = (saveDraft: () => void) => {
+  return () => {
+    saveDraft();
+  };
+};
+
+/**
+ * 굵게 서식 핸들러 생성
+ * @description 선택 영역을 굵게 포맷으로 감싼다
+ */
+export const createHandleBoldClick = (applyInlineWrap: (prefix: string, suffix?: string) => void) => {
+  return () => {
+    applyInlineWrap('**');
+  };
+};
+
+/**
+ * 기울임 서식 핸들러 생성
+ * @description 선택 영역을 기울임 포맷으로 감싼다
+ */
+export const createHandleItalicClick = (applyInlineWrap: (prefix: string, suffix?: string) => void) => {
+  return () => {
+    applyInlineWrap('_');
+  };
+};
+
+/**
+ * 밑줄 서식 핸들러 생성
+ * @description 선택 영역을 밑줄 태그로 감싼다
+ */
+export const createHandleUnderlineClick = (applyInlineWrap: (prefix: string, suffix?: string) => void) => {
+  return () => {
+    applyInlineWrap('<u>', '</u>');
+  };
+};
+
+/**
+ * 취소선 서식 핸들러 생성
+ * @description 선택 영역을 취소선 포맷으로 감싼다
+ */
+export const createHandleStrikeClick = (applyInlineWrap: (prefix: string, suffix?: string) => void) => {
+  return () => {
+    applyInlineWrap('~~');
   };
 };

@@ -6,3 +6,5 @@ export { createHandleCodeChange } from '@/app/(routes)/(public)/find-password/ha
 export { createHandleEmailChange } from '@/app/(routes)/(public)/find-password/handlers/findPasswordInput.handlers';
 export { createHandleNewPasswordChange } from '@/app/(routes)/(public)/find-password/handlers/findPasswordInput.handlers';
 export { createHandleConfirmPasswordChange } from '@/app/(routes)/(public)/find-password/handlers/findPasswordInput.handlers';
+export { createHandleResendCodeClick } from '@/app/(routes)/(public)/find-password/handlers/findPasswordUi.handlers';
+export { createHandleBackToVerify } from '@/app/(routes)/(public)/find-password/handlers/findPasswordUi.handlers';
