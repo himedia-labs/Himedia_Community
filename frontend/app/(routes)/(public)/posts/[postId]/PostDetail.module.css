@@ -795,6 +795,10 @@
   background: transparent;
 }
 
+.commentReplyDepth {
+  margin-left: calc(30px + 1rem);
+}
+
 .commentReplyInner {
   margin-left: calc(-30px - 1rem);
   padding-left: calc(30px + 1rem);
