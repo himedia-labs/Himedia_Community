@@ -136,7 +136,6 @@ export const createRegisterInputHandlers = (params: RegisterInputHandlersParams)
       params.birthDate
     ) {
       params.markKeepCache();
-      params.showToast({ message: '입력한 내용이 임시 저장되었습니다.', type: 'info' });
     }
   };
 

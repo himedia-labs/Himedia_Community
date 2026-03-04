@@ -312,6 +312,7 @@ export type RegisterSubmitParams = {
   setRoleError: RegisterSetError;
   setCourseError: RegisterSetError;
   setPrivacyError: RegisterSetError;
+  setStep: (step: 1 | 2) => void;
   registerMutation: UseMutationResult<void, Error, RegisterRequest>;
   showToast: (options: ToastOptions) => void;
   router: AppRouterInstance;
