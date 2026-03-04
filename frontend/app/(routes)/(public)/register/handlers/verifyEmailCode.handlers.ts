@@ -1,25 +1,16 @@
 import { REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 
-import type { FormEvent } from 'react';
 import type { AxiosError } from 'axios';
-import type { UseMutationResult } from '@tanstack/react-query';
+import type { SyntheticEvent } from 'react';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
-import type { VerifyEmailVerificationCodeRequest, VerifyEmailVerificationCodeResponse } from '@/app/shared/types/auth';
+import type { RegisterVerifyEmailCodeParams, VerifyEmailVerificationCodeResponse } from '@/app/shared/types/auth';
 
 /**
  * 회원가입 : 이메일 인증번호 검증
  * @description 이메일 인증번호를 검증
  */
-export const verifyEmailCode = (params: {
-  code: string;
-  email: string;
-  setEmailError: (value: string) => void;
-  setCodeError: (value: string) => void;
-  setIsEmailVerified: (value: boolean) => void;
-  verifyCodeMutation: UseMutationResult<VerifyEmailVerificationCodeResponse, Error, VerifyEmailVerificationCodeRequest>;
-  showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
-}) => {
-  return (e?: FormEvent) => {
+export const verifyEmailCode = (params: RegisterVerifyEmailCodeParams) => {
+  return (e?: SyntheticEvent) => {
     if (e?.preventDefault) {
       e.preventDefault();
     }

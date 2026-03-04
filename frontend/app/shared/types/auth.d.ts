@@ -2,6 +2,7 @@ import type { ChangeEvent } from 'react';
 import type { QueryClient, UseMutationResult } from '@tanstack/react-query';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import type { ToastOptions } from './toast';
+import type { RegisterFormCache } from './register';
 
 // User
 export interface User {
@@ -261,5 +262,138 @@ export type LoginRestoreAccountParams = {
 
 export type LoginRedirectToastParams = {
   reason: string | null;
+  showToast: (options: ToastOptions) => void;
+};
+
+// Register Page
+export type RegisterSetError = (value: string) => void;
+
+export type RegisterSendEmailCodeParams = {
+  email: string;
+  setEmailError: RegisterSetError;
+  setCodeError: RegisterSetError;
+  setEmailCode: (value: string) => void;
+  setIsEmailCodeSent: (value: boolean) => void;
+  sendCodeMutation: UseMutationResult<SendEmailVerificationCodeResponse, Error, SendEmailVerificationCodeRequest>;
+  showToast: (options: ToastOptions) => void;
+};
+
+export type RegisterVerifyEmailCodeParams = {
+  code: string;
+  email: string;
+  setEmailError: RegisterSetError;
+  setCodeError: RegisterSetError;
+  setIsEmailVerified: (value: boolean) => void;
+  verifyCodeMutation: UseMutationResult<
+    VerifyEmailVerificationCodeResponse,
+    Error,
+    VerifyEmailVerificationCodeRequest
+  >;
+  showToast: (options: ToastOptions) => void;
+};
+
+export type RegisterSubmitParams = {
+  name: string;
+  email: string;
+  password: string;
+  passwordConfirm: string;
+  phone: string;
+  birthDate: string;
+  role: string;
+  course: string;
+  privacyConsent: boolean;
+  setNameError: RegisterSetError;
+  setEmailError: RegisterSetError;
+  setPasswordError: RegisterSetError;
+  setPasswordConfirmError: RegisterSetError;
+  setPhoneError: RegisterSetError;
+  setBirthDateError: RegisterSetError;
+  setRoleError: RegisterSetError;
+  setCourseError: RegisterSetError;
+  setPrivacyError: RegisterSetError;
+  registerMutation: UseMutationResult<void, Error, RegisterRequest>;
+  showToast: (options: ToastOptions) => void;
+  router: AppRouterInstance;
+  onSuccessCleanup?: () => void;
+};
+
+export type RegisterNextStepParams = {
+  name: string;
+  email: string;
+  birthDate: string;
+  password: string;
+  passwordConfirm: string;
+  phone: string;
+  isEmailVerified: boolean;
+  setNameError: RegisterSetError;
+  setEmailError: RegisterSetError;
+  setBirthDateError: RegisterSetError;
+  setPasswordError: RegisterSetError;
+  setPasswordConfirmError: RegisterSetError;
+  setPhoneError: RegisterSetError;
+  showToast: (options: ToastOptions) => void;
+  setStep: (step: 1 | 2) => void;
+};
+
+export type EmailVerificationAutoVerifyParams = {
+  codeLength: number;
+  emailCode: string;
+  isEmailCodeSent: boolean;
+  isEmailVerified: boolean;
+  isVerifying: boolean;
+  onVerify: () => void;
+};
+
+export type RegisterBirthDateFormatParams = {
+  setBirthDate: (value: string) => void;
+  birthDateError: string;
+  setBirthDateError: RegisterSetError;
+};
+
+export type RegisterPhoneFormatParams = {
+  setPhone: (value: string) => void;
+  phoneError: string;
+  setPhoneError: RegisterSetError;
+};
+
+export type RegisterInputHandlersParams = {
+  name: string;
+  email: string;
+  birthDate: string;
+  password: string;
+  passwordConfirm: string;
+  phone: string;
+  role: string;
+  course: string;
+  emailCode: string;
+  emailError: string;
+  roleError: string;
+  courseError: string;
+  privacyError: string;
+  nameError: string;
+  emailCodeError: string;
+  isEmailVerified: boolean;
+  isEmailCodeSent: boolean;
+  passwordConfirmError: string;
+  setStep: (step: 1 | 2) => void;
+  markKeepCache: () => void;
+  showToast: (options: ToastOptions) => void;
+  setEmailCode: (value: string) => void;
+  setRoleError: RegisterSetError;
+  setNameError: RegisterSetError;
+  setEmailError: RegisterSetError;
+  setCourseError: RegisterSetError;
+  setPrivacyError: RegisterSetError;
+  setIsEmailVerified: (value: boolean) => void;
+  setIsEmailCodeSent: (value: boolean) => void;
+  setEmailCodeError: RegisterSetError;
+  setPasswordError: RegisterSetError;
+  setPasswordConfirmError: RegisterSetError;
+  setFormField: <K extends keyof RegisterFormCache>(key: K, value: RegisterFormCache[K]) => void;
+};
+
+export type RegisterRestoredToastParams = {
+  hasCache: boolean;
+  restoredFromKeep: boolean;
   showToast: (options: ToastOptions) => void;
 };

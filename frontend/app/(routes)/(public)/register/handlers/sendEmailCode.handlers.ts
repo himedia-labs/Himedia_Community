@@ -1,26 +1,17 @@
 import { EMAIL_REGEX } from '@/app/shared/constants/config/auth.config';
 import { EMAIL_MESSAGES, REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 
-import type { FormEvent } from 'react';
 import type { AxiosError } from 'axios';
-import type { UseMutationResult } from '@tanstack/react-query';
+import type { SyntheticEvent } from 'react';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
-import type { SendEmailVerificationCodeRequest, SendEmailVerificationCodeResponse } from '@/app/shared/types/auth';
+import type { RegisterSendEmailCodeParams, SendEmailVerificationCodeResponse } from '@/app/shared/types/auth';
 
 /**
  * 회원가입 : 이메일 인증번호 발송
  * @description 이메일 인증번호 발송을 요청
  */
-export const sendEmailCode = (params: {
-  email: string;
-  setEmailError: (value: string) => void;
-  setCodeError: (value: string) => void;
-  setEmailCode: (value: string) => void;
-  setIsEmailCodeSent: (value: boolean) => void;
-  sendCodeMutation: UseMutationResult<SendEmailVerificationCodeResponse, Error, SendEmailVerificationCodeRequest>;
-  showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
-}) => {
-  return (e?: FormEvent) => {
+export const sendEmailCode = (params: RegisterSendEmailCodeParams) => {
+  return (e?: SyntheticEvent) => {
     if (e?.preventDefault) {
       e.preventDefault();
     }

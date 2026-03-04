@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -17,10 +17,7 @@ import {
   useVerifyEmailVerificationCodeMutation,
 } from '@/app/api/auth/auth.mutations';
 
-import { isValidPassword } from '@/app/shared/utils/password';
 import { useToast } from '@/app/shared/components/toast/toast';
-import { EMAIL_REGEX } from '@/app/shared/constants/config/auth.config';
-import { EMAIL_MESSAGES, REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import {
   BIRTH_DATE_CONFIG,
   COURSE_OPTIONS,
@@ -28,8 +25,18 @@ import {
   PHONE_CONFIG,
 } from '@/app/shared/constants/config/register.config';
 
-import { useEmailVerificationAutoVerify, useRegisterForm } from '@/app/(routes)/(public)/register/hooks';
-import { createNextStepHandler, registerSubmit, sendEmailCode, verifyEmailCode } from '@/app/(routes)/(public)/register/handlers';
+import {
+  useEmailVerificationAutoVerify,
+  useRegisterForm,
+  useRegisterRestoredToast,
+} from '@/app/(routes)/(public)/register/hooks';
+import {
+  createNextStepHandler,
+  createRegisterInputHandlers,
+  registerSubmit,
+  sendEmailCode,
+  verifyEmailCode,
+} from '@/app/(routes)/(public)/register/handlers';
 
 import styles from '@/app/(routes)/(public)/register/register.module.css';
 
@@ -43,7 +50,6 @@ export default function RegisterPage() {
   const sendCodeMutation = useSendEmailVerificationCodeMutation();
   const { showToast } = useToast();
   const verifyCodeMutation = useVerifyEmailVerificationCodeMutation();
-  const restoredToastShownRef = useRef(false);
 
   // 폼 상태/핸들러(캐시 로드 및 저장, 전화번호 포맷 등 포함)
   const {
@@ -92,13 +98,8 @@ export default function RegisterPage() {
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [isEmailCodeSent, setIsEmailCodeSent] = useState(false);
 
-  // 약관 페이지에서 돌아왔을 때 캐시 로드 안내 토스트
-  useEffect(() => {
-    if (hasCache && restoredFromKeep && !restoredToastShownRef.current) {
-      showToast({ message: '임시 저장된 내용을 불러왔습니다.', type: 'info' });
-      restoredToastShownRef.current = true;
-    }
-  }, [hasCache, restoredFromKeep, showToast]);
+  // 복구 토스트
+  useRegisterRestoredToast({ hasCache, restoredFromKeep, showToast });
 
   // 회원가입 핸들러
   const handleSubmit = registerSubmit({
@@ -164,6 +165,55 @@ export default function RegisterPage() {
     verifyCodeMutation,
   });
 
+  // 입력 핸들러
+  const {
+    handlePrevStep,
+    handleNameInputChange,
+    handleEmailInputChange,
+    handleEmailCodeInputChange,
+    handlePasswordInputChange,
+    handlePasswordConfirmInputChange,
+    handlePasswordConfirmBlur,
+    handleRoleSelectChange,
+    handleCourseSelectChange,
+    handlePrivacyCheckboxChange,
+    handlePrivacyLinkClick,
+  } = createRegisterInputHandlers({
+    name,
+    email,
+    birthDate,
+    password,
+    passwordConfirm,
+    phone,
+    role,
+    course,
+    emailCode,
+    nameError,
+    emailError,
+    roleError,
+    courseError,
+    privacyError,
+    emailCodeError,
+    isEmailVerified,
+    isEmailCodeSent,
+    passwordConfirmError,
+    setStep,
+    markKeepCache,
+    showToast,
+    setEmailCode,
+    setRoleError,
+    setNameError,
+    setEmailError,
+    setCourseError,
+    setPrivacyError,
+    setIsEmailVerified,
+    setIsEmailCodeSent,
+    setEmailCodeError,
+    setPasswordError,
+    setPasswordConfirmError,
+    setFormField,
+  });
+
   useEmailVerificationAutoVerify({
     emailCode,
     codeLength: EMAIL_VERIFICATION_CODE_LENGTH,
@@ -201,10 +251,7 @@ export default function RegisterPage() {
                     type="text"
                     id="name"
                     value={name}
-                    onChange={e => {
-                      setFormField('name', e.target.value);
-                      if (nameError) setNameError('');
-                    }}
+                    onChange={handleNameInputChange}
                     className={nameError ? `${styles.input} ${styles.error}` : styles.input}
                     autoComplete="name"
                   />
@@ -224,21 +271,7 @@ export default function RegisterPage() {
                     type="email"
                     id="email"
                     value={email}
-                    onChange={e => {
-                      const next = e.target.value;
-                      setFormField('email', next);
-                      if (isEmailVerified || isEmailCodeSent || emailCode) {
-                        setIsEmailVerified(false);
-                        setIsEmailCodeSent(false);
-                        setEmailCode('');
-                        setEmailCodeError('');
-                      }
-                      if (!EMAIL_REGEX.test(next)) {
-                        setEmailError(EMAIL_MESSAGES.invalid);
-                      } else if (emailError) {
-                        setEmailError('');
-                      }
-                    }}
+                    onChange={handleEmailInputChange}
                     className={emailError ? `${styles.input} ${styles.error}` : styles.input}
                     autoComplete="username"
                     disabled={isEmailVerified}
@@ -255,10 +288,7 @@ export default function RegisterPage() {
                       type="text"
                       id="emailCode"
                       value={emailCode}
-                      onChange={e => {
-                        setEmailCode(e.target.value);
-                        if (emailCodeError) setEmailCodeError('');
-                      }}
+                      onChange={handleEmailCodeInputChange}
                       className={emailCodeError ? `${styles.input} ${styles.error}` : styles.input}
                       placeholder="8자리 인증번호"
                       maxLength={EMAIL_VERIFICATION_CODE_LENGTH}
@@ -295,15 +325,7 @@ export default function RegisterPage() {
                     type="password"
                     id="password"
                     value={password}
-                    onChange={e => {
-                      const value = e.target.value;
-                      setFormField('password', value);
-                      if (value && !isValidPassword(value)) {
-                        setPasswordError(REGISTER_MESSAGES.invalidPassword);
-                      } else {
-                        setPasswordError('');
-                      }
-                    }}
+                    onChange={handlePasswordInputChange}
                     className={
                       passwordError
                         ? `${styles.input} ${styles.passwordInput} ${styles.error}`
@@ -322,16 +344,8 @@ export default function RegisterPage() {
                     type="password"
                     id="passwordConfirm"
                     value={passwordConfirm}
-                    onChange={e => {
-                      setFormField('passwordConfirm', e.target.value);
-                      if (passwordConfirmError) setPasswordConfirmError('');
-                    }}
-                    onBlur={() => {
-                      // 에러 메시지는 백엔드에서만 표시
-                      if (passwordConfirmError) {
-                        setPasswordConfirmError('');
-                      }
-                    }}
+                    onChange={handlePasswordConfirmInputChange}
+                    onBlur={handlePasswordConfirmBlur}
                     className={
                       passwordConfirmError
                         ? `${styles.input} ${styles.passwordInput} ${styles.error}`
@@ -379,9 +393,7 @@ export default function RegisterPage() {
                           type="button"
                           className={`${styles.link} ${styles.linkButton}`}
                           disabled={sendCodeMutation.isPending || verifyCodeMutation.isPending}
-                          onClick={() => {
-                            handleSendEmailCode();
-                          }}
+                          onClick={handleSendEmailCode}
                         >
                           재전송
                         </button>
@@ -416,17 +428,7 @@ export default function RegisterPage() {
                     <select
                       id="role"
                       value={role}
-                      onChange={e => {
-                        const nextRole = e.target.value;
-                        const shouldDisableCourse = nextRole === 'instructor' || nextRole === 'mentor';
-
-                        setFormField('role', nextRole);
-                        if (shouldDisableCourse) {
-                          setFormField('course', '');
-                        }
-                        if (roleError) setRoleError('');
-                        if (courseError) setCourseError('');
-                      }}
+                      onChange={handleRoleSelectChange}
                       className={roleError ? `${styles.select} ${styles.error}` : styles.select}
                     >
                       <option value="">선택해주세요</option>
@@ -448,10 +450,7 @@ export default function RegisterPage() {
                     <select
                       id="course"
                       value={course}
-                      onChange={e => {
-                        setFormField('course', e.target.value);
-                        if (courseError) setCourseError('');
-                      }}
+                      onChange={handleCourseSelectChange}
                       className={courseError ? `${styles.select} ${styles.error}` : styles.select}
                       disabled={isCourseDisabled}
                     >
@@ -474,10 +473,7 @@ export default function RegisterPage() {
                         <input
                           type="checkbox"
                           checked={privacyConsent}
-                          onChange={e => {
-                            setFormField('privacyConsent', e.target.checked);
-                            if (privacyError) setPrivacyError('');
-                          }}
+                          onChange={handlePrivacyCheckboxChange}
                           className={styles.checkbox}
                         />
                         <FaCheck className={styles.checkboxIcon} aria-hidden />
@@ -486,12 +482,7 @@ export default function RegisterPage() {
                         <Link
                           href="/terms/privacy"
                           className={`${styles.link} ${styles.consentLink}`}
-                          onClick={() => {
-                            if (name || email || password || phone || role || course || passwordConfirm || birthDate) {
-                              markKeepCache();
-                              showToast({ message: '입력한 내용이 임시 저장되었습니다.', type: 'info' });
-                            }
-                          }}
+                          onClick={handlePrivacyLinkClick}
                         >
                           <span>[필수] 개인정보 수집 및 이용동의</span>
                           <TbExternalLink aria-hidden className={styles.consentIcon} />
@@ -508,7 +499,7 @@ export default function RegisterPage() {
                     </Link>
                   </div>
                   <div className={styles.stepActions}>
-                    <button type="button" className={styles.secondaryButton} onClick={() => setStep(1)}>
+                    <button type="button" className={styles.secondaryButton} onClick={handlePrevStep}>
                       이전
                     </button>
                     <button type="submit" className={styles.submitButton}>

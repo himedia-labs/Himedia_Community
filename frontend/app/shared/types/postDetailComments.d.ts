@@ -1,5 +1,6 @@
 import type { ChangeEvent, MouseEvent, RefObject } from 'react';
 import type { CommentAuthorRef, CommentItem } from './comment';
+import type { UserRole } from './post';
 
 export interface PostDetailReplyState {
   content: string;
@@ -61,3 +62,14 @@ export interface PostDetailCommentsSectionProps {
   syncReplyMentionQuery: (rootId: string) => () => void;
   topLevelComments: CommentItem[];
 }
+
+export interface UsePostDetailCommentsParams {
+  accessToken: string | null;
+  authorName?: string | null;
+  authorRole?: UserRole | null;
+  isQueryEnabled: boolean;
+  mentionClassName: string;
+  postId: string;
+}
+
+export type PostDetailReplyStatesMap = Record<string, PostDetailReplyState>;

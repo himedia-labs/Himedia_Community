@@ -1,45 +1,19 @@
-import type { FormEvent } from 'react';
 
 import type { AxiosError } from 'axios';
-import type { UseMutationResult } from '@tanstack/react-query';
+import type { SyntheticEvent } from 'react';
 
 import { isValidPassword } from '@/app/shared/utils/password';
 import { REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 
 import type { ApiErrorResponse } from '@/app/shared/types/error';
-import type { RegisterRequest } from '@/app/shared/types/auth';
-
-import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import type { RegisterSubmitParams } from '@/app/shared/types/auth';
 
 /**
  * 회원가입 : 제출 핸들러
  * @description 회원가입 폼 제출과 에러 처리를 담당
  */
-export const registerSubmit = (params: {
-  name: string;
-  email: string;
-  password: string;
-  passwordConfirm: string;
-  phone: string;
-  birthDate: string;
-  role: string;
-  course: string;
-  privacyConsent: boolean;
-  setNameError: (value: string) => void;
-  setEmailError: (value: string) => void;
-  setPasswordError: (value: string) => void;
-  setPasswordConfirmError: (value: string) => void;
-  setPhoneError: (value: string) => void;
-  setBirthDateError: (value: string) => void;
-  setRoleError: (value: string) => void;
-  setCourseError: (value: string) => void;
-  setPrivacyError: (value: string) => void;
-  registerMutation: UseMutationResult<void, Error, RegisterRequest>;
-  showToast: (options: { message: string; type: 'success' | 'error' | 'warning'; duration?: number }) => void;
-  router: AppRouterInstance;
-  onSuccessCleanup?: () => void;
-}) => {
-  return (event: FormEvent) => {
+export const registerSubmit = (params: RegisterSubmitParams) => {
+  return (event: SyntheticEvent) => {
     event.preventDefault();
 
     if (params.registerMutation.isPending) return;

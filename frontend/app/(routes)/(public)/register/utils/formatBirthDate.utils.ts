@@ -1,16 +1,13 @@
 import type { ChangeEvent } from 'react';
 
 import { BIRTH_DATE_CONFIG } from '@/app/shared/constants/config/register.config';
+import type { RegisterBirthDateFormatParams } from '@/app/shared/types/auth';
 
 /**
  * 회원가입 : 생년월일 포맷
  * @description 입력 숫자를 YYYY-MM-DD 형식으로 변환
  */
-export const formatBirthDate = (params: {
-  setBirthDate: (value: string) => void;
-  birthDateError: string;
-  setBirthDateError: (value: string) => void;
-}) => {
+export const formatBirthDate = (params: RegisterBirthDateFormatParams) => {
   return (event: ChangeEvent<HTMLInputElement>) => {
     const digits = event.target.value.replace(/[^0-9]/g, '').slice(0, BIRTH_DATE_CONFIG.DIGIT_MAX_LENGTH);
 
