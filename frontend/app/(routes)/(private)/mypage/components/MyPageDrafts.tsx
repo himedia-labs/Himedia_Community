@@ -9,11 +9,15 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CiCalendar } from 'react-icons/ci';
 import Skeleton from 'react-loading-skeleton';
 
+import { SKELETON_DRAFT_ITEM_COUNT } from '@/app/shared/constants/config/mypage.config';
+
 import { postsApi } from '@/app/api/posts/posts.api';
 import { postsKeys } from '@/app/api/posts/posts.keys';
 import { useDraftsQuery } from '@/app/api/posts/posts.queries';
+
 import EmptyState from '@/app/shared/components/empty/EmptyState';
 import { useToast } from '@/app/shared/components/toast/toast';
+
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
 
@@ -87,7 +91,7 @@ export default function MyPageDrafts({ sortOrder }: MyPageDraftsProps) {
   if (isLoading) {
     return (
       <ul className={postListStyles.listView} aria-label="임시저장 로딩">
-        {Array.from({ length: 5 }).map((_, index) => (
+        {Array.from({ length: SKELETON_DRAFT_ITEM_COUNT }).map((_, index) => (
           <Fragment key={`draft-skeleton-${index}`}>
             <li>
               <article className={postListStyles.listItem} aria-hidden="true">

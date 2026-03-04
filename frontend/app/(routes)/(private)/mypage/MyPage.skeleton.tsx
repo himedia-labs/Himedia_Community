@@ -1,5 +1,11 @@
 import Skeleton from 'react-loading-skeleton';
 
+import {
+  SKELETON_ACCOUNT_ITEM_COUNT,
+  SKELETON_COMMENT_LIST_COUNT,
+  SKELETON_POST_LIST_COUNT,
+} from '@/app/shared/constants/config/mypage.config';
+
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 import commentStyles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
@@ -49,7 +55,7 @@ export function MyPagePostListSkeleton({ label, showFilters = true }: { label: s
         )}
       </div>
       <ul className={postListStyles.listView}>
-        {Array.from({ length: 3 }).map((_, index) => (
+        {Array.from({ length: SKELETON_POST_LIST_COUNT }).map((_, index) => (
           <li key={`mypage-post-list-skeleton-${index}`}>
             <article className={postListStyles.listItem}>
               <div className={postListStyles.listBody}>
@@ -69,7 +75,7 @@ export function MyPagePostListSkeleton({ label, showFilters = true }: { label: s
                 <Skeleton width="100%" height="100%" />
               </div>
             </article>
-            {index < 2 ? <div className={postListStyles.listDivider} /> : null}
+            {index < SKELETON_POST_LIST_COUNT - 1 ? <div className={postListStyles.listDivider} /> : null}
           </li>
         ))}
       </ul>
@@ -93,7 +99,7 @@ export function MyPageCommentsSkeleton() {
         </div>
       </div>
       <div className={commentStyles.commentList}>
-        {Array.from({ length: 3 }).map((_, index) => (
+        {Array.from({ length: SKELETON_COMMENT_LIST_COUNT }).map((_, index) => (
           <div key={`mypage-comment-skeleton-${index}`}>
             <div className={commentStyles.commentItem}>
               <div className={commentStyles.commentInner}>
@@ -118,7 +124,7 @@ export function MyPageCommentsSkeleton() {
                 </div>
               </div>
             </div>
-            {index < 2 ? <div className={commentStyles.commentDividerLine} /> : null}
+            {index < SKELETON_COMMENT_LIST_COUNT - 1 ? <div className={commentStyles.commentDividerLine} /> : null}
           </div>
         ))}
       </div>
@@ -139,7 +145,7 @@ export function MyPageAccountSkeleton() {
       <div className={styles.settingsBlock}>
         <div className={styles.settingsBlockTitle}>기본 정보</div>
         <div className={styles.settingsGroup}>
-          {Array.from({ length: 4 }).map((_, index) => (
+          {Array.from({ length: SKELETON_ACCOUNT_ITEM_COUNT }).map((_, index) => (
             <div key={`mypage-account-skeleton-${index}`} className={styles.settingsItem}>
               <div className={styles.settingsItemLabel}>
                 <Skeleton width={84} height={14} />
