@@ -106,16 +106,37 @@ export const registerSubmit = (params: RegisterSubmitParams) => {
           const axiosError = error as AxiosError<ApiErrorResponse>;
           const { message, code, errors } = axiosError.response?.data || {};
 
+          let hasStep1Error = false;
+
           // DTO 검증 실패 (백엔드 메시지 표시)
           if (code === 'VALIDATION_FAILED' && errors) {
-            if (errors.name) params.setNameError(errors.name[0]);
-            if (errors.email) params.setEmailError(errors.email[0]);
-            if (errors.password) params.setPasswordError(errors.password[0]);
-            if (errors.phone) params.setPhoneError(errors.phone[0]);
-            if (errors.birthDate) params.setBirthDateError(errors.birthDate[0]);
+            if (errors.name) {
+              params.setNameError(errors.name[0]);
+              hasStep1Error = true;
+            }
+            if (errors.email) {
+              params.setEmailError(errors.email[0]);
+              hasStep1Error = true;
+            }
+            if (errors.password) {
+              params.setPasswordError(errors.password[0]);
+              hasStep1Error = true;
+            }
+            if (errors.phone) {
+              params.setPhoneError(errors.phone[0]);
+              hasStep1Error = true;
+            }
+            if (errors.birthDate) {
+              params.setBirthDateError(errors.birthDate[0]);
+              hasStep1Error = true;
+            }
             if (errors.role) params.setRoleError(errors.role[0]);
             if (errors.course) params.setCourseError(errors.course[0]);
             if (errors.privacyConsent) params.setPrivacyError(errors.privacyConsent[0]);
+
+            if (hasStep1Error) {
+              params.setStep(1);
+            }
             return;
           }
 
@@ -124,11 +145,13 @@ export const registerSubmit = (params: RegisterSubmitParams) => {
             case 'AUTH_EMAIL_ALREADY_EXISTS':
               if (message) {
                 params.setEmailError(message);
+                params.setStep(1);
               }
               break;
             case 'AUTH_PHONE_ALREADY_EXISTS':
               if (message) {
                 params.setPhoneError(message);
+                params.setStep(1);
               }
               break;
             default:

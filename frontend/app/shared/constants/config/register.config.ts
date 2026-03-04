@@ -29,6 +29,7 @@ export const REGISTER_FORM_CACHE_KEEP_KEY = 'registerFormCacheKeep';
 export const REGISTER_FORM_DEFAULT = {
   name: '',
   email: '',
+  emailCode: '',
   birthDate: '',
   password: '',
   passwordConfirm: '',
@@ -37,6 +38,9 @@ export const REGISTER_FORM_DEFAULT = {
   course: '',
   courseTerm: '',
   privacyConsent: false,
+  step: 1 as 1 | 2,
+  isEmailVerified: false,
+  isEmailCodeSent: false,
 };
 
 // 생년월일 입력 설정
