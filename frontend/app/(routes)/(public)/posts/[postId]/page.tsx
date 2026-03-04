@@ -46,7 +46,6 @@ import {
 } from '@/app/(routes)/(public)/posts/[postId]/hooks';
 import {
   formatDate,
-  formatDateTime,
   formatRole,
   getMentionHighlightSegments,
   splitCommentMentions,
@@ -338,7 +337,7 @@ export default function PostDetailPage() {
                   {comment.author?.name ?? '익명'} {comment.author?.role ? formatRole(comment.author.role) : ''}
                 </span>
                 <span className={styles.commentDate}>
-                  {formatDateTime(comment.createdAt)}
+                  {formatDate(comment.createdAt)}
                   {comment.updatedAt !== comment.createdAt ? ' (수정됨)' : ''}
                   {comment.author?.followerCount ? ` · 팔로워 ${comment.author.followerCount}` : ''}
                 </span>

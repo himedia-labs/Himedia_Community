@@ -39,11 +39,12 @@ import {
   createHandleSaveAllUserRoles,
   createHandleChangeUserRoleDraft,
 } from '@/app/(routes)/(private)/admin/handlers/adminUser.handlers';
+import { formatDate } from '@/app/shared/utils/date.utils';
+
 import { useAdminAccessGuard } from '@/app/(routes)/(private)/admin/hooks/useAdminAccessGuard';
 import { useTrackAdminAccess } from '@/app/(routes)/(private)/admin/hooks/useTrackAdminAccess';
 import { useAccessLogsInfiniteScroll } from '@/app/(routes)/(private)/admin/hooks/useAccessLogsInfiniteScroll';
 import { usePendingUsersSort } from '@/app/(routes)/(private)/admin/hooks/usePendingUsersSort';
-import { formatDateTime } from '@/app/(routes)/(private)/admin/utils/formatDateTime.utils';
 import {
   getRoleBadgeClassName,
   getAccessStatusBadgeClassName,
@@ -424,7 +425,7 @@ export default function AdminPage() {
                                   </span>
                                 </td>
                                 <td>{user.course ?? 'N/A'}</td>
-                                <td>{formatDateTime(user.createdAt)}</td>
+                                <td>{formatDate(user.createdAt)}</td>
                                 <td>
                                   <button
                                     type="button"
@@ -496,7 +497,7 @@ export default function AdminPage() {
                                 )}
                               </td>
                               <td>{user.course ?? 'N/A'}</td>
-                              <td>{formatDateTime(user.createdAt)}</td>
+                              <td>{formatDate(user.createdAt)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -542,7 +543,7 @@ export default function AdminPage() {
                                 <FiChevronRight aria-hidden="true" />
                               </td>
                               <td>{formatAuditAfterLabel(log.payload)}</td>
-                              <td>{formatDateTime(log.createdAt)}</td>
+                              <td>{formatDate(log.createdAt)}</td>
                               <td>
                                 <span
                                   className={`${styles.auditResultBadge} ${getAuditResultBadgeClassName(styles, log.payload)}`}
@@ -587,8 +588,8 @@ export default function AdminPage() {
                               <tr key={log.id}>
                                 <td>#{index + 1}</td>
                                 <td>{`${log.adminName} (${log.adminEmail})`}</td>
-                                <td>{formatDateTime(log.loginAt)}</td>
-                                <td>{log.logoutAt ? formatDateTime(log.logoutAt) : 'N/A'}</td>
+                                <td>{formatDate(log.loginAt)}</td>
+                                <td>{log.logoutAt ? formatDate(log.logoutAt) : 'N/A'}</td>
                                 <td>{log.ipAddress}</td>
                                 <td>{formatUserAgentLabel(log.userAgent)}</td>
                                 <td>{formatSessionDuration(log.sessionDurationSec)}</td>

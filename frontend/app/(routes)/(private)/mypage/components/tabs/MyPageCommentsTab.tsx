@@ -11,7 +11,7 @@ import { COMMENT_MAX_LENGTH_MESSAGE } from '@/app/shared/constants/config/mypage
 import EmptyState from '@/app/shared/components/empty/EmptyState';
 
 import { stopMenuPropagation } from '@/app/(routes)/(private)/mypage/handlers';
-import { formatDateTimeLabel } from '@/app/(routes)/(private)/mypage/utils';
+import { formatDate } from '@/app/(routes)/(private)/mypage/utils';
 import { MyPageCommentsSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
 import { splitCommentMentions } from '@/app/(routes)/(public)/posts/[postId]/utils';
 
@@ -79,7 +79,7 @@ export default function MyPageCommentsTab({
             const postTitle = comment.post?.title ?? '게시글 없음';
             const commentLabel = comment.parentId ? '남긴 대댓글' : '남긴 댓글';
             const commentLink = postId ? `/posts/${postId}#comment-${comment.id}` : '';
-            const commentDate = formatDateTimeLabel(comment.createdAt);
+            const commentDate = formatDate(comment.createdAt);
             const isEditing = editingCommentId === comment.id;
             const isLinkEnabled = Boolean(commentLink) && !isEditing;
             const commentPostLabel = `'${postTitle}'에 ${commentLabel}`;
