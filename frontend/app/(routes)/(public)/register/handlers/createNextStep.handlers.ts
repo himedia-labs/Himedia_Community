@@ -1,27 +1,12 @@
 import { isValidPassword } from '@/app/shared/utils/password';
 import { REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
+import type { RegisterNextStepParams } from '@/app/shared/types/auth';
 
 /**
  * 회원가입 : 다음 단계 이동
  * @description 1단계 필수 입력 검증 후 스텝을 변경
  */
-export const createNextStepHandler = (params: {
-  name: string;
-  email: string;
-  birthDate: string;
-  password: string;
-  passwordConfirm: string;
-  phone: string;
-  isEmailVerified: boolean;
-  setNameError: (value: string) => void;
-  setEmailError: (value: string) => void;
-  setBirthDateError: (value: string) => void;
-  setPasswordError: (value: string) => void;
-  setPasswordConfirmError: (value: string) => void;
-  setPhoneError: (value: string) => void;
-  showToast: (options: { message: string; type: 'success' | 'error' | 'warning'; duration?: number }) => void;
-  setStep: (step: 1 | 2) => void;
-}) => {
+export const createNextStepHandler = (params: RegisterNextStepParams) => {
   return () => {
     let hasError = false;
     if (!params.name) {

@@ -13,22 +13,24 @@ import {
   useSendEmailVerificationCodeMutation,
   useRestoreWithdrawnAccountMutation,
 } from '@/app/api/auth/auth.mutations';
-
-import { useAuthStore } from '@/app/shared/store/authStore';
-
 import { useToast } from '@/app/shared/components/toast/toast';
 import ActionModal from '@/app/shared/components/modal/ActionModal';
 import { EMAIL_REGEX } from '@/app/shared/constants/config/auth.config';
-import { EMAIL_MESSAGES, LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import { LOGIN_WITHDRAW_MODAL_MESSAGES } from '@/app/shared/constants/messages/modal.message';
 
-import { authenticateUser } from '@/app/(routes)/(public)/login/handlers';
+import {
+  authenticateUser,
+  createHandleEmailChange,
+  createHandlePasswordChange,
+  createHandleRestoreCodeChange,
+  createHandleWithdrawnAccount,
+  createHandleCloseWithdrawModal,
+  createHandleSendRestoreCode,
+  createHandleRestoreAccount,
+} from '@/app/(routes)/(public)/login/handlers';
 import { useLoginRedirectToast } from '@/app/(routes)/(public)/login/hooks/useLoginRedirectToast';
 
 import styles from '@/app/(routes)/(public)/login/login.module.css';
-
-import type { AxiosError } from 'axios';
-import type { ApiErrorResponse } from '@/app/shared/types/error';
 
 /**
  * 로그인 페이지
@@ -64,6 +66,56 @@ export default function LoginPage() {
   const [isWithdrawnModalOpen, setIsWithdrawnModalOpen] = useState(false);
   const [isRestoreCodeSent, setIsRestoreCodeSent] = useState(false);
 
+  // 입력 핸들러
+  const handleEmailChange = createHandleEmailChange({
+    emailError,
+    setEmail,
+    setEmailError,
+    emailRegex: EMAIL_REGEX,
+  });
+  const handlePasswordChange = createHandlePasswordChange({
+    passwordError,
+    setPassword,
+    setPasswordError,
+  });
+  const handleRestoreCodeChange = createHandleRestoreCodeChange(setRestoreCode);
+
+  // 복구 핸들러
+  const handleWithdrawnAccount = createHandleWithdrawnAccount({
+    email,
+    setRestoreCode,
+    setRestoreEmail,
+    setWithdrawnMessage,
+    setIsRestoreCodeSent,
+    setIsWithdrawnModalOpen,
+  });
+  const closeWithdrawModal = createHandleCloseWithdrawModal({
+    isRestoreAccountPending: restoreAccountMutation.isPending,
+    isRestoreCodePending: restoreCodeMutation.isPending,
+    setRestoreCode,
+    setIsRestoreCodeSent,
+    setIsWithdrawnModalOpen,
+  });
+  const sendRestoreCode = createHandleSendRestoreCode({
+    restoreEmail,
+    showToast,
+    setIsRestoreCodeSent,
+    restoreCodeMutation,
+  });
+  const restoreAccount = createHandleRestoreAccount({
+    authKeys,
+    queryClient,
+    redirectTo,
+    restoreCode,
+    restoreEmail,
+    router,
+    showToast,
+    setRestoreCode,
+    setIsRestoreCodeSent,
+    setIsWithdrawnModalOpen,
+    restoreAccountMutation,
+  });
+
   // 로그인 핸들러
   const handleLogin = authenticateUser({
     email,
@@ -72,13 +124,7 @@ export default function LoginPage() {
     setEmailError,
     setPasswordError,
     setIsLoginSubmitting,
-    onWithdrawnAccount: () => {
-      setWithdrawnMessage(LOGIN_WITHDRAW_MODAL_MESSAGES.description);
-      setRestoreEmail(email.trim().toLowerCase());
-      setRestoreCode('');
-      setIsRestoreCodeSent(false);
-      setIsWithdrawnModalOpen(true);
-    },
+    onWithdrawnAccount: handleWithdrawnAccount,
     redirectTo,
     loginMutation,
     showToast,
@@ -89,59 +135,6 @@ export default function LoginPage() {
 
   // 리다이렉트 안내
   useLoginRedirectToast({ reason, showToast });
-
-  const closeWithdrawModal = () => {
-    if (restoreCodeMutation.isPending || restoreAccountMutation.isPending) return;
-
-    setIsWithdrawnModalOpen(false);
-    setRestoreCode('');
-    setIsRestoreCodeSent(false);
-  };
-
-  const sendRestoreCode = async () => {
-    if (restoreCodeMutation.isPending || !restoreEmail) return;
-
-    try {
-      const result = await restoreCodeMutation.mutateAsync({
-        email: restoreEmail,
-        purpose: 'withdraw-restore',
-      });
-      setIsRestoreCodeSent(true);
-      showToast({ message: result.message, type: 'success' });
-    } catch (error) {
-      const axiosError = error as AxiosError<ApiErrorResponse>;
-      const message = axiosError.response?.data?.message ?? LOGIN_MESSAGES.fallbackError;
-      showToast({ message, type: 'error' });
-    }
-  };
-
-  const restoreAccount = async () => {
-    if (restoreAccountMutation.isPending) return;
-
-    if (!restoreCode.trim()) {
-      showToast({ message: LOGIN_WITHDRAW_MODAL_MESSAGES.missingCode, type: 'warning' });
-      return;
-    }
-
-    try {
-      const result = await restoreAccountMutation.mutateAsync({
-        email: restoreEmail,
-        code: restoreCode.trim(),
-      });
-      const { setAccessToken } = useAuthStore.getState();
-      setAccessToken(result.accessToken);
-      queryClient.setQueryData(authKeys.currentUser, result.user);
-      setIsWithdrawnModalOpen(false);
-      setRestoreCode('');
-      setIsRestoreCodeSent(false);
-      showToast({ message: LOGIN_WITHDRAW_MODAL_MESSAGES.restoredSuccess, type: 'success' });
-      router.push(redirectTo ?? '/');
-    } catch (error) {
-      const axiosError = error as AxiosError<ApiErrorResponse>;
-      const message = axiosError.response?.data?.message ?? LOGIN_MESSAGES.fallbackError;
-      showToast({ message, type: 'error' });
-    }
-  };
 
   return (
     <div className={styles.container}>
@@ -170,15 +163,7 @@ export default function LoginPage() {
                 id="email"
                 value={email}
                 disabled={isLoginSubmitting || loginMutation.isPending}
-                onChange={e => {
-                  setEmail(e.target.value);
-                  const next = e.target.value;
-                  if (!EMAIL_REGEX.test(next)) {
-                    setEmailError(EMAIL_MESSAGES.invalid);
-                  } else if (emailError) {
-                    setEmailError('');
-                  }
-                }}
+                onChange={handleEmailChange}
                 className={emailError ? `${styles.input} ${styles.error}` : styles.input}
                 autoComplete="username"
               />
@@ -194,10 +179,7 @@ export default function LoginPage() {
                 id="password"
                 value={password}
                 disabled={isLoginSubmitting || loginMutation.isPending}
-                onChange={e => {
-                  setPassword(e.target.value);
-                  if (passwordError) setPasswordError('');
-                }}
+                onChange={handlePasswordChange}
                 className={
                   passwordError
                     ? `${styles.input} ${styles.passwordInput} ${styles.error}`
@@ -252,7 +234,7 @@ export default function LoginPage() {
                 inputMode="text"
                 placeholder={LOGIN_WITHDRAW_MODAL_MESSAGES.codePlaceholder}
                 disabled={!isRestoreCodeSent || restoreAccountMutation.isPending}
-                onChange={event => setRestoreCode(event.target.value)}
+                onChange={handleRestoreCodeChange}
               />
             </div>
           }

@@ -1,6 +1,7 @@
 import { FiChevronDown } from 'react-icons/fi';
 
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
+import { createHandleFilterItemSelect } from '@/app/(routes)/(private)/mypage/handlers';
 
 import type { MyPageFilterDropdownProps } from '@/app/shared/types/mypage';
 
@@ -20,6 +21,7 @@ export default function MyPageFilterDropdown({
   const isTag = type === 'tag';
   const defaultLabel = isTag ? '#태그' : '카테고리';
   const displayLabel = selectedLabel ? (isTag ? `#${selectedLabel}` : selectedLabel) : defaultLabel;
+  const handleItemSelect = createHandleFilterItemSelect(onSelect);
 
   return (
     <div className={styles.filterDropdown}>
@@ -40,7 +42,8 @@ export default function MyPageFilterDropdown({
                     : `${styles.filterItem} ${styles.filterItemActive}`
                   : styles.filterItem
               }
-              onClick={() => onSelect(item.id)}
+              data-item-id={item.id}
+              onClick={handleItemSelect}
             >
               <span className={isTag ? styles.tagFilterName : undefined}>{isTag ? `#${item.name}` : item.name}</span>
               <span className={styles.filterCount}>{item.count}</span>

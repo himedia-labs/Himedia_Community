@@ -32,16 +32,7 @@ import {
 
 import type { ChangeEvent, MouseEvent } from 'react';
 import type { CommentItem, CommentListResponse } from '@/app/shared/types/comment';
-import type { UserRole } from '@/app/shared/types/post';
-
-type UsePostDetailCommentsParams = {
-  accessToken: string | null;
-  authorName?: string | null;
-  authorRole?: UserRole | null;
-  isQueryEnabled: boolean;
-  mentionClassName: string;
-  postId: string;
-};
+import type { PostDetailReplyStatesMap, UsePostDetailCommentsParams } from '@/app/shared/types/postDetailComments';
 
 /**
  * 댓글 상태 훅
@@ -84,9 +75,7 @@ export const usePostDetailComments = ({
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState('');
   const [openRepliesIds, setOpenRepliesIds] = useState<string[]>([]);
-  const [replyStates, setReplyStates] = useState<
-    Record<string, { content: string; parentId: string | null; mentionQuery: string | null }>
-  >({});
+  const [replyStates, setReplyStates] = useState<PostDetailReplyStatesMap>({});
   const [commentMentionQuery, setCommentMentionQuery] = useState<string | null>(null);
   const hasEditingLengthError = isCommentContentTooLong(editingContent);
 
@@ -173,7 +162,7 @@ export const usePostDetailComments = ({
   const getReplyState = (rootId: string) => replyStates[rootId] ?? { content: '', parentId: null, mentionQuery: null };
   const updateReplyState = (
     rootId: string,
-    partial: Partial<{ content: string; parentId: string | null; mentionQuery: string | null }>,
+    partial: Partial<PostDetailReplyStatesMap[string]>,
   ) => {
     setReplyStates(prev => {
       const baseState = prev[rootId] ?? { content: '', parentId: null, mentionQuery: null };

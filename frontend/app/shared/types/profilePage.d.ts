@@ -23,6 +23,15 @@ export type ProfilePageSetSortKey = Dispatch<SetStateAction<ProfileSortKey>>;
 type ProfilePageToastType = 'success' | 'error' | 'warning' | 'info';
 type ProfilePageShowToast = (params: { message: string; type: ProfilePageToastType }) => void;
 
+export type UseProfileFollowParams = {
+  profileId?: string;
+  accessToken: string | null;
+  isMyProfile: boolean;
+  author?: import('@/app/shared/types/post').PostAuthorRef;
+  followings?: import('@/app/shared/types/follow').FollowListResponse;
+  showToast: ProfilePageShowToast;
+};
+
 export type ProfileFollowToggleHandlerParams = {
   profileId?: string;
   accessToken: string | null;

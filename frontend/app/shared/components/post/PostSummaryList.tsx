@@ -12,6 +12,11 @@ import EmptyState from '@/app/shared/components/empty/EmptyState';
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 import { formatDateLabel } from '@/app/(routes)/(private)/mypage/utils';
 import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
+import {
+  createHandlePostMenuButtonClick,
+  createHandlePostEditButtonClick,
+  createHandlePostDeleteButtonClick,
+} from '@/app/shared/components/post/handlers/postSummary.handlers';
 
 import postListStyles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
 import styles from '@/app/shared/components/post/PostSummaryList.module.css';
@@ -43,6 +48,18 @@ export default function PostSummaryList({
   const hasActionMenu = Boolean(
     actionHandlers?.onPostDelete && actionHandlers?.onPostEdit && actionHandlers?.onPostMenuToggle,
   );
+  const handlePostMenuButtonClick = createHandlePostMenuButtonClick({
+    stopLinkNavigation,
+    onPostMenuToggle: actionHandlers?.onPostMenuToggle,
+  });
+  const handlePostEditButtonClick = createHandlePostEditButtonClick({
+    stopLinkNavigation,
+    onPostEdit: actionHandlers?.onPostEdit,
+  });
+  const handlePostDeleteButtonClick = createHandlePostDeleteButtonClick({
+    stopLinkNavigation,
+    onPostDelete: actionHandlers?.onPostDelete,
+  });
 
   // 빈 목록 처리
   if (!posts.length) {
@@ -84,10 +101,8 @@ export default function PostSummaryList({
                             type="button"
                             className={styles.listMenuButton}
                             aria-label="게시글 옵션"
-                            onClick={event => {
-                              stopLinkNavigation(event);
-                              actionHandlers?.onPostMenuToggle?.(post.id);
-                            }}
+                            data-post-id={post.id}
+                            onClick={handlePostMenuButtonClick}
                           >
                             <FiMoreHorizontal aria-hidden="true" />
                           </button>
@@ -97,10 +112,8 @@ export default function PostSummaryList({
                                 type="button"
                                 className={styles.listMenuItem}
                                 role="menuitem"
-                                onClick={event => {
-                                  stopLinkNavigation(event);
-                                  actionHandlers?.onPostEdit?.(post.id);
-                                }}
+                                data-post-id={post.id}
+                                onClick={handlePostEditButtonClick}
                               >
                                 <FiEdit2 aria-hidden="true" />
                                 수정
@@ -110,10 +123,8 @@ export default function PostSummaryList({
                                 className={styles.listMenuItem}
                                 role="menuitem"
                                 disabled={actionHandlers?.isPostDeleting}
-                                onClick={event => {
-                                  stopLinkNavigation(event);
-                                  actionHandlers?.onPostDelete?.(post.id);
-                                }}
+                                data-post-id={post.id}
+                                onClick={handlePostDeleteButtonClick}
                               >
                                 <FiTrash2 aria-hidden="true" />
                                 삭제

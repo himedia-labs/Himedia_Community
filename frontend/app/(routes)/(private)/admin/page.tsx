@@ -21,10 +21,14 @@ import {
   useTrackAdminAccessMutation,
   useUpdateAdminUserRoleMutation,
 } from '@/app/api/admin/admin.mutations';
-import { ADMIN_MENU_LABELS } from '@/app/(routes)/(private)/admin/constants/menu.constants';
-import { ADMIN_QUERY_KEYS } from '@/app/(routes)/(private)/admin/constants/query.constants';
-import { ADMIN_PENDING_SORT } from '@/app/(routes)/(private)/admin/constants/sort.constants';
-import { createHandleSelectMenu, createHandleSelectSort, createSyncAdminUrlState } from '@/app/(routes)/(private)/admin/handlers/adminUrl.handlers';
+
+import { ADMIN_MENU_LABELS, ADMIN_PENDING_SORT, ADMIN_QUERY_KEYS } from '@/app/shared/constants/config/admin.config';
+
+import {
+  createHandleSelectMenu,
+  createHandleSelectSort,
+  createSyncAdminUrlState,
+} from '@/app/(routes)/(private)/admin/handlers/adminUrl.handlers';
 import {
   createToggleRoleSort,
   createToggleCourseSort,
@@ -39,11 +43,20 @@ import {
   createHandleSaveAllUserRoles,
   createHandleChangeUserRoleDraft,
 } from '@/app/(routes)/(private)/admin/handlers/adminUser.handlers';
+import {
+  createHandleMenuButtonClick,
+  createHandlePendingSortClick,
+  createHandleRoleFilterClick,
+  createHandleCourseFilterClick,
+  createHandleApproveUserClick,
+  createHandleUserRoleDraftChange,
+} from '@/app/(routes)/(private)/admin/handlers/adminUi.handlers';
+import { formatDate } from '@/app/shared/utils/date.utils';
+
 import { useAdminAccessGuard } from '@/app/(routes)/(private)/admin/hooks/useAdminAccessGuard';
 import { useTrackAdminAccess } from '@/app/(routes)/(private)/admin/hooks/useTrackAdminAccess';
 import { useAccessLogsInfiniteScroll } from '@/app/(routes)/(private)/admin/hooks/useAccessLogsInfiniteScroll';
 import { usePendingUsersSort } from '@/app/(routes)/(private)/admin/hooks/usePendingUsersSort';
-import { formatDateTime } from '@/app/(routes)/(private)/admin/utils/formatDateTime.utils';
 import {
   getRoleBadgeClassName,
   getAccessStatusBadgeClassName,
@@ -58,7 +71,13 @@ import { formatPhoneNumber } from '@/app/(routes)/(private)/admin/utils/formatPh
 import { getRelativeTimeLabel } from '@/app/(routes)/(private)/admin/utils/getRelativeTimeLabel.utils';
 import { formatUserAgentLabel } from '@/app/(routes)/(private)/admin/utils/formatUserAgentLabel.utils';
 import { formatSessionDuration } from '@/app/(routes)/(private)/admin/utils/formatSessionDuration.utils';
-import { formatAuditAfterLabel, formatAuditActionLabel, formatAuditBeforeLabel, formatAuditResultLabel, formatAuditTargetLabel } from '@/app/(routes)/(private)/admin/utils/formatAuditLog.utils';
+import {
+  formatAuditAfterLabel,
+  formatAuditActionLabel,
+  formatAuditBeforeLabel,
+  formatAuditResultLabel,
+  formatAuditTargetLabel,
+} from '@/app/(routes)/(private)/admin/utils/formatAuditLog.utils';
 
 import styles from '@/app/(routes)/(private)/admin/AdminPage.module.css';
 
@@ -69,20 +88,21 @@ import type { IconType } from 'react-icons';
  * @description 신고 목록 조회와 상태 변경 기능을 제공
  */
 export default function AdminPage() {
+  // 라우팅/공용 훅
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
 
-  // 인증 상태
+  // 인증/권한 상태
   const accessToken = useAuthStore(state => state.accessToken);
   const isInitialized = useAuthStore(state => state.isInitialized);
   const { data: currentUser, isLoading: isUserLoading } = useCurrentUserQuery();
   const isAdmin = currentUser?.role === 'ADMIN';
   const canAccess = Boolean(accessToken) && isAdmin;
 
-  // 데이터 조회
+  // 조회/뮤테이션 훅
   const { data: pendingUsersData, isLoading: isPendingUsersLoading } = useAdminPendingUsersQuery(canAccess);
   const { data: usersData, isLoading: isUsersLoading } = useAdminUsersQuery(canAccess);
   const { data: logsData, isLoading: isLogsLoading } = useAdminAuditLogsQuery(canAccess);
@@ -96,6 +116,8 @@ export default function AdminPage() {
   const approveUserMutation = useApproveAdminUserMutation();
   const updateUserRoleMutation = useUpdateAdminUserRoleMutation();
   const trackAdminAccessMutation = useTrackAdminAccessMutation();
+
+  // UI/편집 상태
   const accessLogsLoadMoreRef = useRef<HTMLDivElement | null>(null);
   const [isRoleSortOpen, setIsRoleSortOpen] = useState(false);
   const [isCourseSortOpen, setIsCourseSortOpen] = useState(false);
@@ -104,14 +126,20 @@ export default function AdminPage() {
   const [userRoleDrafts, setUserRoleDrafts] = useState<Record<string, string>>({});
   const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>('ALL');
   const [selectedCourseFilter, setSelectedCourseFilter] = useState<string>('ALL');
+
+  // URL/메뉴 상태
   const selectedMenu = parseAdminMenuFromQuery(searchParams.get(ADMIN_QUERY_KEYS.TAB));
   const pendingSort = parseAdminSortFromQuery(searchParams.get(ADMIN_QUERY_KEYS.SORT));
+
+  // 원본/목록 데이터
   const pendingUsers = useMemo(() => pendingUsersData?.items ?? [], [pendingUsersData]);
   const allUsers = useMemo(() => usersData?.items ?? [], [usersData]);
   const auditLogs = logsData?.items ?? [];
   const accessLogs = useMemo(() => {
     return accessLogsData?.pages.flatMap(page => page.items) ?? [];
   }, [accessLogsData]);
+
+  // 정렬/필터 파생
   const sortedPendingUsers = usePendingUsersSort(pendingUsers, pendingSort);
   const courseFilterOptions = useMemo(() => {
     const options = Array.from(new Set(pendingUsers.map(user => user.course).filter(Boolean))) as string[];
@@ -125,6 +153,8 @@ export default function AdminPage() {
       return matchedRole && matchedCourse;
     });
   }, [selectedCourseFilter, selectedRoleFilter, sortedPendingUsers]);
+
+  // 메뉴/아이콘 매핑
   const menuIconMap: Record<string, IconType> = {
     [ADMIN_MENU_LABELS.PENDING_USERS]: FiUserCheck,
     [ADMIN_MENU_LABELS.USERS]: FiUsers,
@@ -133,6 +163,7 @@ export default function AdminPage() {
   };
   const CurrentMenuIcon = menuIconMap[selectedMenu] ?? FiUserCheck;
 
+  // 접근/추적 훅
   useAdminAccessGuard({ accessToken, isInitialized, isUserLoading, isAdmin });
   useTrackAdminAccess({
     canAccess,
@@ -147,6 +178,7 @@ export default function AdminPage() {
     fetchNextPage: fetchNextAccessLogsPage,
   });
 
+  // 이벤트/핸들러 생성
   const syncAdminUrlState = createSyncAdminUrlState({ pathname, router, searchParams });
   const handleSelectMenu = createHandleSelectMenu({ pendingSort, syncAdminUrlState });
   const handleSelectSort = createHandleSelectSort({ selectedMenu, syncAdminUrlState });
@@ -171,6 +203,12 @@ export default function AdminPage() {
     showToast,
   });
   const handleChangeUserRoleDraft = createHandleChangeUserRoleDraft(setUserRoleDrafts);
+  const handleMenuButtonClick = createHandleMenuButtonClick(handleSelectMenu);
+  const handlePendingSortClick = createHandlePendingSortClick(handleSelectPendingSort);
+  const handleRoleFilterClick = createHandleRoleFilterClick(handleSelectRoleFilter);
+  const handleCourseFilterClick = createHandleCourseFilterClick(handleSelectCourseFilter);
+  const handleApproveUserClick = createHandleApproveUserClick(handleUserApprove);
+  const handleUserRoleDraftChange = createHandleUserRoleDraftChange(handleChangeUserRoleDraft);
 
   if (!isInitialized || !accessToken || isUserLoading || !isAdmin) {
     return null;
@@ -207,7 +245,8 @@ export default function AdminPage() {
               <button
                 type="button"
                 className={`${styles.sidebarItem} ${selectedMenu === ADMIN_MENU_LABELS.USERS ? styles.sidebarItemActive : ''}`}
-                onClick={() => handleSelectMenu(ADMIN_MENU_LABELS.USERS)}
+                data-menu-label={ADMIN_MENU_LABELS.USERS}
+                onClick={handleMenuButtonClick}
               >
                 <FiUsers aria-hidden="true" />
                 전체 회원
@@ -219,7 +258,8 @@ export default function AdminPage() {
               <button
                 type="button"
                 className={`${styles.sidebarItem} ${selectedMenu === ADMIN_MENU_LABELS.PENDING_USERS ? styles.sidebarItemActive : ''}`}
-                onClick={() => handleSelectMenu(ADMIN_MENU_LABELS.PENDING_USERS)}
+                data-menu-label={ADMIN_MENU_LABELS.PENDING_USERS}
+                onClick={handleMenuButtonClick}
               >
                 <FiUserCheck aria-hidden="true" />
                 회원 승인
@@ -231,7 +271,8 @@ export default function AdminPage() {
               <button
                 type="button"
                 className={`${styles.sidebarItem} ${selectedMenu === ADMIN_MENU_LABELS.AUDIT_LOGS ? styles.sidebarItemActive : ''}`}
-                onClick={() => handleSelectMenu(ADMIN_MENU_LABELS.AUDIT_LOGS)}
+                data-menu-label={ADMIN_MENU_LABELS.AUDIT_LOGS}
+                onClick={handleMenuButtonClick}
               >
                 <FiFileText aria-hidden="true" />
                 감사 로그
@@ -239,7 +280,8 @@ export default function AdminPage() {
               <button
                 type="button"
                 className={`${styles.sidebarItem} ${selectedMenu === ADMIN_MENU_LABELS.ACCESS_LOGS ? styles.sidebarItemActive : ''}`}
-                onClick={() => handleSelectMenu(ADMIN_MENU_LABELS.ACCESS_LOGS)}
+                data-menu-label={ADMIN_MENU_LABELS.ACCESS_LOGS}
+                onClick={handleMenuButtonClick}
               >
                 <FiLogIn aria-hidden="true" />
                 관리자 접속일지
@@ -266,14 +308,16 @@ export default function AdminPage() {
                             <button
                               type="button"
                               className={`${styles.filterItem} ${pendingSort === ADMIN_PENDING_SORT.OLDEST ? styles.filterItemActive : ''}`}
-                              onClick={() => handleSelectPendingSort(ADMIN_PENDING_SORT.OLDEST)}
+                              data-pending-sort={ADMIN_PENDING_SORT.OLDEST}
+                              onClick={handlePendingSortClick}
                             >
                               오래된 가입 순
                             </button>
                             <button
                               type="button"
                               className={`${styles.filterItem} ${pendingSort === ADMIN_PENDING_SORT.NEWEST ? styles.filterItemActive : ''}`}
-                              onClick={() => handleSelectPendingSort(ADMIN_PENDING_SORT.NEWEST)}
+                              data-pending-sort={ADMIN_PENDING_SORT.NEWEST}
+                              onClick={handlePendingSortClick}
                             >
                               최근 가입 순
                             </button>
@@ -290,7 +334,8 @@ export default function AdminPage() {
                             <button
                               type="button"
                               className={`${styles.filterItem} ${selectedRoleFilter === 'ALL' ? styles.filterItemActive : ''}`}
-                              onClick={() => handleSelectRoleFilter('ALL')}
+                              data-role-filter="ALL"
+                              onClick={handleRoleFilterClick}
                             >
                               전체 역할
                             </button>
@@ -299,7 +344,8 @@ export default function AdminPage() {
                               className={`${styles.filterItem} ${
                                 selectedRoleFilter === 'TRAINEE' ? styles.filterItemActive : ''
                               }`}
-                              onClick={() => handleSelectRoleFilter('TRAINEE')}
+                              data-role-filter="TRAINEE"
+                              onClick={handleRoleFilterClick}
                             >
                               훈련생
                             </button>
@@ -308,14 +354,16 @@ export default function AdminPage() {
                               className={`${styles.filterItem} ${
                                 selectedRoleFilter === 'GRADUATE' ? styles.filterItemActive : ''
                               }`}
-                              onClick={() => handleSelectRoleFilter('GRADUATE')}
+                              data-role-filter="GRADUATE"
+                              onClick={handleRoleFilterClick}
                             >
                               수료생
                             </button>
                             <button
                               type="button"
                               className={`${styles.filterItem} ${selectedRoleFilter === 'MENTOR' ? styles.filterItemActive : ''}`}
-                              onClick={() => handleSelectRoleFilter('MENTOR')}
+                              data-role-filter="MENTOR"
+                              onClick={handleRoleFilterClick}
                             >
                               멘토
                             </button>
@@ -324,7 +372,8 @@ export default function AdminPage() {
                               className={`${styles.filterItem} ${
                                 selectedRoleFilter === 'INSTRUCTOR' ? styles.filterItemActive : ''
                               }`}
-                              onClick={() => handleSelectRoleFilter('INSTRUCTOR')}
+                              data-role-filter="INSTRUCTOR"
+                              onClick={handleRoleFilterClick}
                             >
                               강사
                             </button>
@@ -342,7 +391,8 @@ export default function AdminPage() {
                             <button
                               type="button"
                               className={`${styles.filterItem} ${selectedCourseFilter === 'ALL' ? styles.filterItemActive : ''}`}
-                              onClick={() => handleSelectCourseFilter('ALL')}
+                              data-course-filter="ALL"
+                              onClick={handleCourseFilterClick}
                             >
                               전체 과정
                             </button>
@@ -353,7 +403,8 @@ export default function AdminPage() {
                                 className={`${styles.filterItem} ${
                                   selectedCourseFilter === course ? styles.filterItemActive : ''
                                 }`}
-                                onClick={() => handleSelectCourseFilter(course)}
+                                data-course-filter={course}
+                                onClick={handleCourseFilterClick}
                               >
                                 {course}
                               </button>
@@ -424,12 +475,13 @@ export default function AdminPage() {
                                   </span>
                                 </td>
                                 <td>{user.course ?? 'N/A'}</td>
-                                <td>{formatDateTime(user.createdAt)}</td>
+                                <td>{formatDate(user.createdAt)}</td>
                                 <td>
                                   <button
                                     type="button"
                                     className={`${styles.actionButton} ${styles.approveActionButton}`}
-                                    onClick={() => handleUserApprove(user.id)}
+                                    data-user-id={user.id}
+                                    onClick={handleApproveUserClick}
                                   >
                                     승인 하기
                                   </button>
@@ -480,7 +532,8 @@ export default function AdminPage() {
                                   <select
                                     className={styles.userRoleSelect}
                                     value={userRoleDrafts[user.id] ?? user.requestedRole ?? user.role}
-                                    onChange={event => handleChangeUserRoleDraft(user.id, event.target.value)}
+                                    data-user-id={user.id}
+                                    onChange={handleUserRoleDraftChange}
                                   >
                                     <option value="TRAINEE">훈련생</option>
                                     <option value="GRADUATE">수료생</option>
@@ -496,7 +549,7 @@ export default function AdminPage() {
                                 )}
                               </td>
                               <td>{user.course ?? 'N/A'}</td>
-                              <td>{formatDateTime(user.createdAt)}</td>
+                              <td>{formatDate(user.createdAt)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -542,7 +595,7 @@ export default function AdminPage() {
                                 <FiChevronRight aria-hidden="true" />
                               </td>
                               <td>{formatAuditAfterLabel(log.payload)}</td>
-                              <td>{formatDateTime(log.createdAt)}</td>
+                              <td>{formatDate(log.createdAt)}</td>
                               <td>
                                 <span
                                   className={`${styles.auditResultBadge} ${getAuditResultBadgeClassName(styles, log.payload)}`}
@@ -587,8 +640,8 @@ export default function AdminPage() {
                               <tr key={log.id}>
                                 <td>#{index + 1}</td>
                                 <td>{`${log.adminName} (${log.adminEmail})`}</td>
-                                <td>{formatDateTime(log.loginAt)}</td>
-                                <td>{log.logoutAt ? formatDateTime(log.logoutAt) : 'N/A'}</td>
+                                <td>{formatDate(log.loginAt)}</td>
+                                <td>{log.logoutAt ? formatDate(log.logoutAt) : 'N/A'}</td>
                                 <td>{log.ipAddress}</td>
                                 <td>{formatUserAgentLabel(log.userAgent)}</td>
                                 <td>{formatSessionDuration(log.sessionDurationSec)}</td>

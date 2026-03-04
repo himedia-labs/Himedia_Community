@@ -1,6 +1,7 @@
 import type { RefObject } from 'react';
 
-import { ADMIN_MENU_LABELS } from '@/app/(routes)/(private)/admin/constants/menu.constants';
+import { ADMIN_MENU_LABELS } from '@/app/shared/constants/config/admin.config';
+
 import { useInfiniteScrollObserver } from '@/app/shared/hooks/useInfiniteScrollObserver';
 
 /**

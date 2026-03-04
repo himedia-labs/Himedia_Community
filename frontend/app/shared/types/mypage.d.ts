@@ -208,3 +208,14 @@ export interface MyPageFilterDropdownProps {
   onToggle: () => void;
   onSelect: (id: string) => void;
 }
+
+// 스켈레톤
+export interface MyPageValueSkeletonProps {
+  width: number;
+  height: number;
+}
+
+// 임시저장 컴포넌트
+export interface MyPageDraftsProps {
+  sortOrder: 'latest' | 'oldest';
+}

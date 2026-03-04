@@ -8,18 +8,18 @@ import { useRouter } from 'next/navigation';
 
 import { FaUser, FaUserEdit } from 'react-icons/fa';
 
-import { MYPAGE_TABS } from '@/app/shared/constants/config/mypage.config';
-
-import { PROFILE_SOCIAL_SKELETON_COUNT } from '@/app/(routes)/(private)/mypage/constants';
+import { MYPAGE_TABS, PROFILE_SOCIAL_SKELETON_COUNT } from '@/app/shared/constants/config/mypage.config';
 import {
   createCloseWithdrawModal,
   createHandleCategorySelect,
   createHandleProfileAction,
   createHandleProfileCancelAll,
   createHandleProfileSaveAll,
+  createDraftSortToggleHandler,
   createHandleTagSelect,
   createHandleWithdraw,
   createOpenWithdrawModal,
+  createProfileInputChangeHandler,
   createToggleCategory,
   createToggleTag,
 } from '@/app/(routes)/(private)/mypage/handlers';
@@ -227,6 +227,13 @@ export default function MyPage() {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isTagOpen, setIsTagOpen] = useState(false);
   const [draftSortOrder, setDraftSortOrder] = useState<'latest' | 'oldest'>('latest');
+  const handleProfileContactEmailChange = createProfileInputChangeHandler(setProfileContactEmail);
+  const handleProfileGithubUrlChange = createProfileInputChangeHandler(setProfileGithubUrl);
+  const handleProfileLinkedinUrlChange = createProfileInputChangeHandler(setProfileLinkedinUrl);
+  const handleProfileTwitterUrlChange = createProfileInputChangeHandler(setProfileTwitterUrl);
+  const handleProfileFacebookUrlChange = createProfileInputChangeHandler(setProfileFacebookUrl);
+  const handleProfileWebsiteUrlChange = createProfileInputChangeHandler(setProfileWebsiteUrl);
+  const handleDraftSortToggle = createDraftSortToggleHandler(setDraftSortOrder);
   const [showWithdrawPassword, setShowWithdrawPassword] = useState(false);
   const [withdrawPassword, setWithdrawPassword] = useState('');
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
@@ -545,7 +552,7 @@ export default function MyPage() {
                           placeholder="example@email.com"
                           value={editingContactEmail}
                           disabled={isProfileActionPending}
-                          onChange={event => setProfileContactEmail(event.target.value)}
+                          onChange={handleProfileContactEmailChange}
                         />
                       </div>
                     </label>
@@ -559,7 +566,7 @@ export default function MyPage() {
                           placeholder="username"
                           value={editingGithubUrl}
                           disabled={isProfileActionPending}
-                          onChange={event => setProfileGithubUrl(event.target.value)}
+                          onChange={handleProfileGithubUrlChange}
                         />
                       </div>
                     </label>
@@ -573,7 +580,7 @@ export default function MyPage() {
                           placeholder="username"
                           value={editingLinkedinUrl}
                           disabled={isProfileActionPending}
-                          onChange={event => setProfileLinkedinUrl(event.target.value)}
+                          onChange={handleProfileLinkedinUrlChange}
                         />
                       </div>
                     </label>
@@ -587,7 +594,7 @@ export default function MyPage() {
                           placeholder="username"
                           value={editingTwitterUrl}
                           disabled={isProfileActionPending}
-                          onChange={event => setProfileTwitterUrl(event.target.value)}
+                          onChange={handleProfileTwitterUrlChange}
                         />
                       </div>
                     </label>
@@ -601,7 +608,7 @@ export default function MyPage() {
                           placeholder="username"
                           value={editingFacebookUrl}
                           disabled={isProfileActionPending}
-                          onChange={event => setProfileFacebookUrl(event.target.value)}
+                          onChange={handleProfileFacebookUrlChange}
                         />
                       </div>
                     </label>
@@ -614,7 +621,7 @@ export default function MyPage() {
                           placeholder="https://example.com"
                           value={editingWebsiteUrl}
                           disabled={isProfileActionPending}
-                          onChange={event => setProfileWebsiteUrl(event.target.value)}
+                          onChange={handleProfileWebsiteUrlChange}
                         />
                       </div>
                     </label>
@@ -668,7 +675,7 @@ export default function MyPage() {
             ) : activeTab === 'drafts' ? (
               <MyPageDraftsTab
                 draftSortOrder={draftSortOrder}
-                onSortChange={() => setDraftSortOrder(prev => (prev === 'latest' ? 'oldest' : 'latest'))}
+                onSortChange={handleDraftSortToggle}
               />
             ) : activeTab === 'account' ? (
               <MyPageAccountTab

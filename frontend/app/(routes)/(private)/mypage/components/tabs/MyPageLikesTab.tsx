@@ -11,7 +11,12 @@ import { FiClock, FiEdit2, FiEye, FiHeart, FiMessageCircle, FiMoreHorizontal, Fi
 import EmptyState from '@/app/shared/components/empty/EmptyState';
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 import { MyPagePostListSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
-import { stopMenuPropagation } from '@/app/(routes)/(private)/mypage/handlers';
+import {
+  stopMenuPropagation,
+  createHandlePostEditButtonClick,
+  createHandlePostMenuButtonClick,
+  createHandlePostDeleteButtonClick,
+} from '@/app/(routes)/(private)/mypage/handlers';
 import { formatDateLabel } from '@/app/(routes)/(private)/mypage/utils';
 import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
 
@@ -36,6 +41,10 @@ export default function MyPageLikesTab({
   handlePostMenuToggle,
   handleSortToggle,
 }: MyPageLikesTabProps) {
+  const handlePostMenuButtonClick = createHandlePostMenuButtonClick(handlePostMenuToggle);
+  const handlePostEditButtonClick = createHandlePostEditButtonClick(handlePostEdit);
+  const handlePostDeleteButtonClick = createHandlePostDeleteButtonClick(handlePostDelete);
+
   if (isLikedPostsListLoading) {
     return <MyPagePostListSkeleton label="좋아한 포스트" showFilters={false} />;
   }
@@ -92,10 +101,8 @@ export default function MyPageLikesTab({
                                 type="button"
                                 className={styles.listMenuButton}
                                 aria-label="게시글 옵션"
-                                onClick={event => {
-                                  stopMenuPropagation(event);
-                                  handlePostMenuToggle(post.id);
-                                }}
+                                data-post-id={post.id}
+                                onClick={handlePostMenuButtonClick}
                               >
                                 <FiMoreHorizontal aria-hidden="true" />
                               </button>
@@ -105,10 +112,8 @@ export default function MyPageLikesTab({
                                     type="button"
                                     className={styles.listMenuItem}
                                     role="menuitem"
-                                    onClick={event => {
-                                      stopMenuPropagation(event);
-                                      handlePostEdit(post.id);
-                                    }}
+                                    data-post-id={post.id}
+                                    onClick={handlePostEditButtonClick}
                                   >
                                     <FiEdit2 aria-hidden="true" />
                                     수정
@@ -118,10 +123,8 @@ export default function MyPageLikesTab({
                                     className={styles.listMenuItem}
                                     role="menuitem"
                                     disabled={isPostDeleting}
-                                    onClick={event => {
-                                      stopMenuPropagation(event);
-                                      handlePostDelete(post.id);
-                                    }}
+                                    data-post-id={post.id}
+                                    onClick={handlePostDeleteButtonClick}
                                   >
                                     <FiTrash2 aria-hidden="true" />
                                     삭제

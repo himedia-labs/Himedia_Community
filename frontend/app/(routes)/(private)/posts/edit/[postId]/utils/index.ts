@@ -1,1 +1,1 @@
-export { createEditPreview } from '@/app/(routes)/(private)/posts/edit/[postId]/utils/createEditPreview';
+export { createEditPreview } from '@/app/(routes)/(private)/posts/edit/[postId]/utils/createEditPreview.utils';

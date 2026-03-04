@@ -9,7 +9,13 @@ import { useParams, useRouter } from 'next/navigation';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
 import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
 import { createEditPreview } from '@/app/(routes)/(private)/posts/edit/[postId]/utils';
-import { createExitHandler } from '@/app/(routes)/(private)/posts/edit/[postId]/handlers';
+import {
+  createExitHandler,
+  createHandleBoldClick,
+  createHandleStrikeClick,
+  createHandleItalicClick,
+  createHandleUnderlineClick,
+} from '@/app/(routes)/(private)/posts/edit/[postId]/handlers';
 import { EditorToolbar, PostPreview, PostDetailsForm } from '@/app/(routes)/(private)/posts/new/components';
 import { usePostEditInitializer, usePostEditSaver } from '@/app/(routes)/(private)/posts/edit/[postId]/hooks';
 import { useMarkdownEditor, usePostForm, useTagInput } from '@/app/(routes)/(private)/posts/new/hooks';
@@ -97,6 +103,11 @@ export default function PostEditPage() {
     followingCount: postDetail?.author?.followingCount ?? 0,
   };
 
+  const handleBoldClick = createHandleBoldClick(applyInlineWrap);
+  const handleItalicClick = createHandleItalicClick(applyInlineWrap);
+  const handleUnderlineClick = createHandleUnderlineClick(applyInlineWrap);
+  const handleStrikeClick = createHandleStrikeClick(applyInlineWrap);
+
   if (!postDetail && !isLoading) {
     return (
       <section className={styles.container} aria-label="게시물 수정">
@@ -165,10 +176,10 @@ export default function PostEditPage() {
           <div className={markdownEditorStyles.editorBox}>
             <EditorToolbar
               onHeading={handleHeadingClick}
-              onBold={() => applyInlineWrap('**')}
-              onItalic={() => applyInlineWrap('_')}
-              onUnderline={() => applyInlineWrap('<u>', '</u>')}
-              onStrike={() => applyInlineWrap('~~')}
+              onBold={handleBoldClick}
+              onItalic={handleItalicClick}
+              onUnderline={handleUnderlineClick}
+              onStrike={handleStrikeClick}
               onQuote={handleQuoteClick}
               onCode={applyCode}
               onLink={applyLink}

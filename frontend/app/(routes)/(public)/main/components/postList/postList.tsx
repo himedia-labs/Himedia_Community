@@ -20,15 +20,20 @@ import EmptyState from '@/app/shared/components/empty/EmptyState';
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 import { usePostList, usePostListInfiniteScroll } from '@/app/(routes)/(public)/main/components/postList/hooks';
 import {
+  createHandleCloseSearchMode,
   createHandleCreatePost,
+  createHandleSearchInputChange,
+  createHandleSearchInputKeyDown,
+  createHandleSelectCategory,
+  createHandleSelectSortFilter,
   createHandleSortFilter,
+  createHandleToggleCategoryOrder,
+  createHandleToggleViewMode,
 } from '@/app/(routes)/(public)/main/components/postList/handlers';
 import CardPostSkeletonItem from '@/app/(routes)/(public)/main/components/postList/postList.skeleton';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
-
-import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 
 /**
  * 메인 포스트 리스트
@@ -87,11 +92,21 @@ export default function PostListSection() {
   // 핸들러
   const handleCreatePost = createHandleCreatePost({ router });
   const handleSortFilter = createHandleSortFilter({ accessToken, router, setSortFilter });
-  const handleSearchInputKeyDown = (event: ReactKeyboardEvent<HTMLInputElement>) => {
-    if (event.key !== 'Enter') return;
-    if (event.nativeEvent.isComposing) return;
-    setSearchKeyword(searchInputValue);
-  };
+  const handleCloseSearchMode = createHandleCloseSearchMode(setSearchMode);
+  const handleSearchInputChange = createHandleSearchInputChange(setSearchInputValue);
+  const handleSearchInputKeyDown = createHandleSearchInputKeyDown({
+    getSearchInputValue: () => searchInputValue,
+    setSearchKeyword,
+  });
+  const handleToggleViewMode = createHandleToggleViewMode({ setViewMode, viewMode });
+  const handleLatestSortFilter = createHandleSelectSortFilter({ handleSortFilter, nextFilter: 'latest' });
+  const handleTopSortFilter = createHandleSelectSortFilter({ handleSortFilter, nextFilter: 'top' });
+  const handleFollowingSortFilter = createHandleSelectSortFilter({ handleSortFilter, nextFilter: 'following' });
+  const handleSelectQaCategory = createHandleSelectCategory({ category: 'Q&A', setSelectedCategory });
+  const handleToggleCategoryOrder = createHandleToggleCategoryOrder({
+    categoryOrder,
+    setCategoryOrder,
+  });
 
   // 검색 입력 동기화
   useEffect(() => {
@@ -121,7 +136,7 @@ export default function PostListSection() {
           <button
             type="button"
             className={styles.toggleButton}
-            onClick={() => setViewMode(viewMode === 'list' ? 'card' : 'list')}
+            onClick={handleToggleViewMode}
             aria-label={viewMode === 'list' ? '카드 보기' : '리스트 보기'}
           >
             {viewMode === 'list' ? <CiGrid41 /> : <PiList />}
@@ -138,7 +153,7 @@ export default function PostListSection() {
                     ? `${styles.sortButton} ${styles.active}`
                     : styles.sortButton
                 }
-                onClick={() => handleSortFilter('latest')}
+                onClick={handleLatestSortFilter}
               >
                 최신
               </button>
@@ -149,7 +164,7 @@ export default function PostListSection() {
                     ? `${styles.sortButton} ${styles.active}`
                     : styles.sortButton
                 }
-                onClick={() => handleSortFilter('top')}
+                onClick={handleTopSortFilter}
               >
                 TOP
               </button>
@@ -160,7 +175,7 @@ export default function PostListSection() {
                     ? `${styles.sortButton} ${styles.active}`
                     : styles.sortButton
                 }
-                onClick={() => handleSortFilter('following')}
+                onClick={handleFollowingSortFilter}
               >
                 피드
               </button>
@@ -170,7 +185,7 @@ export default function PostListSection() {
               <button
                 type="button"
                 className={selectedCategory === 'Q&A' ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
-                onClick={() => setSelectedCategory('Q&A')}
+                onClick={handleSelectQaCategory}
               >
                 Q&A
               </button>
@@ -181,7 +196,7 @@ export default function PostListSection() {
               <button
                 type="button"
                 className={styles.categoryOrderButton}
-                onClick={() => setCategoryOrder(categoryOrder === 'latest' ? 'popular' : 'latest')}
+                onClick={handleToggleCategoryOrder}
               >
                 {categoryOrder === 'popular' ? (
                   <>
@@ -205,13 +220,13 @@ export default function PostListSection() {
                   placeholder="제목, 내용, 작성자, 태그 검색"
                   value={searchInputValue}
                   onKeyDown={handleSearchInputKeyDown}
-                  onChange={event => setSearchInputValue(event.target.value)}
+                  onChange={handleSearchInputChange}
                 />
                 <button
                   type="button"
                   className={styles.sortSearchIconButton}
                   aria-label="검색 닫기"
-                  onClick={() => setSearchMode(false)}
+                  onClick={handleCloseSearchMode}
                 >
                   <CiSearch aria-hidden="true" />
                 </button>
@@ -393,7 +408,6 @@ export default function PostListSection() {
                                   height={0}
                                   sizes="100vw"
                                   unoptimized
-                                  style={{ width: '100%', height: '100%' }}
                                 />
                               </div>
                             ) : null}
@@ -509,7 +523,6 @@ export default function PostListSection() {
                                   height={0}
                                   sizes="100vw"
                                   unoptimized
-                                  style={{ width: '100%', height: '100%' }}
                                 />
                               </div>
                             ) : null}
@@ -689,7 +702,7 @@ export default function PostListSection() {
                         ? `${styles.categoryButton} ${styles.active}`
                         : styles.categoryButton
                     }
-                    onClick={() => setSelectedCategory(category)}
+                    onClick={createHandleSelectCategory({ category, setSelectedCategory })}
                   >
                     {category}
                   </button>

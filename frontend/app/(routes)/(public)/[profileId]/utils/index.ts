@@ -1,5 +1,6 @@
+export { formatDate as formatDateLabel } from '@/app/shared/utils/date.utils';
+
 export { formatSummary } from '@/app/(routes)/(public)/[profileId]/utils/formatSummary.utils';
-export { formatDateLabel } from '@/app/(routes)/(public)/[profileId]/utils/formatDateLabel.utils';
 export { resolveProfileRoute } from '@/app/(routes)/(public)/[profileId]/utils/resolveProfileRoute.utils';
 export { buildFilteredPosts } from '@/app/(routes)/(public)/[profileId]/utils/buildFilteredPosts.utils';
 export { buildPostCategories } from '@/app/(routes)/(public)/[profileId]/utils/buildPostCategories.utils';

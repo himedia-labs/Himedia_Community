@@ -9,11 +9,18 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CiCalendar } from 'react-icons/ci';
 import Skeleton from 'react-loading-skeleton';
 
+import { SKELETON_DRAFT_ITEM_COUNT } from '@/app/shared/constants/config/mypage.config';
+
 import { postsApi } from '@/app/api/posts/posts.api';
-import { postsKeys } from '@/app/api/posts/posts.keys';
 import { useDraftsQuery } from '@/app/api/posts/posts.queries';
+
 import EmptyState from '@/app/shared/components/empty/EmptyState';
 import { useToast } from '@/app/shared/components/toast/toast';
+import {
+  createHandleDeleteDraft,
+  createHandleDeleteDraftClick,
+} from '@/app/(routes)/(private)/mypage/handlers';
+
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
 
@@ -23,12 +30,8 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import postListStyles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
 import styles from '@/app/(routes)/(private)/mypage/components/MyPageDrafts.module.css';
 
-import type { MouseEvent } from 'react';
+import type { MyPageDraftsProps } from '@/app/shared/types/mypage';
 import type { PostListItem } from '@/app/shared/types/post';
-
-type MyPageDraftsProps = {
-  sortOrder: 'latest' | 'oldest';
-};
 
 /**
  * 마이페이지 임시저장 목록
@@ -71,23 +74,17 @@ export default function MyPageDrafts({ sortOrder }: MyPageDraftsProps) {
     });
   };
 
-  // 삭제 처리
-  const handleDeleteDraft = async (event: MouseEvent<HTMLButtonElement>, postId: string) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const confirmed = window.confirm('임시저장을 삭제할까요?');
-    if (!confirmed) return;
-
-    await deleteDraft(postId);
-    await queryClient.invalidateQueries({ queryKey: postsKeys.drafts(), exact: false });
-    showToast({ message: '임시저장을 삭제했습니다.', type: 'success' });
-  };
+  const handleDeleteDraft = createHandleDeleteDraft({
+    deleteDraft,
+    showToast,
+    invalidateDrafts: queryKey => queryClient.invalidateQueries({ queryKey, exact: false }),
+  });
+  const handleDeleteDraftClick = createHandleDeleteDraftClick(handleDeleteDraft);
 
   if (isLoading) {
     return (
       <ul className={postListStyles.listView} aria-label="임시저장 로딩">
-        {Array.from({ length: 5 }).map((_, index) => (
+        {Array.from({ length: SKELETON_DRAFT_ITEM_COUNT }).map((_, index) => (
           <Fragment key={`draft-skeleton-${index}`}>
             <li>
               <article className={postListStyles.listItem} aria-hidden="true">
@@ -171,7 +168,8 @@ export default function MyPageDrafts({ sortOrder }: MyPageDraftsProps) {
                           type="button"
                           className={styles.deleteLinkButton}
                           disabled={isDeletingDraft}
-                          onClick={event => void handleDeleteDraft(event, draft.id)}
+                          data-post-id={draft.id}
+                          onClick={handleDeleteDraftClick}
                         >
                           삭제
                         </button>

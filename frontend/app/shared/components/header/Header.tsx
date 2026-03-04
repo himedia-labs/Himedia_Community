@@ -25,6 +25,11 @@ import { useScrollProgress } from '@/app/shared/components/header/hooks/useScrol
 import { usePostDetailPath } from '@/app/shared/components/header/hooks/usePostDetailPath';
 import { useNotificationMenu } from '@/app/shared/components/header/hooks/useNotificationMenu';
 import { handleLogout as createHandleLogout } from '@/app/shared/components/header/handlers/logout.handlers';
+import {
+  createHandleLogoutClick,
+  createHandleNotificationItemClick,
+  createHandleNotificationTabClick,
+} from '@/app/shared/components/header/handlers/menu.handlers';
 
 import styles from '@/app/shared/components/header/Header.module.css';
 
@@ -136,6 +141,9 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
     router,
     onLogoutSuccess: () => null,
   });
+  const handleLogoutClick = createHandleLogoutClick({ closeProfileMenu, handleLogout });
+  const handleNotificationTabClick = createHandleNotificationTabClick(setNotificationTab);
+  const handleNotificationItemClick = createHandleNotificationItemClick(handleNotificationClick);
 
   return (
     <header className={styles.container}>
@@ -169,8 +177,8 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                           title={label}
                           onClick={handleToggleProfile}
                         >
-                            <span className={styles.profileIconMedia} aria-hidden="true">
-                              {currentUser?.profileImageUrl ? (
+                          <span className={styles.profileIconMedia} aria-hidden="true">
+                            {currentUser?.profileImageUrl ? (
                               <Image
                                 className={styles.profileIconImage}
                                 src={currentUser.profileImageUrl}
@@ -179,9 +187,9 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                                 height={24}
                                 unoptimized
                               />
-                              ) : (
-                                <Icon className={styles.profileFallbackIcon} />
-                              )}
+                            ) : (
+                              <Icon className={styles.profileFallbackIcon} />
+                            )}
                           </span>
                         </button>
                         {isProfileVisible ? (
@@ -260,10 +268,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                               type="button"
                               className={styles.profileItem}
                               role="menuitem"
-                              onClick={() => {
-                                closeProfileMenu();
-                                handleLogout();
-                              }}
+                              onClick={handleLogoutClick}
                             >
                               <CiLogout aria-hidden="true" />
                               로그아웃
@@ -342,7 +347,8 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                                   ? `${styles.notificationTab} ${styles.notificationTabActive}`
                                   : styles.notificationTab
                               }
-                              onClick={() => setNotificationTab('today')}
+                              data-tab="today"
+                              onClick={handleNotificationTabClick}
                             >
                               오늘
                             </button>
@@ -355,7 +361,8 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                                   ? `${styles.notificationTab} ${styles.notificationTabActive}`
                                   : styles.notificationTab
                               }
-                              onClick={() => setNotificationTab('week')}
+                              data-tab="week"
+                              onClick={handleNotificationTabClick}
                             >
                               이번 주
                             </button>
@@ -368,14 +375,15 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                                   ? `${styles.notificationTab} ${styles.notificationTabActive}`
                                   : styles.notificationTab
                               }
-                              onClick={() => setNotificationTab('earlier')}
+                              data-tab="earlier"
+                              onClick={handleNotificationTabClick}
                             >
                               이전
                             </button>
                             <span
                               className={styles.notificationTabIndicator}
+                              data-tab-index={notificationTabIndex}
                               aria-hidden="true"
-                              style={{ transform: `translateX(${notificationTabIndex * 100}%)` }}
                             />
                           </div>
                           <ul className={styles.notificationList}>
@@ -389,9 +397,10 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                                       className={`${styles.notificationItem} ${
                                         notification.isRead ? '' : styles.notificationItemUnread
                                       }`}
-                                      onClick={() =>
-                                        handleNotificationClick(notification.id, notification.href, notification.isRead)
-                                      }
+                                      data-notification-id={notification.id}
+                                      data-notification-href={notification.href}
+                                      data-notification-is-read={notification.isRead ? 'true' : 'false'}
+                                      onClick={handleNotificationItemClick}
                                     >
                                       <span className={styles.notificationIconBox}>
                                         <Icon aria-hidden="true" />

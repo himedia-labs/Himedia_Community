@@ -2,6 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { IoIosArrowDown, IoMdCheckmark } from 'react-icons/io';
 
 import styles from '../PostCreate.module.css';
+import {
+  createHandleResetCategory,
+  createHandleTagChipClick,
+  createHandleToggleCategoryOpen,
+  createHandleCategoryOptionClick,
+} from '@/app/(routes)/(private)/posts/new/handlers/postDetailsForm.handlers';
 
 import type { PostDetailsFormProps } from '@/app/shared/types/post';
 
@@ -35,6 +41,11 @@ export default function PostDetailsForm({ category, tag }: PostDetailsFormProps)
     onTagSuggestionMouseDown,
   } = tag;
 
+  const handleToggleCategoryOpen = createHandleToggleCategoryOpen(setIsCategoryOpen);
+  const handleResetCategory = createHandleResetCategory({ onCategoryChange, setIsCategoryOpen });
+  const handleCategoryOptionClick = createHandleCategoryOptionClick({ onCategoryChange, setIsCategoryOpen });
+  const handleTagChipClick = createHandleTagChipClick(onRemoveTag);
+
   useEffect(() => {
     if (!isCategoryOpen) return;
 
@@ -60,7 +71,7 @@ export default function PostDetailsForm({ category, tag }: PostDetailsFormProps)
               id="post-category"
               type="button"
               className={styles.categoryTrigger}
-              onClick={() => setIsCategoryOpen(prev => !prev)}
+              onClick={handleToggleCategoryOpen}
               disabled={isLoading}
               aria-haspopup="listbox"
               aria-expanded={isCategoryOpen}
@@ -73,10 +84,7 @@ export default function PostDetailsForm({ category, tag }: PostDetailsFormProps)
                 <button
                   type="button"
                   className={!categoryId ? `${styles.categoryOption} ${styles.categoryOptionActive}` : styles.categoryOption}
-                  onClick={() => {
-                    onCategoryChange('');
-                    setIsCategoryOpen(false);
-                  }}
+                  onClick={handleResetCategory}
                 >
                   카테고리를 선택하세요
                 </button>
@@ -89,10 +97,8 @@ export default function PostDetailsForm({ category, tag }: PostDetailsFormProps)
                       key={category.id}
                       type="button"
                       className={className}
-                      onClick={() => {
-                        onCategoryChange(String(category.id));
-                        setIsCategoryOpen(false);
-                      }}
+                      data-category-id={String(category.id)}
+                      onClick={handleCategoryOptionClick}
                     >
                       {category.name}
                     </button>
@@ -113,7 +119,8 @@ export default function PostDetailsForm({ category, tag }: PostDetailsFormProps)
                 key={tag}
                 type="button"
                 className={styles.tagChip}
-                onClick={() => onRemoveTag(tag)}
+                data-tag-name={tag}
+                onClick={handleTagChipClick}
                 aria-label={`태그 삭제: ${tag}`}
               >
                 #{tag}

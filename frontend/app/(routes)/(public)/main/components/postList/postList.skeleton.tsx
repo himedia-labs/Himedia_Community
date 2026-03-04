@@ -1,12 +1,7 @@
 import Skeleton from 'react-loading-skeleton';
 
 import styles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
-
-type CardPostSkeletonItemProps = {
-  index: number;
-  skeletonKeyPrefix: string;
-  cardTagSkeletonWidths: number[];
-};
+import type { CardPostSkeletonItemProps } from '@/app/shared/types/post';
 
 /**
  * 카드 포스트 스켈레톤 아이템

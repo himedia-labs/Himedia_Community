@@ -1,16 +1,13 @@
 import type { ChangeEvent } from 'react';
 
 import { PHONE_CONFIG } from '@/app/shared/constants/config/register.config';
+import type { RegisterPhoneFormatParams } from '@/app/shared/types/auth';
 
 /**
  * 회원가입 : 전화번호 포맷
  * @description 입력 숫자를 XXX XXXX XXXX 형식으로 변환
  */
-export const formatPhone = (params: {
-  setPhone: (value: string) => void;
-  phoneError: string;
-  setPhoneError: (value: string) => void;
-}) => {
+export const formatPhone = (params: RegisterPhoneFormatParams) => {
   return (event: ChangeEvent<HTMLInputElement>) => {
     const digits = event.target.value.replace(/[^0-9]/g, '').slice(0, PHONE_CONFIG.DIGIT_MAX_LENGTH);
 

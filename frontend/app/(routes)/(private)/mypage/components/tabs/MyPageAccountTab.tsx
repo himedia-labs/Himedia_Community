@@ -2,6 +2,10 @@ import { FiAlertCircle, FiChevronRight, FiEye, FiEyeOff } from 'react-icons/fi';
 
 import ActionModal from '@/app/shared/components/modal/ActionModal';
 import { MyPageAccountSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
+import {
+  createPasswordInputChangeHandler,
+  createToggleWithdrawPasswordHandler,
+} from '@/app/(routes)/(private)/mypage/handlers';
 import { EMAIL_VERIFICATION_CODE_LENGTH, PHONE_CONFIG } from '@/app/shared/constants/config/register.config';
 import { WITHDRAW_MODAL_MESSAGES } from '@/app/shared/constants/messages/modal.message';
 
@@ -70,6 +74,15 @@ export default function MyPageAccountTab({
   toggleCurrentPasswordVisibility,
   toggleNewPasswordVisibility,
 }: MyPageAccountTabProps) {
+  const handleWithdrawPasswordChange = createPasswordInputChangeHandler(setWithdrawPassword);
+  const handleCurrentPasswordChange = createPasswordInputChangeHandler(setCurrentPasswordValue);
+  const handleNewPasswordChange = createPasswordInputChangeHandler(setNewPasswordValue);
+  const handleConfirmPasswordChange = createPasswordInputChangeHandler(setConfirmPasswordValue);
+  const handleToggleWithdrawPassword = createToggleWithdrawPasswordHandler(
+    setShowWithdrawPassword,
+    showWithdrawPassword,
+  );
+
   if (isUserInfoLoading) {
     return <MyPageAccountSkeleton />;
   }
@@ -186,7 +199,7 @@ export default function MyPageAccountTab({
                         }`}
                         value={currentPasswordValue}
                         placeholder="현재 비밀번호"
-                        onChange={event => setCurrentPasswordValue(event.target.value)}
+                        onChange={handleCurrentPasswordChange}
                       />
                       <button
                         type="button"
@@ -212,7 +225,7 @@ export default function MyPageAccountTab({
                         }`}
                         value={newPasswordValue}
                         placeholder="새 비밀번호"
-                        onChange={event => setNewPasswordValue(event.target.value)}
+                        onChange={handleNewPasswordChange}
                       />
                       <button
                         type="button"
@@ -272,7 +285,7 @@ export default function MyPageAccountTab({
                         }`}
                         value={confirmPasswordValue}
                         placeholder="새 비밀번호 확인"
-                        onChange={event => setConfirmPasswordValue(event.target.value)}
+                        onChange={handleConfirmPasswordChange}
                       />
                       <button
                         type="button"
@@ -463,14 +476,14 @@ export default function MyPageAccountTab({
                   placeholder={WITHDRAW_MODAL_MESSAGES.placeholder}
                   autoComplete="current-password"
                   disabled={isWithdrawing}
-                  onChange={event => setWithdrawPassword(event.target.value)}
+                  onChange={handleWithdrawPasswordChange}
                 />
                 <button
                   type="button"
                   className={styles.settingsPasswordToggle}
                   aria-label={showWithdrawPassword ? '현재 비밀번호 숨기기' : '현재 비밀번호 보기'}
                   disabled={isWithdrawing}
-                  onClick={() => setShowWithdrawPassword(!showWithdrawPassword)}
+                  onClick={handleToggleWithdrawPassword}
                 >
                   {showWithdrawPassword ? (
                     <FiEyeOff className={styles.settingsPasswordEye} aria-hidden="true" />

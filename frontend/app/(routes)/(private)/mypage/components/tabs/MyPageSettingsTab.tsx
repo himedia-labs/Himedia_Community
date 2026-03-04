@@ -1,7 +1,15 @@
+import { BIO_MAX_LENGTH } from '@/app/shared/constants/config/mypage.config';
+
 import EmptyState from '@/app/shared/components/empty/EmptyState';
 import EditorToolbar from '@/app/shared/components/markdown-editor/EditorToolbar';
-import { BIO_MAX_LENGTH } from '@/app/(routes)/(private)/mypage/constants';
+
 import { MyPageIntroSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
+import {
+  createHandleBoldClick,
+  createHandleStrikeClick,
+  createHandleItalicClick,
+  createHandleUnderlineClick,
+} from '@/app/(routes)/(private)/mypage/handlers';
 
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 import markdownEditorStyles from '@/app/shared/components/markdown-editor/markdownEditor.module.css';
@@ -25,6 +33,11 @@ export default function MyPageSettingsTab({
   handlers,
   toolbar,
 }: MyPageSettingsTabProps) {
+  const handleBoldClick = createHandleBoldClick(toolbar.applyInlineWrap);
+  const handleItalicClick = createHandleItalicClick(toolbar.applyInlineWrap);
+  const handleUnderlineClick = createHandleUnderlineClick(toolbar.applyInlineWrap);
+  const handleStrikeClick = createHandleStrikeClick(toolbar.applyInlineWrap);
+
   return (
     <div className={styles.settingsSection}>
       <div className={styles.settingsRow}>
@@ -40,10 +53,10 @@ export default function MyPageSettingsTab({
           <div className={`${markdownEditorStyles.editorBox} ${styles.settingsEditorBox}`}>
             <EditorToolbar
               onHeading={toolbar.applyHeading}
-              onBold={() => toolbar.applyInlineWrap('**')}
-              onItalic={() => toolbar.applyInlineWrap('_')}
-              onUnderline={() => toolbar.applyInlineWrap('<u>', '</u>')}
-              onStrike={() => toolbar.applyInlineWrap('~~')}
+              onBold={handleBoldClick}
+              onItalic={handleItalicClick}
+              onUnderline={handleUnderlineClick}
+              onStrike={handleStrikeClick}
               onQuote={toolbar.applyQuote}
               onCode={toolbar.applyCode}
               onLink={toolbar.applyLink}

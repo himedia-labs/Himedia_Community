@@ -10,6 +10,7 @@ import type {
   SetStateAction,
 } from 'react';
 import type { IconType } from 'react-icons';
+import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 export type ViewMode = 'list' | 'card';
 
@@ -317,6 +318,55 @@ export type PostDetailsFormTag = {
 export type PostDetailsFormProps = {
   category: PostDetailsFormCategory;
   tag: PostDetailsFormTag;
+};
+
+// Main PostList
+export type PostListCreatePostParams = {
+  router: AppRouterInstance;
+};
+
+export type PostListSortFilterParams = {
+  accessToken: string | null;
+  router: AppRouterInstance;
+  setSortFilter: (value: SortFilter) => void;
+};
+
+export type PostListSearchInputKeyDownParams = {
+  getSearchInputValue: () => string;
+  setSearchKeyword: (value: string) => void;
+};
+
+export type PostListToggleViewModeParams = {
+  viewMode: ViewMode;
+  setViewMode: (value: ViewMode) => void;
+};
+
+export type PostListSelectSortFilterParams = {
+  handleSortFilter: (nextFilter: SortFilter) => void;
+  nextFilter: SortFilter;
+};
+
+export type PostListSelectCategoryParams = {
+  category: string;
+  setSelectedCategory: (value: string) => void;
+};
+
+export type PostListToggleCategoryOrderParams = {
+  categoryOrder: 'latest' | 'popular';
+  setCategoryOrder: (value: 'latest' | 'popular') => void;
+};
+
+export type PostListInfiniteScrollParams = {
+  hasNextPage?: boolean;
+  isFetchingNextPage: boolean;
+  sentinelRef: RefObject<HTMLDivElement | null>;
+  fetchNextPage: () => Promise<unknown>;
+};
+
+export type CardPostSkeletonItemProps = {
+  index: number;
+  skeletonKeyPrefix: string;
+  cardTagSkeletonWidths: number[];
 };
 
 export type ToolbarItem =

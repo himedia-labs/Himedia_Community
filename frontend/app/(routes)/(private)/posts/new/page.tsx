@@ -26,6 +26,14 @@ import {
   usePostForm,
   useTagInput,
 } from '@/app/(routes)/(private)/posts/new/hooks';
+import {
+  createHandleExit,
+  createHandleBoldClick,
+  createHandleStrikeClick,
+  createHandleItalicClick,
+  createHandleUnderlineClick,
+  createHandleSaveDraftClick,
+} from '@/app/(routes)/(private)/posts/new/handlers/postCreate.handlers';
 
 import { formatDateLabel, renderMarkdownPreview } from '@/app/(routes)/(private)/posts/new/utils';
 import { EditorToolbar, PostPreview, PostDetailsForm } from '@/app/(routes)/(private)/posts/new/components';
@@ -121,6 +129,13 @@ export default function PostCreatePage() {
   };
   const previewContent = useMemo(() => renderMarkdownPreview(content), [content]);
 
+  const handleExit = createHandleExit(router);
+  const handleSaveDraftClick = createHandleSaveDraftClick(saveDraft);
+  const handleBoldClick = createHandleBoldClick(applyInlineWrap);
+  const handleItalicClick = createHandleItalicClick(applyInlineWrap);
+  const handleUnderlineClick = createHandleUnderlineClick(applyInlineWrap);
+  const handleStrikeClick = createHandleStrikeClick(applyInlineWrap);
+
   return (
     <section className={styles.container} aria-label="게시물 작성">
       <header className={styles.header}>
@@ -181,10 +196,10 @@ export default function PostCreatePage() {
           <div className={markdownEditorStyles.editorBox}>
             <EditorToolbar
               onHeading={handleHeadingClick}
-              onBold={() => applyInlineWrap('**')}
-              onItalic={() => applyInlineWrap('_')}
-              onUnderline={() => applyInlineWrap('<u>', '</u>')}
-              onStrike={() => applyInlineWrap('~~')}
+              onBold={handleBoldClick}
+              onItalic={handleItalicClick}
+              onUnderline={handleUnderlineClick}
+              onStrike={handleStrikeClick}
               onQuote={handleQuoteClick}
               onCode={applyCode}
               onLink={applyLink}
@@ -255,7 +270,7 @@ export default function PostCreatePage() {
         <button
           type="button"
           className={`${styles.actionButton} ${styles.actionButtonExit}`}
-          onClick={() => router.push('/')}
+          onClick={handleExit}
           aria-label="나가기"
         >
           <span className={styles.actionLabel}>나가기</span>
@@ -266,7 +281,7 @@ export default function PostCreatePage() {
           className={styles.actionButton}
           aria-label={`임시저장 ${draftCount}개`}
           title="임시저장"
-          onClick={() => saveDraft()}
+          onClick={handleSaveDraftClick}
         >
           <span className={styles.actionLabel}>저장하기</span>
           <FiSave className={`${styles.actionIcon} ${styles.actionIconSave}`} aria-hidden="true" />
