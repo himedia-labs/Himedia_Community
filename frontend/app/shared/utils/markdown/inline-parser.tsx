@@ -1,5 +1,4 @@
 import { Fragment, type ReactNode } from 'react';
-
 import Image from 'next/image';
 
 import { MARKDOWN_INLINE_PATTERNS } from '@/app/shared/utils/markdown/constants';
@@ -53,11 +52,11 @@ export const parseInline = (text: string) => {
             key={nodeKey}
             src={groups[1]}
             alt={groups[0]}
-            width={0}
-            height={0}
-            sizes="100vw"
+            width={1}
+            height={1}
+            sizes="(max-width: 1024px) 100vw, 960px"
             unoptimized
-            style={{ width: '100%', height: 'auto' }}
+            className="markdownImage"
           />,
         );
         break;
