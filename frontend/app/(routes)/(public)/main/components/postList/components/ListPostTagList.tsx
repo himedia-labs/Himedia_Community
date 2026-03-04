@@ -86,9 +86,8 @@ export default function ListPostTagList({ tags, postId }: ListPostTagListProps) 
       {hiddenCount > 0 ? <li className={styles.listTagItem}>+{hiddenCount}</li> : null}
       <li
         ref={measureRef}
-        className={styles.listTagItem}
+        className={`${styles.listTagItem} ${styles.hiddenMeasure}`}
         aria-hidden="true"
-        style={{ position: 'absolute', visibility: 'hidden', pointerEvents: 'none' }}
       />
     </ul>
   );

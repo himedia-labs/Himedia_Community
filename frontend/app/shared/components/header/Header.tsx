@@ -374,8 +374,8 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                             </button>
                             <span
                               className={styles.notificationTabIndicator}
+                              data-tab-index={notificationTabIndex}
                               aria-hidden="true"
-                              style={{ transform: `translateX(${notificationTabIndex * 100}%)` }}
                             />
                           </div>
                           <ul className={styles.notificationList}>

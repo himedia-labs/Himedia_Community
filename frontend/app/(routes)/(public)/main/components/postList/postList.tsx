@@ -393,7 +393,6 @@ export default function PostListSection() {
                                   height={0}
                                   sizes="100vw"
                                   unoptimized
-                                  style={{ width: '100%', height: '100%' }}
                                 />
                               </div>
                             ) : null}
@@ -509,7 +508,6 @@ export default function PostListSection() {
                                   height={0}
                                   sizes="100vw"
                                   unoptimized
-                                  style={{ width: '100%', height: '100%' }}
                                 />
                               </div>
                             ) : null}
