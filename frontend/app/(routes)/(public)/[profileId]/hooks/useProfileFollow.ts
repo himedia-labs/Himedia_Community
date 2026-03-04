@@ -2,18 +2,8 @@ import { useState } from 'react';
 
 import { createFollowToggleHandler } from '@/app/(routes)/(public)/[profileId]/handlers';
 
-import type { FollowListResponse } from '@/app/shared/types/follow';
-import type { PostAuthorRef } from '@/app/shared/types/post';
 import type { Dispatch, SetStateAction } from 'react';
-
-type UseProfileFollowParams = {
-  profileId?: string;
-  accessToken: string | null;
-  isMyProfile: boolean;
-  author?: PostAuthorRef;
-  followings?: FollowListResponse;
-  showToast: (params: { message: string; type: 'success' | 'error' | 'warning' | 'info' }) => void;
-};
+import type { UseProfileFollowParams } from '@/app/shared/types/profilePage';
 
 /**
  * 공개 프로필 팔로우 훅

@@ -30,11 +30,8 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import postListStyles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
 import styles from '@/app/(routes)/(private)/mypage/components/MyPageDrafts.module.css';
 
+import type { MyPageDraftsProps } from '@/app/shared/types/mypage';
 import type { PostListItem } from '@/app/shared/types/post';
-
-type MyPageDraftsProps = {
-  sortOrder: 'latest' | 'oldest';
-};
 
 /**
  * 마이페이지 임시저장 목록

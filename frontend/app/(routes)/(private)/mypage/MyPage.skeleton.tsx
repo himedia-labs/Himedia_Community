@@ -11,10 +11,7 @@ import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 import commentStyles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
 import postListStyles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
 
-type MyPageValueSkeletonProps = {
-  width: number;
-  height: number;
-};
+import type { MyPageValueSkeletonProps } from '@/app/shared/types/mypage';
 
 /**
  * 마이페이지 값 스켈레톤
