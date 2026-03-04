@@ -39,6 +39,15 @@ export const renderMarkdownPreview = (value: string): ReactNode[] => {
       index += 1;
       const codeLines: string[] = [];
       while (index < lines.length && !isFence(lines[index])) {
+        const currentLine = lines[index];
+        const trimmedLine = currentLine.trimEnd();
+        if (trimmedLine.endsWith('```')) {
+          const closeIndex = currentLine.lastIndexOf('```');
+          const beforeFence = currentLine.slice(0, closeIndex);
+          if (beforeFence) codeLines.push(beforeFence);
+          index += 1;
+          break;
+        }
         codeLines.push(lines[index]);
         index += 1;
       }
