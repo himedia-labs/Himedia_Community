@@ -43,7 +43,7 @@ export const usePostList = () => {
   const isSearchMode = searchParams.has('search');
   const searchKeyword = (searchParams.get('q') ?? '').trim();
   const selectedCategory = searchParams.get('category') || ALL_CATEGORY;
-  const categoryOrder = searchParams.get('order') === 'popular' ? 'popular' : 'latest';
+  const categoryOrder: 'latest' | 'popular' = searchParams.get('order') === 'popular' ? 'popular' : 'latest';
 
   // 피드는 로그인 필요 - 비로그인 시 최신으로 리다이렉트
   useEffect(() => {
