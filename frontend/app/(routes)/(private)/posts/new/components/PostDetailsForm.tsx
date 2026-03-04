@@ -7,7 +7,7 @@ import {
   createHandleTagChipClick,
   createHandleToggleCategoryOpen,
   createHandleCategoryOptionClick,
-} from '@/app/(routes)/(private)/posts/new/components/PostDetailsForm.handlers';
+} from '@/app/(routes)/(private)/posts/new/handlers/postDetailsForm.handlers';
 
 import type { PostDetailsFormProps } from '@/app/shared/types/post';
 

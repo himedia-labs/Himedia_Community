@@ -5,7 +5,7 @@ import { useTagSuggestionsQuery } from '@/app/api/tags/tags.queries';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { getTagQueryFromInput } from '@/app/(routes)/(private)/posts/new/utils';
 import { TAG_MAX_COUNT, TAG_MAX_LENGTH } from '@/app/shared/constants/config/post.config';
-import { createAddTagsFromInput, createCommitTagInput } from '@/app/(routes)/(private)/posts/new/postCreate.handlers';
+import { createAddTagsFromInput, createCommitTagInput } from '@/app/(routes)/(private)/posts/new/handlers/postCreate.handlers';
 
 import type { ChangeEvent, CompositionEvent, FocusEvent, KeyboardEvent, MouseEvent } from 'react';
 

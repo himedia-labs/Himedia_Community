@@ -33,7 +33,7 @@ import {
   createHandleItalicClick,
   createHandleUnderlineClick,
   createHandleSaveDraftClick,
-} from '@/app/(routes)/(private)/posts/new/postCreate.handlers';
+} from '@/app/(routes)/(private)/posts/new/handlers/postCreate.handlers';
 
 import { formatDateLabel, renderMarkdownPreview } from '@/app/(routes)/(private)/posts/new/utils';
 import { EditorToolbar, PostPreview, PostDetailsForm } from '@/app/(routes)/(private)/posts/new/components';
