@@ -101,6 +101,14 @@
   border-radius: 10px;
 }
 
+:global(.markdownImage) {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 10px;
+}
+
 .markdown pre {
   margin: 0;
   padding: 14px;
