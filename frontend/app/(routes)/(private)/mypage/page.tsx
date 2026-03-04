@@ -1,56 +1,39 @@
 'use client';
 
-import { Fragment, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import LinesEllipsis from 'react-lines-ellipsis';
 
-import { CiCalendar } from 'react-icons/ci';
 import { FaUser, FaUserEdit } from 'react-icons/fa';
-import { FaFacebookF, FaLinkedinIn, FaXTwitter } from 'react-icons/fa6';
-import {
-  FiAlertCircle,
-  FiArrowDown,
-  FiArrowUp,
-  FiChevronDown,
-  FiChevronRight,
-  FiClock,
-  FiEdit2,
-  FiEye,
-  FiEyeOff,
-  FiGlobe,
-  FiGithub,
-  FiHeart,
-  FiMail,
-  FiMessageCircle,
-  FiMoreHorizontal,
-  FiTrash2,
-  FiTrendingUp,
-} from 'react-icons/fi';
 
 import { MYPAGE_TABS } from '@/app/shared/constants/config/mypage.config';
-import { EMAIL_VERIFICATION_CODE_LENGTH, PHONE_CONFIG } from '@/app/shared/constants/config/register.config';
 
-import ActionModal from '@/app/shared/components/modal/ActionModal';
-import EmptyState from '@/app/shared/components/empty/EmptyState';
-import PostSummaryList from '@/app/shared/components/post/PostSummaryList';
-import MyPageDrafts from '@/app/(routes)/(private)/mypage/components/MyPageDrafts';
-import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
+import { PROFILE_SOCIAL_SKELETON_COUNT } from '@/app/(routes)/(private)/mypage/constants';
 import {
-  MyPageAccountSkeleton,
-  MyPageCommentsSkeleton,
-  MyPageIntroSkeleton,
-  MyPagePostListSkeleton,
-  MyPageValueSkeleton,
-} from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
-import { stopMenuPropagation } from '@/app/(routes)/(private)/mypage/handlers';
-import EditorToolbar from '@/app/shared/components/markdown-editor/EditorToolbar';
-import { splitCommentMentions } from '@/app/(routes)/(public)/posts/[postId]/utils';
-import { WITHDRAW_MODAL_MESSAGES } from '@/app/shared/constants/messages/modal.message';
-import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
-import { formatDateLabel, formatDateTimeLabel, sortPostsByKey } from '@/app/(routes)/(private)/mypage/utils';
+  createCloseWithdrawModal,
+  createHandleCategorySelect,
+  createHandleProfileAction,
+  createHandleProfileCancelAll,
+  createHandleProfileSaveAll,
+  createHandleTagSelect,
+  createHandleWithdraw,
+  createOpenWithdrawModal,
+  createToggleCategory,
+  createToggleTag,
+} from '@/app/(routes)/(private)/mypage/handlers';
+import {
+  MyPageAccountTab,
+  MyPageCommentsTab,
+  MyPageDraftsTab,
+  MyPageLikesTab,
+  MyPagePostsTab,
+  MyPageRecentTab,
+  MyPageSettingsTab,
+} from '@/app/(routes)/(private)/mypage/components/tabs';
+import { MyPageValueSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
+import { formatProfileSocialLinks, sortPostsByKey } from '@/app/(routes)/(private)/mypage/utils';
 import {
   useAccountSettings,
   useActivitySort,
@@ -65,30 +48,24 @@ import {
 } from '@/app/(routes)/(private)/mypage/hooks';
 import { useWithdrawAccountMutation } from '@/app/api/auth/auth.mutations';
 
-import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
-import postListStyles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
-import markdownEditorStyles from '@/app/shared/components/markdown-editor/markdownEditor.module.css';
-import markdownStyles from '@/app/shared/components/markdown-editor/markdown.module.css';
-import commentStyles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useAuthStore } from '@/app/shared/store/authStore';
 
-import type { AxiosError } from 'axios';
-import type { ApiErrorResponse } from '@/app/shared/types/error';
+import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 
 /**
  * 마이페이지
  * @description 내 정보/활동/계정 설정을 관리하는 화면
  */
 export default function MyPage() {
-  // 탭 상태
+  // 라우팅/인증
   const router = useRouter();
   const { showToast } = useToast();
   const { clearAuth } = useAuthStore();
   const activeTab = useMyPageTab('settings');
   const { mutateAsync: withdrawAccount, isPending: isWithdrawing } = useWithdrawAccountMutation();
 
-  // 데이터 상태
+  // 데이터 조회
   const {
     currentUserId,
     displayName,
@@ -117,7 +94,7 @@ export default function MyPage() {
     userBio,
   } = useMyPageData();
 
-  // 활동 정렬
+  // 정렬/필터
   const { sortKey, sortedPosts, sortedComments, handleSortChange } = useActivitySort(myPosts, myComments);
   const handleSortToggle = () => handleSortChange(sortKey === 'latest' ? 'popular' : 'latest');
   const { categories: postCategories, tags: postTags } = usePostSidebarData(myPosts);
@@ -255,25 +232,16 @@ export default function MyPage() {
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
-  const toggleCategory = () => {
-    setIsTagOpen(false);
-    setIsCategoryOpen(prev => !prev);
-  };
-  const toggleTag = () => {
-    setIsCategoryOpen(false);
-    setIsTagOpen(prev => !prev);
-  };
-  const handleCategorySelect = (categoryId: string) => {
-    setSelectedCategoryId(prev => (prev === categoryId ? null : categoryId));
-    setIsCategoryOpen(false);
-  };
-  const handleTagSelect = (tagId: string) => {
-    setSelectedTagId(prev => (prev === tagId ? null : tagId));
-    setIsTagOpen(false);
-  };
+
+  // 필터 핸들러
+  const toggleCategory = createToggleCategory({ setIsTagOpen, setIsCategoryOpen });
+  const toggleTag = createToggleTag({ setIsCategoryOpen, setIsTagOpen });
+  const handleCategorySelect = createHandleCategorySelect({ setSelectedCategoryId, setIsCategoryOpen });
+  const handleTagSelect = createHandleTagSelect({ setSelectedTagId, setIsTagOpen });
   const selectedCategoryLabel = postCategories.find(category => category.id === selectedCategoryId)?.name;
   const selectedTagLabel = postTags.find(tag => tag.id === selectedTagId)?.name;
 
+  // 필터링
   const filteredPosts = useMemo(() => {
     if (!selectedCategoryId && !selectedTagId) return sortedPosts;
     return sortedPosts.filter(post => {
@@ -283,6 +251,7 @@ export default function MyPage() {
     });
   }, [selectedCategoryId, selectedTagId, sortedPosts]);
 
+  // 포맷팅
   const accountNameValue = isUserInfoLoading ? <MyPageValueSkeleton width={88} height={18} /> : displayName || '사용자';
   const accountEmailValue = isUserInfoLoading ? <MyPageValueSkeleton width={180} height={18} /> : userEmail || '미등록';
   const accountPhoneValue = isUserInfoLoading ? <MyPageValueSkeleton width={140} height={18} /> : userPhone || '미등록';
@@ -294,85 +263,58 @@ export default function MyPage() {
   const profileNameValue = isUserInfoLoading ? <MyPageValueSkeleton width={96} height={34} /> : displayName || '사용자';
   const profileHandleValue = isUserInfoLoading ? <MyPageValueSkeleton width={86} height={18} /> : `@${profileHandle}`;
   const isProfileActionPending = isProfileSaving || isProfileUpdating;
-  const profileSocialLinks = [
-    { href: profileContactEmail ? `mailto:${profileContactEmail}` : '', label: '이메일', icon: FiMail },
-    { href: profileGithubUrl, label: '깃허브', icon: FiGithub, external: true },
-    { href: profileLinkedinUrl, label: '링크드인', icon: FaLinkedinIn, external: true },
-    { href: profileTwitterUrl, label: 'X', icon: FaXTwitter, external: true },
-    { href: profileFacebookUrl, label: '페이스북', icon: FaFacebookF, external: true },
-    { href: profileWebsiteUrl, label: '홈페이지', icon: FiGlobe, external: true },
-  ].filter(item => Boolean(item.href));
+  const profileSocialLinks = formatProfileSocialLinks({
+    profileContactEmail,
+    profileGithubUrl,
+    profileLinkedinUrl,
+    profileTwitterUrl,
+    profileFacebookUrl,
+    profileWebsiteUrl,
+  });
 
-  const handleProfileAction = () => {
-    if (isProfileActionPending) return;
+  // 프로필 액션
+  const handleProfileSaveAll = createHandleProfileSaveAll({
+    isProfileActionPending,
+    handleProfileSave,
+    handleAvatarSave,
+    handleProfileEditComplete,
+  });
+  const handleProfileAction = createHandleProfileAction({
+    isProfileActionPending,
+    isProfileEditing,
+    handleProfileEditStart,
+    handleProfileSaveAll,
+  });
+  const handleProfileCancelAll = createHandleProfileCancelAll({
+    isProfileActionPending,
+    handleAvatarCancel,
+    handleProfileCancel,
+  });
 
-    if (!isProfileEditing) {
-      handleProfileEditStart();
-      return;
-    }
-
-    void handleProfileSaveAll();
-  };
-
-  const handleProfileSaveAll = async () => {
-    if (isProfileActionPending) return;
-
-    const isProfileSaved = await handleProfileSave();
-    if (!isProfileSaved) return;
-
-    const isAvatarSaved = await handleAvatarSave();
-    if (!isAvatarSaved) return;
-
-    handleProfileEditComplete();
-  };
-
-  const handleProfileCancelAll = () => {
-    if (isProfileActionPending) return;
-
-    handleAvatarCancel();
-    handleProfileCancel();
-  };
-
-  const closeWithdrawModal = () => {
-    if (isWithdrawing) return;
-
-    setIsWithdrawModalOpen(false);
-    setShowWithdrawPassword(false);
-    setWithdrawPassword('');
-  };
-
-  const openWithdrawModal = () => {
-    if (isWithdrawing) return;
-
-    setShowWithdrawPassword(false);
-    setWithdrawPassword('');
-    setIsWithdrawModalOpen(true);
-  };
-
-  const handleWithdraw = async () => {
-    if (isWithdrawing) return;
-
-    const currentPassword = withdrawPassword.trim();
-    if (!currentPassword) {
-      showToast({ message: WITHDRAW_MODAL_MESSAGES.missingPassword, type: 'warning' });
-      return;
-    }
-
-    try {
-      const result = await withdrawAccount({ currentPassword });
-
-      setIsWithdrawModalOpen(false);
-      setShowWithdrawPassword(false);
-      setWithdrawPassword('');
-      clearAuth();
-      showToast({ message: result.message, type: 'success' });
-      router.replace('/');
-    } catch (error) {
-      const axiosError = error as AxiosError<ApiErrorResponse>;
-      const message = axiosError.response?.data?.message ?? WITHDRAW_MODAL_MESSAGES.fallbackError;
-      showToast({ message, type: 'error' });
-    }
-  };
+  // 회원탈퇴
+  const closeWithdrawModal = createCloseWithdrawModal({
+    isWithdrawing,
+    setIsWithdrawModalOpen,
+    setShowWithdrawPassword,
+    setWithdrawPassword,
+  });
+  const openWithdrawModal = createOpenWithdrawModal({
+    isWithdrawing,
+    setShowWithdrawPassword,
+    setWithdrawPassword,
+    setIsWithdrawModalOpen,
+  });
+  const handleWithdraw = createHandleWithdraw({
+    isWithdrawing,
+    withdrawPassword,
+    withdrawAccount,
+    setIsWithdrawModalOpen,
+    setShowWithdrawPassword,
+    setWithdrawPassword,
+    clearAuth,
+    showToast,
+    router,
+  });
 
   return (
     <section className={styles.container} aria-label="마이페이지">
@@ -564,7 +506,7 @@ export default function MyPage() {
                   </div>
                   {isUserInfoLoading ? (
                     <div className={styles.profileSocialRow} aria-hidden="true">
-                      {Array.from({ length: 6 }).map((_, index) => (
+                      {Array.from({ length: PROFILE_SOCIAL_SKELETON_COUNT }).map((_, index) => (
                         <span
                           key={`profile-social-skeleton-${index}`}
                           className={`${styles.profileSocialLink} ${styles.profileSocialLinkSkeleton}`}
@@ -685,1232 +627,158 @@ export default function MyPage() {
 
           <div className={styles.content}>
             {activeTab === 'settings' ? (
-              <div className={styles.settingsSection}>
-                <div className={styles.settingsRow}>
-                  <span className={styles.settingsLabel}>소개</span>
-                  {!showBioEditor ? (
-                    <button type="button" className={styles.settingsButton} onClick={handleBioToggle}>
-                      {userBio ? '수정하기' : '작성하기'}
-                    </button>
-                  ) : null}
-                </div>
-                {showBioEditor ? (
-                  <div className={styles.settingsBody}>
-                    <div className={`${markdownEditorStyles.editorBox} ${styles.settingsEditorBox}`}>
-                      <EditorToolbar
-                        onHeading={applyHeading}
-                        onBold={() => applyInlineWrap('**')}
-                        onItalic={() => applyInlineWrap('_')}
-                        onUnderline={() => applyInlineWrap('<u>', '</u>')}
-                        onStrike={() => applyInlineWrap('~~')}
-                        onQuote={applyQuote}
-                        onCode={applyCode}
-                        onLink={applyLink}
-                        onImage={handleBioImageClick}
-                        onBullet={applyBullet}
-                        onNumbered={applyNumbered}
-                      />
-                      <input
-                        ref={bioImageInputRef}
-                        className={markdownEditorStyles.srOnly}
-                        type="file"
-                        accept="image/*"
-                        aria-label="자기소개 이미지 선택"
-                        onChange={handleBioImageSelect}
-                      />
-                      <label className={markdownEditorStyles.srOnly} htmlFor="profile-bio">
-                        자기소개
-                      </label>
-                      <textarea
-                        ref={bioEditorRef}
-                        id="profile-bio"
-                        className={`${markdownEditorStyles.editor} ${styles.settingsEditor}`}
-                        placeholder="자기소개를 입력하세요."
-                        value={profileBio}
-                        maxLength={500}
-                        onChange={handleBioChange}
-                        disabled={isBioUpdating}
-                      />
-                    </div>
-                    <div className={styles.settingsActions}>
-                      <button type="button" className={styles.settingsCancelButton} onClick={handleBioToggle}>
-                        닫기
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.settingsSaveButton}
-                        onClick={handleBioSave}
-                        disabled={isBioUpdating}
-                      >
-                        저장
-                      </button>
-                    </div>
-                  </div>
-                ) : isUserInfoLoading ? (
-                  <MyPageIntroSkeleton />
-                ) : profileBio ? (
-                  <div className={markdownStyles.markdown}>{bioPreview}</div>
-                ) : (
-                  <EmptyState
-                    title="아직 작성된 소개가 없습니다."
-                    description="자기소개를 작성하면 내 블로그 상단에 노출됩니다."
-                  />
-                )}
-              </div>
+              <MyPageSettingsTab
+                bioPreview={bioPreview}
+                isBioUpdating={isBioUpdating}
+                isUserInfoLoading={isUserInfoLoading}
+                profileBio={profileBio}
+                showBioEditor={showBioEditor}
+                userBio={userBio}
+                bioEditorRef={bioEditorRef}
+                bioImageInputRef={bioImageInputRef}
+                handlers={{ handleBioChange, handleBioSave, handleBioToggle, handleBioImageClick, handleBioImageSelect }}
+                toolbar={{ applyBullet, applyCode, applyHeading, applyInlineWrap, applyLink, applyNumbered, applyQuote }}
+              />
             ) : activeTab === 'posts' ? (
-              isMyPostsLoading ? (
-                <MyPagePostListSkeleton label="내 블로그" />
-              ) : myPosts.length ? (
-                <div className={styles.postsMain}>
-                  <div className={styles.settingsRow}>
-                    <span className={styles.settingsLabel}>내 블로그</span>
-                    <div className={styles.settingsControlGroup}>
-                      <div className={styles.filterDropdown}>
-                        <button
-                          type="button"
-                          className={styles.filterButton}
-                          onClick={toggleCategory}
-                          disabled={!postCategories.length}
-                        >
-                          {selectedCategoryLabel ?? '카테고리'}
-                          <FiChevronDown className={styles.filterChevron} aria-hidden="true" />
-                        </button>
-                        {isCategoryOpen ? (
-                          <div className={styles.filterMenu}>
-                            {postCategories.map(category => (
-                              <button
-                                key={category.id}
-                                type="button"
-                                className={`${styles.filterItem} ${
-                                  selectedCategoryId === category.id ? styles.filterItemActive : ''
-                                }`}
-                                onClick={() => handleCategorySelect(category.id)}
-                              >
-                                <span>{category.name}</span>
-                                <span className={styles.filterCount}>{category.count}</span>
-                              </button>
-                            ))}
-                          </div>
-                        ) : null}
-                      </div>
-                      <div className={styles.filterDropdown}>
-                        <button
-                          type="button"
-                          className={styles.filterButton}
-                          onClick={toggleTag}
-                          disabled={!postTags.length}
-                        >
-                          <span className={styles.tagFilterLabel}>
-                            {selectedTagLabel ? `#${selectedTagLabel}` : '#태그'}
-                          </span>
-                          <FiChevronDown className={styles.filterChevron} aria-hidden="true" />
-                        </button>
-                        {isTagOpen ? (
-                          <div className={`${styles.filterMenu} ${styles.tagFilterMenu}`}>
-                            {postTags.map(tag => (
-                              <button
-                                key={tag.id}
-                                type="button"
-                                className={`${styles.filterItem} ${
-                                  selectedTagId === tag.id
-                                    ? `${styles.filterItemActive} ${styles.tagFilterItemActive}`
-                                    : ''
-                                }`}
-                                onClick={() => handleTagSelect(tag.id)}
-                              >
-                                <span className={styles.tagFilterName}>#{tag.name}</span>
-                                <span className={styles.filterCount}>{tag.count}</span>
-                              </button>
-                            ))}
-                          </div>
-                        ) : null}
-                      </div>
-                      <div className={styles.settingsDivider} aria-hidden="true" />
-                      <div className={styles.settingsSortGroup}>
-                        <button
-                          type="button"
-                          className={`${styles.settingsSortButton} ${styles.settingsSortButtonActive}`}
-                          onClick={handleSortToggle}
-                        >
-                          {sortKey === 'popular' ? (
-                            <>
-                              <FiTrendingUp className={styles.settingsSortIcon} aria-hidden="true" />
-                              인기순
-                            </>
-                          ) : (
-                            <>
-                              <FiClock className={styles.settingsSortIcon} aria-hidden="true" />
-                              최신순
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  {filteredPosts.length ? (
-                    <PostSummaryList
-                      posts={filteredPosts}
-                      currentUserId={currentUserId}
-                      emptyText="조건에 맞는 게시물이 없습니다."
-                      actionHandlers={{
-                        openPostMenuId,
-                        isPostDeleting,
-                        onPostDelete: handlePostDelete,
-                        onPostEdit: handlePostEdit,
-                        onPostMenuToggle: handlePostMenuToggle,
-                      }}
-                    />
-                  ) : (
-                    <EmptyState
-                      title="조건에 맞는 게시물이 없습니다."
-                      description="필터를 변경하면 다른 게시글을 볼 수 있습니다."
-                    />
-                  )}
-                </div>
-              ) : (
-                <div className={styles.postsMain}>
-                  <div className={styles.settingsRow}>
-                    <span className={styles.settingsLabel}>내 블로그</span>
-                    <div className={styles.settingsControlGroup}>
-                      <div className={styles.filterDropdown}>
-                        <button
-                          type="button"
-                          className={styles.filterButton}
-                          onClick={toggleCategory}
-                          disabled={!postCategories.length}
-                        >
-                          {selectedCategoryLabel ?? '카테고리'}
-                          <FiChevronDown className={styles.filterChevron} aria-hidden="true" />
-                        </button>
-                        {isCategoryOpen ? (
-                          <div className={styles.filterMenu}>
-                            {postCategories.map(category => (
-                              <button
-                                key={category.id}
-                                type="button"
-                                className={`${styles.filterItem} ${
-                                  selectedCategoryId === category.id ? styles.filterItemActive : ''
-                                }`}
-                                onClick={() => handleCategorySelect(category.id)}
-                              >
-                                <span>{category.name}</span>
-                                <span className={styles.filterCount}>{category.count}</span>
-                              </button>
-                            ))}
-                          </div>
-                        ) : null}
-                      </div>
-                      <div className={styles.filterDropdown}>
-                        <button
-                          type="button"
-                          className={styles.filterButton}
-                          onClick={toggleTag}
-                          disabled={!postTags.length}
-                        >
-                          <span className={styles.tagFilterLabel}>
-                            {selectedTagLabel ? `#${selectedTagLabel}` : '#태그'}
-                          </span>
-                          <FiChevronDown className={styles.filterChevron} aria-hidden="true" />
-                        </button>
-                        {isTagOpen ? (
-                          <div className={`${styles.filterMenu} ${styles.tagFilterMenu}`}>
-                            {postTags.map(tag => (
-                              <button
-                                key={tag.id}
-                                type="button"
-                                className={`${styles.filterItem} ${
-                                  selectedTagId === tag.id
-                                    ? `${styles.filterItemActive} ${styles.tagFilterItemActive}`
-                                    : ''
-                                }`}
-                                onClick={() => handleTagSelect(tag.id)}
-                              >
-                                <span className={styles.tagFilterName}>#{tag.name}</span>
-                                <span className={styles.filterCount}>{tag.count}</span>
-                              </button>
-                            ))}
-                          </div>
-                        ) : null}
-                      </div>
-                      <div className={styles.settingsDivider} aria-hidden="true" />
-                      <div className={styles.settingsSortGroup}>
-                        <button
-                          type="button"
-                          className={`${styles.settingsSortButton} ${styles.settingsSortButtonActive}`}
-                          onClick={handleSortToggle}
-                        >
-                          {sortKey === 'popular' ? (
-                            <>
-                              <FiTrendingUp className={styles.settingsSortIcon} aria-hidden="true" />
-                              인기순
-                            </>
-                          ) : (
-                            <>
-                              <FiClock className={styles.settingsSortIcon} aria-hidden="true" />
-                              최신순
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <EmptyState
-                    title="아직 작성한 게시물이 없습니다."
-                    description="첫 게시글을 작성하면 이곳에 표시됩니다."
-                  />
-                </div>
-              )
+              <MyPagePostsTab
+                currentUserId={currentUserId}
+                filteredPosts={filteredPosts}
+                isCategoryOpen={isCategoryOpen}
+                isMyPostsLoading={isMyPostsLoading}
+                isPostDeleting={isPostDeleting}
+                isTagOpen={isTagOpen}
+                myPosts={myPosts}
+                openPostMenuId={openPostMenuId}
+                postCategories={postCategories}
+                postTags={postTags}
+                selectedCategoryId={selectedCategoryId}
+                selectedCategoryLabel={selectedCategoryLabel}
+                selectedTagId={selectedTagId}
+                selectedTagLabel={selectedTagLabel}
+                sortKey={sortKey}
+                handleCategorySelect={handleCategorySelect}
+                handlePostDelete={handlePostDelete}
+                handlePostEdit={handlePostEdit}
+                handlePostMenuToggle={handlePostMenuToggle}
+                handleSortToggle={handleSortToggle}
+                handleTagSelect={handleTagSelect}
+                toggleCategory={toggleCategory}
+                toggleTag={toggleTag}
+              />
             ) : activeTab === 'drafts' ? (
-              <div className={styles.postsMain}>
-                <div className={styles.settingsRow}>
-                  <span className={styles.settingsLabel}>임시저장 목록</span>
-                  <div className={styles.settingsSortGroup}>
-                    <button
-                      type="button"
-                      className={`${styles.settingsSortButton} ${styles.settingsSortButtonActive}`}
-                      onClick={() => setDraftSortOrder(prev => (prev === 'latest' ? 'oldest' : 'latest'))}
-                    >
-                      {draftSortOrder === 'latest' ? (
-                        <>
-                          <FiArrowDown className={styles.settingsSortIcon} aria-hidden="true" />
-                          최근 저장순
-                        </>
-                      ) : (
-                        <>
-                          <FiArrowUp className={styles.settingsSortIcon} aria-hidden="true" />
-                          오래된 저장순
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-                <MyPageDrafts sortOrder={draftSortOrder} />
-              </div>
+              <MyPageDraftsTab
+                draftSortOrder={draftSortOrder}
+                onSortChange={() => setDraftSortOrder(prev => (prev === 'latest' ? 'oldest' : 'latest'))}
+              />
             ) : activeTab === 'account' ? (
-              isUserInfoLoading ? (
-                <MyPageAccountSkeleton />
-              ) : (
-                <div className={styles.settingsSection}>
-                  <div className={styles.settingsRow}>
-                    <span className={styles.settingsLabel}>계정 설정</span>
-                  </div>
-                  <div className={styles.settingsBlock}>
-                    <div className={styles.settingsBlockTitle}>기본 정보</div>
-                    <div className={styles.settingsGroup}>
-                      <div className={styles.settingsItem}>
-                        <div className={styles.settingsItemLabel}>이름</div>
-                        <div className={styles.settingsItemValue}>{accountNameValue}</div>
-                      </div>
-                      <div className={`${styles.settingsItem} ${styles.settingsItemEmail}`}>
-                        <div className={styles.settingsItemLabel}>이메일 주소</div>
-                        <div className={styles.settingsEmailContent}>
-                          {isEditingEmail ? (
-                            <div className={styles.settingsEmailPanel}>
-                              <div className={styles.settingsEmailFieldGroup}>
-                                <div className={styles.settingsEmailInputRow}>
-                                  <input
-                                    type="email"
-                                    className={`${styles.settingsInput} ${styles.settingsItemInput}`}
-                                    value={emailValue}
-                                    placeholder="변경할 이메일 주소"
-                                    onChange={handleEmailChange}
-                                  />
-                                </div>
-                                <p className={styles.settingsEmailVerifyHint}>
-                                  변경할 이메일로 인증번호를 발송해주세요.
-                                </p>
-                              </div>
-
-                              <div className={styles.settingsEmailFieldGroup}>
-                                <div className={styles.settingsEmailInputRow}>
-                                  <input
-                                    type="text"
-                                    className={`${styles.settingsInput} ${styles.settingsItemInput} ${styles.settingsEmailCodeInput}`}
-                                    value={emailCodeValue}
-                                    placeholder="8자리 인증번호"
-                                    maxLength={EMAIL_VERIFICATION_CODE_LENGTH}
-                                    autoComplete="one-time-code"
-                                    disabled={
-                                      !isEmailCodeSent || isSendingEmailCode || isEmailVerified || isVerifyingEmailCode
-                                    }
-                                    onChange={handleEmailCodeChange}
-                                  />
-                                </div>
-                                <p className={styles.settingsEmailVerifyHint}>
-                                  {isEmailVerified
-                                    ? '이메일 인증이 완료되었습니다.'
-                                    : isEmailCodeSent
-                                      ? '인증번호 8자리를 입력하면 자동으로 확인됩니다.'
-                                      : '변경할 이메일로 인증번호를 발송해주세요.'}
-                                </p>
-                              </div>
-
-                              <div className={styles.settingsEmailActionsRow}>
-                                <button
-                                  type="button"
-                                  className={styles.settingsButton}
-                                  disabled={isSaving || isSendingEmailCode}
-                                  onClick={sendEmailVerificationCode}
-                                >
-                                  {isEmailCodeSent ? '재전송' : '인증번호 발송'}
-                                </button>
-                                <span className={styles.settingsDivider} aria-hidden="true" />
-                                <div
-                                  className={`${styles.settingsInlineActions} ${styles.settingsInlineActionsInline}`}
-                                >
-                                  <button
-                                    type="button"
-                                    className={`${styles.settingsButton} ${styles.settingsInlineCancelButton}`}
-                                    disabled={isSaving}
-                                    onClick={cancelEdit}
-                                  >
-                                    취소
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className={styles.settingsButton}
-                                    disabled={isSaving || !isEmailVerified}
-                                    onClick={saveEmail}
-                                  >
-                                    저장
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className={styles.settingsEmailTop}>
-                              <div className={styles.settingsItemValue}>{accountEmailValue}</div>
-                              {!isEditingAny ? (
-                                <button
-                                  type="button"
-                                  className={styles.settingsButton}
-                                  disabled={isSaving}
-                                  onClick={startEmailEdit}
-                                >
-                                  설정
-                                </button>
-                              ) : (
-                                <span className={styles.settingsButtonPlaceholder} aria-hidden="true">
-                                  설정
-                                </span>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div
-                        className={`${styles.settingsItem} ${isEditingPassword ? styles.settingsItemPasswordEditing : ''}`}
-                      >
-                        <div className={styles.settingsItemLabel}>비밀번호</div>
-                        {isEditingPassword ? (
-                          <div className={styles.settingsPasswordPanel}>
-                            <div className={styles.settingsPasswordFieldGroup}>
-                              <div className={styles.settingsPasswordInputWrap}>
-                                <input
-                                  type={showCurrentPassword ? 'text' : 'password'}
-                                  className={`${styles.settingsInput} ${styles.settingsItemInput} ${styles.settingsPasswordInput} ${
-                                    !showCurrentPassword ? styles.settingsPasswordInputMasked : ''
-                                  }`}
-                                  value={currentPasswordValue}
-                                  placeholder="현재 비밀번호"
-                                  onChange={event => setCurrentPasswordValue(event.target.value)}
-                                />
-                                <button
-                                  type="button"
-                                  className={styles.settingsPasswordToggle}
-                                  aria-label={showCurrentPassword ? '현재 비밀번호 숨기기' : '현재 비밀번호 보기'}
-                                  onClick={toggleCurrentPasswordVisibility}
-                                >
-                                  {showCurrentPassword ? (
-                                    <FiEyeOff className={styles.settingsPasswordEye} aria-hidden="true" />
-                                  ) : (
-                                    <FiEye className={styles.settingsPasswordEye} aria-hidden="true" />
-                                  )}
-                                </button>
-                              </div>
-                              <p className={styles.settingsPasswordHint}>
-                                확인을 위해 현재 비밀번호를 다시 입력해 주세요.
-                              </p>
-                            </div>
-                            <div className={styles.settingsPasswordFieldGroup}>
-                              <div className={styles.settingsPasswordInputWrap}>
-                                <input
-                                  type={showNewPassword ? 'text' : 'password'}
-                                  className={`${styles.settingsInput} ${styles.settingsItemInput} ${styles.settingsPasswordInput} ${
-                                    !showNewPassword ? styles.settingsPasswordInputMasked : ''
-                                  }`}
-                                  value={newPasswordValue}
-                                  placeholder="새 비밀번호"
-                                  onChange={event => setNewPasswordValue(event.target.value)}
-                                />
-                                <button
-                                  type="button"
-                                  className={styles.settingsPasswordToggle}
-                                  aria-label={showNewPassword ? '새 비밀번호 숨기기' : '새 비밀번호 보기'}
-                                  onClick={toggleNewPasswordVisibility}
-                                >
-                                  {showNewPassword ? (
-                                    <FiEyeOff className={styles.settingsPasswordEye} aria-hidden="true" />
-                                  ) : (
-                                    <FiEye className={styles.settingsPasswordEye} aria-hidden="true" />
-                                  )}
-                                </button>
-                              </div>
-                              <div className={styles.settingsPasswordRules}>
-                                <p
-                                  className={`${styles.settingsPasswordRule} ${
-                                    passwordRuleStatus.hasInput
-                                      ? passwordRuleStatus.hasTypeCombination
-                                        ? styles.settingsPasswordRuleValid
-                                        : styles.settingsPasswordRuleInvalid
-                                      : ''
-                                  }`}
-                                >
-                                  영문/숫자/특수문자 중, 2가지 이상 포함
-                                </p>
-                                <p
-                                  className={`${styles.settingsPasswordRule} ${
-                                    passwordRuleStatus.hasInput
-                                      ? passwordRuleStatus.hasValidLength
-                                        ? styles.settingsPasswordRuleValid
-                                        : styles.settingsPasswordRuleInvalid
-                                      : ''
-                                  }`}
-                                >
-                                  8자 이상 32자 이하 입력 (공백 제외)
-                                </p>
-                                <p
-                                  className={`${styles.settingsPasswordRule} ${
-                                    passwordRuleStatus.hasInput
-                                      ? passwordRuleStatus.hasNoTripleRepeat
-                                        ? styles.settingsPasswordRuleValid
-                                        : styles.settingsPasswordRuleInvalid
-                                      : ''
-                                  }`}
-                                >
-                                  연속 3자 이상 동일한 문자/숫자 제외
-                                </p>
-                              </div>
-                            </div>
-                            <div className={styles.settingsPasswordFieldGroup}>
-                              <div className={styles.settingsPasswordInputWrap}>
-                                <input
-                                  type={showConfirmPassword ? 'text' : 'password'}
-                                  className={`${styles.settingsInput} ${styles.settingsItemInput} ${styles.settingsPasswordInput} ${
-                                    !showConfirmPassword ? styles.settingsPasswordInputMasked : ''
-                                  }`}
-                                  value={confirmPasswordValue}
-                                  placeholder="새 비밀번호 확인"
-                                  onChange={event => setConfirmPasswordValue(event.target.value)}
-                                />
-                                <button
-                                  type="button"
-                                  className={styles.settingsPasswordToggle}
-                                  aria-label={showConfirmPassword ? '새 비밀번호 확인 숨기기' : '새 비밀번호 확인 보기'}
-                                  onClick={toggleConfirmPasswordVisibility}
-                                >
-                                  {showConfirmPassword ? (
-                                    <FiEyeOff className={styles.settingsPasswordEye} aria-hidden="true" />
-                                  ) : (
-                                    <FiEye className={styles.settingsPasswordEye} aria-hidden="true" />
-                                  )}
-                                </button>
-                              </div>
-                              <p className={styles.settingsPasswordHint}>
-                                확인을 위해 새 비밀번호를 다시 입력해 주세요.
-                              </p>
-                            </div>
-                            <div className={styles.settingsPasswordActionsRow}>
-                              <div className={`${styles.settingsInlineActions} ${styles.settingsInlineActionsInline}`}>
-                                <button
-                                  type="button"
-                                  className={`${styles.settingsButton} ${styles.settingsInlineCancelButton}`}
-                                  disabled={isSaving}
-                                  onClick={cancelEdit}
-                                >
-                                  취소
-                                </button>
-                                <button
-                                  type="button"
-                                  className={styles.settingsButton}
-                                  disabled={isSaving}
-                                  onClick={savePassword}
-                                >
-                                  저장
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <div className={`${styles.settingsItemValue} ${styles.settingsPasswordValueMask}`}>
-                              **********
-                            </div>
-                            {!isEditingAny ? (
-                              <button type="button" className={styles.settingsButton} onClick={startPasswordEdit}>
-                                설정
-                              </button>
-                            ) : (
-                              <span className={styles.settingsButtonPlaceholder} aria-hidden="true">
-                                설정
-                              </span>
-                            )}
-                          </>
-                        )}
-                      </div>
-                      <div className={`${styles.settingsItem} ${styles.settingsItemEmail}`}>
-                        <div className={styles.settingsItemLabel}>전화번호</div>
-                        <div className={styles.settingsEmailContent}>
-                          <div className={styles.settingsEmailTop}>
-                            {isEditingPhone ? (
-                              <>
-                                <input
-                                  type="tel"
-                                  className={`${styles.settingsInput} ${styles.settingsItemInput}`}
-                                  value={phoneValue}
-                                  placeholder="010 1234 5678"
-                                  maxLength={PHONE_CONFIG.FORMATTED_MAX_LENGTH}
-                                  onChange={handlePhoneChange}
-                                />
-                                <div
-                                  className={`${styles.settingsInlineActions} ${styles.settingsInlineActionsInline}`}
-                                >
-                                  <button
-                                    type="button"
-                                    className={`${styles.settingsButton} ${styles.settingsInlineCancelButton}`}
-                                    disabled={isSaving}
-                                    onClick={cancelEdit}
-                                  >
-                                    취소
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className={styles.settingsButton}
-                                    disabled={isSaving}
-                                    onClick={savePhone}
-                                  >
-                                    저장
-                                  </button>
-                                </div>
-                              </>
-                            ) : (
-                              <>
-                                <div className={styles.settingsItemValue}>{accountPhoneValue}</div>
-                                {!isEditingAny ? (
-                                  <button type="button" className={styles.settingsButton} onClick={startPhoneEdit}>
-                                    설정
-                                  </button>
-                                ) : (
-                                  <span className={styles.settingsButtonPlaceholder} aria-hidden="true">
-                                    설정
-                                  </span>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className={`${styles.settingsItem} ${styles.settingsItemEmail}`}>
-                        <div className={styles.settingsItemLabel}>생년월일</div>
-                        <div className={styles.settingsEmailContent}>
-                          <div className={styles.settingsEmailTop}>
-                            {isEditingBirthDate ? (
-                              <>
-                                <input
-                                  type="text"
-                                  className={`${styles.settingsInput} ${styles.settingsItemInput}`}
-                                  value={birthDateValue}
-                                  placeholder="YYYY-MM-DD"
-                                  inputMode="numeric"
-                                  maxLength={10}
-                                  onChange={handleBirthDateChange}
-                                />
-                                <div
-                                  className={`${styles.settingsInlineActions} ${styles.settingsInlineActionsInline}`}
-                                >
-                                  <button
-                                    type="button"
-                                    className={`${styles.settingsButton} ${styles.settingsInlineCancelButton}`}
-                                    disabled={isSaving}
-                                    onClick={cancelEdit}
-                                  >
-                                    취소
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className={styles.settingsButton}
-                                    disabled={isSaving}
-                                    onClick={saveBirthDate}
-                                  >
-                                    저장
-                                  </button>
-                                </div>
-                              </>
-                            ) : (
-                              <>
-                                <div className={styles.settingsItemValue}>{accountBirthDateValue}</div>
-                                {!isEditingAny ? (
-                                  <button type="button" className={styles.settingsButton} onClick={startBirthDateEdit}>
-                                    설정
-                                  </button>
-                                ) : (
-                                  <span className={styles.settingsButtonPlaceholder} aria-hidden="true">
-                                    설정
-                                  </span>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className={styles.settingsFooter}>
-                    <button
-                      type="button"
-                      className={styles.withdrawButton}
-                      disabled={isWithdrawing}
-                      onClick={openWithdrawModal}
-                    >
-                      회원탈퇴 <FiChevronRight aria-hidden="true" />
-                    </button>
-                  </div>
-                </div>
-              )
+              <MyPageAccountTab
+                accountBirthDateValue={accountBirthDateValue}
+                accountEmailValue={accountEmailValue}
+                accountNameValue={accountNameValue}
+                accountPhoneValue={accountPhoneValue}
+                birthDateValue={birthDateValue}
+                confirmPasswordValue={confirmPasswordValue}
+                currentPasswordValue={currentPasswordValue}
+                emailCodeValue={emailCodeValue}
+                emailValue={emailValue}
+                isEditingAny={isEditingAny}
+                isEditingBirthDate={isEditingBirthDate}
+                isEditingEmail={isEditingEmail}
+                isEditingPassword={isEditingPassword}
+                isEditingPhone={isEditingPhone}
+                isEmailCodeSent={isEmailCodeSent}
+                isEmailVerified={isEmailVerified}
+                isSaving={isSaving}
+                isSendingEmailCode={isSendingEmailCode}
+                isUserInfoLoading={isUserInfoLoading}
+                isVerifyingEmailCode={isVerifyingEmailCode}
+                isWithdrawing={isWithdrawing}
+                isWithdrawModalOpen={isWithdrawModalOpen}
+                newPasswordValue={newPasswordValue}
+                passwordRuleStatus={passwordRuleStatus}
+                phoneValue={phoneValue}
+                showConfirmPassword={showConfirmPassword}
+                showCurrentPassword={showCurrentPassword}
+                showNewPassword={showNewPassword}
+                showWithdrawPassword={showWithdrawPassword}
+                withdrawPassword={withdrawPassword}
+                cancelEdit={cancelEdit}
+                closeWithdrawModal={closeWithdrawModal}
+                handleBirthDateChange={handleBirthDateChange}
+                handleEmailChange={handleEmailChange}
+                handleEmailCodeChange={handleEmailCodeChange}
+                handlePhoneChange={handlePhoneChange}
+                handleWithdraw={handleWithdraw}
+                openWithdrawModal={openWithdrawModal}
+                saveBirthDate={saveBirthDate}
+                saveEmail={saveEmail}
+                savePassword={savePassword}
+                savePhone={savePhone}
+                sendEmailVerificationCode={sendEmailVerificationCode}
+                setConfirmPasswordValue={setConfirmPasswordValue}
+                setCurrentPasswordValue={setCurrentPasswordValue}
+                setNewPasswordValue={setNewPasswordValue}
+                setShowWithdrawPassword={setShowWithdrawPassword}
+                setWithdrawPassword={setWithdrawPassword}
+                startBirthDateEdit={startBirthDateEdit}
+                startEmailEdit={startEmailEdit}
+                startPasswordEdit={startPasswordEdit}
+                startPhoneEdit={startPhoneEdit}
+                toggleConfirmPasswordVisibility={toggleConfirmPasswordVisibility}
+                toggleCurrentPasswordVisibility={toggleCurrentPasswordVisibility}
+                toggleNewPasswordVisibility={toggleNewPasswordVisibility}
+              />
             ) : activeTab === 'comments' ? (
-              isMyCommentsListLoading ? (
-                <MyPageCommentsSkeleton />
-              ) : myComments.length ? (
-                <>
-                  <div className={styles.settingsRow}>
-                    <span className={styles.settingsLabel}>남긴 댓글</span>
-                    <div className={styles.settingsSortGroup}>
-                      <button
-                        type="button"
-                        className={`${styles.settingsSortButton} ${styles.settingsSortButtonActive}`}
-                        onClick={handleSortToggle}
-                      >
-                        {sortKey === 'popular' ? (
-                          <>
-                            <FiTrendingUp className={styles.settingsSortIcon} aria-hidden="true" />
-                            인기순
-                          </>
-                        ) : (
-                          <>
-                            <FiClock className={styles.settingsSortIcon} aria-hidden="true" />
-                            최신순
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                  <div className={commentStyles.commentList}>
-                    {sortedComments.map((comment, index) => {
-                      const postId = comment.post?.id ?? '';
-                      const postTitle = comment.post?.title ?? '게시글 없음';
-                      const commentLabel = comment.parentId ? '남긴 대댓글' : '남긴 댓글';
-                      const commentLink = postId ? `/posts/${postId}#comment-${comment.id}` : '';
-                      const commentDate = formatDateTimeLabel(comment.createdAt);
-                      const isEditing = editingCommentId === comment.id;
-                      const isLinkEnabled = Boolean(commentLink) && !isEditing;
-                      const commentPostLabel = `‘${postTitle}’에 ${commentLabel}`;
-
-                      return (
-                        <Fragment key={comment.id}>
-                          <div className={commentStyles.commentItem} id={`comment-${comment.id}`}>
-                            <div className={commentStyles.commentInner}>
-                              <div className={commentStyles.commentHeaderRow}>
-                                <div className={commentStyles.commentProfile}>
-                                  <div className={commentStyles.commentAvatarGroup}>
-                                    <span className={commentStyles.commentAvatar} aria-hidden="true">
-                                      {profileAvatarUrl ? (
-                                        <Image
-                                          className={commentStyles.commentAvatarImage}
-                                          src={profileAvatarUrl}
-                                          alt=""
-                                          width={30}
-                                          height={30}
-                                          sizes="30px"
-                                          unoptimized
-                                        />
-                                      ) : (
-                                        <FaUser />
-                                      )}
-                                    </span>
-                                  </div>
-                                  <div className={commentStyles.commentMeta}>
-                                    {isLinkEnabled ? (
-                                      <Link className={commentStyles.commentAuthor} href={commentLink}>
-                                        {commentPostLabel}
-                                      </Link>
-                                    ) : (
-                                      <span className={commentStyles.commentAuthor}>{commentPostLabel}</span>
-                                    )}
-                                    <span className={commentStyles.commentDate}>{commentDate}</span>
-                                  </div>
-                                </div>
-                                <div className={commentStyles.commentMoreWrapper}>
-                                  <button
-                                    type="button"
-                                    className={commentStyles.commentMoreButton}
-                                    aria-label="댓글 옵션"
-                                    onClick={event => {
-                                      stopMenuPropagation(event);
-                                      handleCommentMenuToggle(comment.id);
-                                    }}
-                                  >
-                                    <FiMoreHorizontal aria-hidden="true" />
-                                  </button>
-                                  {openCommentMenuId === comment.id ? (
-                                    <div
-                                      className={commentStyles.commentMoreMenu}
-                                      role="menu"
-                                      onClick={stopMenuPropagation}
-                                    >
-                                      <button
-                                        type="button"
-                                        className={commentStyles.commentMoreItem}
-                                        role="menuitem"
-                                        onClick={event => {
-                                          stopMenuPropagation(event);
-                                          handleEditStart(comment.id, comment.content);
-                                        }}
-                                      >
-                                        <FiEdit2 aria-hidden="true" />
-                                        수정
-                                      </button>
-                                      <button
-                                        type="button"
-                                        className={commentStyles.commentMoreItem}
-                                        role="menuitem"
-                                        disabled={isDeleting}
-                                        onClick={event => {
-                                          stopMenuPropagation(event);
-                                          handleDeleteComment(postId, comment.id);
-                                        }}
-                                      >
-                                        <FiTrash2 aria-hidden="true" />
-                                        삭제
-                                      </button>
-                                    </div>
-                                  ) : null}
-                                </div>
-                              </div>
-                              <div className={commentStyles.commentContent}>
-                                {isEditing ? (
-                                  <div className={commentStyles.commentEditForm} onClick={stopMenuPropagation}>
-                                    <textarea
-                                      className={`${commentStyles.commentTextarea} ${
-                                        hasEditingLengthError ? commentStyles.commentTextareaError : ''
-                                      }`}
-                                      name="comment-edit"
-                                      value={editingContent}
-                                      onChange={handleEditChange}
-                                    />
-                                    <div className={commentStyles.commentEditActions}>
-                                      {hasEditingLengthError ? (
-                                        <span className={commentStyles.commentError}>1,000자까지 입력 가능해요.</span>
-                                      ) : null}
-                                      <button
-                                        type="button"
-                                        className={commentStyles.commentCancelButton}
-                                        onClick={handleEditCancel}
-                                        disabled={isUpdating}
-                                      >
-                                        취소
-                                      </button>
-                                      <button
-                                        type="button"
-                                        className={
-                                          editingContent.trim()
-                                            ? `${commentStyles.commentButton} ${commentStyles.commentButtonActive}`
-                                            : commentStyles.commentButton
-                                        }
-                                        disabled={!editingContent.trim() || isUpdating || hasEditingLengthError}
-                                        onClick={() => handleEditSubmit(postId, comment.id)}
-                                      >
-                                        수정 완료
-                                      </button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <>
-                                    <p className={commentStyles.commentBody}>
-                                      {splitCommentMentions(comment.content).map((part, partIndex) =>
-                                        part.type === 'mention' ? (
-                                          <span
-                                            key={`${part.value}-${partIndex}`}
-                                            className={commentStyles.commentMention}
-                                          >
-                                            {part.value}
-                                          </span>
-                                        ) : (
-                                          <Fragment key={`${part.value}-${partIndex}`}>{part.value}</Fragment>
-                                        ),
-                                      )}
-                                    </p>
-                                    <div className={commentStyles.commentFooter}>
-                                      <span className={commentStyles.commentActionButton}>
-                                        <FiHeart aria-hidden="true" />
-                                        <span className={commentStyles.commentActionValue}>
-                                          {comment.likeCount.toLocaleString()}
-                                        </span>
-                                      </span>
-                                      <span className={commentStyles.commentActionButton}>
-                                        <FiMessageCircle aria-hidden="true" />
-                                        <span className={commentStyles.commentActionValue}>
-                                          {comment.replyCount.toLocaleString()}
-                                        </span>
-                                      </span>
-                                    </div>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          {index < sortedComments.length - 1 ? (
-                            <div className={commentStyles.commentDividerLine} aria-hidden="true" />
-                          ) : null}
-                        </Fragment>
-                      );
-                    })}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className={styles.settingsRow}>
-                    <span className={styles.settingsLabel}>남긴 댓글</span>
-                    <div className={styles.settingsSortGroup}>
-                      <button
-                        type="button"
-                        className={`${styles.settingsSortButton} ${styles.settingsSortButtonActive}`}
-                        onClick={handleSortToggle}
-                      >
-                        {sortKey === 'popular' ? (
-                          <>
-                            <FiTrendingUp className={styles.settingsSortIcon} aria-hidden="true" />
-                            인기순
-                          </>
-                        ) : (
-                          <>
-                            <FiClock className={styles.settingsSortIcon} aria-hidden="true" />
-                            최신순
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                  <EmptyState title="아직 남긴 댓글이 없습니다." description="댓글을 남기면 이곳에 표시됩니다." />
-                </>
-              )
+              <MyPageCommentsTab
+                editingCommentId={editingCommentId}
+                editingContent={editingContent}
+                hasEditingLengthError={hasEditingLengthError}
+                isDeleting={isDeleting}
+                isMyCommentsListLoading={isMyCommentsListLoading}
+                isUpdating={isUpdating}
+                myComments={myComments}
+                openCommentMenuId={openCommentMenuId}
+                profileAvatarUrl={profileAvatarUrl}
+                sortKey={sortKey}
+                sortedComments={sortedComments}
+                handleCommentMenuToggle={handleCommentMenuToggle}
+                handleDeleteComment={handleDeleteComment}
+                handleEditCancel={handleEditCancel}
+                handleEditChange={handleEditChange}
+                handleEditStart={handleEditStart}
+                handleEditSubmit={handleEditSubmit}
+                handleSortToggle={handleSortToggle}
+              />
             ) : activeTab === 'likes' ? (
-              isLikedPostsListLoading ? (
-                <MyPagePostListSkeleton label="좋아한 포스트" showFilters={false} />
-              ) : (
-                <>
-                  <div className={styles.settingsRow}>
-                    <span className={styles.settingsLabel}>좋아한 포스트</span>
-                    <div className={styles.settingsSortGroup}>
-                      <button
-                        type="button"
-                        className={`${styles.settingsSortButton} ${styles.settingsSortButtonActive}`}
-                        onClick={handleSortToggle}
-                      >
-                        {sortKey === 'popular' ? (
-                          <>
-                            <FiTrendingUp className={styles.settingsSortIcon} aria-hidden="true" />
-                            인기순
-                          </>
-                        ) : (
-                          <>
-                            <FiClock className={styles.settingsSortIcon} aria-hidden="true" />
-                            최신순
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                  {sortedLikedPosts.length ? (
-                    <ul className={postListStyles.listView}>
-                      {sortedLikedPosts.map((post, index) => {
-                        const isMyPost = Boolean(currentUserId) && post.author?.id === currentUserId;
-                        const thumbnailUrl = post.thumbnailUrl ?? '';
-                        const hasThumbnail = Boolean(thumbnailUrl);
-                        const tagNames = (post.tags ?? []).slice(0, 5).map(tag => `#${tag.name}`);
-                        const hasListTags = tagNames.length > 0;
-                        return (
-                          <Fragment key={post.id}>
-                            <li>
-                              <Link className={postListStyles.postLink} href={`/posts/${post.id}`}>
-                                <article
-                                  className={
-                                    hasThumbnail
-                                      ? postListStyles.listItem
-                                      : `${postListStyles.listItem} ${postListStyles.listItemNoThumb}`
-                                  }
-                                >
-                                  <div className={postListStyles.listBody}>
-                                    <div className={styles.listHeaderRow}>
-                                      <h3 className={postListStyles.listTitle}>{post.title || '제목 없음'}</h3>
-                                      {isMyPost ? (
-                                        <div className={styles.listMenuWrapper}>
-                                          <button
-                                            type="button"
-                                            className={styles.listMenuButton}
-                                            aria-label="게시글 옵션"
-                                            onClick={event => {
-                                              stopMenuPropagation(event);
-                                              handlePostMenuToggle(post.id);
-                                            }}
-                                          >
-                                            <FiMoreHorizontal aria-hidden="true" />
-                                          </button>
-                                          {openPostMenuId === post.id ? (
-                                            <div className={styles.listMenu} role="menu" onClick={stopMenuPropagation}>
-                                              <button
-                                                type="button"
-                                                className={styles.listMenuItem}
-                                                role="menuitem"
-                                                onClick={event => {
-                                                  stopMenuPropagation(event);
-                                                  handlePostEdit(post.id);
-                                                }}
-                                              >
-                                                <FiEdit2 aria-hidden="true" />
-                                                수정
-                                              </button>
-                                              <button
-                                                type="button"
-                                                className={styles.listMenuItem}
-                                                role="menuitem"
-                                                disabled={isPostDeleting}
-                                                onClick={event => {
-                                                  stopMenuPropagation(event);
-                                                  handlePostDelete(post.id);
-                                                }}
-                                              >
-                                                <FiTrash2 aria-hidden="true" />
-                                                삭제
-                                              </button>
-                                            </div>
-                                          ) : null}
-                                        </div>
-                                      ) : null}
-                                    </div>
-                                    <LinesEllipsis
-                                      text={formatPostPreview(post.content, { emptyText: '내용 없음' })}
-                                      maxLine={hasListTags ? '2' : '3'}
-                                      ellipsis="..."
-                                      trimRight
-                                      basedOn="letters"
-                                      className={
-                                        hasListTags ? postListStyles.listSummaryWithTags : postListStyles.listSummary
-                                      }
-                                    />
-                                    {hasListTags ? <ListPostTagList postId={post.id} tags={tagNames} /> : null}
-                                    <div className={postListStyles.meta}>
-                                      <div className={postListStyles.metaAuthorDate}>
-                                        <div className={postListStyles.cardAuthor}>
-                                          <div
-                                            className={
-                                              isMyPost
-                                                ? `${postListStyles.cardAuthorAvatar} ${postListStyles.cardAuthorAvatarMine}`
-                                                : postListStyles.cardAuthorAvatar
-                                            }
-                                            aria-hidden="true"
-                                          >
-                                            {post.author?.profileImageUrl ? (
-                                              <Image
-                                                className={postListStyles.cardAuthorImage}
-                                                src={post.author.profileImageUrl}
-                                                alt=""
-                                                width={24}
-                                                height={24}
-                                                unoptimized
-                                              />
-                                            ) : (
-                                              <FaUser />
-                                            )}
-                                          </div>
-                                          <span className={postListStyles.cardAuthorText}>
-                                            <span className={postListStyles.cardAuthorBy}>by.</span>
-                                            <span className={postListStyles.cardAuthorName}>
-                                              {post.author?.name ?? '알 수 없음'}
-                                            </span>
-                                          </span>
-                                        </div>
-                                        <span className={postListStyles.separator} aria-hidden="true">
-                                          |
-                                        </span>
-                                        <span className={postListStyles.metaGroup}>
-                                          <span className={postListStyles.metaItem}>
-                                            <CiCalendar aria-hidden="true" />{' '}
-                                            {formatDateLabel(post.publishedAt ?? post.createdAt)}
-                                          </span>
-                                        </span>
-                                      </div>
-                                      <span className={postListStyles.metaGroup}>
-                                        <span className={postListStyles.metaItem}>
-                                          <FiEye aria-hidden="true" /> {post.viewCount.toLocaleString()}
-                                        </span>
-                                        <span className={postListStyles.separator} aria-hidden="true">
-                                          |
-                                        </span>
-                                        <span className={postListStyles.metaItem}>
-                                          <FiHeart aria-hidden="true" /> {post.likeCount.toLocaleString()}
-                                        </span>
-                                        <span className={postListStyles.separator} aria-hidden="true">
-                                          |
-                                        </span>
-                                        <span className={postListStyles.metaItem}>
-                                          <FiMessageCircle aria-hidden="true" /> {post.commentCount.toLocaleString()}
-                                        </span>
-                                      </span>
-                                    </div>
-                                  </div>
-                                  {hasThumbnail ? (
-                                    <div className={postListStyles.listThumb} aria-hidden="true">
-                                      <Image
-                                        className={postListStyles.listThumbImage}
-                                        src={thumbnailUrl}
-                                        alt=""
-                                        width={0}
-                                        height={0}
-                                        sizes="100vw"
-                                        unoptimized
-                                        style={{ width: '100%', height: '100%' }}
-                                      />
-                                    </div>
-                                  ) : null}
-                                </article>
-                              </Link>
-                            </li>
-                            {index < sortedLikedPosts.length - 1 ? (
-                              <li className={postListStyles.listDividerItem} aria-hidden="true">
-                                <div className={postListStyles.listDivider} />
-                              </li>
-                            ) : null}
-                          </Fragment>
-                        );
-                      })}
-                    </ul>
-                  ) : (
-                    <EmptyState
-                      title="아직 좋아요한 게시물이 없습니다."
-                      description="좋아요한 게시글이 이곳에 표시됩니다."
-                    />
-                  )}
-                </>
-              )
+              <MyPageLikesTab
+                currentUserId={currentUserId}
+                isLikedPostsListLoading={isLikedPostsListLoading}
+                isPostDeleting={isPostDeleting}
+                openPostMenuId={openPostMenuId}
+                sortKey={sortKey}
+                sortedLikedPosts={sortedLikedPosts}
+                handlePostDelete={handlePostDelete}
+                handlePostEdit={handlePostEdit}
+                handlePostMenuToggle={handlePostMenuToggle}
+                handleSortToggle={handleSortToggle}
+              />
             ) : activeTab === 'recent' ? (
-              isRecentPostsListLoading ? (
-                <MyPagePostListSkeleton label="최근 읽은 포스트" showFilters={false} />
-              ) : (
-                <>
-                  <div className={styles.settingsRow}>
-                    <span className={styles.settingsLabel}>최근 읽은 포스트</span>
-                    <div className={styles.settingsSortGroup}>
-                      <button
-                        type="button"
-                        className={`${styles.settingsSortButton} ${styles.settingsSortButtonActive}`}
-                        onClick={handleSortToggle}
-                      >
-                        {sortKey === 'popular' ? (
-                          <>
-                            <FiTrendingUp className={styles.settingsSortIcon} aria-hidden="true" />
-                            인기순
-                          </>
-                        ) : (
-                          <>
-                            <FiClock className={styles.settingsSortIcon} aria-hidden="true" />
-                            최신순
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                  {sortedRecentPosts.length ? (
-                    <PostSummaryList
-                      posts={sortedRecentPosts}
-                      emptyText="아직 최근 읽은 게시물이 없습니다."
-                      currentUserId={currentUserId}
-                      actionHandlers={{
-                        isPostDeleting,
-                        openPostMenuId,
-                        onPostDelete: handlePostDelete,
-                        onPostEdit: handlePostEdit,
-                        onPostMenuToggle: handlePostMenuToggle,
-                      }}
-                    />
-                  ) : (
-                    <EmptyState
-                      title="아직 최근 읽은 게시물이 없습니다."
-                      description="게시글을 읽으면 이곳에 표시됩니다."
-                    />
-                  )}
-                </>
-              )
+              <MyPageRecentTab
+                currentUserId={currentUserId}
+                isPostDeleting={isPostDeleting}
+                isRecentPostsListLoading={isRecentPostsListLoading}
+                openPostMenuId={openPostMenuId}
+                sortKey={sortKey}
+                sortedRecentPosts={sortedRecentPosts}
+                handlePostDelete={handlePostDelete}
+                handlePostEdit={handlePostEdit}
+                handlePostMenuToggle={handlePostMenuToggle}
+                handleSortToggle={handleSortToggle}
+              />
             ) : null}
           </div>
         </div>
       </div>
-
-      {isWithdrawModalOpen ? (
-        <ActionModal
-          body={
-            <>
-              <div className={styles.withdrawGuide}>
-                <ul className={styles.withdrawGuideList}>
-                  {WITHDRAW_MODAL_MESSAGES.guides.map(guide => (
-                    <li key={guide} className={styles.withdrawGuideItem}>
-                      {guide}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className={styles.withdrawGuideWarning}>
-                <FiAlertCircle className={styles.withdrawGuideWarningIcon} aria-hidden="true" />
-                {WITHDRAW_MODAL_MESSAGES.warning}
-              </div>
-              <p className={styles.settingsPasswordHint}>{WITHDRAW_MODAL_MESSAGES.description}</p>
-              <div className={styles.settingsPasswordInputWrap}>
-                <input
-                  type={showWithdrawPassword ? 'text' : 'password'}
-                  className={`${styles.settingsInput} ${styles.settingsPasswordInput} ${
-                    !showWithdrawPassword ? styles.settingsPasswordInputMasked : ''
-                  }`}
-                  value={withdrawPassword}
-                  placeholder={WITHDRAW_MODAL_MESSAGES.placeholder}
-                  autoComplete="current-password"
-                  disabled={isWithdrawing}
-                  onChange={event => setWithdrawPassword(event.target.value)}
-                />
-                <button
-                  type="button"
-                  className={styles.settingsPasswordToggle}
-                  aria-label={showWithdrawPassword ? '현재 비밀번호 숨기기' : '현재 비밀번호 보기'}
-                  disabled={isWithdrawing}
-                  onClick={() => setShowWithdrawPassword(prev => !prev)}
-                >
-                  {showWithdrawPassword ? (
-                    <FiEyeOff className={styles.settingsPasswordEye} aria-hidden="true" />
-                  ) : (
-                    <FiEye className={styles.settingsPasswordEye} aria-hidden="true" />
-                  )}
-                </button>
-              </div>
-            </>
-          }
-          title={WITHDRAW_MODAL_MESSAGES.title}
-          cancelLabel={WITHDRAW_MODAL_MESSAGES.cancel}
-          confirmLabel={WITHDRAW_MODAL_MESSAGES.confirm}
-          confirmVariant="danger"
-          cancelDisabled={isWithdrawing}
-          confirmDisabled={isWithdrawing}
-          onClose={closeWithdrawModal}
-          onConfirm={handleWithdraw}
-        />
-      ) : null}
     </section>
   );
 }

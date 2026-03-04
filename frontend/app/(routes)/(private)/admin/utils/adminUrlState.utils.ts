@@ -2,7 +2,7 @@ import { ADMIN_MENU_LABELS } from '@/app/(routes)/(private)/admin/constants/menu
 import { ADMIN_PENDING_SORT } from '@/app/(routes)/(private)/admin/constants/sort.constants';
 import { ADMIN_SORT_QUERY_VALUE, ADMIN_TAB_QUERY_VALUE } from '@/app/(routes)/(private)/admin/constants/query.constants';
 
-import type { AdminMenuLabel, AdminPendingSort } from '@/app/(routes)/(private)/admin/constants/admin.types';
+import type { AdminMenuLabel, AdminPendingSort } from '@/app/shared/types/admin';
 
 /**
  * 탭 쿼리 파싱

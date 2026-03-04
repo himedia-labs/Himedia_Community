@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { ADMIN_PENDING_SORT } from '@/app/(routes)/(private)/admin/constants/sort.constants';
 
-import type { AdminPendingSort } from '@/app/(routes)/(private)/admin/constants/admin.types';
+import type { AdminPendingSort } from '@/app/shared/types/admin';
 import type { AdminPendingUser } from '@/app/shared/types/admin';
 
 /**
