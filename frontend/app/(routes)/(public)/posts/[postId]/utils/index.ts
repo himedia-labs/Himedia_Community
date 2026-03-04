@@ -6,6 +6,9 @@ export { resizeReplyInput } from '@/app/(routes)/(public)/posts/[postId]/utils/r
 export { getCaretIndex, setCaretIndex } from '@/app/(routes)/(public)/posts/[postId]/utils/caret.utils';
 export { ensureMentionSpacing } from '@/app/(routes)/(public)/posts/[postId]/utils/mentionSpacing.utils';
 export { getMentionQuery, getMentionStartIndex } from '@/app/(routes)/(public)/posts/[postId]/utils/mentionQuery.utils';
+export { getAuthorProfilePath } from '@/app/(routes)/(public)/posts/[postId]/utils/postDetailAuthor.utils';
+export { getAuthorProfileBioPreview } from '@/app/(routes)/(public)/posts/[postId]/utils/postDetailAuthor.utils';
+export { buildAuthorSocialLinks } from '@/app/(routes)/(public)/posts/[postId]/utils/postDetailAuthor.utils';
 export {
   renderMentionHtml,
   splitCommentMentions,
