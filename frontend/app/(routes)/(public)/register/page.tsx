@@ -518,6 +518,8 @@ export default function RegisterPage() {
                         <Link
                           href="/terms/privacy"
                           className={`${styles.link} ${styles.consentLink}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           onClick={handlePrivacyLinkClick}
                         >
                           <span>[필수] 개인정보 수집 및 이용동의</span>
