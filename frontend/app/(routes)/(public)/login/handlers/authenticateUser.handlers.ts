@@ -1,5 +1,6 @@
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
+import { applyQueryDataUpdate } from '@/app/shared/lib/query/queryCache.utils';
 
 import type { AxiosError } from 'axios';
 import type { SyntheticEvent } from 'react';
@@ -45,7 +46,7 @@ export const authenticateUser = (params: AuthenticateUserParams) => {
           setAccessToken(data.accessToken);
 
           // 로그인 응답의 사용자 정보를 React Query 캐시에 저장 (GET /auth/me 중복 호출 방지)
-          params.queryClient.setQueryData(params.authKeys.currentUser, data.user);
+          applyQueryDataUpdate(params.queryClient, params.authKeys.currentUser, () => data.user);
           params.setIsLoginSubmitting(false);
           params.showToast({ message: LOGIN_MESSAGES.success, type: 'success' });
           params.router.push(params.redirectTo ?? '/');

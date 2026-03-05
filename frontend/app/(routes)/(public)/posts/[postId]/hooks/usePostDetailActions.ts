@@ -13,6 +13,7 @@ import {
 import { useToast } from '@/app/shared/components/toast/toast';
 import { VIEW_DELAY_MS } from '@/app/shared/constants/config/post.config';
 import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
+import { applyQueryDataUpdate, invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 import { copyToClipboard } from '@/app/(routes)/(public)/posts/[postId]/utils';
 import { POST_DETAIL_MESSAGES } from '@/app/shared/constants/messages/post.message';
 import { extractMarkdownHeadings, renderMarkdownPreview } from '@/app/shared/utils/markdown';
@@ -45,7 +46,7 @@ export const usePostDetailActions = ({ data, postId }: PostDetailActionsParams) 
   // 캐시 갱신
   const updateDetailCache = useCallback(
     (changes: Partial<PostDetailResponse>) => {
-      queryClient.setQueryData<PostDetailResponse | undefined>(postsKeys.detail(postId), previous => {
+      applyQueryDataUpdate<PostDetailResponse>(queryClient, postsKeys.detail(postId), previous => {
         if (!previous) return previous;
         return { ...previous, ...changes };
       });
@@ -109,7 +110,7 @@ export const usePostDetailActions = ({ data, postId }: PostDetailActionsParams) 
     recentTrackedPostIdRef.current = postId;
     trackRecentView(postId)
       .then(() => {
-        queryClient.invalidateQueries({ queryKey: postsKeys.recent() });
+        void invalidateQueryTargets(queryClient, [{ queryKey: postsKeys.recent() }]);
       })
       .catch(() => null);
   }, [accessToken, data, postId, queryClient, trackRecentView]);
@@ -130,7 +131,7 @@ export const usePostDetailActions = ({ data, postId }: PostDetailActionsParams) 
       const response = await likePost(postId);
       updateDetailCache({ likeCount: response.likeCount, liked: response.liked });
       // 좋아요 목록 갱신
-      queryClient.invalidateQueries({ queryKey: postsKeys.liked() });
+      await invalidateQueryTargets(queryClient, [{ queryKey: postsKeys.liked() }]);
     } catch {
       showToast({ message: POST_DETAIL_MESSAGES.LIKE_COUNT_FAILURE, type: 'warning' });
     }

@@ -13,6 +13,7 @@ import {
   TOAST_SAVE_SUCCESS_MESSAGE,
   TOAST_TITLE_REQUIRED_MESSAGE,
 } from '@/app/shared/constants/messages/post.message';
+import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 
 import type { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
@@ -81,8 +82,10 @@ export const usePostEditSaver = ({ postId, formData }: PostEditSaverParams) => {
       );
 
       await updatePostMutation.mutateAsync({ id: postId, ...payload });
-      await queryClient.invalidateQueries({ queryKey: postsKeys.detail(postId) });
-      await queryClient.invalidateQueries({ queryKey: postsKeys.list(), exact: false });
+      await invalidateQueryTargets(queryClient, [
+        { queryKey: postsKeys.detail(postId) },
+        { queryKey: postsKeys.list(), exact: false },
+      ]);
       showToast({ message: TOAST_SAVE_SUCCESS_MESSAGE, type: 'success' });
       router.replace(`/posts/${postId}`);
     } catch (error) {

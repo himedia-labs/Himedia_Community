@@ -1,6 +1,7 @@
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import { LOGIN_WITHDRAW_MODAL_MESSAGES } from '@/app/shared/constants/messages/modal.message';
+import { applyQueryDataUpdate } from '@/app/shared/lib/query/queryCache.utils';
 
 import type { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
@@ -83,7 +84,7 @@ export const createHandleRestoreAccount = (params: LoginRestoreAccountParams) =>
       const { setAccessToken } = useAuthStore.getState();
 
       setAccessToken(result.accessToken);
-      params.queryClient.setQueryData(params.authKeys.currentUser, result.user);
+      applyQueryDataUpdate(params.queryClient, params.authKeys.currentUser, () => result.user);
       params.setIsWithdrawnModalOpen(false);
       params.setRestoreCode('');
       params.setIsRestoreCodeSent(false);

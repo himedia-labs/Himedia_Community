@@ -15,6 +15,7 @@ import {
   TOAST_SAVE_SUCCESS_MESSAGE,
   TOAST_TITLE_REQUIRED_MESSAGE,
 } from '@/app/shared/constants/messages/post.message';
+import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 
 import type { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
@@ -107,9 +108,9 @@ export const useDraftSaver = ({ formData, draftId, isAuthenticated }: DraftSaver
         router.replace(`/posts/draftId?${response.id}`);
       }
 
-      queryClient.invalidateQueries({ queryKey: postsKeys.drafts(), exact: false });
+      await invalidateQueryTargets(queryClient, [{ queryKey: postsKeys.drafts(), exact: false }]);
       if (savedDraftId) {
-        queryClient.invalidateQueries({ queryKey: postsKeys.draft(savedDraftId) });
+        await invalidateQueryTargets(queryClient, [{ queryKey: postsKeys.draft(savedDraftId) }]);
       }
       showToast({ message: TOAST_DRAFT_SAVED_MESSAGE, type: 'success', duration: DRAFT_TOAST_DURATION_MS });
     } catch (error) {
@@ -146,8 +147,10 @@ export const useDraftSaver = ({ formData, draftId, isAuthenticated }: DraftSaver
         await createPostMutation.mutateAsync(payload);
       }
 
-      queryClient.invalidateQueries({ queryKey: postsKeys.list(), exact: false });
-      queryClient.invalidateQueries({ queryKey: postsKeys.infinite(), exact: false });
+      await invalidateQueryTargets(queryClient, [
+        { queryKey: postsKeys.list(), exact: false },
+        { queryKey: postsKeys.infinite(), exact: false },
+      ]);
       showToast({ message: TOAST_SAVE_SUCCESS_MESSAGE, type: 'success' });
       router.replace('/');
     } catch (error) {

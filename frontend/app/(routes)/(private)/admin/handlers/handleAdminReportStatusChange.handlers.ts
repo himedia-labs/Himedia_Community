@@ -1,5 +1,6 @@
 import { adminKeys } from '@/app/api/admin/admin.keys';
 import { notificationsKeys } from '@/app/api/notifications/notifications.keys';
+import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 
 import type { QueryClient } from '@tanstack/react-query';
 import type { AdminReportStatus } from '@/app/shared/types/admin';
@@ -15,8 +16,10 @@ export const handleAdminReportStatusChange = async (params: {
   mutateAsync: (payload: { reportId: string; status: AdminReportStatus }) => Promise<unknown>;
 }) => {
   await params.mutateAsync({ reportId: params.reportId, status: params.status });
-  await params.queryClient.invalidateQueries({ queryKey: adminKeys.reports() });
-  await params.queryClient.invalidateQueries({ queryKey: adminKeys.pendingUsers() });
-  await params.queryClient.invalidateQueries({ queryKey: adminKeys.auditLogs() });
-  await params.queryClient.invalidateQueries({ queryKey: notificationsKeys.list() });
+  await invalidateQueryTargets(params.queryClient, [
+    { queryKey: adminKeys.reports() },
+    { queryKey: adminKeys.pendingUsers() },
+    { queryKey: adminKeys.auditLogs() },
+    { queryKey: notificationsKeys.list() },
+  ]);
 };

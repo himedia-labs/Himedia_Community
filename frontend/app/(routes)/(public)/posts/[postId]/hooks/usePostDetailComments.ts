@@ -9,6 +9,7 @@ import { useDeleteCommentMutation, useUpdateCommentMutation } from '@/app/api/co
 import { followsApi } from '@/app/api/follows/follows.api';
 import { postsKeys } from '@/app/api/posts/posts.keys';
 import { useToast } from '@/app/shared/components/toast/toast';
+import { applyQueryDataUpdate, invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 import {
   isCommentContentTooLong,
   MAX_COMMENT_CONTENT_LENGTH,
@@ -270,7 +271,7 @@ export const usePostDetailComments = ({
       return;
     }
     showToast({ message: '댓글이 등록되었습니다.', type: 'success' });
-    await queryClient.invalidateQueries({ queryKey: commentsKeys.myList() });
+    await invalidateQueryTargets(queryClient, [{ queryKey: commentsKeys.myList() }]);
     requestAnimationFrame(() => {
       commentListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
@@ -290,9 +291,11 @@ export const usePostDetailComments = ({
         setEditingContent('');
       }
       setOpenCommentMenuId(null);
-      await queryClient.invalidateQueries({ queryKey: commentsKeys.list(postId) });
-      await queryClient.invalidateQueries({ queryKey: commentsKeys.myList() });
-      await queryClient.invalidateQueries({ queryKey: postsKeys.detail(postId) });
+      await invalidateQueryTargets(queryClient, [
+        { queryKey: commentsKeys.list(postId) },
+        { queryKey: commentsKeys.myList() },
+        { queryKey: postsKeys.detail(postId) },
+      ]);
     } catch {
       showToast({ message: '댓글 삭제에 실패했습니다.', type: 'error' });
     }
@@ -334,9 +337,11 @@ export const usePostDetailComments = ({
     try {
       await updateComment({ commentId, payload: { content: trimmed } });
       handleEditCancel();
-      await queryClient.invalidateQueries({ queryKey: commentsKeys.list(postId) });
-      await queryClient.invalidateQueries({ queryKey: commentsKeys.myList() });
-      await queryClient.invalidateQueries({ queryKey: postsKeys.detail(postId) });
+      await invalidateQueryTargets(queryClient, [
+        { queryKey: commentsKeys.list(postId) },
+        { queryKey: commentsKeys.myList() },
+        { queryKey: postsKeys.detail(postId) },
+      ]);
     } catch {
       showToast({ message: '댓글 수정에 실패했습니다.', type: 'error' });
     }
@@ -350,7 +355,7 @@ export const usePostDetailComments = ({
     }
     try {
       const result = await commentsApi.toggleCommentLike(postId, commentId);
-      queryClient.setQueryData(commentsKeys.list(postId), (old: CommentListResponse | undefined) => {
+      applyQueryDataUpdate<CommentListResponse>(queryClient, commentsKeys.list(postId), old => {
         if (!old) return old;
         return old.map(commentItem =>
           commentItem.id === commentId
@@ -381,7 +386,7 @@ export const usePostDetailComments = ({
         await followsApi.followUser(author.id);
         showToast({ message: '팔로우했습니다.', type: 'success' });
       }
-      await queryClient.invalidateQueries({ queryKey: commentsKeys.list(postId) });
+      await invalidateQueryTargets(queryClient, [{ queryKey: commentsKeys.list(postId) }]);
     } catch {
       showToast({ message: '팔로우 처리에 실패했습니다.', type: 'error' });
     }
@@ -542,8 +547,10 @@ export const usePostDetailComments = ({
         textarea.innerHTML = '';
         resizeReplyInput(textarea);
       });
-      await queryClient.invalidateQueries({ queryKey: commentsKeys.list(postId) });
-      await queryClient.invalidateQueries({ queryKey: postsKeys.detail(postId) });
+      await invalidateQueryTargets(queryClient, [
+        { queryKey: commentsKeys.list(postId) },
+        { queryKey: postsKeys.detail(postId) },
+      ]);
       showToast({ message: '답글이 등록되었습니다.', type: 'success' });
       requestAnimationFrame(() => {
         const target = document.getElementById(`comment-${parentId}`);

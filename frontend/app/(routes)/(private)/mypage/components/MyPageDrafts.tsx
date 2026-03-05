@@ -23,6 +23,7 @@ import {
 
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
+import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 
@@ -77,7 +78,7 @@ export default function MyPageDrafts({ sortOrder }: MyPageDraftsProps) {
   const handleDeleteDraft = createHandleDeleteDraft({
     deleteDraft,
     showToast,
-    invalidateDrafts: queryKey => queryClient.invalidateQueries({ queryKey, exact: false }),
+    invalidateDrafts: queryKey => invalidateQueryTargets(queryClient, [{ queryKey, exact: false }]),
   });
   const handleDeleteDraftClick = createHandleDeleteDraftClick(handleDeleteDraft);
 

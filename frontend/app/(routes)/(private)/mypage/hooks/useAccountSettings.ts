@@ -12,6 +12,7 @@ import {
 import { useAuthStore } from '@/app/shared/store/authStore';
 
 import { isValidPassword } from '@/app/shared/utils/password';
+import { applyQueryDataUpdate } from '@/app/shared/lib/query/queryCache.utils';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { EMAIL_REGEX } from '@/app/shared/constants/config/auth.config';
 import { EMAIL_MESSAGES, REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
@@ -60,7 +61,7 @@ export const useAccountSettings = ({ birthDate, email, phone }: UseAccountSettin
   const isSaving = isUpdatingAccount || isChangingPassword;
   const normalizeEmail = (value: string) => value.trim().toLowerCase();
   const currentEmail = normalizeEmail(email);
-  const applyCurrentUser = (nextUser: User) => queryClient.setQueryData(authKeys.currentUser, nextUser);
+  const applyCurrentUser = (nextUser: User) => applyQueryDataUpdate(queryClient, authKeys.currentUser, () => nextUser);
   const extractErrorMessage = (error: unknown, fallback: string) => {
     const axiosError = error as AxiosError<ApiErrorResponse>;
     return axiosError.response?.data?.message || fallback;

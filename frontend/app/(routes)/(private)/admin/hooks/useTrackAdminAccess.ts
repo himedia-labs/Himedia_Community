@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { adminKeys } from '@/app/api/admin/admin.keys';
+import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 
 import type { QueryClient } from '@tanstack/react-query';
 
@@ -21,7 +22,7 @@ export const useTrackAdminAccess = (params: {
     hasTrackedAccessRef.current = true;
     mutate(undefined, {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: adminKeys.accessLogs() });
+        await invalidateQueryTargets(queryClient, [{ queryKey: adminKeys.accessLogs() }]);
       },
     });
   }, [canAccess, mutate, queryClient]);

@@ -5,6 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { commentsKeys } from '@/app/api/comments/comments.keys';
 import { useCreateCommentMutation } from '@/app/api/comments/comments.mutations';
 import { postsKeys } from '@/app/api/posts/posts.keys';
+import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 import {
   isCommentContentTooLong,
   MAX_COMMENT_CONTENT_LENGTH,
@@ -34,8 +35,10 @@ export const usePostCommentForm = (postId: string) => {
       try {
         await mutateAsync({ content: trimmed });
         setContent('');
-        await queryClient.invalidateQueries({ queryKey: commentsKeys.list(postId) });
-        await queryClient.invalidateQueries({ queryKey: postsKeys.detail(postId) });
+        await invalidateQueryTargets(queryClient, [
+          { queryKey: commentsKeys.list(postId) },
+          { queryKey: postsKeys.detail(postId) },
+        ]);
         return true;
       } catch {
         return false;
