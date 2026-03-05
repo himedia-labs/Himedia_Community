@@ -26,10 +26,7 @@ import {
   PHONE_CONFIG,
 } from '@/app/shared/constants/config/register.config';
 
-import {
-  useEmailVerificationAutoVerify,
-  useRegisterForm,
-} from '@/app/(routes)/(public)/register/hooks';
+import { useEmailVerificationAutoVerify, useRegisterForm } from '@/app/(routes)/(public)/register/hooks';
 import {
   createNextStepHandler,
   createRegisterInputHandlers,
@@ -61,7 +58,22 @@ export default function RegisterPage() {
   } = useRegisterForm();
 
   // 폼 입력값 상태
-  const { name, email, emailCode: cachedEmailCode, birthDate, password, passwordConfirm, phone, role, course, courseTerm, privacyConsent, step: cachedStep, isEmailVerified: cachedEmailVerified, isEmailCodeSent: cachedEmailCodeSent } = form;
+  const {
+    name,
+    email,
+    emailCode: cachedEmailCode,
+    birthDate,
+    password,
+    passwordConfirm,
+    phone,
+    role,
+    course,
+    courseTerm,
+    privacyConsent,
+    step: cachedStep,
+    isEmailVerified: cachedEmailVerified,
+    isEmailCodeSent: cachedEmailCodeSent,
+  } = form;
   const isCourseDisabled = role === 'instructor' || role === 'mentor';
   // 폼 에러 상태
   const {
@@ -263,7 +275,7 @@ export default function RegisterPage() {
               <>
                 <div className={styles.formGroup}>
                   <label htmlFor="name" className={styles.label}>
-                    <span className={styles.labelText}>이름</span>
+                    <span className={styles.labelText}>이름 (본명)</span>
                   </label>
                   <input
                     type="text"
@@ -466,14 +478,7 @@ export default function RegisterPage() {
                       <label htmlFor="course" className={styles.label}>
                         <span className={styles.labelText}>과정명</span>
                       </label>
-                      <input
-                        type="text"
-                        id="course"
-                        value={COURSE_NAME}
-                        className={styles.input}
-                        disabled
-                        readOnly
-                      />
+                      <input type="text" id="course" value={COURSE_NAME} className={styles.input} disabled readOnly />
                     </div>
 
                     <div className={styles.formColAuto}>
