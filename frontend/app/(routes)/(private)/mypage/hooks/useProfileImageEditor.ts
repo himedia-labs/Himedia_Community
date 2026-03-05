@@ -7,6 +7,7 @@ import { uploadsApi } from '@/app/api/uploads/uploads.api';
 import { useUpdateProfileImageMutation } from '@/app/api/auth/auth.mutations';
 
 import { useToast } from '@/app/shared/components/toast/toast';
+import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 
 import type { ChangeEvent } from 'react';
 
@@ -80,7 +81,7 @@ export const useProfileImageEditor = (initialImageUrl?: string | null, isProfile
 
     try {
       await updateProfileImage({ profileImageUrl: pendingImageUrl || null });
-      await queryClient.invalidateQueries({ queryKey: authKeys.currentUser });
+      await invalidateQueryTargets(queryClient, [{ queryKey: authKeys.currentUser }]);
       showToast({ message: pendingImageUrl ? '프로필 이미지가 업데이트되었습니다.' : '프로필 이미지가 삭제되었습니다.', type: 'success' });
       setPendingImageUrl(null);
       return true;

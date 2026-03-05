@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 
-import { FiSend } from 'react-icons/fi';
+import { FiSave } from 'react-icons/fi';
 import { RxWidth } from 'react-icons/rx';
 import { useParams, useRouter } from 'next/navigation';
 
@@ -127,12 +127,12 @@ export default function PostEditPage() {
           <button
             type="button"
             className={`${styles.headerAction} ${styles.headerActionText}`}
-            aria-label="수정하기"
-            title="수정하기"
+            aria-label="저장하기"
+            title="저장하기"
             onClick={handlePostUpdate}
           >
-            <span>수정하기</span>
-            <FiSend aria-hidden />
+            <span>저장하기</span>
+            <FiSave aria-hidden />
           </button>
         </div>
       </header>
@@ -253,9 +253,6 @@ export default function PostEditPage() {
           onClick={createExitHandler(router, postId)}
         >
           <span>나가기</span>
-        </button>
-        <button type="button" className={styles.actionButton} onClick={handlePostUpdate}>
-          <span>저장하기</span>
         </button>
       </footer>
     </section>

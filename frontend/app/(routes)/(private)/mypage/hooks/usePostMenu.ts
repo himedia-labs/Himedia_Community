@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { postsApi } from '@/app/api/posts/posts.api';
 import { postsKeys } from '@/app/api/posts/posts.keys';
+import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 
 /**
  * 마이페이지 게시글 메뉴 훅
@@ -33,7 +34,7 @@ export const usePostMenu = () => {
     if (!confirmed) return;
     await deleteMyPost(postId);
     setOpenPostMenuId(null);
-    await queryClient.invalidateQueries({ queryKey: postsKeys.all });
+    await invalidateQueryTargets(queryClient, [{ queryKey: postsKeys.all }]);
   };
 
   return {

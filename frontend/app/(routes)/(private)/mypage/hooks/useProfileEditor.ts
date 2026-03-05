@@ -6,6 +6,7 @@ import { authKeys } from '@/app/api/auth/auth.keys';
 import { useUpdateProfileMutation } from '@/app/api/auth/auth.mutations';
 
 import { useToast } from '@/app/shared/components/toast/toast';
+import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 
 import type { ChangeEvent } from 'react';
 
@@ -139,7 +140,7 @@ export const useProfileEditor = ({
         profileFacebookUrl: nextFacebookUrl,
         profileWebsiteUrl: nextWebsiteUrl,
       });
-      await queryClient.invalidateQueries({ queryKey: authKeys.currentUser });
+      await invalidateQueryTargets(queryClient, [{ queryKey: authKeys.currentUser }]);
       showToast({ message: '프로필이 저장되었습니다.', type: 'success' });
       return true;
     } catch {

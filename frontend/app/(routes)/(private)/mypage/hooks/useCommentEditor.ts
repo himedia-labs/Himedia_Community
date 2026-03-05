@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { commentsApi } from '@/app/api/comments/comments.api';
 import { commentsKeys } from '@/app/api/comments/comments.keys';
+import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 import {
   isCommentContentTooLong,
   MAX_COMMENT_CONTENT_LENGTH,
@@ -72,7 +73,7 @@ export const useCommentEditor = () => {
     if (trimmed.length > MAX_COMMENT_CONTENT_LENGTH) return;
     await updateMyComment({ postId, commentId, content: trimmed });
     handleEditCancel();
-    await queryClient.invalidateQueries({ queryKey: commentsKeys.myList() });
+    await invalidateQueryTargets(queryClient, [{ queryKey: commentsKeys.myList() }]);
   };
 
   // 댓글 삭제
@@ -85,7 +86,7 @@ export const useCommentEditor = () => {
       handleEditCancel();
     }
     setOpenCommentMenuId(null);
-    await queryClient.invalidateQueries({ queryKey: commentsKeys.myList() });
+    await invalidateQueryTargets(queryClient, [{ queryKey: commentsKeys.myList() }]);
   };
 
   return {

@@ -11,6 +11,7 @@ import { notificationsKeys } from '@/app/api/notifications/notifications.keys';
 import { useNotificationsQuery } from '@/app/api/notifications/notifications.queries';
 
 import { getNotificationSection } from '@/app/shared/utils/notification.utils';
+import { applyQueryDataUpdate } from '@/app/shared/lib/query/queryCache.utils';
 
 import type { NotificationListResponse } from '@/app/shared/types/notification';
 
@@ -57,7 +58,7 @@ export const useNotificationMenu = (params: {
 
   // 알림 핸들러
   const updateNotificationRead = (id: string) => {
-    queryClient.setQueryData(notificationsKeys.list(), (old: NotificationListResponse | undefined) => {
+    applyQueryDataUpdate<NotificationListResponse>(queryClient, notificationsKeys.list(), old => {
       if (!old) return old;
       const nextItems = old.items.map(item => (item.id === id ? { ...item, isRead: true } : item));
       const nextUnreadCount = nextItems.filter(item => !item.isRead).length;
@@ -78,7 +79,7 @@ export const useNotificationMenu = (params: {
     if (!isLoggedIn) return;
     markAllReadMutation.mutate(undefined, {
       onSuccess: () => {
-        queryClient.setQueryData(notificationsKeys.list(), (old: NotificationListResponse | undefined) => {
+        applyQueryDataUpdate<NotificationListResponse>(queryClient, notificationsKeys.list(), old => {
           if (!old) return old;
           return {
             ...old,

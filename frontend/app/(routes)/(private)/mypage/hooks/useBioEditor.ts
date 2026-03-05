@@ -8,6 +8,7 @@ import { useUpdateProfileBioMutation } from '@/app/api/auth/auth.mutations';
 
 import { useToast } from '@/app/shared/components/toast/toast';
 import { renderMarkdownPreview } from '@/app/shared/utils/markdown';
+import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 
 import type { ChangeEvent } from 'react';
 
@@ -165,7 +166,7 @@ export const useBioEditor = (userBio: string) => {
     }
     try {
       await updateMyBio({ profileBio });
-      await queryClient.invalidateQueries({ queryKey: authKeys.currentUser });
+      await invalidateQueryTargets(queryClient, [{ queryKey: authKeys.currentUser }]);
       showToast({ message: '자기소개가 저장되었습니다.', type: 'success' });
       setShowBioEditor(false);
     } catch {

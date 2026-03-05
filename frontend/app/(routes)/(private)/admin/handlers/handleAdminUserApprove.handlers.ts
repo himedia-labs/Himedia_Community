@@ -1,4 +1,5 @@
 import { adminKeys } from '@/app/api/admin/admin.keys';
+import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 
 import type { QueryClient } from '@tanstack/react-query';
 
@@ -12,6 +13,9 @@ export const handleAdminUserApprove = async (params: {
   mutateAsync: (userId: string) => Promise<unknown>;
 }) => {
   await params.mutateAsync(params.userId);
-  await params.queryClient.invalidateQueries({ queryKey: adminKeys.pendingUsers() });
-  await params.queryClient.invalidateQueries({ queryKey: adminKeys.auditLogs() });
+  await invalidateQueryTargets(params.queryClient, [
+    { queryKey: adminKeys.pendingUsers() },
+    { queryKey: adminKeys.users() },
+    { queryKey: adminKeys.auditLogs() },
+  ]);
 };
