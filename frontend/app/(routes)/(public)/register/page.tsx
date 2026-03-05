@@ -521,7 +521,7 @@ export default function RegisterPage() {
                       </label>
                       <div className={`${styles.checkboxText} ${privacyError ? styles.checkboxTextError : ''}`}>
                         <Link
-                          href="/terms/privacy"
+                          href="/docs/terms"
                           className={`${styles.link} ${styles.consentLink}`}
                           target="_blank"
                           rel="noopener noreferrer"
