@@ -312,7 +312,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                         <IconComponent aria-hidden="true" focusable="false" />
                         {hasUnread ? (
                           <span className={styles.notificationBadge} aria-label={`읽지 않은 알림 ${unreadCount}개`}>
-                            <span className={styles.notificationBadgeText}>{unreadCount}</span>
+                            {unreadCount}
                           </span>
                         ) : null}
                       </button>
