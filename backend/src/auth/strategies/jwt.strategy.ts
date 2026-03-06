@@ -47,6 +47,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     // 승인되지 않은 사용자
     if (!user.approved) {
+      if (!user.requestedRole) {
+        throw new ForbiddenException({
+          message: AUTH_ERROR_MESSAGES.APPROVAL_REJECTED,
+          code: ERROR_CODES.AUTH_APPROVAL_REJECTED,
+        });
+      }
+
       throw new ForbiddenException({
         message: AUTH_ERROR_MESSAGES.PENDING_APPROVAL,
         code: ERROR_CODES.AUTH_PENDING_APPROVAL,
