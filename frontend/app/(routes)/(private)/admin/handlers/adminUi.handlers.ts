@@ -65,6 +65,30 @@ export const createHandleApproveUserClick = (handleUserApprove: (userId: string)
 };
 
 /**
+ * 회원 거절 클릭 핸들러 생성
+ * @description 버튼 데이터의 사용자 id를 읽어 거절 요청을 수행
+ */
+export const createHandleRejectUserClick = (handleUserReject: (userId: string) => void) => {
+  return (event: MouseEvent<HTMLButtonElement>) => {
+    const { userId } = event.currentTarget.dataset;
+    if (!userId) return;
+    handleUserReject(userId);
+  };
+};
+
+/**
+ * 거절 계정 삭제 클릭 핸들러 생성
+ * @description 버튼 데이터의 사용자 id를 읽어 거절 계정 삭제를 수행
+ */
+export const createHandleDeleteRejectedUserClick = (handleDeleteRejectedUser: (userId: string) => void) => {
+  return (event: MouseEvent<HTMLButtonElement>) => {
+    const { userId } = event.currentTarget.dataset;
+    if (!userId) return;
+    handleDeleteRejectedUser(userId);
+  };
+};
+
+/**
  * 역할 변경 핸들러 생성
  * @description 셀렉트 데이터의 사용자 id와 선택 값을 읽어 역할 드래프트를 갱신
  */

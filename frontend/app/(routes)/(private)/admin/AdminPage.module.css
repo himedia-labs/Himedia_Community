@@ -532,10 +532,12 @@
 }
 
 .actions {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.45rem;
-  margin-top: 0.7rem;
+  width: auto;
+  margin-top: 0;
 }
 
 .actionButton {
@@ -557,6 +559,17 @@
   border-color: #c8e7d5;
   background: #effbf4;
   color: #1f7a4a;
+}
+
+.rejectActionButton {
+  min-width: 72px;
+  border-color: #f6d0d0;
+  background: #fef2f2;
+  color: #b42318;
+}
+
+.rejectActionButton:hover {
+  background: #fee8e8;
 }
 
 .logItem {

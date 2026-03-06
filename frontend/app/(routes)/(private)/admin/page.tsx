@@ -14,10 +14,13 @@ import {
   useAdminAccessLogsQuery,
   useAdminAuditLogsQuery,
   useAdminPendingUsersQuery,
+  useAdminRejectedUsersQuery,
   useAdminUsersQuery,
 } from '@/app/api/admin/admin.queries';
 import {
   useApproveAdminUserMutation,
+  useDeleteRejectedAdminUserMutation,
+  useRejectAdminUserMutation,
   useTrackAdminAccessMutation,
   useUpdateAdminUserRoleMutation,
 } from '@/app/api/admin/admin.mutations';
@@ -38,17 +41,21 @@ import {
   createHandleSelectPendingSort,
 } from '@/app/(routes)/(private)/admin/handlers/adminFilter.handlers';
 import {
+  createHandleDeleteRejectedUser,
   createHandleUserEdit,
+  createHandleUserReject,
   createHandleUserApprove,
   createHandleSaveAllUserRoles,
   createHandleChangeUserRoleDraft,
 } from '@/app/(routes)/(private)/admin/handlers/adminUser.handlers';
 import {
+  createHandleDeleteRejectedUserClick,
   createHandleMenuButtonClick,
   createHandlePendingSortClick,
   createHandleRoleFilterClick,
   createHandleCourseFilterClick,
   createHandleApproveUserClick,
+  createHandleRejectUserClick,
   createHandleUserRoleDraftChange,
 } from '@/app/(routes)/(private)/admin/handlers/adminUi.handlers';
 import { formatDate } from '@/app/shared/utils/date.utils';
@@ -104,6 +111,7 @@ export default function AdminPage() {
 
   // 조회/뮤테이션 훅
   const { data: pendingUsersData, isLoading: isPendingUsersLoading } = useAdminPendingUsersQuery(canAccess);
+  const { data: rejectedUsersData, isLoading: isRejectedUsersLoading } = useAdminRejectedUsersQuery(canAccess);
   const { data: usersData, isLoading: isUsersLoading } = useAdminUsersQuery(canAccess);
   const { data: logsData, isLoading: isLogsLoading } = useAdminAuditLogsQuery(canAccess);
   const {
@@ -114,6 +122,8 @@ export default function AdminPage() {
     fetchNextPage: fetchNextAccessLogsPage,
   } = useAdminAccessLogsQuery(canAccess);
   const approveUserMutation = useApproveAdminUserMutation();
+  const rejectUserMutation = useRejectAdminUserMutation();
+  const deleteRejectedUserMutation = useDeleteRejectedAdminUserMutation();
   const updateUserRoleMutation = useUpdateAdminUserRoleMutation();
   const trackAdminAccessMutation = useTrackAdminAccessMutation();
 
@@ -134,6 +144,8 @@ export default function AdminPage() {
   // 원본/목록 데이터
   const pendingUsers = useMemo(() => pendingUsersData?.items ?? [], [pendingUsersData]);
   const allUsers = useMemo(() => usersData?.items ?? [], [usersData]);
+  const rejectedUsers = useMemo(() => rejectedUsersData?.items ?? [], [rejectedUsersData]);
+  const adminUsers = useMemo(() => allUsers.filter(user => user.role === 'ADMIN'), [allUsers]);
   const auditLogs = logsData?.items ?? [];
   const accessLogs = useMemo(() => {
     return accessLogsData?.pages.flatMap(page => page.items) ?? [];
@@ -157,7 +169,9 @@ export default function AdminPage() {
   // 메뉴/아이콘 매핑
   const menuIconMap: Record<string, IconType> = {
     [ADMIN_MENU_LABELS.PENDING_USERS]: FiUserCheck,
+    [ADMIN_MENU_LABELS.REJECTED_USERS]: FiUserCheck,
     [ADMIN_MENU_LABELS.USERS]: FiUsers,
+    [ADMIN_MENU_LABELS.ADMINS]: FiUsers,
     [ADMIN_MENU_LABELS.AUDIT_LOGS]: FiFileText,
     [ADMIN_MENU_LABELS.ACCESS_LOGS]: FiLogIn,
   };
@@ -193,6 +207,16 @@ export default function AdminPage() {
     mutateAsync: approveUserMutation.mutateAsync,
     showToast,
   });
+  const handleUserReject = createHandleUserReject({
+    queryClient,
+    mutateAsync: rejectUserMutation.mutateAsync,
+    showToast,
+  });
+  const handleDeleteRejectedUser = createHandleDeleteRejectedUser({
+    queryClient,
+    mutateAsync: deleteRejectedUserMutation.mutateAsync,
+    showToast,
+  });
   const handleUserEdit = createHandleUserEdit(setIsUsersEditMode);
   const handleSaveAllUserRoles = createHandleSaveAllUserRoles({
     allUsers,
@@ -207,7 +231,18 @@ export default function AdminPage() {
   const handlePendingSortClick = createHandlePendingSortClick(handleSelectPendingSort);
   const handleRoleFilterClick = createHandleRoleFilterClick(handleSelectRoleFilter);
   const handleCourseFilterClick = createHandleCourseFilterClick(handleSelectCourseFilter);
+  const handleRejectUserWithReason = async (userId: string) => {
+    const reasonInput = window.prompt('거절 사유를 입력해주세요.');
+    const reason = reasonInput?.trim() ?? '';
+    if (!reason) {
+      showToast({ message: '거절 사유를 입력해야 합니다.', type: 'warning' });
+      return;
+    }
+    await handleUserReject(userId, reason);
+  };
   const handleApproveUserClick = createHandleApproveUserClick(handleUserApprove);
+  const handleRejectUserClick = createHandleRejectUserClick(handleRejectUserWithReason);
+  const handleDeleteRejectedUserClick = createHandleDeleteRejectedUserClick(handleDeleteRejectedUser);
   const handleUserRoleDraftChange = createHandleUserRoleDraftChange(handleChangeUserRoleDraft);
 
   if (!isInitialized || !accessToken || isUserLoading || !isAdmin) {
@@ -254,12 +289,30 @@ export default function AdminPage() {
               </button>
               <button
                 type="button"
+                className={`${styles.sidebarItem} ${selectedMenu === ADMIN_MENU_LABELS.ADMINS ? styles.sidebarItemActive : ''}`}
+                data-menu-label={ADMIN_MENU_LABELS.ADMINS}
+                onClick={handleMenuButtonClick}
+              >
+                <FiUsers aria-hidden="true" />
+                관리자
+              </button>
+              <button
+                type="button"
                 className={`${styles.sidebarItem} ${selectedMenu === ADMIN_MENU_LABELS.PENDING_USERS ? styles.sidebarItemActive : ''}`}
                 data-menu-label={ADMIN_MENU_LABELS.PENDING_USERS}
                 onClick={handleMenuButtonClick}
               >
                 <FiUserCheck aria-hidden="true" />
                 회원 승인
+              </button>
+              <button
+                type="button"
+                className={`${styles.sidebarItem} ${selectedMenu === ADMIN_MENU_LABELS.REJECTED_USERS ? styles.sidebarItemActive : ''}`}
+                data-menu-label={ADMIN_MENU_LABELS.REJECTED_USERS}
+                onClick={handleMenuButtonClick}
+              >
+                <FiUserCheck aria-hidden="true" />
+                거절 계정
               </button>
             </div>
 
@@ -474,14 +527,24 @@ export default function AdminPage() {
                                 <td>{user.course ?? 'N/A'}</td>
                                 <td>{formatDate(user.createdAt)}</td>
                                 <td>
-                                  <button
-                                    type="button"
-                                    className={`${styles.actionButton} ${styles.approveActionButton}`}
-                                    data-user-id={user.id}
-                                    onClick={handleApproveUserClick}
-                                  >
-                                    승인 하기
-                                  </button>
+                                  <div className={styles.actions}>
+                                    <button
+                                      type="button"
+                                      className={`${styles.actionButton} ${styles.approveActionButton}`}
+                                      data-user-id={user.id}
+                                      onClick={handleApproveUserClick}
+                                    >
+                                      승인
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className={`${styles.actionButton} ${styles.rejectActionButton}`}
+                                      data-user-id={user.id}
+                                      onClick={handleRejectUserClick}
+                                    >
+                                      거절
+                                    </button>
+                                  </div>
                                 </td>
                               </tr>
                             ))}
@@ -491,6 +554,58 @@ export default function AdminPage() {
                     </>
                   ) : (
                     <p className={styles.notice}>승인 대기 회원이 없습니다.</p>
+                  )}
+                </article>
+              ) : null}
+
+              {selectedMenu === ADMIN_MENU_LABELS.REJECTED_USERS ? (
+                <article className={`${styles.card} ${styles.tableCard}`}>
+                  {isRejectedUsersLoading ? (
+                    <p className={styles.notice}>불러오는 중입니다.</p>
+                  ) : rejectedUsers.length ? (
+                    <div className={styles.tableWrap}>
+                      <table className={styles.pendingTable}>
+                        <thead className={styles.pendingTableHead}>
+                          <tr>
+                            <th>순서</th>
+                            <th>이름</th>
+                            <th>이메일</th>
+                            <th>전화번호</th>
+                            <th>생년월일</th>
+                            <th>거절일(가입일)</th>
+                            <th>거절 사유</th>
+                            <th>처리</th>
+                          </tr>
+                        </thead>
+                        <tbody className={styles.pendingTableBody}>
+                          {rejectedUsers.map((user, index) => (
+                            <tr key={user.id}>
+                              <td>#{index + 1}</td>
+                              <td>{user.name}</td>
+                              <td>{user.email}</td>
+                              <td>{formatPhoneNumber(user.phone)}</td>
+                              <td>{user.birthDate ?? '-'}</td>
+                              <td>{formatDate(user.createdAt)}</td>
+                              <td>{user.rejectedReason ?? '-'}</td>
+                              <td>
+                                <div className={styles.actions}>
+                                  <button
+                                    type="button"
+                                    className={`${styles.actionButton} ${styles.rejectActionButton}`}
+                                    data-user-id={user.id}
+                                    onClick={handleDeleteRejectedUserClick}
+                                  >
+                                    재가입 허용
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className={styles.notice}>거절된 계정이 없습니다.</p>
                   )}
                 </article>
               ) : null}
@@ -554,6 +669,43 @@ export default function AdminPage() {
                     </div>
                   ) : (
                     <p className={styles.notice}>회원 목록이 없습니다.</p>
+                  )}
+                </article>
+              ) : null}
+
+              {selectedMenu === ADMIN_MENU_LABELS.ADMINS ? (
+                <article className={`${styles.card} ${styles.tableCard}`}>
+                  {isUsersLoading ? (
+                    <p className={styles.notice}>불러오는 중입니다.</p>
+                  ) : adminUsers.length ? (
+                    <div className={styles.tableWrap}>
+                      <table className={styles.pendingTable}>
+                        <thead className={styles.pendingTableHead}>
+                          <tr>
+                            <th>순서</th>
+                            <th>이름</th>
+                            <th>이메일</th>
+                            <th>회원번호</th>
+                            <th>전화번호</th>
+                            <th>가입일</th>
+                          </tr>
+                        </thead>
+                        <tbody className={styles.pendingTableBody}>
+                          {adminUsers.map((user, index) => (
+                            <tr key={user.id}>
+                              <td>#{index + 1}</td>
+                              <td>{user.name}</td>
+                              <td>{user.email}</td>
+                              <td>{user.id}</td>
+                              <td>{formatPhoneNumber(user.phone)}</td>
+                              <td>{formatDate(user.createdAt)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className={styles.notice}>관리자 목록이 없습니다.</p>
                   )}
                 </article>
               ) : null}

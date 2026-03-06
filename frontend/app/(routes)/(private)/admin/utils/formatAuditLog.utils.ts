@@ -4,6 +4,8 @@
  */
 export const formatAuditActionLabel = (action: string) => {
   if (action === 'USER_APPROVED') return '회원 승인 처리';
+  if (action === 'USER_APPROVAL_REJECTED') return '회원 승인 거절';
+  if (action === 'USER_REJECTED_REMOVED') return '거절 계정 재가입 허용';
   if (action === 'USER_ROLE_UPDATED') return '회원 역할 변경';
   if (action === 'REPORT_STATUS_UPDATED') return '신고 상태 변경';
   return action;

@@ -8,6 +8,7 @@ import type {
   AdminAuditLogsResponse,
   AdminMyReportsResponse,
   AdminPendingUsersResponse,
+  AdminRejectedUsersResponse,
   AdminReportsResponse,
   AdminUsersResponse,
 } from '@/app/shared/types/admin';
@@ -35,6 +36,15 @@ export const useAdminPendingUsersQuery = (enabled: boolean) => {
   return useQuery<AdminPendingUsersResponse, Error>({
     queryKey: adminKeys.pendingUsers(),
     queryFn: adminApi.getPendingUsers,
+    enabled,
+  });
+};
+
+// 관리자 승인 거절 회원 조회
+export const useAdminRejectedUsersQuery = (enabled: boolean) => {
+  return useQuery<AdminRejectedUsersResponse, Error>({
+    queryKey: adminKeys.rejectedUsers(),
+    queryFn: adminApi.getRejectedUsers,
     enabled,
   });
 };

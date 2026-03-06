@@ -1,7 +1,9 @@
 // 메뉴 레이블
 export const ADMIN_MENU_LABELS = {
-  PENDING_USERS: '회원 승인',
+  PENDING_USERS: '가입 요청',
+  REJECTED_USERS: '거절 계정',
   USERS: '사용자',
+  ADMINS: '관리자',
   AUDIT_LOGS: '감사 로그',
   ACCESS_LOGS: '관리자 접속일지',
 } as const;
@@ -34,7 +36,9 @@ export const ADMIN_QUERY_KEYS = {
 // 탭 쿼리 값
 export const ADMIN_TAB_QUERY_VALUE = {
   PENDING_USERS: 'pending',
+  REJECTED_USERS: 'rejected',
   USERS: 'users',
+  ADMINS: 'admins',
   AUDIT_LOGS: 'audit',
   ACCESS_LOGS: 'access',
 } as const;

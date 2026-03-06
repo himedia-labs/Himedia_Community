@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { adminApi } from '@/app/api/admin/admin.api';
 
 import type {
-  CreateAdminReportRequest,
+  RejectAdminUserRequest,
   UpdateAdminReportStatusRequest,
   UpdateAdminUserRoleRequest,
 } from '@/app/shared/types/admin';
@@ -19,6 +19,20 @@ export const useUpdateAdminReportStatusMutation = () => {
 export const useApproveAdminUserMutation = () => {
   return useMutation<unknown, Error, string>({
     mutationFn: adminApi.approveUser,
+  });
+};
+
+// 관리자 회원 승인 거절
+export const useRejectAdminUserMutation = () => {
+  return useMutation<unknown, Error, RejectAdminUserRequest>({
+    mutationFn: adminApi.rejectUser,
+  });
+};
+
+// 관리자 승인 거절 계정 삭제
+export const useDeleteRejectedAdminUserMutation = () => {
+  return useMutation<unknown, Error, string>({
+    mutationFn: adminApi.deleteRejectedUser,
   });
 };
 
