@@ -15,6 +15,8 @@ import { FiEdit2, FiEye, FiExternalLink, FiHeart, FiShare2, FiTrash2, FiMoreHori
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
+import { useForcePostDraftMutation } from '@/app/api/admin/admin.mutations';
+import { useToast } from '@/app/shared/components/toast/toast';
 import { createTocClickHandler } from '@/app/(routes)/(public)/posts/[postId]/handlers';
 import {
   usePostDetailActions,
@@ -51,6 +53,8 @@ export default function PostDetailPage() {
   const accessToken = useAuthStore(state => state.accessToken);
   const isInitialized = useAuthStore(state => state.isInitialized);
   const { data: currentUser } = useCurrentUserQuery();
+  const { showToast } = useToast();
+  const { mutateAsync: forcePostToDraft, isPending: isForcingPostDraft } = useForcePostDraftMutation();
 
   // 요청 훅
   const isQueryEnabled = Boolean(postId) && isInitialized;
@@ -66,6 +70,8 @@ export default function PostDetailPage() {
   const postAuthorId = data?.author?.id ?? null;
   const authorProfilePath = getAuthorProfilePath(data?.author?.profileHandle);
   const isMyPost = Boolean(currentUser?.id && postAuthorId && currentUser.id === postAuthorId);
+  const isAdmin = currentUser?.role === 'ADMIN';
+  const canManagePost = isMyPost || isAdmin;
   const canShowAuthorFollowButton = Boolean(currentUser?.id && postAuthorId && currentUser.id !== postAuthorId);
   const authorProfileBioPreview = getAuthorProfileBioPreview(data?.author?.profileBio);
   const authorSocialLinks = buildAuthorSocialLinks(data?.author);
@@ -73,6 +79,18 @@ export default function PostDetailPage() {
   // 메뉴 상태
   const { isPostDeleting, isPostMenuOpen, handlePostEdit, handlePostDelete, handlePostMenuToggle } =
     usePostDetailPostMenu({ postId });
+  const handleForcePostDraft = async () => {
+    if (!postId || !isAdmin || isForcingPostDraft) return;
+    const confirmed = window.confirm('게시글을 임시저장으로 전환할까요?');
+    if (!confirmed) return;
+
+    try {
+      await forcePostToDraft(postId);
+      window.location.reload();
+    } catch {
+      showToast({ message: '강제 삭제(임시저장)에 실패했습니다.', type: 'error' });
+    }
+  };
 
   // 팔로우 상태
   const {
@@ -185,7 +203,7 @@ export default function PostDetailPage() {
       <div className={styles.header}>
         <div className={styles.categoryRow}>
           <div className={styles.category}>{data.category?.name ?? 'ALL'}</div>
-          {isMyPost ? (
+          {canManagePost ? (
             <div className={styles.postMoreWrapper}>
               <button
                 type="button"
@@ -197,20 +215,36 @@ export default function PostDetailPage() {
               </button>
               {isPostMenuOpen ? (
                 <div className={styles.postMoreMenu} role="menu">
-                  <button type="button" className={styles.postMoreItem} role="menuitem" onClick={handlePostEdit}>
-                    <FiEdit2 aria-hidden="true" />
-                    수정
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.postMoreItem}
-                    role="menuitem"
-                    disabled={isPostDeleting}
-                    onClick={handlePostDelete}
-                  >
-                    <FiTrash2 aria-hidden="true" />
-                    삭제
-                  </button>
+                  {isMyPost ? (
+                    <button type="button" className={styles.postMoreItem} role="menuitem" onClick={handlePostEdit}>
+                      <FiEdit2 aria-hidden="true" />
+                      수정
+                    </button>
+                  ) : null}
+                  {isMyPost ? (
+                    <button
+                      type="button"
+                      className={styles.postMoreItem}
+                      role="menuitem"
+                      disabled={isPostDeleting}
+                      onClick={handlePostDelete}
+                    >
+                      <FiTrash2 aria-hidden="true" />
+                      삭제
+                    </button>
+                  ) : null}
+                  {isAdmin && !isMyPost ? (
+                    <button
+                      type="button"
+                      className={`${styles.postMoreItem} ${styles.postMoreItemDanger}`}
+                      role="menuitem"
+                      disabled={isForcingPostDraft}
+                      onClick={handleForcePostDraft}
+                    >
+                      <FiTrash2 aria-hidden="true" />
+                      강제삭제 (임시저장)
+                    </button>
+                  ) : null}
                 </div>
               ) : null}
             </div>
@@ -421,6 +455,7 @@ export default function PostDetailPage() {
             isCommentsLoading={isCommentsLoading}
             isSubmitting={isSubmitting}
             isUpdating={isUpdating}
+            isAdmin={isAdmin}
             mentionRoleMap={mentionRoleMap}
             openCommentMenuId={openCommentMenuId}
             openRepliesIds={openRepliesIds}

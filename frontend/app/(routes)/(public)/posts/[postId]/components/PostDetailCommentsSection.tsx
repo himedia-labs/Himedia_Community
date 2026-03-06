@@ -84,6 +84,7 @@ export const PostDetailCommentsSection = ({
   isCommentsLoading,
   isSubmitting,
   isUpdating,
+  isAdmin,
   mentionRoleMap,
   openCommentMenuId,
   openRepliesIds,
@@ -213,7 +214,7 @@ export const PostDetailCommentsSection = ({
                 </span>
               </div>
             </div>
-            {comment.isOwner ? (
+            {comment.isOwner || isAdmin ? (
               <div className={styles.commentMoreWrapper}>
                 <button
                   type="button"
@@ -225,15 +226,17 @@ export const PostDetailCommentsSection = ({
                 </button>
                 {openCommentMenuId === comment.id ? (
                   <div className={styles.commentMoreMenu} role="menu">
-                    <button
-                      type="button"
-                      className={styles.commentMoreItem}
-                      role="menuitem"
-                      onClick={handleEditStartClick}
-                    >
-                      <FiEdit2 aria-hidden="true" />
-                      수정
-                    </button>
+                    {comment.isOwner ? (
+                      <button
+                        type="button"
+                        className={styles.commentMoreItem}
+                        role="menuitem"
+                        onClick={handleEditStartClick}
+                      >
+                        <FiEdit2 aria-hidden="true" />
+                        수정
+                      </button>
+                    ) : null}
                     <button
                       type="button"
                       className={styles.commentMoreItem}

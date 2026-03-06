@@ -50,6 +50,7 @@ export interface PostDetailCommentsSectionProps {
   isCommentsLoading: boolean;
   isSubmitting: boolean;
   isUpdating: boolean;
+  isAdmin: boolean;
   mentionRoleMap: Map<string, string>;
   openCommentMenuId: string | null;
   openRepliesIds: string[];
