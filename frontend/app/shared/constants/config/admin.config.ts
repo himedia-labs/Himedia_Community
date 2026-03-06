@@ -1,7 +1,7 @@
 // 메뉴 레이블
 export const ADMIN_MENU_LABELS = {
   PENDING_USERS: '회원 승인',
-  USERS: '전체 회원',
+  USERS: '사용자',
   AUDIT_LOGS: '감사 로그',
   ACCESS_LOGS: '관리자 접속일지',
 } as const;

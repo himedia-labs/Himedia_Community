@@ -241,7 +241,8 @@ export default function AdminPage() {
             </span>
           </Link>
           <nav className={styles.sidebarNav}>
-            <div className={styles.sidebarTopMenu}>
+            <div className={styles.sidebarSection}>
+              <p className={styles.sidebarSectionLabel}>관리</p>
               <button
                 type="button"
                 className={`${styles.sidebarItem} ${selectedMenu === ADMIN_MENU_LABELS.USERS ? styles.sidebarItemActive : ''}`}
@@ -249,12 +250,8 @@ export default function AdminPage() {
                 onClick={handleMenuButtonClick}
               >
                 <FiUsers aria-hidden="true" />
-                전체 회원
+                사용자
               </button>
-            </div>
-
-            <div className={styles.sidebarSection}>
-              <p className={styles.sidebarSectionLabel}>관리</p>
               <button
                 type="button"
                 className={`${styles.sidebarItem} ${selectedMenu === ADMIN_MENU_LABELS.PENDING_USERS ? styles.sidebarItemActive : ''}`}
@@ -528,7 +525,7 @@ export default function AdminPage() {
                               <td>{formatPhoneNumber(user.phone)}</td>
                               <td>{user.birthDate ?? '-'}</td>
                               <td>
-                                {isUsersEditMode ? (
+                                {isUsersEditMode && user.role !== 'ADMIN' ? (
                                   <select
                                     className={styles.userRoleSelect}
                                     value={userRoleDrafts[user.id] ?? user.requestedRole ?? user.role}

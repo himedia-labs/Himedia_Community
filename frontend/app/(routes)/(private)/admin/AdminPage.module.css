@@ -114,11 +114,6 @@
   gap: 0.9rem;
 }
 
-.sidebarTopMenu {
-  padding-bottom: 0.85rem;
-  border-bottom: 1px solid #edf1f7;
-}
-
 .sidebarSection {
   display: flex;
   flex-direction: column;
@@ -221,15 +216,15 @@
 }
 
 .sidebarItem:hover {
-  border-color: #e4e9f2;
-  background: #f8fafc;
-  color: #334155;
+  border-color: transparent;
+  background: transparent;
+  color: #3b82f6;
 }
 
 .sidebarItemActive {
-  border-color: #e4e9f2;
-  background: #f8fafc;
-  color: #334155;
+  border-color: transparent;
+  background: transparent;
+  color: #2563eb;
 }
 
 .content {
@@ -292,6 +287,205 @@
 
 .tableCard .notice {
   padding: 1rem;
+}
+
+.managementCard {
+  padding: 0;
+  overflow: hidden;
+}
+
+.managementHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.managementTitleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.managementTitle {
+  margin: 0;
+  color: #111827;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.managementDescription {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+.managementCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  height: 26px;
+  padding: 0 0.55rem;
+  border: 1px solid #dbe5f4;
+  border-radius: 999px;
+  background: #f8fbff;
+  color: #2563eb;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.managementBody {
+  padding: 1rem;
+}
+
+.managementPostList {
+  margin: 0;
+  padding: 1rem;
+  list-style: none;
+}
+
+.managementPostItem {
+  padding: 0.8rem 0;
+}
+
+.managementPostItem + .managementPostItem {
+  border-top: 1px solid #eef2f7;
+}
+
+.managementPostTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+}
+
+.managementPostTitle {
+  color: #1f2937;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.managementPostTitle:hover {
+  color: #2563eb;
+}
+
+.managementPostDate {
+  flex-shrink: 0;
+  color: #8b95a7;
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
+
+.managementPostBody {
+  margin: 0.38rem 0 0;
+  color: #475467;
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.managementPostMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.42rem;
+  color: #6b7280;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.managementCommentList {
+  margin: 0;
+  padding: 1rem;
+  list-style: none;
+}
+
+.managementCommentItem {
+  padding: 0.8rem 0;
+}
+
+.managementCommentItem + .managementCommentItem {
+  border-top: 1px solid #eef2f7;
+}
+
+.managementCommentTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+}
+
+.managementCommentPostLink {
+  color: #1f2937;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.managementCommentPostLink:hover {
+  color: #2563eb;
+}
+
+.managementCommentDate {
+  flex-shrink: 0;
+  color: #8b95a7;
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
+
+.managementCommentBody {
+  margin: 0.38rem 0 0;
+  color: #475467;
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.managementCommentFooter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.42rem;
+}
+
+.managementCommentMetric {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.26rem;
+  color: #6b7280;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.managementItemActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.48rem;
+}
+
+.managementActionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 0.58rem;
+  border: 1px solid #d6deea;
+  border-radius: 8px;
+  background: #fff;
+  color: #334155;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.managementActionButton:hover {
+  border-color: #c6d3e8;
+  background: #f8fafd;
+  color: #1f2937;
 }
 
 .cardTitle {
@@ -392,6 +586,7 @@
 
 .tableWrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .pendingSortRow {
@@ -567,7 +762,8 @@
 .pendingTable {
   width: 100%;
   border-collapse: collapse;
-  min-width: 980px;
+  min-width: 1100px;
+  table-layout: auto;
 }
 
 .pendingTableHead th {
@@ -588,6 +784,7 @@
   color: #3f4756;
   border-bottom: 1px solid #eef2f7;
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 .pendingTableBody tr:last-child td {
@@ -897,6 +1094,23 @@
 
   .sidebarItem {
     justify-content: center;
+  }
+
+  .managementHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .managementCommentTop {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+
+  .managementPostTop {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
   }
 
   .grid {
