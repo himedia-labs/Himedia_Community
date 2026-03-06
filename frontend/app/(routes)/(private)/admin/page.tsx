@@ -303,7 +303,7 @@ export default function AdminPage() {
                 onClick={handleMenuButtonClick}
               >
                 <FiUserCheck aria-hidden="true" />
-                회원 승인
+                가입 요청
               </button>
               <button
                 type="button"
@@ -739,11 +739,11 @@ export default function AdminPage() {
                               <td>
                                 {formatAuditTargetLabel(log.targetType, log.targetId, log.targetName, log.targetEmail)}
                               </td>
-                              <td>{formatAuditBeforeLabel(log.payload)}</td>
+                              <td>{formatAuditBeforeLabel(log.action, log.payload)}</td>
                               <td className={styles.auditDiffArrowCell}>
                                 <FiChevronRight aria-hidden="true" />
                               </td>
-                              <td>{formatAuditAfterLabel(log.payload)}</td>
+                              <td>{formatAuditAfterLabel(log.action, log.payload)}</td>
                               <td>{formatDate(log.createdAt)}</td>
                               <td>
                                 <span
