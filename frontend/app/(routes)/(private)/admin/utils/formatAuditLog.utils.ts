@@ -3,7 +3,10 @@
  * @description 감사 로그 action 코드를 한글 라벨로 변환
  */
 export const formatAuditActionLabel = (action: string) => {
-  if (action === 'USER_APPROVED') return '회원 승인 처리';
+  if (action === 'USER_APPROVED') return '가입 요청';
+  if (action === 'USER_APPROVAL_REJECTED') return '가입 요청';
+  if (action === 'USER_REJECTED_REMOVED') return '거절 계정';
+  if (action === 'POST_FORCED_TO_DRAFT') return '게시글 처분';
   if (action === 'USER_ROLE_UPDATED') return '회원 역할 변경';
   if (action === 'REPORT_STATUS_UPDATED') return '신고 상태 변경';
   return action;
@@ -58,7 +61,11 @@ export const getAuditResultTone = (payload: Record<string, unknown> | null) => {
  * 감사 로그 변경 전 라벨
  * @description payload의 before 스냅샷을 사용자 표시용 문자열로 변환
  */
-export const formatAuditBeforeLabel = (payload: Record<string, unknown> | null) => {
+export const formatAuditBeforeLabel = (action: string, payload: Record<string, unknown> | null) => {
+  if (action === 'USER_REJECTED_REMOVED') return '거절 계정';
+  if (action === 'USER_APPROVAL_REJECTED' || action === 'USER_APPROVED') {
+    return formatApprovalOnlySnapshot(payload, 'before');
+  }
   const beforeSnapshot = readSnapshot(payload, 'before');
   if (beforeSnapshot) return formatSnapshot(beforeSnapshot);
   return formatLegacyBeforeSnapshot(payload);
@@ -68,10 +75,25 @@ export const formatAuditBeforeLabel = (payload: Record<string, unknown> | null) 
  * 감사 로그 변경 후 라벨
  * @description payload의 after 스냅샷을 사용자 표시용 문자열로 변환
  */
-export const formatAuditAfterLabel = (payload: Record<string, unknown> | null) => {
+export const formatAuditAfterLabel = (action: string, payload: Record<string, unknown> | null) => {
+  if (action === 'USER_REJECTED_REMOVED') return '재가입 허용';
+  if (action === 'USER_APPROVAL_REJECTED' || action === 'USER_APPROVED') {
+    return formatApprovalOnlySnapshot(payload, 'after');
+  }
   const afterSnapshot = readSnapshot(payload, 'after');
   if (afterSnapshot) return formatSnapshot(afterSnapshot);
   return formatLegacyAfterSnapshot(payload);
+};
+
+/**
+ * 승인 상태 전용 스냅샷
+ * @description 회원 승인/거절 로그에서 승인 상태만 간단히 표시
+ */
+const formatApprovalOnlySnapshot = (payload: Record<string, unknown> | null, key: 'before' | 'after') => {
+  const snapshot = readSnapshot(payload, key);
+  const approved = snapshot?.approved;
+  if (typeof approved !== 'boolean') return '미승인';
+  return approved ? '승인' : '미승인';
 };
 
 /**
@@ -112,9 +134,14 @@ const formatSnapshot = (snapshot: Record<string, unknown> | null) => {
  * @description 스냅샷 key를 한글 라벨로 변환
  */
 const formatSnapshotKey = (key: string) => {
-  if (key === 'approved') return '';
-  if (key === 'role') return '';
+  if (key === 'approved') return '승인상태';
+  if (key === 'role') return '역할';
   if (key === 'status') return '';
+  if (key === 'requestedRole') return '신청역할';
+  if (key === 'deleted') return '삭제여부';
+  if (key === 'email') return '이메일';
+  if (key === 'phone') return '전화번호';
+  if (key === 'id') return '회원번호';
   if (key === 'handledAt') return '처리시각';
   return key;
 };
@@ -126,6 +153,8 @@ const formatSnapshotKey = (key: string) => {
 const formatSnapshotValue = (key: string, value: unknown) => {
   if (key === 'approved' && typeof value === 'boolean') return value ? '승인' : '미승인';
   if (key === 'role' && typeof value === 'string') return formatUserRoleLabel(value);
+  if (key === 'requestedRole' && typeof value === 'string') return formatUserRoleLabel(value);
+  if (key === 'deleted' && typeof value === 'boolean') return value ? '삭제' : '유지';
   if (key === 'status' && typeof value === 'string') return formatReportStatusLabel(value);
   if (value === null) return '없음';
   if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return String(value);
@@ -141,6 +170,8 @@ const formatReportStatusLabel = (status: string) => {
   if (status === 'IN_PROGRESS') return '진행중';
   if (status === 'RESOLVED') return '해결';
   if (status === 'REJECTED') return '반려';
+  if (status === 'PUBLISHED') return '게시중';
+  if (status === 'DRAFT') return '임시저장';
   return status;
 };
 

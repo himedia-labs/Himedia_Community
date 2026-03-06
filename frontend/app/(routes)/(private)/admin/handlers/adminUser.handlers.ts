@@ -35,6 +35,61 @@ export const createHandleUserApprove = (params: {
 };
 
 /**
+ * 회원 거절 핸들러 생성
+ * @description 승인 거절 요청 처리 후 토스트를 표시한다
+ */
+export const createHandleUserReject = (params: {
+  queryClient: QueryClient;
+  mutateAsync: (payload: { userId: string; reason: string }) => Promise<unknown>;
+  showToast: (options: { message: string; type: 'success' | 'error' | 'info' | 'warning' }) => void;
+}) => {
+  return async (userId: string, reason: string) => {
+    const rollback = applyOptimisticUserReject({
+      queryClient: params.queryClient,
+      userId,
+    });
+
+    try {
+      await params.mutateAsync({ userId, reason });
+      await invalidateQueryTargets(params.queryClient, [
+        { queryKey: adminKeys.auditLogs() },
+        { queryKey: adminKeys.rejectedUsers() },
+      ]);
+      params.showToast({ message: '회원 승인 요청을 거절했습니다.', type: 'success' });
+    } catch (error) {
+      rollback();
+      params.showToast({ message: extractErrorMessage(error, '회원 승인 거절 처리에 실패했습니다.'), type: 'error' });
+    }
+  };
+};
+
+/**
+ * 거절 계정 삭제 핸들러 생성
+ * @description 승인 거절 계정을 삭제하여 재회원가입을 허용한다
+ */
+export const createHandleDeleteRejectedUser = (params: {
+  queryClient: QueryClient;
+  mutateAsync: (userId: string) => Promise<unknown>;
+  showToast: (options: { message: string; type: 'success' | 'error' | 'info' | 'warning' }) => void;
+}) => {
+  return async (userId: string) => {
+    const rollback = applyOptimisticRejectedUserDelete({
+      queryClient: params.queryClient,
+      userId,
+    });
+
+    try {
+      await params.mutateAsync(userId);
+      await invalidateQueryTargets(params.queryClient, [{ queryKey: adminKeys.auditLogs() }]);
+      params.showToast({ message: '재회원가입 허용 처리되었습니다.', type: 'success' });
+    } catch (error) {
+      rollback();
+      params.showToast({ message: extractErrorMessage(error, '재회원가입 허용 처리에 실패했습니다.'), type: 'error' });
+    }
+  };
+};
+
+/**
  * 회원 편집 토글 핸들러 생성
  * @description 전체 회원의 역할 편집 모드를 토글한다
  */
@@ -154,6 +209,61 @@ const applyOptimisticUserApprove = (params: { queryClient: QueryClient; userId: 
   return () => {
     if (previousPending) applyQueryDataUpdate(params.queryClient, adminKeys.pendingUsers(), () => previousPending);
     if (previousUsers) applyQueryDataUpdate(params.queryClient, adminKeys.users(), () => previousUsers);
+  };
+};
+
+/**
+ * 승인 대기 회원 거절 낙관적 반영
+ * @description 거절 요청 직후 pending/users 캐시에 즉시 반영하고 롤백 함수를 반환
+ */
+const applyOptimisticUserReject = (params: { queryClient: QueryClient; userId: string }) => {
+  const previousPending = params.queryClient.getQueryData<AdminPendingUsersResponse>(adminKeys.pendingUsers());
+  const previousUsers = params.queryClient.getQueryData<AdminUsersResponse>(adminKeys.users());
+
+  applyQueryDataUpdate<AdminPendingUsersResponse>(params.queryClient, adminKeys.pendingUsers(), old => {
+    if (!old) return old;
+    return {
+      ...old,
+      items: old.items.filter(user => user.id !== params.userId),
+    };
+  });
+
+  applyQueryDataUpdate<AdminUsersResponse>(params.queryClient, adminKeys.users(), old => {
+    if (!old) return old;
+    return {
+      ...old,
+      items: old.items.map(user =>
+        user.id === params.userId
+          ? {
+              ...user,
+              approved: false,
+              requestedRole: null,
+            }
+          : user,
+      ),
+    };
+  });
+
+  return () => {
+    if (previousPending) applyQueryDataUpdate(params.queryClient, adminKeys.pendingUsers(), () => previousPending);
+    if (previousUsers) applyQueryDataUpdate(params.queryClient, adminKeys.users(), () => previousUsers);
+  };
+};
+
+/**
+ * 거절 계정 삭제 낙관적 반영
+ * @description 거절 계정 삭제 요청 직후 관련 캐시를 즉시 반영하고 롤백 함수를 반환
+ */
+const applyOptimisticRejectedUserDelete = (params: { queryClient: QueryClient; userId: string }) => {
+  const previousRejected = params.queryClient.getQueryData<AdminPendingUsersResponse>(adminKeys.rejectedUsers());
+
+  applyQueryDataUpdate<AdminPendingUsersResponse>(params.queryClient, adminKeys.rejectedUsers(), old => {
+    if (!old) return old;
+    return { ...old, items: old.items.filter(user => user.id !== params.userId) };
+  });
+
+  return () => {
+    if (previousRejected) applyQueryDataUpdate(params.queryClient, adminKeys.rejectedUsers(), () => previousRejected);
   };
 };
 

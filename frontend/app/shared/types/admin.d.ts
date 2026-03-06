@@ -78,9 +78,14 @@ export interface AdminPendingUser {
   course: string | null;
   approved: boolean;
   createdAt: string;
+  rejectedReason?: string | null;
 }
 
 export interface AdminPendingUsersResponse {
+  items: AdminPendingUser[];
+}
+
+export interface AdminRejectedUsersResponse {
   items: AdminPendingUser[];
 }
 
@@ -110,6 +115,11 @@ export interface UpdateAdminReportStatusRequest {
 export interface UpdateAdminUserRoleRequest {
   userId: string;
   role: 'TRAINEE' | 'GRADUATE' | 'MENTOR' | 'INSTRUCTOR';
+}
+
+export interface RejectAdminUserRequest {
+  userId: string;
+  reason: string;
 }
 
 export interface CreateAdminReportRequest {

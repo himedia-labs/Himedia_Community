@@ -5,9 +5,11 @@ import type {
   AdminAuditLogsResponse,
   AdminMyReportsResponse,
   AdminPendingUsersResponse,
+  AdminRejectedUsersResponse,
   AdminReportsResponse,
   AdminUsersResponse,
   CreateAdminReportRequest,
+  RejectAdminUserRequest,
   UpdateAdminReportStatusRequest,
   UpdateAdminUserRoleRequest,
 } from '@/app/shared/types/admin';
@@ -21,6 +23,12 @@ const getReports = async () => {
 // 관리자 승인 대기 회원 조회
 const getPendingUsers = async () => {
   const res = await axiosInstance.get<AdminPendingUsersResponse>('/admin/users/pending', { params: { limit: 30 } });
+  return res.data;
+};
+
+// 관리자 승인 거절 회원 조회
+const getRejectedUsers = async () => {
+  const res = await axiosInstance.get<AdminRejectedUsersResponse>('/admin/users/rejected', { params: { limit: 50 } });
   return res.data;
 };
 
@@ -55,10 +63,29 @@ const approveUser = async (userId: string) => {
   return res.data;
 };
 
+// 관리자 회원 승인 거절
+const rejectUser = async (payload: RejectAdminUserRequest) => {
+  const { userId, reason } = payload;
+  const res = await axiosInstance.patch(`/admin/users/${userId}/reject`, { reason });
+  return res.data;
+};
+
+// 관리자 승인 거절 계정 삭제
+const deleteRejectedUser = async (userId: string) => {
+  const res = await axiosInstance.delete(`/admin/users/${userId}/rejected`);
+  return res.data;
+};
+
 // 관리자 회원 역할 변경
 const updateUserRole = async (payload: UpdateAdminUserRoleRequest) => {
   const { userId, role } = payload;
   const res = await axiosInstance.patch(`/admin/users/${userId}/role`, { role });
+  return res.data;
+};
+
+// 관리자 게시글 강제 임시저장
+const forcePostToDraft = async (postId: string) => {
+  const res = await axiosInstance.patch(`/admin/posts/${postId}/force-draft`);
   return res.data;
 };
 
@@ -82,9 +109,13 @@ const trackAccessLog = async () => {
 
 export const adminApi = {
   approveUser,
+  rejectUser,
+  deleteRejectedUser,
   updateUserRole,
+  forcePostToDraft,
   getReports,
   getPendingUsers,
+  getRejectedUsers,
   getUsers,
   getAuditLogs,
   getAccessLogs,

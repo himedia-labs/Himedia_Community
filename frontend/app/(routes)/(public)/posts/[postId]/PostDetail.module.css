@@ -80,6 +80,7 @@
   color: #4e5968;
   text-align: left;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .postMoreItem:hover {
@@ -89,6 +90,20 @@
 .postMoreItem :global(svg) {
   width: 14px;
   height: 14px;
+}
+
+.postMoreDivider {
+  height: 1px;
+  margin: 0.3rem 0.2rem;
+  background: #e5e7eb;
+}
+
+.postMoreItemDanger {
+  color: #b42318;
+}
+
+.postMoreItemDanger:hover {
+  background: #fef2f2;
 }
 
 .title {

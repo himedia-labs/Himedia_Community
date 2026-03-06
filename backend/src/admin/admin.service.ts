@@ -1,13 +1,15 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThan, In, Not, Repository } from 'typeorm';
+import { IsNull, LessThan, In, Not, Repository } from 'typeorm';
 
 import { SnowflakeService } from '../common/services/snowflake.service';
 import { User, UserRole } from '../auth/entities/user.entity';
 import { ERROR_CODES } from '../constants/error/error-codes';
 import { ADMIN_ERROR_MESSAGES } from '../constants/message/admin.messages';
+import { POST_ERROR_MESSAGES } from '../constants/message/post.messages';
 import { NotificationType } from '../notifications/entities/notification.entity';
 import { NotificationsService } from '../notifications/notifications.service';
+import { Post, PostStatus } from '../posts/entities/post.entity';
 
 import { AdminAuditLog } from './entities/adminAuditLog.entity';
 import { AdminReport, AdminReportStatus } from './entities/adminReport.entity';
@@ -31,6 +33,8 @@ export class AdminService {
     private readonly adminAuditLogsRepository: Repository<AdminAuditLog>,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    @InjectRepository(Post)
+    private readonly postsRepository: Repository<Post>,
     private readonly notificationsService: NotificationsService,
     private readonly snowflakeService: SnowflakeService,
   ) {}
@@ -189,7 +193,7 @@ export class AdminService {
     // 값/보정
     const safeLimit = Number.isFinite(limit) ? Math.min(Math.max(Number(limit), 1), 100) : 30;
     const users = await this.usersRepository.find({
-      where: { approved: false, withdrawn: false, role: Not(UserRole.ADMIN) },
+      where: { approved: false, withdrawn: false, role: Not(UserRole.ADMIN), requestedRole: Not(IsNull()) },
       order: { createdAt: 'ASC' },
       take: safeLimit,
       select: ['id', 'name', 'email', 'phone', 'birthDate', 'requestedRole', 'role', 'course', 'approved', 'createdAt'],
@@ -199,14 +203,50 @@ export class AdminService {
   }
 
   /**
+   * 승인 거절 회원 목록
+   * @description 미승인/요청역할 없음 상태의 회원 목록을 반환
+   */
+  async getRejectedUsers(limit?: number) {
+    const safeLimit = Number.isFinite(limit) ? Math.min(Math.max(Number(limit), 1), 100) : 30;
+    const users = await this.usersRepository.find({
+      where: { approved: false, withdrawn: false, role: Not(UserRole.ADMIN), requestedRole: IsNull() },
+      order: { createdAt: 'DESC' },
+      take: safeLimit,
+      select: ['id', 'name', 'email', 'phone', 'birthDate', 'requestedRole', 'role', 'course', 'approved', 'createdAt'],
+    });
+
+    const rejectedUserIds = users.map(user => user.id);
+    const rejectionLogs = rejectedUserIds.length
+      ? await this.adminAuditLogsRepository.find({
+          where: { action: 'USER_APPROVAL_REJECTED', targetType: 'user', targetId: In(rejectedUserIds) },
+          order: { createdAt: 'DESC' },
+        })
+      : [];
+    const rejectionReasonMap = new Map<string, string>();
+    rejectionLogs.forEach(log => {
+      if (rejectionReasonMap.has(log.targetId)) return;
+      const reason = this.readPayloadString(log.payload, 'reason');
+      if (!reason) return;
+      rejectionReasonMap.set(log.targetId, reason);
+    });
+
+    return {
+      items: users.map(user => ({
+        ...user,
+        rejectedReason: rejectionReasonMap.get(user.id) ?? null,
+      })),
+    };
+  }
+
+  /**
    * 전체 회원 목록
-   * @description 관리자 계정을 제외한 전체 회원 목록을 반환
+   * @description 승인된 전체 회원 목록을 반환
    */
   async getUsers(limit?: number) {
     // 값/보정
     const safeLimit = Number.isFinite(limit) ? Math.min(Math.max(Number(limit), 1), 300) : 100;
     const users = await this.usersRepository.find({
-      where: { approved: true, withdrawn: false, role: Not(UserRole.ADMIN) },
+      where: { approved: true, withdrawn: false },
       order: { createdAt: 'ASC' },
       take: safeLimit,
       select: [
@@ -278,6 +318,119 @@ export class AdminService {
   }
 
   /**
+   * 회원 승인 거절 처리
+   * @description 승인 대기 회원 요청을 거절하고 대기 목록에서 제외
+   */
+  async rejectUser(userId: string, adminUserId: string, reason: string) {
+    const normalizedUserId = userId.trim();
+    const normalizedAdminUserId = adminUserId.trim();
+    const normalizedReason = reason.trim();
+
+    // 대상/조회
+    const targetUser = await this.usersRepository.findOne({ where: { id: normalizedUserId } });
+    if (!targetUser) {
+      await this.createAuditLog({
+        adminUserId: normalizedAdminUserId,
+        action: 'USER_APPROVAL_REJECTED',
+        targetType: 'user',
+        targetId: normalizedUserId,
+        payload: {
+          result: 'FAILURE',
+          reasonCode: ERROR_CODES.AUTH_USER_NOT_FOUND,
+          reason: normalizedReason,
+          before: null,
+          after: null,
+        },
+      });
+
+      throw new NotFoundException({
+        message: ADMIN_ERROR_MESSAGES.USER_NOT_FOUND,
+        code: ERROR_CODES.AUTH_USER_NOT_FOUND,
+      });
+    }
+
+    // 상태/변경
+    const beforeApproved = targetUser.approved;
+    const beforeRequestedRole = targetUser.requestedRole;
+    targetUser.approved = false;
+    targetUser.requestedRole = null;
+    await this.usersRepository.save(targetUser);
+    await this.createAuditLog({
+      adminUserId: normalizedAdminUserId,
+      action: 'USER_APPROVAL_REJECTED',
+      targetType: 'user',
+      targetId: targetUser.id,
+      payload: {
+        result: 'SUCCESS',
+        reasonCode: null,
+        reason: normalizedReason,
+        before: { approved: beforeApproved, requestedRole: beforeRequestedRole },
+        after: { approved: targetUser.approved, requestedRole: targetUser.requestedRole },
+      },
+    });
+
+    return { id: targetUser.id, approved: targetUser.approved, requestedRole: targetUser.requestedRole };
+  }
+
+  /**
+   * 승인 거절 계정 삭제
+   * @description 거절 계정을 완전 삭제해 동일 정보 재가입을 허용
+   */
+  async deleteRejectedUser(userId: string, adminUserId: string) {
+    const normalizedUserId = userId.trim();
+    const normalizedAdminUserId = adminUserId.trim();
+
+    const targetUser = await this.usersRepository.findOne({ where: { id: normalizedUserId } });
+    if (!targetUser) {
+      await this.createAuditLog({
+        adminUserId: normalizedAdminUserId,
+        action: 'USER_REJECTED_REMOVED',
+        targetType: 'user',
+        targetId: normalizedUserId,
+        payload: { result: 'FAILURE', reasonCode: ERROR_CODES.AUTH_USER_NOT_FOUND, before: null, after: null },
+      });
+      throw new NotFoundException({
+        message: ADMIN_ERROR_MESSAGES.USER_NOT_FOUND,
+        code: ERROR_CODES.AUTH_USER_NOT_FOUND,
+      });
+    }
+
+    const isRejectedUser = !targetUser.approved && !targetUser.requestedRole && !targetUser.withdrawn;
+    if (!isRejectedUser) {
+      await this.createAuditLog({
+        adminUserId: normalizedAdminUserId,
+        action: 'USER_REJECTED_REMOVED',
+        targetType: 'user',
+        targetId: targetUser.id,
+        payload: { result: 'FAILURE', reasonCode: 'ADMIN_NOT_REJECTED_USER', before: null, after: null },
+      });
+      throw new NotFoundException({
+        message: '승인 거절 계정이 아닙니다.',
+        code: 'ADMIN_NOT_REJECTED_USER',
+      });
+    }
+
+    const beforeSnapshot = {
+      id: targetUser.id,
+      email: targetUser.email,
+      phone: targetUser.phone,
+      approved: targetUser.approved,
+      requestedRole: targetUser.requestedRole,
+    };
+
+    await this.usersRepository.remove(targetUser);
+    await this.createAuditLog({
+      adminUserId: normalizedAdminUserId,
+      action: 'USER_REJECTED_REMOVED',
+      targetType: 'user',
+      targetId: normalizedUserId,
+      payload: { result: 'SUCCESS', reasonCode: null, before: beforeSnapshot, after: { deleted: true } },
+    });
+
+    return { id: normalizedUserId, deleted: true };
+  }
+
+  /**
    * 회원 역할 변경
    * @description 전체 회원의 역할을 지정한 값으로 수정
    */
@@ -326,6 +479,58 @@ export class AdminService {
     });
 
     return { id: targetUser.id, role: targetUser.role };
+  }
+
+  /**
+   * 게시글 강제 임시저장
+   * @description 운영자가 게시글 상태를 임시저장으로 전환
+   */
+  async forcePostToDraft(postId: string, adminUserId: string) {
+    const normalizedPostId = postId.trim();
+    const normalizedAdminUserId = adminUserId.trim();
+
+    // 대상/조회
+    const targetPost = await this.postsRepository.findOne({ where: { id: normalizedPostId } });
+    if (!targetPost) {
+      await this.createAuditLog({
+        adminUserId: normalizedAdminUserId,
+        action: 'POST_FORCED_TO_DRAFT',
+        targetType: 'post',
+        targetId: normalizedPostId,
+        payload: {
+          result: 'FAILURE',
+          reasonCode: ERROR_CODES.POST_NOT_FOUND,
+          before: null,
+          after: null,
+        },
+      });
+
+      throw new NotFoundException({
+        message: POST_ERROR_MESSAGES.POST_NOT_FOUND,
+        code: ERROR_CODES.POST_NOT_FOUND,
+      });
+    }
+
+    // 상태/변경
+    const beforeStatus = targetPost.status;
+    targetPost.status = PostStatus.DRAFT;
+    targetPost.publishedAt = null;
+    await this.postsRepository.save(targetPost);
+
+    await this.createAuditLog({
+      adminUserId: normalizedAdminUserId,
+      action: 'POST_FORCED_TO_DRAFT',
+      targetType: 'post',
+      targetId: targetPost.id,
+      payload: {
+        result: 'SUCCESS',
+        reasonCode: null,
+        before: { status: beforeStatus },
+        after: { status: targetPost.status },
+      },
+    });
+
+    return { id: targetPost.id, status: targetPost.status };
   }
 
   /**

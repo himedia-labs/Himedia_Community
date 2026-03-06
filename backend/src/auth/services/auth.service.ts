@@ -167,6 +167,13 @@ export class AuthService {
 
     // 승인 상태 확인
     if (!user.approved) {
+      if (!user.requestedRole) {
+        throw new ForbiddenException({
+          message: AUTH_ERROR_MESSAGES.APPROVAL_REJECTED,
+          code: ERROR_CODES.AUTH_APPROVAL_REJECTED,
+        });
+      }
+
       throw new ForbiddenException({
         message: AUTH_ERROR_MESSAGES.PENDING_APPROVAL,
         code: ERROR_CODES.AUTH_PENDING_APPROVAL,

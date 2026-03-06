@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -7,6 +7,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 
 import { AdminService } from './admin.service';
 import { ListAdminReportsQueryDto } from './dto/listAdminReportsQuery.dto';
+import { RejectAdminUserDto } from './dto/rejectAdminUser.dto';
 import { UpdateAdminReportStatusDto } from './dto/updateAdminReportStatus.dto';
 import { UpdateAdminUserRoleDto } from './dto/updateAdminUserRole.dto';
 
@@ -89,6 +90,18 @@ export class AdminController {
   }
 
   /**
+   * 승인 거절 회원 목록
+   * @description 운영자가 승인 거절된 회원을 조회
+   */
+  @Get('users/rejected')
+  getRejectedUsers(@Query('limit') limit?: string) {
+    const parsed = limit ? Number(limit) : undefined;
+    const safeLimit = Number.isFinite(parsed) ? Number(parsed) : undefined;
+
+    return this.adminService.getRejectedUsers(safeLimit);
+  }
+
+  /**
    * 전체 회원 목록
    * @description 운영자가 전체 회원 목록을 조회
    */
@@ -124,6 +137,24 @@ export class AdminController {
   }
 
   /**
+   * 회원 승인 거절 처리
+   * @description 운영자가 승인 대기 회원 요청을 거절
+   */
+  @Patch('users/:userId/reject')
+  rejectUser(@Param('userId') userId: string, @Body() body: RejectAdminUserDto, @Request() req: AdminAuthRequest) {
+    return this.adminService.rejectUser(userId, req.user.sub, body.reason);
+  }
+
+  /**
+   * 승인 거절 계정 정리
+   * @description 운영자가 승인 거절 계정을 삭제해 재가입을 허용
+   */
+  @Delete('users/:userId/rejected')
+  deleteRejectedUser(@Param('userId') userId: string, @Request() req: AdminAuthRequest) {
+    return this.adminService.deleteRejectedUser(userId, req.user.sub);
+  }
+
+  /**
    * 회원 역할 변경
    * @description 운영자가 전체 회원의 역할을 변경
    */
@@ -134,6 +165,15 @@ export class AdminController {
     @Request() req: AdminAuthRequest,
   ) {
     return this.adminService.updateUserRole(userId, body.role, req.user.sub);
+  }
+
+  /**
+   * 게시글 강제 임시저장
+   * @description 운영자가 게시중인 게시글을 임시저장 상태로 전환
+   */
+  @Patch('posts/:postId/force-draft')
+  forcePostToDraft(@Param('postId') postId: string, @Request() req: AdminAuthRequest) {
+    return this.adminService.forcePostToDraft(postId, req.user.sub);
   }
 
   /**

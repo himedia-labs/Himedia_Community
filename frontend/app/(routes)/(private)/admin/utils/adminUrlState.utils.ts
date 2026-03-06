@@ -12,7 +12,9 @@ import type { AdminMenuLabel, AdminPendingSort } from '@/app/shared/types/admin'
  * @description tab 쿼리 문자열을 관리자 메뉴 라벨로 변환
  */
 export const parseAdminMenuFromQuery = (value: string | null): AdminMenuLabel => {
+  if (value === ADMIN_TAB_QUERY_VALUE.REJECTED_USERS) return ADMIN_MENU_LABELS.REJECTED_USERS;
   if (value === ADMIN_TAB_QUERY_VALUE.USERS) return ADMIN_MENU_LABELS.USERS;
+  if (value === ADMIN_TAB_QUERY_VALUE.ADMINS) return ADMIN_MENU_LABELS.ADMINS;
   if (value === ADMIN_TAB_QUERY_VALUE.AUDIT_LOGS) return ADMIN_MENU_LABELS.AUDIT_LOGS;
   if (value === ADMIN_TAB_QUERY_VALUE.ACCESS_LOGS) return ADMIN_MENU_LABELS.ACCESS_LOGS;
   return ADMIN_MENU_LABELS.PENDING_USERS;
@@ -36,7 +38,9 @@ export const parseAdminSortFromQuery = (value: string | null): AdminPendingSort 
  * @description 관리자 메뉴 라벨을 tab 쿼리 문자열로 변환
  */
 export const serializeAdminMenuToQuery = (menu: AdminMenuLabel) => {
+  if (menu === ADMIN_MENU_LABELS.REJECTED_USERS) return ADMIN_TAB_QUERY_VALUE.REJECTED_USERS;
   if (menu === ADMIN_MENU_LABELS.USERS) return ADMIN_TAB_QUERY_VALUE.USERS;
+  if (menu === ADMIN_MENU_LABELS.ADMINS) return ADMIN_TAB_QUERY_VALUE.ADMINS;
   if (menu === ADMIN_MENU_LABELS.AUDIT_LOGS) return ADMIN_TAB_QUERY_VALUE.AUDIT_LOGS;
   if (menu === ADMIN_MENU_LABELS.ACCESS_LOGS) return ADMIN_TAB_QUERY_VALUE.ACCESS_LOGS;
   return ADMIN_TAB_QUERY_VALUE.PENDING_USERS;
