@@ -2,7 +2,11 @@ import { useMutation } from '@tanstack/react-query';
 
 import { adminApi } from '@/app/api/admin/admin.api';
 
-import type { UpdateAdminReportStatusRequest, UpdateAdminUserRoleRequest } from '@/app/shared/types/admin';
+import type {
+  CreateAdminReportRequest,
+  UpdateAdminReportStatusRequest,
+  UpdateAdminUserRoleRequest,
+} from '@/app/shared/types/admin';
 
 // 관리자 신고 상태 변경
 export const useUpdateAdminReportStatusMutation = () => {
@@ -29,5 +33,12 @@ export const useUpdateAdminUserRoleMutation = () => {
 export const useTrackAdminAccessMutation = () => {
   return useMutation<unknown, Error, void>({
     mutationFn: adminApi.trackAccessLog,
+  });
+};
+
+// 관리자 게시글 강제 임시저장
+export const useForcePostDraftMutation = () => {
+  return useMutation<unknown, Error, string>({
+    mutationFn: adminApi.forcePostToDraft,
   });
 };

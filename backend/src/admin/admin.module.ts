@@ -5,6 +5,7 @@ import { User } from '../auth/entities/user.entity';
 import { OptionalJwtGuard } from '../auth/guards/optional-jwt.guard';
 import { SnowflakeService } from '../common/services/snowflake.service';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { Post } from '../posts/entities/post.entity';
 import { AdminAuditLog } from './entities/adminAuditLog.entity';
 import { AdminReport } from './entities/adminReport.entity';
 import { AdminService } from './admin.service';
@@ -12,7 +13,7 @@ import { AdminController } from './admin.controller';
 import { AdminPublicController } from './adminPublic.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AdminReport, AdminAuditLog, User]), NotificationsModule],
+  imports: [TypeOrmModule.forFeature([AdminReport, AdminAuditLog, User, Post]), NotificationsModule],
   controllers: [AdminController, AdminPublicController],
   providers: [AdminService, SnowflakeService, OptionalJwtGuard],
 })

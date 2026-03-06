@@ -6,8 +6,10 @@ import { SnowflakeService } from '../common/services/snowflake.service';
 import { User, UserRole } from '../auth/entities/user.entity';
 import { ERROR_CODES } from '../constants/error/error-codes';
 import { ADMIN_ERROR_MESSAGES } from '../constants/message/admin.messages';
+import { POST_ERROR_MESSAGES } from '../constants/message/post.messages';
 import { NotificationType } from '../notifications/entities/notification.entity';
 import { NotificationsService } from '../notifications/notifications.service';
+import { Post, PostStatus } from '../posts/entities/post.entity';
 
 import { AdminAuditLog } from './entities/adminAuditLog.entity';
 import { AdminReport, AdminReportStatus } from './entities/adminReport.entity';
@@ -31,6 +33,8 @@ export class AdminService {
     private readonly adminAuditLogsRepository: Repository<AdminAuditLog>,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    @InjectRepository(Post)
+    private readonly postsRepository: Repository<Post>,
     private readonly notificationsService: NotificationsService,
     private readonly snowflakeService: SnowflakeService,
   ) {}
@@ -200,13 +204,13 @@ export class AdminService {
 
   /**
    * 전체 회원 목록
-   * @description 관리자 계정을 제외한 전체 회원 목록을 반환
+   * @description 승인된 전체 회원 목록을 반환
    */
   async getUsers(limit?: number) {
     // 값/보정
     const safeLimit = Number.isFinite(limit) ? Math.min(Math.max(Number(limit), 1), 300) : 100;
     const users = await this.usersRepository.find({
-      where: { approved: true, withdrawn: false, role: Not(UserRole.ADMIN) },
+      where: { approved: true, withdrawn: false },
       order: { createdAt: 'ASC' },
       take: safeLimit,
       select: [
@@ -326,6 +330,58 @@ export class AdminService {
     });
 
     return { id: targetUser.id, role: targetUser.role };
+  }
+
+  /**
+   * 게시글 강제 임시저장
+   * @description 운영자가 게시글 상태를 임시저장으로 전환
+   */
+  async forcePostToDraft(postId: string, adminUserId: string) {
+    const normalizedPostId = postId.trim();
+    const normalizedAdminUserId = adminUserId.trim();
+
+    // 대상/조회
+    const targetPost = await this.postsRepository.findOne({ where: { id: normalizedPostId } });
+    if (!targetPost) {
+      await this.createAuditLog({
+        adminUserId: normalizedAdminUserId,
+        action: 'POST_FORCED_TO_DRAFT',
+        targetType: 'post',
+        targetId: normalizedPostId,
+        payload: {
+          result: 'FAILURE',
+          reasonCode: ERROR_CODES.POST_NOT_FOUND,
+          before: null,
+          after: null,
+        },
+      });
+
+      throw new NotFoundException({
+        message: POST_ERROR_MESSAGES.POST_NOT_FOUND,
+        code: ERROR_CODES.POST_NOT_FOUND,
+      });
+    }
+
+    // 상태/변경
+    const beforeStatus = targetPost.status;
+    targetPost.status = PostStatus.DRAFT;
+    targetPost.publishedAt = null;
+    await this.postsRepository.save(targetPost);
+
+    await this.createAuditLog({
+      adminUserId: normalizedAdminUserId,
+      action: 'POST_FORCED_TO_DRAFT',
+      targetType: 'post',
+      targetId: targetPost.id,
+      payload: {
+        result: 'SUCCESS',
+        reasonCode: null,
+        before: { status: beforeStatus },
+        after: { status: targetPost.status },
+      },
+    });
+
+    return { id: targetPost.id, status: targetPost.status };
   }
 
   /**

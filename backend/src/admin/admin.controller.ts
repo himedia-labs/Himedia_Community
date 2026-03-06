@@ -137,6 +137,15 @@ export class AdminController {
   }
 
   /**
+   * 게시글 강제 임시저장
+   * @description 운영자가 게시중인 게시글을 임시저장 상태로 전환
+   */
+  @Patch('posts/:postId/force-draft')
+  forcePostToDraft(@Param('postId') postId: string, @Request() req: AdminAuthRequest) {
+    return this.adminService.forcePostToDraft(postId, req.user.sub);
+  }
+
+  /**
    * 관리자 접속 기록
    * @description 관리자 페이지 접근 이벤트를 저장
    */

@@ -62,6 +62,12 @@ const updateUserRole = async (payload: UpdateAdminUserRoleRequest) => {
   return res.data;
 };
 
+// 관리자 게시글 강제 임시저장
+const forcePostToDraft = async (postId: string) => {
+  const res = await axiosInstance.patch(`/admin/posts/${postId}/force-draft`);
+  return res.data;
+};
+
 // 관리자 감사로그 조회
 const getAuditLogs = async () => {
   const res = await axiosInstance.get<AdminAuditLogsResponse>('/admin/audit-logs', { params: { limit: 20 } });
@@ -83,6 +89,7 @@ const trackAccessLog = async () => {
 export const adminApi = {
   approveUser,
   updateUserRole,
+  forcePostToDraft,
   getReports,
   getPendingUsers,
   getUsers,
