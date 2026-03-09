@@ -1,7 +1,5 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -9,21 +7,6 @@ import { useRouter } from 'next/navigation';
 import { FaUser, FaUserEdit } from 'react-icons/fa';
 
 import { MYPAGE_TABS, PROFILE_SOCIAL_SKELETON_COUNT } from '@/app/shared/constants/config/mypage.config';
-import {
-  createCloseWithdrawModal,
-  createHandleCategorySelect,
-  createHandleProfileAction,
-  createHandleProfileCancelAll,
-  createHandleProfileSaveAll,
-  createHandleSortToggle,
-  createDraftSortToggleHandler,
-  createHandleTagSelect,
-  createHandleWithdraw,
-  createOpenWithdrawModal,
-  createProfileInputChangeHandler,
-  createToggleCategory,
-  createToggleTag,
-} from '@/app/(routes)/(private)/mypage/handlers';
 import {
   MyPageAccountTab,
   MyPageCommentsTab,
@@ -34,16 +17,16 @@ import {
   MyPageSettingsTab,
 } from '@/app/(routes)/(private)/mypage/components/tabs';
 import { MyPageValueSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
-import { formatProfileSocialLinks, sortPostsByKey } from '@/app/shared/utils/post';
 import {
   useAccountSettings,
-  useActivitySort,
   useBioEditor,
   useCommentEditor,
   useMyData,
+  useMyPageActivity,
+  useMyPageProfileActions,
   useMyTabState,
+  useMyPageWithdraw,
   usePostMenu,
-  usePostSidebarData,
   useProfileEditor,
   useProfileImageEditor,
 } from '@/app/(routes)/(private)/mypage/hooks';
@@ -96,11 +79,35 @@ export default function MyPage() {
   } = useMyData();
 
   // 정렬/필터
-  const { sortKey, sortedPosts, sortedComments, handleSortChange } = useActivitySort(myPosts, myComments);
-  const handleSortToggle = createHandleSortToggle(handleSortChange, sortKey);
-  const { categories: postCategories, tags: postTags } = usePostSidebarData(myPosts);
-  const sortedLikedPosts = useMemo(() => sortPostsByKey(likedPosts, sortKey), [likedPosts, sortKey]);
-  const sortedRecentPosts = useMemo(() => sortPostsByKey(recentPosts, sortKey), [recentPosts, sortKey]);
+  const {
+    sortKey,
+    filteredPosts,
+    sortedComments,
+    sortedLikedPosts,
+    sortedRecentPosts,
+    draftSortOrder,
+    isCategoryOpen,
+    isTagOpen,
+    postCategories,
+    postTags,
+    selectedCategoryId,
+    selectedCategoryLabel,
+    selectedTagId,
+    selectedTagLabel,
+    handlers: {
+      handleSortToggle,
+      handleTagSelect,
+      toggleTag,
+      toggleCategory,
+      handleCategorySelect,
+      handleDraftSortToggle,
+    },
+  } = useMyPageActivity({
+    likedPosts,
+    recentPosts,
+    myComments,
+    myPosts,
+  });
 
   // 프로필 편집
   const {
@@ -224,41 +231,6 @@ export default function MyPage() {
     toolbar: { applyBullet, applyCode, applyHeading, applyInlineWrap, applyLink, applyNumbered, applyQuote },
   } = useBioEditor(userBio);
 
-  // 필터 상태
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [isTagOpen, setIsTagOpen] = useState(false);
-  const [draftSortOrder, setDraftSortOrder] = useState<'latest' | 'oldest'>('latest');
-  const handleProfileContactEmailChange = createProfileInputChangeHandler(setProfileContactEmail);
-  const handleProfileGithubUrlChange = createProfileInputChangeHandler(setProfileGithubUrl);
-  const handleProfileLinkedinUrlChange = createProfileInputChangeHandler(setProfileLinkedinUrl);
-  const handleProfileTwitterUrlChange = createProfileInputChangeHandler(setProfileTwitterUrl);
-  const handleProfileFacebookUrlChange = createProfileInputChangeHandler(setProfileFacebookUrl);
-  const handleProfileWebsiteUrlChange = createProfileInputChangeHandler(setProfileWebsiteUrl);
-  const handleDraftSortToggle = createDraftSortToggleHandler(setDraftSortOrder);
-  const [showWithdrawPassword, setShowWithdrawPassword] = useState(false);
-  const [withdrawPassword, setWithdrawPassword] = useState('');
-  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
-
-  // 필터 핸들러
-  const toggleCategory = createToggleCategory({ setIsTagOpen, setIsCategoryOpen });
-  const toggleTag = createToggleTag({ setIsCategoryOpen, setIsTagOpen });
-  const handleCategorySelect = createHandleCategorySelect({ setSelectedCategoryId, setIsCategoryOpen });
-  const handleTagSelect = createHandleTagSelect({ setSelectedTagId, setIsTagOpen });
-  const selectedCategoryLabel = postCategories.find(category => category.id === selectedCategoryId)?.name;
-  const selectedTagLabel = postTags.find(tag => tag.id === selectedTagId)?.name;
-
-  // 필터링
-  const filteredPosts = useMemo(() => {
-    if (!selectedCategoryId && !selectedTagId) return sortedPosts;
-    return sortedPosts.filter(post => {
-      const matchesCategory = selectedCategoryId ? post.category?.id === selectedCategoryId : true;
-      const matchesTag = selectedTagId ? post.tags?.some(tag => tag.id === selectedTagId) : true;
-      return matchesCategory && matchesTag;
-    });
-  }, [selectedCategoryId, selectedTagId, sortedPosts]);
-
   // 포맷팅
   const accountNameValue = isUserInfoLoading ? <MyPageValueSkeleton width={88} height={18} /> : displayName || '사용자';
   const accountEmailValue = isUserInfoLoading ? <MyPageValueSkeleton width={180} height={18} /> : userEmail || '미등록';
@@ -270,55 +242,52 @@ export default function MyPage() {
   );
   const profileNameValue = isUserInfoLoading ? <MyPageValueSkeleton width={96} height={34} /> : displayName || '사용자';
   const profileHandleValue = isUserInfoLoading ? <MyPageValueSkeleton width={86} height={18} /> : `@${profileHandle}`;
-  const isProfileActionPending = isProfileSaving || isProfileUpdating;
-  const profileSocialLinks = formatProfileSocialLinks({
+  const {
+    isProfileActionPending,
+    profileSocialLinks,
+    handlers: {
+      handleProfileAction,
+      handleProfileCancelAll,
+      handleProfileContactEmailChange,
+      handleProfileGithubUrlChange,
+      handleProfileLinkedinUrlChange,
+      handleProfileTwitterUrlChange,
+      handleProfileFacebookUrlChange,
+      handleProfileWebsiteUrlChange,
+    },
+  } = useMyPageProfileActions({
+    isProfileSaving,
+    isProfileUpdating,
+    isProfileEditing,
     profileContactEmail,
     profileGithubUrl,
     profileLinkedinUrl,
     profileTwitterUrl,
     profileFacebookUrl,
     profileWebsiteUrl,
-  });
-
-  // 프로필 액션
-  const handleProfileSaveAll = createHandleProfileSaveAll({
-    isProfileActionPending,
+    setProfileContactEmail,
+    setProfileGithubUrl,
+    setProfileLinkedinUrl,
+    setProfileTwitterUrl,
+    setProfileFacebookUrl,
+    setProfileWebsiteUrl,
     handleProfileSave,
     handleAvatarSave,
-    handleProfileEditComplete,
-  });
-  const handleProfileAction = createHandleProfileAction({
-    isProfileActionPending,
-    isProfileEditing,
     handleProfileEditStart,
-    handleProfileSaveAll,
-  });
-  const handleProfileCancelAll = createHandleProfileCancelAll({
-    isProfileActionPending,
+    handleProfileEditComplete,
     handleAvatarCancel,
     handleProfileCancel,
   });
-
-  // 회원탈퇴
-  const closeWithdrawModal = createCloseWithdrawModal({
-    isWithdrawing,
-    setIsWithdrawModalOpen,
-    setShowWithdrawPassword,
-    setWithdrawPassword,
-  });
-  const openWithdrawModal = createOpenWithdrawModal({
-    isWithdrawing,
-    setShowWithdrawPassword,
-    setWithdrawPassword,
-    setIsWithdrawModalOpen,
-  });
-  const handleWithdraw = createHandleWithdraw({
-    isWithdrawing,
+  const {
+    showWithdrawPassword,
     withdrawPassword,
-    withdrawAccount,
-    setIsWithdrawModalOpen,
+    isWithdrawModalOpen,
     setShowWithdrawPassword,
     setWithdrawPassword,
+    handlers: { handleWithdraw, openWithdrawModal, closeWithdrawModal },
+  } = useMyPageWithdraw({
+    isWithdrawing,
+    withdrawAccount,
     clearAuth,
     showToast,
     router,

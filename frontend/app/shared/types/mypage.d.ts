@@ -1,5 +1,6 @@
 import type { IconType } from 'react-icons';
-import type { ReactNode, RefObject } from 'react';
+import type { Dispatch, ReactNode, RefObject, SetStateAction } from 'react';
+import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 import type { MyCommentItem } from '@/app/shared/types/comment';
 import type { PostListItem } from '@/app/shared/types/post';
@@ -322,4 +323,53 @@ export type FormatProfileSocialLinksParams = {
   profileTwitterUrl: string;
   profileFacebookUrl: string;
   profileWebsiteUrl: string;
+};
+
+export type UseMyPageActivityParams = {
+  likedPosts: PostListItem[];
+  recentPosts: PostListItem[];
+  myComments: MyCommentItem[];
+  myPosts: PostListItem[];
+};
+
+export type UseMyPageProfileActionsParams = {
+  isProfileSaving: boolean;
+  isProfileUpdating: boolean;
+  isProfileEditing: boolean;
+  profileContactEmail: string;
+  profileGithubUrl: string;
+  profileLinkedinUrl: string;
+  profileTwitterUrl: string;
+  profileFacebookUrl: string;
+  profileWebsiteUrl: string;
+  setProfileContactEmail: (value: string) => void;
+  setProfileGithubUrl: (value: string) => void;
+  setProfileLinkedinUrl: (value: string) => void;
+  setProfileTwitterUrl: (value: string) => void;
+  setProfileFacebookUrl: (value: string) => void;
+  setProfileWebsiteUrl: (value: string) => void;
+  handleProfileSave: () => Promise<boolean>;
+  handleAvatarSave: () => Promise<boolean>;
+  handleProfileEditStart: () => void;
+  handleProfileEditComplete: () => void;
+  handleAvatarCancel: () => void;
+  handleProfileCancel: () => void;
+};
+
+export type UseMyPageWithdrawParams = {
+  isWithdrawing: boolean;
+  withdrawAccount: (data: { currentPassword: string }) => Promise<{ message: string }>;
+  clearAuth: () => void;
+  showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
+  router: AppRouterInstance;
+};
+
+export type MyPageFilterState = {
+  isCategoryOpen: boolean;
+  isTagOpen: boolean;
+  draftSortOrder: DraftSortOrder;
+  selectedCategoryId: string | null;
+  selectedTagId: string | null;
+  setShowWithdrawPassword: Dispatch<SetStateAction<boolean>>;
+  setWithdrawPassword: Dispatch<SetStateAction<string>>;
 };
