@@ -2,7 +2,7 @@ import type { ADMIN_MENU_LABELS, ADMIN_PENDING_SORT } from '@/app/shared/constan
 import type { QueryClient } from '@tanstack/react-query';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import type { ReadonlyURLSearchParams } from 'next/navigation';
-import type { RefObject } from 'react';
+import type { RefObject, Dispatch, SetStateAction } from 'react';
 import type { ToastOptions } from './toast';
 
 // 공통 응답
@@ -266,4 +266,45 @@ export type UseAccessLogsInfiniteScrollParams = {
   isFetchingNextPage: boolean;
   loadMoreRef: RefObject<HTMLDivElement | null>;
   fetchNextPage: () => Promise<unknown>;
+};
+
+export type UseAdminPageFiltersParams = {
+  router: AppRouterInstance;
+  pathname: string;
+  searchParams: ReadonlyURLSearchParams;
+};
+
+export type UseAdminPageDataParams = {
+  pendingSort: AdminPendingSort;
+  selectedMenu: AdminMenuLabel;
+  selectedRoleFilter: string;
+  selectedCourseFilter: string;
+  pendingUsersData?: AdminPendingUsersResponse;
+  rejectedUsersData?: AdminRejectedUsersResponse;
+  usersData?: AdminUsersResponse;
+  logsData?: AdminAuditLogsResponse;
+  accessLogsData?: { pages: AdminAccessLogsResponse[] };
+};
+
+export type UseAdminUserActionsParams = {
+  allUsers: AdminUser[];
+  queryClient: QueryClient;
+  showToast: (options: ToastOptions) => void;
+  approveUser: (userId: string) => Promise<unknown>;
+  rejectUser: (payload: { userId: string; reason: string }) => Promise<unknown>;
+  deleteRejectedUser: (userId: string) => Promise<unknown>;
+  updateUserRole: (payload: UpdateAdminUserRoleRequest) => Promise<unknown>;
+};
+
+export type AdminDropdownState = {
+  isRoleSortOpen: boolean;
+  isCourseSortOpen: boolean;
+  isPendingSortOpen: boolean;
+};
+
+export type AdminUserEditState = {
+  isUsersEditMode: boolean;
+  userRoleDrafts: Record<string, string>;
+  setIsUsersEditMode: Dispatch<SetStateAction<boolean>>;
+  setUserRoleDrafts: Dispatch<SetStateAction<Record<string, string>>>;
 };

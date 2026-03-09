@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -18,61 +18,34 @@ import {
   useAdminUsersQuery,
 } from '@/app/api/admin/admin.queries';
 import {
+  useTrackAdminAccessMutation,
   useApproveAdminUserMutation,
   useDeleteRejectedAdminUserMutation,
   useRejectAdminUserMutation,
-  useTrackAdminAccessMutation,
   useUpdateAdminUserRoleMutation,
 } from '@/app/api/admin/admin.mutations';
 
-import { ADMIN_MENU_LABELS, ADMIN_PENDING_SORT, ADMIN_QUERY_KEYS } from '@/app/shared/constants/config/admin.config';
+import { ADMIN_MENU_LABELS, ADMIN_PENDING_SORT } from '@/app/shared/constants/config/admin.config';
 
 import {
-  createHandleSelectMenu,
-  createHandleSelectSort,
-  createSyncAdminUrlState,
-} from '@/app/(routes)/(private)/admin/handlers/adminUrl.handlers';
-import {
-  createToggleRoleSort,
-  createToggleCourseSort,
-  createTogglePendingSort,
-  createHandleSelectRoleFilter,
-  createHandleSelectCourseFilter,
-  createHandleSelectPendingSort,
-} from '@/app/(routes)/(private)/admin/handlers/adminFilter.handlers';
-import {
-  createHandleDeleteRejectedUser,
-  createHandleUserEdit,
-  createHandleUserReject,
-  createHandleUserApprove,
-  createHandleSaveAllUserRoles,
-  createHandleChangeUserRoleDraft,
-} from '@/app/(routes)/(private)/admin/handlers/adminUser.handlers';
-import {
-  createHandleDeleteRejectedUserClick,
   createHandleMenuButtonClick,
   createHandlePendingSortClick,
   createHandleRoleFilterClick,
   createHandleCourseFilterClick,
-  createHandleApproveUserClick,
-  createHandleRejectUserClick,
-  createHandleUserRoleDraftChange,
 } from '@/app/(routes)/(private)/admin/handlers/adminUi.handlers';
 import { formatDate } from '@/app/shared/utils/date';
 
 import { useAdminAccessGuard } from '@/app/(routes)/(private)/admin/hooks/useAdminAccessGuard';
 import { useTrackAdminAccess } from '@/app/(routes)/(private)/admin/hooks/useTrackAdminAccess';
 import { useAccessLogsInfiniteScroll } from '@/app/(routes)/(private)/admin/hooks/useAccessLogsInfiniteScroll';
-import { usePendingUsersSort } from '@/app/(routes)/(private)/admin/hooks/usePendingUsersSort';
+import { useAdminPageData } from '@/app/(routes)/(private)/admin/hooks/useAdminPageData';
+import { useAdminPageFilters } from '@/app/(routes)/(private)/admin/hooks/useAdminPageFilters';
+import { useAdminUserActions } from '@/app/(routes)/(private)/admin/hooks/useAdminUserActions';
 import {
   getRoleBadgeClassName,
   getAccessStatusBadgeClassName,
   getAuditResultBadgeClassName,
 } from '@/app/(routes)/(private)/admin/utils/adminDisplay.utils';
-import {
-  parseAdminMenuFromQuery,
-  parseAdminSortFromQuery,
-} from '@/app/(routes)/(private)/admin/utils/adminUrlState.utils';
 import { formatRoleLabel } from '@/app/(routes)/(private)/admin/utils/formatRoleLabel.utils';
 import { formatPhoneNumber } from '@/app/(routes)/(private)/admin/utils/formatPhoneNumber.utils';
 import { getRelativeTimeLabel } from '@/app/(routes)/(private)/admin/utils/getRelativeTimeLabel.utils';
@@ -87,8 +60,6 @@ import {
 } from '@/app/(routes)/(private)/admin/utils/formatAuditLog.utils';
 
 import styles from '@/app/(routes)/(private)/admin/AdminPage.module.css';
-
-import type { IconType } from 'react-icons';
 
 /**
  * 관리자 페이지
@@ -127,55 +98,68 @@ export default function AdminPage() {
   const updateUserRoleMutation = useUpdateAdminUserRoleMutation();
   const trackAdminAccessMutation = useTrackAdminAccessMutation();
 
-  // UI/편집 상태
+  // UI 상태
   const accessLogsLoadMoreRef = useRef<HTMLDivElement | null>(null);
-  const [isRoleSortOpen, setIsRoleSortOpen] = useState(false);
-  const [isCourseSortOpen, setIsCourseSortOpen] = useState(false);
-  const [isPendingSortOpen, setIsPendingSortOpen] = useState(false);
-  const [isUsersEditMode, setIsUsersEditMode] = useState(false);
-  const [userRoleDrafts, setUserRoleDrafts] = useState<Record<string, string>>({});
-  const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>('ALL');
-  const [selectedCourseFilter, setSelectedCourseFilter] = useState<string>('ALL');
-
-  // URL/메뉴 상태
-  const selectedMenu = parseAdminMenuFromQuery(searchParams.get(ADMIN_QUERY_KEYS.TAB));
-  const pendingSort = parseAdminSortFromQuery(searchParams.get(ADMIN_QUERY_KEYS.SORT));
-
-  // 원본/목록 데이터
-  const pendingUsers = useMemo(() => pendingUsersData?.items ?? [], [pendingUsersData]);
-  const allUsers = useMemo(() => usersData?.items ?? [], [usersData]);
-  const rejectedUsers = useMemo(() => rejectedUsersData?.items ?? [], [rejectedUsersData]);
-  const adminUsers = useMemo(() => allUsers.filter(user => user.role === 'ADMIN'), [allUsers]);
-  const auditLogs = logsData?.items ?? [];
-  const accessLogs = useMemo(() => {
-    return accessLogsData?.pages.flatMap(page => page.items) ?? [];
-  }, [accessLogsData]);
-
-  // 정렬/필터 파생
-  const sortedPendingUsers = usePendingUsersSort(pendingUsers, pendingSort);
-  const courseFilterOptions = useMemo(() => {
-    const options = Array.from(new Set(pendingUsers.map(user => user.course).filter(Boolean))) as string[];
-    return options.sort((a, b) => a.localeCompare(b, 'ko'));
-  }, [pendingUsers]);
-  const filteredPendingUsers = useMemo(() => {
-    return sortedPendingUsers.filter(user => {
-      const userRole = user.requestedRole ?? user.role;
-      const matchedRole = selectedRoleFilter === 'ALL' || userRole === selectedRoleFilter;
-      const matchedCourse = selectedCourseFilter === 'ALL' || user.course === selectedCourseFilter;
-      return matchedRole && matchedCourse;
-    });
-  }, [selectedCourseFilter, selectedRoleFilter, sortedPendingUsers]);
-
-  // 메뉴/아이콘 매핑
-  const menuIconMap: Record<string, IconType> = {
-    [ADMIN_MENU_LABELS.PENDING_USERS]: FiUserCheck,
-    [ADMIN_MENU_LABELS.REJECTED_USERS]: FiUserCheck,
-    [ADMIN_MENU_LABELS.USERS]: FiUsers,
-    [ADMIN_MENU_LABELS.ADMINS]: FiUsers,
-    [ADMIN_MENU_LABELS.AUDIT_LOGS]: FiFileText,
-    [ADMIN_MENU_LABELS.ACCESS_LOGS]: FiLogIn,
-  };
-  const CurrentMenuIcon = menuIconMap[selectedMenu] ?? FiUserCheck;
+  const {
+    selectedMenu,
+    pendingSort,
+    selectedRoleFilter,
+    selectedCourseFilter,
+    dropdowns: { isRoleSortOpen, isCourseSortOpen, isPendingSortOpen },
+    handlers: {
+      handleSelectMenu,
+      toggleRoleSort,
+      toggleCourseSort,
+      togglePendingSort,
+      handleSelectRoleFilter,
+      handleSelectCourseFilter,
+      handleSelectPendingSort,
+    },
+  } = useAdminPageFilters({
+    router,
+    pathname,
+    searchParams,
+  });
+  const {
+    allUsers,
+    auditLogs,
+    accessLogs,
+    adminUsers,
+    rejectedUsers,
+    CurrentMenuIcon,
+    courseFilterOptions,
+    filteredPendingUsers,
+  } = useAdminPageData({
+    pendingSort,
+    selectedMenu,
+    selectedRoleFilter,
+    selectedCourseFilter,
+    pendingUsersData,
+    rejectedUsersData,
+    usersData,
+    logsData,
+    accessLogsData,
+  });
+  const {
+    isUsersEditMode,
+    userRoleDrafts,
+    handlers: {
+      handleUserEdit,
+      handleApproveUserClick,
+      handleRejectUserClick,
+      handleSaveAllUserRoles,
+      handleDeleteRejectedUserClick,
+      handleUserRoleDraftChange,
+    },
+  } = useAdminUserActions({
+    allUsers,
+    queryClient,
+    showToast,
+    approveUser: approveUserMutation.mutateAsync,
+    rejectUser: rejectUserMutation.mutateAsync,
+    deleteRejectedUser: deleteRejectedUserMutation.mutateAsync,
+    updateUserRole: updateUserRoleMutation.mutateAsync,
+  });
 
   // 접근/추적 훅
   useAdminAccessGuard({ accessToken, isInitialized, isUserLoading, isAdmin });
@@ -193,57 +177,10 @@ export default function AdminPage() {
   });
 
   // 이벤트/핸들러 생성
-  const syncAdminUrlState = createSyncAdminUrlState({ pathname, router, searchParams });
-  const handleSelectMenu = createHandleSelectMenu({ pendingSort, syncAdminUrlState });
-  const handleSelectSort = createHandleSelectSort({ selectedMenu, syncAdminUrlState });
-  const toggleRoleSort = createToggleRoleSort({ setIsRoleSortOpen, setIsCourseSortOpen, setIsPendingSortOpen });
-  const toggleCourseSort = createToggleCourseSort({ setIsRoleSortOpen, setIsCourseSortOpen, setIsPendingSortOpen });
-  const togglePendingSort = createTogglePendingSort({ setIsRoleSortOpen, setIsCourseSortOpen, setIsPendingSortOpen });
-  const handleSelectRoleFilter = createHandleSelectRoleFilter({ setSelectedRoleFilter, setIsRoleSortOpen });
-  const handleSelectCourseFilter = createHandleSelectCourseFilter({ setSelectedCourseFilter, setIsCourseSortOpen });
-  const handleSelectPendingSort = createHandleSelectPendingSort({ handleSelectSort, setIsPendingSortOpen });
-  const handleUserApprove = createHandleUserApprove({
-    queryClient,
-    mutateAsync: approveUserMutation.mutateAsync,
-    showToast,
-  });
-  const handleUserReject = createHandleUserReject({
-    queryClient,
-    mutateAsync: rejectUserMutation.mutateAsync,
-    showToast,
-  });
-  const handleDeleteRejectedUser = createHandleDeleteRejectedUser({
-    queryClient,
-    mutateAsync: deleteRejectedUserMutation.mutateAsync,
-    showToast,
-  });
-  const handleUserEdit = createHandleUserEdit(setIsUsersEditMode);
-  const handleSaveAllUserRoles = createHandleSaveAllUserRoles({
-    allUsers,
-    userRoleDrafts,
-    queryClient,
-    setIsUsersEditMode,
-    mutateAsync: updateUserRoleMutation.mutateAsync,
-    showToast,
-  });
-  const handleChangeUserRoleDraft = createHandleChangeUserRoleDraft(setUserRoleDrafts);
   const handleMenuButtonClick = createHandleMenuButtonClick(handleSelectMenu);
   const handlePendingSortClick = createHandlePendingSortClick(handleSelectPendingSort);
   const handleRoleFilterClick = createHandleRoleFilterClick(handleSelectRoleFilter);
   const handleCourseFilterClick = createHandleCourseFilterClick(handleSelectCourseFilter);
-  const handleRejectUserWithReason = async (userId: string) => {
-    const reasonInput = window.prompt('거절 사유를 입력해주세요.');
-    const reason = reasonInput?.trim() ?? '';
-    if (!reason) {
-      showToast({ message: '거절 사유를 입력해야 합니다.', type: 'warning' });
-      return;
-    }
-    await handleUserReject(userId, reason);
-  };
-  const handleApproveUserClick = createHandleApproveUserClick(handleUserApprove);
-  const handleRejectUserClick = createHandleRejectUserClick(handleRejectUserWithReason);
-  const handleDeleteRejectedUserClick = createHandleDeleteRejectedUserClick(handleDeleteRejectedUser);
-  const handleUserRoleDraftChange = createHandleUserRoleDraftChange(handleChangeUserRoleDraft);
 
   if (!isInitialized || !accessToken || isUserLoading || !isAdmin) {
     return null;
