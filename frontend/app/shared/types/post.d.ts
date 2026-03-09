@@ -233,6 +233,7 @@ export type PostPayloadStatus = 'DRAFT' | 'PUBLISHED';
 export type DraftNoticeParams = {
   draftId: string | null;
   hasDrafts: boolean;
+  isDraftListFetched: boolean;
 };
 
 // 게시글 요청

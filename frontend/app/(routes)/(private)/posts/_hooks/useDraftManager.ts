@@ -45,7 +45,10 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
 
   // Queries
   const isAuthenticated = !!accessToken;
-  const { data: draftList } = useDraftsQuery({ limit: 20 }, { enabled: isAuthenticated });
+  const { data: draftList, isFetched: isDraftListFetched } = useDraftsQuery(
+    { limit: 20 },
+    { enabled: isAuthenticated },
+  );
 
   // 파생 상태
   const draftId = searchDraftId;
@@ -75,7 +78,7 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
   }, [searchDraftId, setFormData]);
 
   // draft 알림 표시
-  useDraftNotice({ draftId, hasDrafts });
+  useDraftNotice({ draftId, hasDrafts, isDraftListFetched });
 
   // 임시저장
   const { saveDraft, publishPost } = useDraftSaver({ formData, draftId, isAuthenticated });
