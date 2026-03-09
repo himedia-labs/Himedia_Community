@@ -127,7 +127,7 @@ export default function MyPageDrafts({ sortOrder }: MyPageDraftsProps) {
         return (
           <Fragment key={draft.id}>
             <li>
-              <Link className={postListStyles.postLink} href={`/posts/draftId?${draft.id}`}>
+              <Link className={postListStyles.postLink} href={`/posts/drafts/${draft.id}`}>
                 <article
                   className={
                     hasThumbnail
