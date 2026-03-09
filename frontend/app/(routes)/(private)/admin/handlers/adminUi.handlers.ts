@@ -1,16 +1,17 @@
 import type { ChangeEvent, MouseEvent } from 'react';
 
 import { ADMIN_PENDING_SORT } from '@/app/shared/constants/config/admin.config';
+import type { AdminMenuLabel } from '@/app/shared/types/admin';
 
 /**
  * 관리자 메뉴 클릭 핸들러 생성
  * @description 사이드바 버튼의 메뉴 라벨을 읽어 메뉴 전환을 수행
  */
-export const createHandleMenuButtonClick = (handleSelectMenu: (menuLabel: string) => void) => {
+export const createHandleMenuButtonClick = (handleSelectMenu: (menuLabel: AdminMenuLabel) => void) => {
   return (event: MouseEvent<HTMLButtonElement>) => {
     const { menuLabel } = event.currentTarget.dataset;
     if (!menuLabel) return;
-    handleSelectMenu(menuLabel);
+    handleSelectMenu(menuLabel as AdminMenuLabel);
   };
 };
 
