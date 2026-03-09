@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { postsApi } from '@/app/api/posts/posts.api';
 import { useToast } from '@/app/shared/components/toast/toast';
 
-import type { UsePostDetailPostMenuParams } from '@/app/shared/types/postDetailPage';
+import type { UsePostDetailPostMenuParams } from '@/app/shared/types/post';
 
 /**
  * 게시글 메뉴 훅

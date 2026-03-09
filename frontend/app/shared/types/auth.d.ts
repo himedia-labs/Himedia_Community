@@ -4,7 +4,13 @@ import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.
 import type { ToastOptions } from './toast';
 import type { RegisterFormCache } from './register';
 
-// User
+// 공통 응답
+type AuthStatusMessageResponse = {
+  success: boolean;
+  message: string;
+};
+
+// 사용자
 export interface User {
   id: string;
   email: string;
@@ -39,10 +45,12 @@ export interface PublicProfile {
   profileWebsiteUrl?: string | null;
 }
 
+// 프로필 요청
 export interface UpdateProfileImageRequest {
   profileImageUrl?: string | null;
 }
 
+// 프로필 응답
 export type UpdateProfileImageResponse = User;
 
 export interface UpdateProfileRequest {
@@ -66,13 +74,13 @@ export interface UpdateAccountInfoRequest {
 
 export type UpdateAccountInfoResponse = User;
 
-// Auth Response
+// 인증 응답
 export interface AuthResponse {
   accessToken: string;
   user: User;
 }
 
-// Register Request
+// 회원가입 요청
 export interface RegisterRequest {
   name: string;
   email: string;
@@ -84,14 +92,15 @@ export interface RegisterRequest {
   privacyConsent: boolean;
 }
 
+// 자기소개 요청
 export interface UpdateProfileBioRequest {
   profileBio?: string | null;
 }
 
+// 자기소개 응답
 export type UpdateProfileBioResponse = User;
 
-
-// Login Request
+// 로그인 요청
 export interface LoginRequest {
   email: string;
   password: string;
@@ -102,16 +111,14 @@ export interface ChangePasswordRequest {
   newPassword: string;
 }
 
+// 로그인 응답
 export type ChangePasswordResponse = AuthResponse;
 
 export interface WithdrawAccountRequest {
   currentPassword: string;
 }
 
-export interface WithdrawAccountResponse {
-  success: boolean;
-  message: string;
-}
+export type WithdrawAccountResponse = AuthStatusMessageResponse;
 
 export interface RestoreWithdrawnAccountRequest {
   email: string;
@@ -120,69 +127,63 @@ export interface RestoreWithdrawnAccountRequest {
 
 export type RestoreWithdrawnAccountResponse = AuthResponse;
 
-// Password Reset - Send Code
+// 비밀번호 재설정 전송
 export interface SendResetCodeRequest {
   email: string;
 }
 
-export interface SendResetCodeResponse {
-  success: boolean;
-  message: string;
-}
+export type SendResetCodeResponse = AuthStatusMessageResponse;
 
-// Password Reset - Verify Code
+// 비밀번호 재설정 검증
 export interface VerifyResetCodeRequest {
   email: string;
   code: string;
 }
 
-export interface VerifyResetCodeResponse {
-  success: boolean;
-  message: string;
-}
+export type VerifyResetCodeResponse = AuthStatusMessageResponse;
 
-// Password Reset - Reset Password
+// 비밀번호 재설정 변경
 export interface ResetPasswordRequest {
   email: string;
   code: string;
   newPassword: string;
 }
 
-export interface ResetPasswordResponse {
-  success: boolean;
-  message: string;
-}
+export type ResetPasswordResponse = AuthStatusMessageResponse;
 
-// Email Verification - Send Code
+// 이메일 인증 전송
 export interface SendEmailVerificationCodeRequest {
   email: string;
   purpose?: 'register' | 'account-change' | 'withdraw-restore';
 }
 
-export interface SendEmailVerificationCodeResponse {
-  success: boolean;
-  message: string;
-}
+export type SendEmailVerificationCodeResponse = AuthStatusMessageResponse;
 
-// Email Verification - Verify Code
+// 이메일 인증 검증
 export interface VerifyEmailVerificationCodeRequest {
   email: string;
   code: string;
 }
 
-export interface VerifyEmailVerificationCodeResponse {
-  success: boolean;
-  message: string;
-}
+export type VerifyEmailVerificationCodeResponse = AuthStatusMessageResponse;
 
-// Find Password Page
+// 인증 상태
 export type AuthStep = 'verify' | 'password';
 
-// Login Page
+export interface AuthState {
+  accessToken: string | null;
+  isInitialized: boolean;
+  setAccessToken: (token: string | null) => void;
+  setInitialized: (value: boolean) => void;
+  clearAuth: () => void;
+}
+
+// 로그인 페이지 상태
 export type LoginAuthKeys = {
   currentUser: readonly string[];
 };
 
+// 로그인 페이지 액션
 export type AuthenticateUserParams = {
   email: string;
   password: string;
@@ -214,6 +215,7 @@ export type LoginPasswordChangeParams = {
 
 export type LoginRestoreCodeChangeHandler = (event: ChangeEvent<HTMLInputElement>) => void;
 
+// 로그인 페이지 모달
 export type LoginWithdrawnAccountParams = {
   email: string;
   setRestoreCode: (value: string) => void;
@@ -265,9 +267,10 @@ export type LoginRedirectToastParams = {
   showToast: (options: ToastOptions) => void;
 };
 
-// Register Page
+// 회원가입 페이지 상태
 export type RegisterSetError = (value: string) => void;
 
+// 회원가입 페이지 인증
 export type RegisterSendEmailCodeParams = {
   email: string;
   setEmailError: RegisterSetError;
@@ -292,6 +295,7 @@ export type RegisterVerifyEmailCodeParams = {
   showToast: (options: ToastOptions) => void;
 };
 
+// 회원가입 페이지 제출
 export type RegisterSubmitParams = {
   name: string;
   email: string;
@@ -319,6 +323,7 @@ export type RegisterSubmitParams = {
   onSuccessCleanup?: () => void;
 };
 
+// 회원가입 페이지 단계
 export type RegisterNextStepParams = {
   name: string;
   email: string;
@@ -337,6 +342,7 @@ export type RegisterNextStepParams = {
   setStep: (step: 1 | 2) => void;
 };
 
+// 회원가입 페이지 자동 인증
 export type EmailVerificationAutoVerifyParams = {
   codeLength: number;
   emailCode: string;
@@ -346,6 +352,7 @@ export type EmailVerificationAutoVerifyParams = {
   onVerify: () => void;
 };
 
+// 회원가입 페이지 포맷
 export type RegisterBirthDateFormatParams = {
   setBirthDate: (value: string) => void;
   birthDateError: string;
@@ -358,6 +365,7 @@ export type RegisterPhoneFormatParams = {
   setPhoneError: RegisterSetError;
 };
 
+// 회원가입 페이지 입력
 export type RegisterInputHandlersParams = {
   name: string;
   email: string;
@@ -395,6 +403,7 @@ export type RegisterInputHandlersParams = {
   setFormField: <K extends keyof RegisterFormCache>(key: K, value: RegisterFormCache[K]) => void;
 };
 
+// 회원가입 페이지 알림
 export type RegisterRestoredToastParams = {
   hasCache: boolean;
   restoredFromKeep: boolean;

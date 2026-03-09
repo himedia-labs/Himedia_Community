@@ -4,7 +4,7 @@ import { FiGithub, FiGlobe, FiMail } from 'react-icons/fi';
 import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
 
 import type { PostAuthorRef } from '@/app/shared/types/post';
-import type { PostDetailAuthorSocialLink } from '@/app/shared/types/postDetailPage';
+import type { PostDetailAuthorSocialLink } from '@/app/shared/types/post';
 
 /**
  * 프로필 링크 경로 생성

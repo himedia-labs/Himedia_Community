@@ -26,7 +26,7 @@ import type { ChangeEvent } from 'react';
 import type { AxiosError } from 'axios';
 import type { User } from '@/app/shared/types/auth';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
-import type { AccountEditField, UseAccountSettingsParams } from '@/app/shared/types/useAccountSettings';
+import type { AccountEditField, UseAccountSettingsParams } from '@/app/shared/types/mypage';
 
 /**
  * 계정 설정 훅

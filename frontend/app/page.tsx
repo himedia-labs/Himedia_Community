@@ -1,9 +1,7 @@
 import Banner from './(routes)/(public)/main/components/banner/banner';
 import PostListSection from './(routes)/(public)/main/components/postList/postList';
 
-type HomePageProps = {
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
-};
+import type { HomePageProps } from '@/app/shared/types/home';
 
 /**
  * 홈 페이지

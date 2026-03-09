@@ -2,12 +2,14 @@ import type { ChangeEvent, MouseEvent, RefObject } from 'react';
 import type { CommentAuthorRef, CommentItem } from './comment';
 import type { UserRole } from './post';
 
+// 댓글 상태
 export interface PostDetailReplyState {
   content: string;
   mentionQuery: string | null;
   parentId: string | null;
 }
 
+// 댓글 섹션
 export interface PostDetailCommentsSectionProps {
   accessToken: string | null;
   commentCount: number;
@@ -64,6 +66,7 @@ export interface PostDetailCommentsSectionProps {
   topLevelComments: CommentItem[];
 }
 
+// 훅 파라미터
 export interface UsePostDetailCommentsParams {
   accessToken: string | null;
   authorName?: string | null;
@@ -73,4 +76,5 @@ export interface UsePostDetailCommentsParams {
   postId: string;
 }
 
+// 댓글 맵
 export type PostDetailReplyStatesMap = Record<string, PostDetailReplyState>;

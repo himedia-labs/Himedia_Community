@@ -4,7 +4,7 @@ import { followsApi } from '@/app/api/follows/follows.api';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 
-import type { UsePostDetailAuthorFollowParams } from '@/app/shared/types/postDetailPage';
+import type { UsePostDetailAuthorFollowParams } from '@/app/shared/types/post';
 
 /**
  * 작성자 팔로우 훅

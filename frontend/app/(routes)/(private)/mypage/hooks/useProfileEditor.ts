@@ -9,6 +9,7 @@ import { useToast } from '@/app/shared/components/toast/toast';
 import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 
 import type { ChangeEvent } from 'react';
+import type { UseProfileEditorParams } from '@/app/shared/types/mypage';
 
 const PROFILE_GITHUB_PREFIX = 'https://github.com/';
 const PROFILE_LINKEDIN_PREFIX = 'https://www.linkedin.com/in/';
@@ -45,17 +46,6 @@ const buildSocialUrl = (prefix: string, value: string) => {
   const accountValue = extractSocialAccount(prefix, value);
   return accountValue ? `${prefix}${accountValue}` : null;
 };
-
-interface UseProfileEditorParams {
-  name?: string;
-  handle?: string;
-  contactEmail?: string;
-  githubUrl?: string;
-  linkedinUrl?: string;
-  twitterUrl?: string;
-  facebookUrl?: string;
-  websiteUrl?: string;
-}
 
 /**
  * 마이페이지 프로필 편집 훅

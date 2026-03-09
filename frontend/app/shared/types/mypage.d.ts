@@ -3,17 +3,13 @@ import type { ReactNode, RefObject } from 'react';
 import type { MyCommentItem } from '@/app/shared/types/comment';
 import type { PostListItem } from '@/app/shared/types/post';
 
+// 탭 상태
 export type TabKey = 'posts' | 'drafts' | 'comments' | 'likes' | 'recent' | 'settings' | 'account';
 export type ActivitySortKey = 'latest' | 'popular';
 export type DraftSortOrder = 'latest' | 'oldest';
+export type AccountEditField = 'email' | 'phone' | 'birthDate' | 'password' | null;
 
 // 필터
-export interface PostFilterItem {
-  id: string;
-  name: string;
-  count: number;
-}
-
 export interface FilterItem {
   id: string;
   name: string;
@@ -66,8 +62,8 @@ export interface MyPagePostsTabProps {
   isTagOpen: boolean;
   myPosts: PostListItem[];
   openPostMenuId: string | null;
-  postCategories: PostFilterItem[];
-  postTags: PostFilterItem[];
+  postCategories: FilterItem[];
+  postTags: FilterItem[];
   selectedCategoryId: string | null;
   selectedCategoryLabel?: string;
   selectedTagId: string | null;
@@ -219,3 +215,21 @@ export interface MyPageValueSkeletonProps {
 export interface MyPageDraftsProps {
   sortOrder: 'latest' | 'oldest';
 }
+
+// 훅 파라미터
+export interface UseProfileEditorParams {
+  name?: string;
+  handle?: string;
+  contactEmail?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  twitterUrl?: string;
+  facebookUrl?: string;
+  websiteUrl?: string;
+}
+
+export type UseAccountSettingsParams = {
+  birthDate: string;
+  email: string;
+  phone: string;
+};

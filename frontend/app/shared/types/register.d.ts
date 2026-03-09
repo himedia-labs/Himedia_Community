@@ -1,3 +1,4 @@
+// 회원가입 캐시
 export interface RegisterFormCache {
   name: string;
   email: string;

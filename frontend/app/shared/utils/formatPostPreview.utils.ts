@@ -1,8 +1,6 @@
 import { stripInlineMarkdown } from '@/app/shared/utils/markdown/helpers';
 
-type FormatPostPreviewOptions = {
-  emptyText?: string;
-};
+import type { FormatPostPreviewOptions } from '@/app/shared/types/post';
 
 /**
  * 포스트 미리보기 텍스트 정리

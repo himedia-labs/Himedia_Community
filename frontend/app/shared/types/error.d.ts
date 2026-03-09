@@ -1,3 +1,4 @@
+// API 에러
 export interface ApiErrorResponse {
   statusCode: number;
   message: string;
@@ -6,4 +7,3 @@ export interface ApiErrorResponse {
   path: string;
   timestamp: string;
 }
-

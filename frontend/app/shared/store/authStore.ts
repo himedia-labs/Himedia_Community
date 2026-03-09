@@ -1,13 +1,6 @@
 import { create } from 'zustand';
 
-interface AuthState {
-  accessToken: string | null;
-  isInitialized: boolean;
-  setAccessToken: (token: string | null) => void;
-  setInitialized: (value: boolean) => void;
-
-  clearAuth: () => void;
-}
+import type { AuthState } from '@/app/shared/types/auth';
 
 export const useAuthStore = create<AuthState>(set => ({
   accessToken: null,

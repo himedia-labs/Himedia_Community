@@ -1,11 +1,18 @@
 import type { ADMIN_MENU_LABELS } from '@/app/(routes)/(private)/admin/constants/menu.constants';
 import type { ADMIN_PENDING_SORT } from '@/app/(routes)/(private)/admin/constants/sort.constants';
 
+// 공통 응답
+type AdminItemsResponse<T> = {
+  items: T[];
+};
+
+// 메뉴/상태
 export type AdminMenuLabel = (typeof ADMIN_MENU_LABELS)[keyof typeof ADMIN_MENU_LABELS];
 export type AdminPendingSort = (typeof ADMIN_PENDING_SORT)[keyof typeof ADMIN_PENDING_SORT];
-
 export type AdminReportStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'REJECTED';
+export type AdminStyleMap = Record<string, string>;
 
+// 신고 데이터
 export interface AdminReport {
   id: string;
   title: string;
@@ -20,14 +27,11 @@ export interface AdminReport {
   updatedAt: string;
 }
 
-export interface AdminReportsResponse {
-  items: AdminReport[];
-}
+export type AdminReportsResponse = AdminItemsResponse<AdminReport>;
 
-export interface AdminMyReportsResponse {
-  items: AdminReport[];
-}
+export type AdminMyReportsResponse = AdminItemsResponse<AdminReport>;
 
+// 감사 로그 데이터
 export interface AdminAuditLog {
   id: string;
   adminUserId: string;
@@ -40,10 +44,9 @@ export interface AdminAuditLog {
   createdAt: string;
 }
 
-export interface AdminAuditLogsResponse {
-  items: AdminAuditLog[];
-}
+export type AdminAuditLogsResponse = AdminItemsResponse<AdminAuditLog>;
 
+// 접속 로그 데이터
 export interface AdminAccessLog {
   id: string;
   action: string;
@@ -67,6 +70,7 @@ export interface AdminAccessLogsResponse {
   page: number;
 }
 
+// 승인 대기 데이터
 export interface AdminPendingUser {
   id: string;
   name: string;
@@ -81,14 +85,11 @@ export interface AdminPendingUser {
   rejectedReason?: string | null;
 }
 
-export interface AdminPendingUsersResponse {
-  items: AdminPendingUser[];
-}
+export type AdminPendingUsersResponse = AdminItemsResponse<AdminPendingUser>;
 
-export interface AdminRejectedUsersResponse {
-  items: AdminPendingUser[];
-}
+export type AdminRejectedUsersResponse = AdminItemsResponse<AdminPendingUser>;
 
+// 회원 데이터
 export interface AdminUser {
   id: string;
   name: string;
@@ -103,15 +104,15 @@ export interface AdminUser {
   createdAt: string;
 }
 
-export interface AdminUsersResponse {
-  items: AdminUser[];
-}
+export type AdminUsersResponse = AdminItemsResponse<AdminUser>;
 
+// 신고 요청
 export interface UpdateAdminReportStatusRequest {
   reportId: string;
   status: AdminReportStatus;
 }
 
+// 회원 요청
 export interface UpdateAdminUserRoleRequest {
   userId: string;
   role: 'TRAINEE' | 'GRADUATE' | 'MENTOR' | 'INSTRUCTOR';
@@ -122,6 +123,7 @@ export interface RejectAdminUserRequest {
   reason: string;
 }
 
+// 신고 생성 요청
 export interface CreateAdminReportRequest {
   title: string;
   content: string;

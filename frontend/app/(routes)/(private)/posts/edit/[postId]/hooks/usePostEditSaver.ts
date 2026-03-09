@@ -17,7 +17,7 @@ import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils'
 
 import type { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
-import type { PostEditSaverParams } from '@/app/shared/types/postEdit';
+import type { PostEditSaverParams } from '@/app/shared/types/post';
 
 /**
  * 게시물 수정 저장 훅

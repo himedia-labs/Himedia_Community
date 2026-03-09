@@ -1,5 +1,15 @@
 import type { UserRole } from './post';
 
+// 공통 응답
+type CommentMutationResponse = {
+  id: string;
+};
+
+type CommentQueryOptions = {
+  enabled?: boolean;
+};
+
+// 댓글 모델
 export interface CommentAuthorRef {
   id: string;
   name: string;
@@ -43,26 +53,23 @@ export interface MyCommentItem {
 
 export type MyCommentListResponse = MyCommentItem[];
 
+// API 요청/응답
+export type CommentsQueryOptions = CommentQueryOptions;
+
 export interface CreateCommentRequest {
   content: string;
   parentId?: string | null;
 }
 
-export interface CreateCommentResponse {
-  id: string;
-}
+export type CreateCommentResponse = CommentMutationResponse;
 
 export interface UpdateCommentRequest {
   content: string;
 }
 
-export interface UpdateCommentResponse {
-  id: string;
-}
+export type UpdateCommentResponse = CommentMutationResponse;
 
-export interface DeleteCommentResponse {
-  id: string;
-}
+export type DeleteCommentResponse = CommentMutationResponse;
 
 export interface ToggleCommentLikeResponse {
   likeCount: number;

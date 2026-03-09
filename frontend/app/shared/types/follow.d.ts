@@ -1,5 +1,6 @@
 import type { UserRole } from './post';
 
+// 팔로우 모델
 export interface FollowUserItem {
   id: string;
   name: string;
@@ -13,7 +14,7 @@ export interface FollowToggleResponse {
   following: boolean;
 }
 
-// 팔로우 쿼리 옵션
+// API 요청/응답
 export type FollowsQueryOptions = {
   enabled?: boolean;
 };

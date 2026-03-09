@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { mapDraftToForm } from '@/app/(routes)/(private)/posts/new/utils';
 
-import type { PostEditInitializerParams } from '@/app/shared/types/postEdit';
+import type { PostEditInitializerParams } from '@/app/shared/types/post';
 
 /**
  * 게시물 수정 초기화 훅

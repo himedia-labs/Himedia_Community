@@ -1,8 +1,6 @@
 import { getAuditResultTone } from '@/app/(routes)/(private)/admin/utils/formatAuditLog.utils';
 
-import type { AdminReportStatus } from '@/app/shared/types/admin';
-
-type AdminStyleMap = Record<string, string>;
+import type { AdminReportStatus, AdminStyleMap } from '@/app/shared/types/admin';
 
 /**
  * 역할 배지 클래스 조회
