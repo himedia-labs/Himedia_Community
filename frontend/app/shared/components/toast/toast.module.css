@@ -42,6 +42,26 @@
   margin-right: 10px;
 }
 
+.iconInfo {
+  background-color: #e7eefc;
+  color: #3050a6;
+}
+
+.iconSuccess {
+  background-color: #e7f6ec;
+  color: #15803d;
+}
+
+.iconWarning {
+  background-color: #ffdf8f;
+  color: #333d4b;
+}
+
+.iconError {
+  background-color: #ffe4e6;
+  color: #b91c1c;
+}
+
 .icon svg {
   width: 12px;
   height: 12px;

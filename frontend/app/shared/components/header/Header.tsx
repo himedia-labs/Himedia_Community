@@ -494,7 +494,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
       </div>
       {isPostDetail ? (
         <div className={styles.progressBar} aria-hidden="true">
-          <span className={styles.progressFill} style={{ width: `${scrollProgress}%` }} />
+          <progress className={styles.progressFill} max={100} value={scrollProgress} />
         </div>
       ) : null}
     </header>

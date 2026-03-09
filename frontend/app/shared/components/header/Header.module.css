@@ -27,7 +27,24 @@
 .progressFill {
   display: block;
   height: 100%;
-  width: 0%;
+  width: 100%;
+  border: 0;
+  appearance: none;
+  background: transparent;
+  color: #111;
+  overflow: hidden;
+}
+
+.progressFill::-webkit-progress-bar {
+  background: transparent;
+}
+
+.progressFill::-webkit-progress-value {
+  background: #111;
+  transition: width 0.12s ease-out;
+}
+
+.progressFill::-moz-progress-bar {
   background: #111;
   transition: width 0.12s ease-out;
 }
