@@ -9,8 +9,8 @@ import { FaUser } from 'react-icons/fa';
 import { FiEdit2, FiEye, FiHeart, FiMessageCircle, FiMoreHorizontal, FiTrash2 } from 'react-icons/fi';
 
 import EmptyState from '@/app/shared/components/empty/EmptyState';
+import { formatDate as formatDateLabel } from '@/app/shared/utils/date';
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
-import { formatDateLabel } from '@/app/(routes)/(private)/mypage/utils';
 import { formatPostPreview } from '@/app/shared/utils/post';
 import {
   createHandlePostMenuButtonClick,

@@ -9,6 +9,7 @@ import { FiClock, FiEdit2, FiHeart, FiMessageCircle, FiMoreHorizontal, FiTrash2,
 import { COMMENT_MAX_LENGTH_MESSAGE } from '@/app/shared/constants/config/mypage.config';
 
 import EmptyState from '@/app/shared/components/empty/EmptyState';
+import { formatDate } from '@/app/shared/utils/date';
 
 import {
   stopMenuPropagation,
@@ -17,7 +18,6 @@ import {
   createHandleEditSubmitButtonClick,
   createHandleCommentMenuButtonClick,
 } from '@/app/(routes)/(private)/mypage/handlers';
-import { formatDate } from '@/app/(routes)/(private)/mypage/utils';
 import { MyPageCommentsSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
 import { splitCommentMentions } from '@/app/(routes)/(public)/posts/[postId]/utils';
 

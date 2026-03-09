@@ -1,5 +1,3 @@
-export { formatDate as formatDateLabel } from '@/app/shared/utils/date';
-
 export { formatSummary } from '@/app/(routes)/(public)/[profileId]/utils/formatSummary.utils';
 export { resolveProfileRoute } from '@/app/(routes)/(public)/[profileId]/utils/resolveProfileRoute.utils';
 export { buildFilteredPosts } from '@/app/(routes)/(public)/[profileId]/utils/buildFilteredPosts.utils';

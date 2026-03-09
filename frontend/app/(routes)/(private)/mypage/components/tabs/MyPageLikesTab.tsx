@@ -9,6 +9,8 @@ import { FaUser } from 'react-icons/fa';
 import { FiClock, FiEdit2, FiEye, FiHeart, FiMessageCircle, FiMoreHorizontal, FiTrash2, FiTrendingUp } from 'react-icons/fi';
 
 import EmptyState from '@/app/shared/components/empty/EmptyState';
+import { formatDate as formatDateLabel } from '@/app/shared/utils/date';
+import { formatPostPreview } from '@/app/shared/utils/post';
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 import { MyPagePostListSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
 import {
@@ -17,8 +19,6 @@ import {
   createHandlePostMenuButtonClick,
   createHandlePostDeleteButtonClick,
 } from '@/app/(routes)/(private)/mypage/handlers';
-import { formatDateLabel } from '@/app/(routes)/(private)/mypage/utils';
-import { formatPostPreview } from '@/app/shared/utils/post';
 
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 import postListStyles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';

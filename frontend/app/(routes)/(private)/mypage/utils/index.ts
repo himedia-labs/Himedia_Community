@@ -1,5 +1,3 @@
-export { formatDate, formatDate as formatDateLabel } from '@/app/shared/utils/date';
-
 export * from '@/app/(routes)/(private)/mypage/utils/formatProfileSocialLinks.utils';
 
 export { getInitialTab } from '@/app/(routes)/(private)/mypage/utils/getInitialTab.utils';
