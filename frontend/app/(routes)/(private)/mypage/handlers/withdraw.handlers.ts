@@ -3,17 +3,17 @@ import type { AxiosError } from 'axios';
 import { WITHDRAW_MODAL_MESSAGES } from '@/app/shared/constants/messages/modal.message';
 
 import type { ApiErrorResponse } from '@/app/shared/types/error';
+import type {
+  MyPageCloseWithdrawModalParams,
+  MyPageHandleWithdrawParams,
+  MyPageOpenWithdrawModalParams,
+} from '@/app/shared/types/mypage';
 
 /**
  * 회원탈퇴 모달 닫기 핸들러 생성
  * @description 모달을 닫고 입력값을 초기화한다
  */
-export const createCloseWithdrawModal = (params: {
-  isWithdrawing: boolean;
-  setIsWithdrawModalOpen: (value: boolean) => void;
-  setShowWithdrawPassword: (value: boolean) => void;
-  setWithdrawPassword: (value: string) => void;
-}) => {
+export const createCloseWithdrawModal = (params: MyPageCloseWithdrawModalParams) => {
   return () => {
     if (params.isWithdrawing) return;
 
@@ -27,12 +27,7 @@ export const createCloseWithdrawModal = (params: {
  * 회원탈퇴 모달 열기 핸들러 생성
  * @description 입력값을 초기화하고 모달을 연다
  */
-export const createOpenWithdrawModal = (params: {
-  isWithdrawing: boolean;
-  setShowWithdrawPassword: (value: boolean) => void;
-  setWithdrawPassword: (value: string) => void;
-  setIsWithdrawModalOpen: (value: boolean) => void;
-}) => {
+export const createOpenWithdrawModal = (params: MyPageOpenWithdrawModalParams) => {
   return () => {
     if (params.isWithdrawing) return;
 
@@ -46,17 +41,7 @@ export const createOpenWithdrawModal = (params: {
  * 회원탈퇴 실행 핸들러 생성
  * @description 비밀번호를 검증하고 계정을 탈퇴한다
  */
-export const createHandleWithdraw = (params: {
-  isWithdrawing: boolean;
-  withdrawPassword: string;
-  withdrawAccount: (data: { currentPassword: string }) => Promise<{ message: string }>;
-  setIsWithdrawModalOpen: (value: boolean) => void;
-  setShowWithdrawPassword: (value: boolean) => void;
-  setWithdrawPassword: (value: string) => void;
-  clearAuth: () => void;
-  showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
-  router: { replace: (path: string) => void };
-}) => {
+export const createHandleWithdraw = (params: MyPageHandleWithdrawParams) => {
   return async () => {
     if (params.isWithdrawing) return;
 

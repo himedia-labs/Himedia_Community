@@ -11,7 +11,7 @@ import { useAuthStore } from '@/app/shared/store/authStore';
  * 마이페이지 데이터 훅
  * @description 내 정보/활동 데이터를 조회하고 파생값을 구성
  */
-export const useMyPageData = () => {
+export const useMyData = () => {
   const { accessToken, isInitialized } = useAuthStore();
 
   // 데이터 조회

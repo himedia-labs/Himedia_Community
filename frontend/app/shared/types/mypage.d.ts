@@ -1,3 +1,4 @@
+import type { IconType } from 'react-icons';
 import type { ReactNode, RefObject } from 'react';
 
 import type { MyCommentItem } from '@/app/shared/types/comment';
@@ -14,6 +15,14 @@ export interface FilterItem {
   id: string;
   name: string;
   count: number;
+}
+
+// 프로필 소셜 링크
+export interface ProfileSocialLink {
+  href: string;
+  label: string;
+  icon: IconType;
+  external?: boolean;
 }
 
 // 비밀번호 규칙
@@ -232,4 +241,85 @@ export type UseAccountSettingsParams = {
   birthDate: string;
   email: string;
   phone: string;
+};
+
+export type MyPageProfileActionParams = {
+  isProfileActionPending: boolean;
+  isProfileEditing: boolean;
+  handleProfileEditStart: () => void;
+  handleProfileSaveAll: () => Promise<void>;
+};
+
+export type MyPageProfileSaveAllParams = {
+  isProfileActionPending: boolean;
+  handleProfileSave: () => Promise<boolean>;
+  handleAvatarSave: () => Promise<boolean>;
+  handleProfileEditComplete: () => void;
+};
+
+export type MyPageProfileCancelAllParams = {
+  isProfileActionPending: boolean;
+  handleAvatarCancel: () => void;
+  handleProfileCancel: () => void;
+};
+
+export type MyPageCloseWithdrawModalParams = {
+  isWithdrawing: boolean;
+  setIsWithdrawModalOpen: (value: boolean) => void;
+  setShowWithdrawPassword: (value: boolean) => void;
+  setWithdrawPassword: (value: string) => void;
+};
+
+export type MyPageOpenWithdrawModalParams = {
+  isWithdrawing: boolean;
+  setShowWithdrawPassword: (value: boolean) => void;
+  setWithdrawPassword: (value: string) => void;
+  setIsWithdrawModalOpen: (value: boolean) => void;
+};
+
+export type MyPageHandleWithdrawParams = {
+  isWithdrawing: boolean;
+  withdrawPassword: string;
+  withdrawAccount: (data: { currentPassword: string }) => Promise<{ message: string }>;
+  setIsWithdrawModalOpen: (value: boolean) => void;
+  setShowWithdrawPassword: (value: boolean) => void;
+  setWithdrawPassword: (value: string) => void;
+  clearAuth: () => void;
+  showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
+  router: { replace: (path: string) => void };
+};
+
+export type MyPageToggleCategoryParams = {
+  setIsTagOpen: (value: boolean) => void;
+  setIsCategoryOpen: (updater: (prev: boolean) => boolean) => void;
+};
+
+export type MyPageToggleTagParams = {
+  setIsCategoryOpen: (value: boolean) => void;
+  setIsTagOpen: (updater: (prev: boolean) => boolean) => void;
+};
+
+export type MyPageHandleCategorySelectParams = {
+  setSelectedCategoryId: (updater: (prev: string | null) => string | null) => void;
+  setIsCategoryOpen: (value: boolean) => void;
+};
+
+export type MyPageHandleTagSelectParams = {
+  setSelectedTagId: (updater: (prev: string | null) => string | null) => void;
+  setIsTagOpen: (value: boolean) => void;
+};
+
+export type MyPageDeleteDraftParams = {
+  deleteDraft: (postId: string) => Promise<unknown>;
+  invalidateDrafts: (queryKey: readonly unknown[]) => Promise<unknown>;
+  showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
+};
+
+export type FormatProfileSocialLinksParams = {
+  profileContactEmail: string;
+  profileGithubUrl: string;
+  profileLinkedinUrl: string;
+  profileTwitterUrl: string;
+  profileFacebookUrl: string;
+  profileWebsiteUrl: string;
 };

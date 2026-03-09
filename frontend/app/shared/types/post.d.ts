@@ -11,6 +11,7 @@ import type {
 } from 'react';
 import type { IconType } from 'react-icons';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import type { ToastOptions } from './toast';
 
 // 화면 상태
 export type ViewMode = 'list' | 'card';
@@ -363,6 +364,35 @@ export type PostDetailsFormTag = {
 export type PostDetailsFormProps = {
   category: PostDetailsFormCategory;
   tag: PostDetailsFormTag;
+};
+
+export type PostDetailsFormResetCategoryParams = {
+  onCategoryChange: (value: string) => void;
+  setIsCategoryOpen: (value: boolean) => void;
+};
+
+export type PostDetailsFormCategoryOptionParams = {
+  onCategoryChange: (value: string) => void;
+  setIsCategoryOpen: (value: boolean) => void;
+};
+
+export type AddTagsFromInputParams = {
+  tags: string[];
+  setTags: (updater: (prev: string[]) => string[]) => void;
+  showToast: (options: ToastOptions) => void;
+  maxCount: number;
+  maxLength: number;
+};
+
+export type CommitTagInputParams = {
+  addTagsFromInput: TagCommit;
+  setTagInput: (value: string) => void;
+};
+
+export type CreateEditPreviewParams = {
+  categories?: Category[];
+  categoryId: string;
+  content: string;
 };
 
 // 메인 목록 액션

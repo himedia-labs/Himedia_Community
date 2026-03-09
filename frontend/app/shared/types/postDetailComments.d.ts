@@ -78,3 +78,62 @@ export interface UsePostDetailCommentsParams {
 
 // 댓글 맵
 export type PostDetailReplyStatesMap = Record<string, PostDetailReplyState>;
+
+// 댓글 핸들러
+export type CreateCommentItemActionHandlersParams = {
+  comment: CommentItem;
+  isReply: boolean;
+  rootCommentId: string;
+  handleCommentMenuToggle: (commentId: string) => void;
+  handleEditStart: (commentId: string, nextContent: string) => void;
+  handleDeleteComment: (commentId: string) => void;
+  handleFollowToggle: (author: CommentAuthorRef | null) => void;
+  handleEditSubmit: (commentId: string) => void;
+  handleCommentLikeToggle: (commentId: string) => void;
+  handleReplyToggle: (rootCommentId: string, comment: CommentItem, isReply: boolean) => void;
+  handleCommentShare: (commentId: string) => void;
+  handleReplySubmit: (rootCommentId: string) => void;
+};
+
+// 댓글 아이템
+export interface PostDetailCommentItemProps {
+  accessToken: string | null;
+  comment: CommentItem;
+  depth?: number;
+  rootId?: string;
+  editingCommentId: string | null;
+  editingContent: string;
+  getFlattenedReplies: (parentId: string) => CommentItem[];
+  getReplyMentionSuggestions: (query: string | null) => string[];
+  getReplyState: (rootId: string) => PostDetailReplyState;
+  handleCommentBlock: () => void;
+  handleCommentLikeToggle: (commentId: string) => void;
+  handleCommentMenuToggle: (commentId: string) => void;
+  handleCommentReport: () => void;
+  handleCommentShare: (commentId: string) => void;
+  handleDeleteComment: (commentId: string) => void;
+  handleEditCancel: () => void;
+  handleEditChange: (event: ChangeEvent<HTMLTextAreaElement>) => void;
+  handleEditStart: (commentId: string, nextContent: string) => void;
+  handleEditSubmit: (commentId: string) => void;
+  handleFollowToggle: (author: CommentAuthorRef | null) => void;
+  handleReplyBlur: (rootId: string) => () => void;
+  handleReplyCompositionEnd: (rootId: string) => () => void;
+  handleReplyCompositionStart: (rootId: string) => () => void;
+  handleReplyInput: (rootId: string) => () => void;
+  handleReplyMentionSelect: (rootId: string, name: string) => (event: MouseEvent<HTMLButtonElement>) => void;
+  handleReplySubmit: (rootId: string) => void;
+  handleReplyToggle: (rootCommentId: string, comment: CommentItem, isReply: boolean) => void;
+  hasEditingLengthError: boolean;
+  isAdmin: boolean;
+  isReply?: boolean;
+  isUpdating: boolean;
+  mentionRoleMap: Map<string, string>;
+  openCommentMenuId: string | null;
+  openRepliesIds: string[];
+  postAuthorId: string | null;
+  replyCountMap: Map<string, number>;
+  setReplyFormRef: (rootId: string) => (node: HTMLDivElement | null) => void;
+  setReplyTextareaRef: (rootId: string) => (node: HTMLDivElement | null) => void;
+  syncReplyMentionQuery: (rootId: string) => () => void;
+}

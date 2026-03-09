@@ -15,6 +15,7 @@ import {
   createHandleProfileAction,
   createHandleProfileCancelAll,
   createHandleProfileSaveAll,
+  createHandleSortToggle,
   createDraftSortToggleHandler,
   createHandleTagSelect,
   createHandleWithdraw,
@@ -33,14 +34,14 @@ import {
   MyPageSettingsTab,
 } from '@/app/(routes)/(private)/mypage/components/tabs';
 import { MyPageValueSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
-import { formatProfileSocialLinks, sortPostsByKey } from '@/app/(routes)/(private)/mypage/utils';
+import { formatProfileSocialLinks, sortPostsByKey } from '@/app/shared/utils/post';
 import {
   useAccountSettings,
   useActivitySort,
   useBioEditor,
   useCommentEditor,
-  useMyPageData,
-  useMyPageTab,
+  useMyData,
+  useMyTabState,
   usePostMenu,
   usePostSidebarData,
   useProfileEditor,
@@ -62,7 +63,7 @@ export default function MyPage() {
   const router = useRouter();
   const { showToast } = useToast();
   const { clearAuth } = useAuthStore();
-  const activeTab = useMyPageTab('settings');
+  const activeTab = useMyTabState('settings');
   const { mutateAsync: withdrawAccount, isPending: isWithdrawing } = useWithdrawAccountMutation();
 
   // 데이터 조회
@@ -92,11 +93,11 @@ export default function MyPage() {
     profileWebsiteUrl,
     profileImageUrl,
     userBio,
-  } = useMyPageData();
+  } = useMyData();
 
   // 정렬/필터
   const { sortKey, sortedPosts, sortedComments, handleSortChange } = useActivitySort(myPosts, myComments);
-  const handleSortToggle = () => handleSortChange(sortKey === 'latest' ? 'popular' : 'latest');
+  const handleSortToggle = createHandleSortToggle(handleSortChange, sortKey);
   const { categories: postCategories, tags: postTags } = usePostSidebarData(myPosts);
   const sortedLikedPosts = useMemo(() => sortPostsByKey(likedPosts, sortKey), [likedPosts, sortKey]);
   const sortedRecentPosts = useMemo(() => sortPostsByKey(recentPosts, sortKey), [recentPosts, sortKey]);

@@ -8,8 +8,8 @@ import {
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
-import commentStyles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
-import postListStyles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
+import commentStyles from '@/app/shared/components/comment/CommentThread.module.css';
+import postListStyles from '@/app/shared/components/post/PostListView.module.css';
 
 import type { MyPageValueSkeletonProps } from '@/app/shared/types/mypage';
 

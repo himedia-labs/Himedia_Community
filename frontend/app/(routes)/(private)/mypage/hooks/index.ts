@@ -1,9 +1,9 @@
 export { usePostMenu } from '@/app/(routes)/(private)/mypage/hooks/usePostMenu';
 export { useBioEditor } from '@/app/(routes)/(private)/mypage/hooks/useBioEditor';
-export { useMyPageTab } from '@/app/(routes)/(private)/mypage/hooks/useMyPageTab';
-export { useMyPageData } from '@/app/(routes)/(private)/mypage/hooks/useMyPageData';
 export { useActivitySort } from '@/app/(routes)/(private)/mypage/hooks/useActivitySort';
 export { useCommentEditor } from '@/app/(routes)/(private)/mypage/hooks/useCommentEditor';
+export { useMyData } from '@/app/(routes)/(private)/mypage/hooks/useMyData';
+export { useMyTabState } from '@/app/(routes)/(private)/mypage/hooks/useMyTabState';
 export { useProfileEditor } from '@/app/(routes)/(private)/mypage/hooks/useProfileEditor';
 export { usePostSidebarData } from '@/app/(routes)/(private)/mypage/hooks/usePostSidebarData';
 export { useAccountSettings } from '@/app/(routes)/(private)/mypage/hooks/useAccountSettings';

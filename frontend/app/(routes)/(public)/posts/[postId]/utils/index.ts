@@ -7,10 +7,7 @@ export { getMentionQuery, getMentionStartIndex } from '@/app/(routes)/(public)/p
 export { getAuthorProfilePath } from '@/app/(routes)/(public)/posts/[postId]/utils/postDetailAuthor.utils';
 export { getAuthorProfileBioPreview } from '@/app/(routes)/(public)/posts/[postId]/utils/postDetailAuthor.utils';
 export { buildAuthorSocialLinks } from '@/app/(routes)/(public)/posts/[postId]/utils/postDetailAuthor.utils';
-export {
-  renderMentionHtml,
-  splitCommentMentions,
-} from '@/app/(routes)/(public)/posts/[postId]/utils/mentionRender.utils';
+export { renderMentionHtml } from '@/app/(routes)/(public)/posts/[postId]/utils/mentionRender.utils';
 export {
   filterMentionCandidates,
   getMentionHighlightSegments,

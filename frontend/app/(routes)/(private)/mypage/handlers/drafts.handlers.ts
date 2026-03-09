@@ -1,16 +1,13 @@
 import type { MouseEvent } from 'react';
 
 import { postsKeys } from '@/app/api/posts/posts.keys';
+import type { MyPageDeleteDraftParams } from '@/app/shared/types/mypage';
 
 /**
  * 임시저장 삭제 핸들러 생성
  * @description 확인 후 임시저장을 삭제하고 목록 캐시를 갱신
  */
-export const createHandleDeleteDraft = (params: {
-  deleteDraft: (postId: string) => Promise<unknown>;
-  invalidateDrafts: (queryKey: readonly unknown[]) => Promise<unknown>;
-  showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
-}) => {
+export const createHandleDeleteDraft = (params: MyPageDeleteDraftParams) => {
   return async (event: MouseEvent<HTMLButtonElement>, postId: string) => {
     event.preventDefault();
     event.stopPropagation();

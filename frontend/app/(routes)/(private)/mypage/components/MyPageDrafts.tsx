@@ -15,6 +15,7 @@ import { postsApi } from '@/app/api/posts/posts.api';
 import { useDraftsQuery } from '@/app/api/posts/posts.queries';
 
 import EmptyState from '@/app/shared/components/empty/EmptyState';
+import ListPostTagList from '@/app/shared/components/post/ListPostTagList';
 import { useToast } from '@/app/shared/components/toast/toast';
 import {
   createHandleDeleteDraft,
@@ -22,13 +23,12 @@ import {
 } from '@/app/(routes)/(private)/mypage/handlers';
 
 import { useAuthStore } from '@/app/shared/store/authStore';
+import { formatDate } from '@/app/shared/utils/date';
 import { formatPostPreview } from '@/app/shared/utils/post';
 import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 
-import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
-
 import 'react-loading-skeleton/dist/skeleton.css';
-import postListStyles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
+import postListStyles from '@/app/shared/components/post/PostListView.module.css';
 import styles from '@/app/(routes)/(private)/mypage/components/MyPageDrafts.module.css';
 
 import type { MyPageDraftsProps } from '@/app/shared/types/mypage';
@@ -60,20 +60,6 @@ export default function MyPageDrafts({ sortOrder }: MyPageDraftsProps) {
     });
     return nextDrafts;
   }, [drafts, sortOrder]);
-
-  // 날짜 포맷
-  const formatDraftDate = (updatedAt?: string | null, createdAt?: string | null) => {
-    const source = updatedAt || createdAt || '';
-    const date = new Date(source);
-    if (Number.isNaN(date.getTime())) return '-';
-    return date.toLocaleString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
 
   const handleDeleteDraft = createHandleDeleteDraft({
     deleteDraft,
@@ -160,7 +146,7 @@ export default function MyPageDrafts({ sortOrder }: MyPageDraftsProps) {
                         <span className={postListStyles.metaGroup}>
                           <span className={postListStyles.metaItem}>
                             <CiCalendar aria-hidden="true" />
-                            {formatDraftDate(draft.updatedAt, draft.createdAt)}
+                            {formatDate(draft.updatedAt ?? draft.createdAt)}
                           </span>
                         </span>
                       </div>

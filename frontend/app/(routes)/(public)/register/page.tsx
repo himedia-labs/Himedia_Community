@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -26,7 +24,11 @@ import {
   PHONE_CONFIG,
 } from '@/app/shared/constants/config/register.config';
 
-import { useEmailVerificationAutoVerify, useRegisterForm } from '@/app/(routes)/(public)/register/hooks';
+import {
+  useEmailVerificationAutoVerify,
+  useRegisterForm,
+  useRegisterVerificationState,
+} from '@/app/(routes)/(public)/register/hooks';
 import {
   createNextStepHandler,
   createRegisterInputHandlers,
@@ -100,33 +102,25 @@ export default function RegisterPage() {
     setPrivacyError,
   } = setErrors;
 
-  // 스텝 상태 (캐시에서 복구)
-  const [step, setStepState] = useState<1 | 2>(cachedStep);
-  const setStep = (newStep: 1 | 2) => {
-    setStepState(newStep);
-    setFormField('step', newStep);
-  };
-
-  // 이메일 인증 상태 (캐시에서 복구)
-  const [emailCode, setEmailCodeState] = useState(cachedEmailCode);
-  const [emailCodeError, setEmailCodeError] = useState('');
-  const [isEmailVerified, setIsEmailVerifiedState] = useState(cachedEmailVerified);
-  const [isEmailCodeSent, setIsEmailCodeSentState] = useState(cachedEmailCodeSent);
-
-  const setEmailCode = (code: string) => {
-    setEmailCodeState(code);
-    setFormField('emailCode', code);
-  };
-
-  const setIsEmailVerified = (verified: boolean) => {
-    setIsEmailVerifiedState(verified);
-    setFormField('isEmailVerified', verified);
-  };
-
-  const setIsEmailCodeSent = (sent: boolean) => {
-    setIsEmailCodeSentState(sent);
-    setFormField('isEmailCodeSent', sent);
-  };
+  // 인증 상태
+  const {
+    step,
+    setStep,
+    emailCode,
+    setEmailCode,
+    emailCodeError,
+    setEmailCodeError,
+    isEmailVerified,
+    setIsEmailVerified,
+    isEmailCodeSent,
+    setIsEmailCodeSent,
+  } = useRegisterVerificationState({
+    cachedStep,
+    cachedEmailCode,
+    cachedEmailVerified,
+    cachedEmailCodeSent,
+    setFormField,
+  });
 
   // 회원가입 핸들러
   const handleSubmit = registerSubmit({
