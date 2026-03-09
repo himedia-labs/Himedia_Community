@@ -17,23 +17,23 @@ import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
 import { useForcePostDraftMutation } from '@/app/api/admin/admin.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
-import { createTocClickHandler } from '@/app/(routes)/(public)/posts/[postId]/handlers';
+import { createTocClickHandler } from '@/app/(routes)/(public)/posts/[postId]/_handlers';
 import {
   usePostDetailActions,
   usePostDetailComments,
   usePostDetailAuthorFollow,
   usePostDetailPostMenu,
   usePostDetailRefresh,
-} from '@/app/(routes)/(public)/posts/[postId]/hooks';
+} from '@/app/(routes)/(public)/posts/[postId]/_hooks';
 import {
   formatRole,
   buildAuthorSocialLinks,
   getAuthorProfilePath,
   getAuthorProfileBioPreview,
-} from '@/app/(routes)/(public)/posts/[postId]/utils';
+} from '@/app/(routes)/(public)/posts/[postId]/_utils';
 import { buildRelativeTime, formatDate } from '@/app/shared/utils/date';
-import { PostDetailError } from '@/app/(routes)/(public)/posts/[postId]/components/PostDetailError';
-import { PostDetailCommentsSection } from '@/app/(routes)/(public)/posts/[postId]/components/PostDetailCommentsSection';
+import { PostDetailError } from '@/app/(routes)/(public)/posts/[postId]/_components/PostDetailError';
+import { PostDetailCommentsSection } from '@/app/(routes)/(public)/posts/[postId]/_components/PostDetailCommentsSection';
 import { PostDetailSkeleton } from '@/app/(routes)/(public)/posts/[postId]/PostDetail.skeleton';
 
 import 'react-loading-skeleton/dist/skeleton.css';

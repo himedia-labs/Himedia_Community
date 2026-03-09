@@ -28,14 +28,14 @@ import {
   useEmailVerificationAutoVerify,
   useRegisterForm,
   useRegisterVerificationState,
-} from '@/app/(routes)/(public)/register/hooks';
+} from '@/app/(routes)/(public)/register/_hooks';
 import {
   createNextStepHandler,
   createRegisterInputHandlers,
   registerSubmit,
   sendEmailCode,
   verifyEmailCode,
-} from '@/app/(routes)/(public)/register/handlers';
+} from '@/app/(routes)/(public)/register/_handlers';
 
 import styles from '@/app/(routes)/(public)/register/register.module.css';
 

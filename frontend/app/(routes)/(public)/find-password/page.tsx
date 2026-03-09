@@ -15,7 +15,7 @@ import { useToast } from '@/app/shared/components/toast/toast';
 import { EMAIL_REGEX, RESET_CODE_EXPIRY_SECONDS } from '@/app/shared/constants/config/auth.config';
 import { isValidPassword } from '@/app/shared/utils/auth';
 
-import { formatRemainingTime } from '@/app/(routes)/(public)/find-password/utils';
+import { formatRemainingTime } from '@/app/(routes)/(public)/find-password/_utils';
 import {
   createHandleCodeChange,
   createHandleEmailChange,
@@ -27,8 +27,8 @@ import {
   resetPasswordState,
   sendCode,
   verifyCode,
-} from '@/app/(routes)/(public)/find-password/handlers';
-import { useResetCodeTimer } from '@/app/(routes)/(public)/find-password/hooks';
+} from '@/app/(routes)/(public)/find-password/_handlers';
+import { useResetCodeTimer } from '@/app/(routes)/(public)/find-password/_hooks';
 
 import styles from '@/app/(routes)/(public)/find-password/find-password.module.css';
 

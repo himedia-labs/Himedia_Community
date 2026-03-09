@@ -27,8 +27,8 @@ import {
   createHandleCloseWithdrawModal,
   createHandleSendRestoreCode,
   createHandleRestoreAccount,
-} from '@/app/(routes)/(public)/login/handlers';
-import { useLoginRedirectToast } from '@/app/(routes)/(public)/login/hooks/useLoginRedirectToast';
+} from '@/app/(routes)/(public)/login/_handlers';
+import { useLoginRedirectToast } from '@/app/(routes)/(public)/login/_hooks/useLoginRedirectToast';
 
 import styles from '@/app/(routes)/(public)/login/login.module.css';
 

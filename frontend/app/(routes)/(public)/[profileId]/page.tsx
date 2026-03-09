@@ -12,10 +12,10 @@ import {
   createHandleFollowMouseEnter,
   createHandleFollowMouseLeave,
   createHandleTagButtonClick,
-} from '@/app/(routes)/(public)/[profileId]/handlers';
-import { useProfileData } from '@/app/(routes)/(public)/[profileId]/hooks/useProfileData';
-import { useProfileFilters } from '@/app/(routes)/(public)/[profileId]/hooks/useProfileFilters';
-import { useProfileFollow } from '@/app/(routes)/(public)/[profileId]/hooks/useProfileFollow';
+} from '@/app/(routes)/(public)/[profileId]/_handlers';
+import { useProfileData } from '@/app/(routes)/(public)/[profileId]/_hooks/useProfileData';
+import { useProfileFilters } from '@/app/(routes)/(public)/[profileId]/_hooks/useProfileFilters';
+import { useProfileFollow } from '@/app/(routes)/(public)/[profileId]/_hooks/useProfileFollow';
 import PostSummaryList from '@/app/shared/components/post/PostSummaryList';
 import { useToast } from '@/app/shared/components/toast/toast';
 import postListStyles from '@/app/shared/components/post/PostListView.module.css';
