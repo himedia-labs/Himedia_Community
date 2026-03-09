@@ -480,6 +480,21 @@ export type PostListActionHandlers = {
   onPostMenuToggle?: (postId: string) => void;
 };
 
+export interface PostSummaryMenuHandlerParams {
+  stopLinkNavigation: (event: MouseEvent<HTMLElement>) => void;
+  onPostMenuToggle?: (postId: string) => void;
+}
+
+export interface PostSummaryEditHandlerParams {
+  stopLinkNavigation: (event: MouseEvent<HTMLElement>) => void;
+  onPostEdit?: (postId: string) => void;
+}
+
+export interface PostSummaryDeleteHandlerParams {
+  stopLinkNavigation: (event: MouseEvent<HTMLElement>) => void;
+  onPostDelete?: (postId: string) => void;
+}
+
 export interface PostSummaryListProps {
   posts: PostListItem[];
   emptyText: string;

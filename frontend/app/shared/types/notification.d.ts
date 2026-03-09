@@ -8,6 +8,8 @@ type NotificationQueryOptions = {
 };
 
 // 알림 모델
+export type NotificationTab = 'today' | 'week' | 'earlier';
+
 export type NotificationType =
   | 'POST_LIKE'
   | 'POST_COMMENT'

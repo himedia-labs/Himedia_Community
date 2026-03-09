@@ -1,5 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 import type { IconType } from 'react-icons';
+import type { ToastOptions } from '@/app/shared/types/toast';
 
 // 프로필 상태
 export type ProfileSortKey = 'latest' | 'popular';
@@ -24,8 +25,7 @@ export type ProfilePageSetNullableString = Dispatch<SetStateAction<string | null
 export type ProfilePageSetSortKey = Dispatch<SetStateAction<ProfileSortKey>>;
 
 // 프로필 토스트
-type ProfilePageToastType = 'success' | 'error' | 'warning' | 'info';
-type ProfilePageShowToast = (params: { message: string; type: ProfilePageToastType }) => void;
+type ProfilePageShowToast = (options: ToastOptions) => void;
 
 // 프로필 훅 파라미터
 export type UseProfileFollowParams = {

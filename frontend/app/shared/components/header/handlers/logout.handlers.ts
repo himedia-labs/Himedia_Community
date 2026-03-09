@@ -1,20 +1,10 @@
-import type { UseMutationResult } from '@tanstack/react-query';
-import type { QueryClient } from '@tanstack/react-query';
-import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import type { HeaderLogoutParams } from '@/app/shared/types/header';
 
 /**
  * 로그아웃 핸들러
  * @description 로그아웃 요청 후 홈으로 이동
  */
-export const handleLogout = (params: {
-  logoutMutation: UseMutationResult<void, Error, void>;
-  clearAuth: () => void;
-  queryClient: QueryClient;
-  authKeys: { currentUser: readonly string[] };
-  showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
-  router: AppRouterInstance;
-  onLogoutSuccess?: () => void;
-}) => {
+export const handleLogout = (params: HeaderLogoutParams) => {
   return async () => {
     params.logoutMutation.mutate(undefined, {
       // 성공 시

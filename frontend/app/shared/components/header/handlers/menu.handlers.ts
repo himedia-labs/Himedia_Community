@@ -1,10 +1,15 @@
 import type { MouseEvent } from 'react';
+import type {
+  HeaderLogoutClickParams,
+  HeaderNotificationClickHandler,
+  HeaderNotificationTabHandler,
+} from '@/app/shared/types/header';
 
 /**
  * 로그아웃 클릭 핸들러 생성
  * @description 프로필 메뉴를 닫고 로그아웃 액션을 실행
  */
-export const createHandleLogoutClick = (params: { closeProfileMenu: () => void; handleLogout: () => void }) => {
+export const createHandleLogoutClick = (params: HeaderLogoutClickParams) => {
   return () => {
     params.closeProfileMenu();
     params.handleLogout();
@@ -16,7 +21,7 @@ export const createHandleLogoutClick = (params: { closeProfileMenu: () => void; 
  * @description 탭 데이터 값을 읽어 today/week/earlier 탭으로 전환
  */
 export const createHandleNotificationTabClick = (
-  setNotificationTab: (tab: 'today' | 'week' | 'earlier') => void,
+  setNotificationTab: HeaderNotificationTabHandler,
 ) => {
   return (event: MouseEvent<HTMLButtonElement>) => {
     const { tab } = event.currentTarget.dataset;
@@ -30,7 +35,7 @@ export const createHandleNotificationTabClick = (
  * @description 항목 id/href/읽음 여부를 읽어 알림 이동 및 읽음 처리를 수행
  */
 export const createHandleNotificationItemClick = (
-  handleNotificationClick: (notificationId: string, href: string, isRead: boolean) => void,
+  handleNotificationClick: HeaderNotificationClickHandler,
 ) => {
   return (event: MouseEvent<HTMLButtonElement>) => {
     const { notificationId, notificationHref, notificationIsRead } = event.currentTarget.dataset;
