@@ -17,19 +17,19 @@ import { useAuthStore } from '@/app/shared/store/authStore';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { usePathVisibility } from '@/app/shared/hooks/usePathVisibility';
 import { LayoutVisibilityConfig } from '@/app/shared/constants/config/layout.config';
-import { formatNotificationTime, getNotificationIcon } from '@/app/shared/utils/notification.utils';
+import { formatNotificationTime, getNotificationIcon } from '@/app/shared/utils/notification';
 
 import { HeaderConfig } from '@/app/shared/constants/config/header.config';
-import { useProfileMenu } from '@/app/shared/components/header/hooks/useProfileMenu';
-import { useScrollProgress } from '@/app/shared/components/header/hooks/useScrollProgress';
-import { usePostDetailPath } from '@/app/shared/components/header/hooks/usePostDetailPath';
-import { useNotificationMenu } from '@/app/shared/components/header/hooks/useNotificationMenu';
-import { handleLogout as createHandleLogout } from '@/app/shared/components/header/handlers/logout.handlers';
+import { handleLogout as createHandleLogout } from '@/app/shared/components/header/_handlers/logout.handlers';
 import {
   createHandleLogoutClick,
   createHandleNotificationItemClick,
   createHandleNotificationTabClick,
-} from '@/app/shared/components/header/handlers/menu.handlers';
+} from '@/app/shared/components/header/_handlers/menu.handlers';
+import { useNotificationMenu } from '@/app/shared/components/header/_hooks/useNotificationMenu';
+import { usePostDetailPath } from '@/app/shared/components/header/_hooks/usePostDetailPath';
+import { useProfileMenu } from '@/app/shared/components/header/_hooks/useProfileMenu';
+import { useScrollProgress } from '@/app/shared/components/header/_hooks/useScrollProgress';
 
 import styles from '@/app/shared/components/header/Header.module.css';
 
@@ -494,7 +494,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
       </div>
       {isPostDetail ? (
         <div className={styles.progressBar} aria-hidden="true">
-          <span className={styles.progressFill} style={{ width: `${scrollProgress}%` }} />
+          <progress className={styles.progressFill} max={100} value={scrollProgress} />
         </div>
       ) : null}
     </header>

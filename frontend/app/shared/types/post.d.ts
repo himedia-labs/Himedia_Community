@@ -11,11 +11,23 @@ import type {
 } from 'react';
 import type { IconType } from 'react-icons';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import type { ToastOptions } from './toast';
 
+// 화면 상태
 export type ViewMode = 'list' | 'card';
-
 export type SortFilter = 'latest' | 'top' | 'following';
 
+// 공통 응답
+type PostMutationResponse = {
+  id: string;
+};
+
+// 공통 옵션
+type PostQueryOptions = {
+  enabled?: boolean;
+};
+
+// 레거시 모델
 export type Post = {
   id: string;
   title: string;
@@ -54,11 +66,13 @@ export interface TagSuggestion {
 
 export type TagSuggestionResponse = TagSuggestion[];
 
+// 게시글 상태
 export type PostStatus = 'DRAFT' | 'PUBLISHED';
 export type PostSortOption = 'createdAt' | 'publishedAt' | 'viewCount' | 'likeCount';
 export type SortOrder = 'ASC' | 'DESC';
 export type PostFeedOption = 'following';
 
+// 목록 쿼리
 export interface PostListQuery {
   page?: number;
   limit?: number;
@@ -96,6 +110,14 @@ export interface PostAuthorRef {
   isFollowing?: boolean;
 }
 
+export interface PostDetailAuthorSocialLink {
+  external: boolean;
+  href: string;
+  icon: IconType;
+  label: string;
+}
+
+// 목록 모델
 export interface PostListItem {
   id: string;
   title: string;
@@ -122,6 +144,49 @@ export interface PostListResponse {
   totalPages: number;
 }
 
+// 상세 모델
+export interface PostTagRef {
+  id: string;
+  name: string;
+}
+
+export interface PostDetailResponse {
+  id: string;
+  title: string;
+  content: string;
+  thumbnailUrl: string | null;
+  status: PostStatus;
+  viewCount: number;
+  likeCount: number;
+  commentCount: number;
+  liked: boolean;
+  shareCount: number;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string | null;
+  category: PostCategoryRef | null;
+  author: PostAuthorRef | null;
+  tags: PostTagRef[];
+}
+
+export interface PostShareResponse {
+  shareCount: number;
+}
+
+export interface PostViewResponse {
+  viewCount: number;
+}
+
+export interface PostRecentViewResponse {
+  postId: string;
+}
+
+export interface PostLikeResponse {
+  likeCount: number;
+  liked: boolean;
+}
+
+// 에디터 상태
 export type MutableRef<T> = {
   current: T;
 };
@@ -168,8 +233,21 @@ export type PostPayloadStatus = 'DRAFT' | 'PUBLISHED';
 export type DraftNoticeParams = {
   draftId: string | null;
   hasDrafts: boolean;
+  isDraftListFetched: boolean;
 };
 
+export type PostComposerPageParams = {
+  draftId?: string;
+  mode?: 'create' | 'draft' | 'edit';
+  postId?: string;
+  headerDescription: string;
+  headerTitle: string;
+  sectionLabel: string;
+  showDraftActions: boolean;
+  submitLabel: string;
+};
+
+// 게시글 요청
 export interface CreatePostRequest {
   title: string;
   content: string;
@@ -178,9 +256,8 @@ export interface CreatePostRequest {
   tags?: string[];
 }
 
-export interface CreatePostResponse {
-  id: string;
-}
+// 게시글 응답
+export type CreatePostResponse = PostMutationResponse;
 
 export interface UpdatePostRequest {
   id: string;
@@ -191,55 +268,11 @@ export interface UpdatePostRequest {
   tags?: string[];
 }
 
-export interface UpdatePostResponse {
-  id: string;
-}
+export type UpdatePostResponse = PostMutationResponse;
 
-export interface DeletePostResponse {
-  id: string;
-}
+export type DeletePostResponse = PostMutationResponse;
 
-export interface PostTagRef {
-  id: string;
-  name: string;
-}
-
-export interface PostDetailResponse {
-  id: string;
-  title: string;
-  content: string;
-  thumbnailUrl: string | null;
-  status: PostStatus;
-  viewCount: number;
-  likeCount: number;
-  commentCount: number;
-  liked: boolean;
-  shareCount: number;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string | null;
-  category: PostCategoryRef | null;
-  author: PostAuthorRef | null;
-  tags: PostTagRef[];
-}
-
-export interface PostShareResponse {
-  shareCount: number;
-}
-
-export interface PostViewResponse {
-  viewCount: number;
-}
-
-export interface PostRecentViewResponse {
-  postId: string;
-}
-
-export interface PostLikeResponse {
-  likeCount: number;
-  liked: boolean;
-}
-
+// 상세 페이지
 export type PostDetailActionsParams = {
   data?: PostDetailResponse | null;
   postId: string;
@@ -252,15 +285,29 @@ export type PostDetailRefreshParams = {
   refetchPost: () => Promise<unknown>;
 };
 
+export interface UsePostDetailAuthorFollowParams {
+  accessToken: string | null;
+  isMyPost: boolean;
+  postAuthorId: string | null;
+  author: PostAuthorRef | null | undefined;
+}
+
+export interface UsePostDetailPostMenuParams {
+  isAdmin?: boolean;
+  postId: string;
+}
+
+export type FormatPostPreviewOptions = {
+  emptyText?: string;
+};
+
 export type PostTocItem = {
   id: string;
   level: 1 | 2 | 3;
   text: string;
 };
 
-
-
-// Draft 관련
+// 드래프트 데이터
 export type DraftData = {
   title: string;
   categoryId: string;
@@ -278,6 +325,18 @@ export type DraftSaverParams = {
   isAuthenticated: boolean;
 };
 
+export type PostEditInitializerParams = {
+  postDetail?: PostDetailResponse | null;
+  applyPartial: (data: Partial<DraftData>) => void;
+  setTags: (tags: DraftData['tags']) => void;
+};
+
+export type PostEditSaverParams = {
+  postId: string;
+  formData: DraftData;
+};
+
+// 작성 폼 상태
 export type AutoSaveParams = {
   formData: DraftData;
   isAuthenticated: boolean;
@@ -320,7 +379,36 @@ export type PostDetailsFormProps = {
   tag: PostDetailsFormTag;
 };
 
-// Main PostList
+export type PostDetailsFormResetCategoryParams = {
+  onCategoryChange: (value: string) => void;
+  setIsCategoryOpen: (value: boolean) => void;
+};
+
+export type PostDetailsFormCategoryOptionParams = {
+  onCategoryChange: (value: string) => void;
+  setIsCategoryOpen: (value: boolean) => void;
+};
+
+export type AddTagsFromInputParams = {
+  tags: string[];
+  setTags: (updater: (prev: string[]) => string[]) => void;
+  showToast: (options: ToastOptions) => void;
+  maxCount: number;
+  maxLength: number;
+};
+
+export type CommitTagInputParams = {
+  addTagsFromInput: TagCommit;
+  setTagInput: (value: string) => void;
+};
+
+export type CreateEditPreviewParams = {
+  categories?: Category[];
+  categoryId: string;
+  content: string;
+};
+
+// 메인 목록 액션
 export type PostListCreatePostParams = {
   router: AppRouterInstance;
 };
@@ -363,6 +451,7 @@ export type PostListInfiniteScrollParams = {
   fetchNextPage: () => Promise<unknown>;
 };
 
+// 메인 목록 UI
 export type CardPostSkeletonItemProps = {
   index: number;
   skeletonKeyPrefix: string;
@@ -412,11 +501,10 @@ export type PostPreviewProps = {
   tags: string[];
 };
 
-// 게시글 쿼리 옵션
-export type PostsQueryOptions = {
-  enabled?: boolean;
-};
+// 목록 옵션
+export type PostsQueryOptions = PostQueryOptions;
 
+// 목록 유틸
 export type ListPostTagListProps = {
   tags: string[];
   postId: number | string;
@@ -434,6 +522,21 @@ export type PostListActionHandlers = {
   onPostEdit?: (postId: string) => void;
   onPostMenuToggle?: (postId: string) => void;
 };
+
+export interface PostSummaryMenuHandlerParams {
+  stopLinkNavigation: (event: MouseEvent<HTMLElement>) => void;
+  onPostMenuToggle?: (postId: string) => void;
+}
+
+export interface PostSummaryEditHandlerParams {
+  stopLinkNavigation: (event: MouseEvent<HTMLElement>) => void;
+  onPostEdit?: (postId: string) => void;
+}
+
+export interface PostSummaryDeleteHandlerParams {
+  stopLinkNavigation: (event: MouseEvent<HTMLElement>) => void;
+  onPostDelete?: (postId: string) => void;
+}
 
 export interface PostSummaryListProps {
   posts: PostListItem[];

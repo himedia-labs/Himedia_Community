@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/app/shared/network/axios.instance';
+import { axiosInstance } from '@/app/shared/lib/axios/axios.instance';
 
 import type { UploadThumbnailResponse } from '@/app/shared/types/upload';
 

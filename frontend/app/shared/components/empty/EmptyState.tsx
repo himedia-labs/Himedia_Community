@@ -1,17 +1,6 @@
 import styles from '@/app/shared/components/empty/EmptyState.module.css';
 
-import type { ReactNode } from 'react';
-
-type EmptyStateSize = 'default' | 'compact';
-type EmptyStateAlign = 'center' | 'left';
-
-type EmptyStateProps = {
-  title: ReactNode;
-  description: ReactNode;
-  className?: string;
-  size?: EmptyStateSize;
-  align?: EmptyStateAlign;
-};
+import type { EmptyStateProps } from '@/app/shared/types/empty-state';
 
 /**
  * 공통 빈 상태

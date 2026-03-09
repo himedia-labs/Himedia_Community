@@ -2,55 +2,65 @@
 
 import { useCallback, useMemo } from 'react';
 
-import { FiSend, FiSave, FiLogOut } from 'react-icons/fi';
-import { RxWidth } from 'react-icons/rx';
 import { CiImport } from 'react-icons/ci';
+import { FiLogOut, FiSave, FiSend } from 'react-icons/fi';
+import { RxWidth } from 'react-icons/rx';
 import { useRouter } from 'next/navigation';
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
 import { useFollowersQuery, useFollowingsQuery } from '@/app/api/follows/follows.queries';
-import { usePostsQuery } from '@/app/api/posts/posts.queries';
+import { usePostDetailQuery, usePostsQuery } from '@/app/api/posts/posts.queries';
 
-import { useAuthStore } from '@/app/shared/store/authStore';
+import { PostDetailsForm, PostPreview } from '@/app/(routes)/(private)/posts/_components';
+import {
+  createHandleBoldClick,
+  createHandleExit,
+  createHandleItalicClick,
+  createHandleSaveDraftClick,
+  createHandleStrikeClick,
+  createHandleUnderlineClick,
+} from '@/app/(routes)/(private)/posts/_handlers/postCreate.handlers';
+import { useDraftManager, usePostEditInitializer, usePostEditSaver } from '@/app/(routes)/(private)/posts/_hooks';
+import { useMarkdownEditor } from '@/app/(routes)/(private)/posts/_hooks/useMarkdownEditor';
+import { usePostForm } from '@/app/(routes)/(private)/posts/_hooks/usePostForm';
+import { useTagInput } from '@/app/(routes)/(private)/posts/_hooks/useTagInput';
+import { createExitHandler } from '@/app/(routes)/(private)/posts/edit/[postId]/handlers';
+
+import EditorToolbar from '@/app/shared/components/markdown-editor/EditorToolbar';
 
 import {
   DEFAULT_AUTHOR_NAME,
   DEFAULT_CATEGORY_LABEL,
   DEFAULT_PREVIEW_STATS,
 } from '@/app/shared/constants/config/post.config';
-
-import {
-  useDraftManager,
-  useMarkdownEditor,
-  usePostForm,
-  useTagInput,
-} from '@/app/(routes)/(private)/posts/new/hooks';
-import {
-  createHandleExit,
-  createHandleBoldClick,
-  createHandleStrikeClick,
-  createHandleItalicClick,
-  createHandleUnderlineClick,
-  createHandleSaveDraftClick,
-} from '@/app/(routes)/(private)/posts/new/handlers/postCreate.handlers';
-
-import { formatDateLabel, renderMarkdownPreview } from '@/app/(routes)/(private)/posts/new/utils';
-import { EditorToolbar, PostPreview, PostDetailsForm } from '@/app/(routes)/(private)/posts/new/components';
+import { useAuthStore } from '@/app/shared/store/authStore';
+import { formatDateLabel } from '@/app/shared/utils/date';
+import { renderMarkdownPreview } from '@/app/shared/utils/markdown';
 
 import markdownEditorStyles from '@/app/shared/components/markdown-editor/markdownEditor.module.css';
 import styles from '@/app/(routes)/(private)/posts/new/PostCreate.module.css';
 
-import type { DraftData } from '@/app/shared/types/post';
+import type { DraftData, PostComposerPageParams } from '@/app/shared/types/post';
 
 /**
  * 게시물 작성 페이지
- * @description 작성 폼과 미리보기를 제공
+ * @description 작성/수정 폼과 미리보기를 제공
  */
-export default function PostCreatePage() {
+export function PostCreatePage({
+  draftId,
+  mode = 'create',
+  postId,
+  headerDescription,
+  headerTitle,
+  sectionLabel,
+  showDraftActions,
+  submitLabel,
+}: PostComposerPageParams) {
   // 라우트 훅
   const router = useRouter();
   const { accessToken } = useAuthStore();
+  const isEditMode = mode === 'edit';
 
   // 기본 폼 상태
   const { state: formState, setters: formSetters, handlers: formHandlers } = usePostForm();
@@ -81,11 +91,19 @@ export default function PostCreatePage() {
     [applyPartial, setTags],
   );
 
-  // Draft 관리
+  // 작성/수정 데이터
   const {
     data: { draftList },
     handlers: { saveDraft, publishPost, openDraftList },
-  } = useDraftManager({ title, categoryId, content, tags }, applyDraftData);
+  } = useDraftManager({ title, categoryId, content, tags }, applyDraftData, !isEditMode, draftId);
+  const { data: postDetail } = usePostDetailQuery(postId, { enabled: Boolean(isEditMode && accessToken && postId) });
+  usePostEditInitializer({ postDetail, applyPartial, setTags });
+
+  // 수정 저장
+  const { handlePostUpdate } = usePostEditSaver({
+    postId: postId ?? '',
+    formData: { title, categoryId, content, tags },
+  });
 
   // 마크다운 에디터
   const {
@@ -105,7 +123,7 @@ export default function PostCreatePage() {
     },
   } = useMarkdownEditor({ content, setContentValue: setContent });
 
-  // 카테고리 목록
+  // 보조 데이터
   const { data: categories, isLoading } = useCategoriesQuery();
   const { data: currentUser } = useCurrentUserQuery();
   const currentUserId = currentUser?.id;
@@ -116,7 +134,7 @@ export default function PostCreatePage() {
     { enabled: Boolean(accessToken && currentUserId) },
   );
 
-  // 미리보기 데이터
+  // 화면 파생값
   const categoryName = categories?.find(category => String(category.id) === categoryId)?.name ?? DEFAULT_CATEGORY_LABEL;
   const dateLabel = formatDateLabel(new Date());
   const previewStats = DEFAULT_PREVIEW_STATS;
@@ -128,8 +146,9 @@ export default function PostCreatePage() {
     followingCount: followingsData?.length ?? 0,
   };
   const previewContent = useMemo(() => renderMarkdownPreview(content), [content]);
-
-  const handleExit = createHandleExit(router);
+  // 액션 핸들러
+  const handleExit = isEditMode ? createExitHandler(router, postId) : createHandleExit(router);
+  const handleSubmit = isEditMode ? handlePostUpdate : publishPost;
   const handleSaveDraftClick = createHandleSaveDraftClick(saveDraft);
   const handleBoldClick = createHandleBoldClick(applyInlineWrap);
   const handleItalicClick = createHandleItalicClick(applyInlineWrap);
@@ -137,21 +156,21 @@ export default function PostCreatePage() {
   const handleStrikeClick = createHandleStrikeClick(applyInlineWrap);
 
   return (
-    <section className={styles.container} aria-label="게시물 작성">
+    <section className={styles.container} aria-label={sectionLabel}>
       <header className={styles.header}>
         <div className={styles.headerCopy}>
-          <h1 className={styles.headerTitle}>새 게시물 작성</h1>
-          <p className={styles.headerDescription}>카테고리와 태그를 설정하고 내용을 작성하세요.</p>
+          <h1 className={styles.headerTitle}>{headerTitle}</h1>
+          <p className={styles.headerDescription}>{headerDescription}</p>
         </div>
         <div className={styles.headerActions}>
           <button
             type="button"
             className={`${styles.headerAction} ${styles.headerActionText}`}
-            aria-label="게시하기"
-            title="게시하기"
-            onClick={publishPost}
+            aria-label={submitLabel}
+            title={submitLabel}
+            onClick={handleSubmit}
           >
-            <span>게시하기</span>
+            <span>{submitLabel}</span>
             <FiSend aria-hidden />
           </button>
         </div>
@@ -276,25 +295,42 @@ export default function PostCreatePage() {
           <span className={styles.actionLabel}>나가기</span>
           <FiLogOut className={styles.actionIcon} aria-hidden="true" />
         </button>
-        <button
-          type="button"
-          className={styles.actionButton}
-          aria-label={`임시저장 ${draftCount}개`}
-          title="임시저장"
-          onClick={handleSaveDraftClick}
-        >
-          <span className={styles.actionLabel}>저장하기</span>
-          <FiSave className={`${styles.actionIcon} ${styles.actionIconSave}`} aria-hidden="true" />
-          <span className={styles.footerDivider} aria-hidden="true">
-            |
-          </span>
-          <span className={styles.footerCount}>{draftCount}</span>
-        </button>
-        <button type="button" className={styles.actionButton} onClick={openDraftList}>
-          <span className={styles.actionLabel}>불러오기</span>
-          <CiImport className={styles.actionIcon} aria-hidden="true" />
-        </button>
+        {showDraftActions && (
+          <>
+            <button
+              type="button"
+              className={styles.actionButton}
+              aria-label={`임시저장 ${draftCount}개`}
+              title="임시저장"
+              onClick={handleSaveDraftClick}
+            >
+              <span className={styles.actionLabel}>저장하기</span>
+              <FiSave className={`${styles.actionIcon} ${styles.actionIconSave}`} aria-hidden="true" />
+              <span className={styles.footerDivider} aria-hidden="true">
+                |
+              </span>
+              <span className={styles.footerCount}>{draftCount}</span>
+            </button>
+            <button type="button" className={styles.actionButton} onClick={openDraftList}>
+              <span className={styles.actionLabel}>불러오기</span>
+              <CiImport className={styles.actionIcon} aria-hidden="true" />
+            </button>
+          </>
+        )}
       </footer>
     </section>
+  );
+}
+
+export default function NewPostPage() {
+  return (
+    <PostCreatePage
+      mode="create"
+      headerDescription="카테고리와 태그를 설정하고 내용을 작성하세요."
+      headerTitle="새 게시물 작성"
+      sectionLabel="게시물 작성"
+      showDraftActions
+      submitLabel="게시하기"
+    />
   );
 }

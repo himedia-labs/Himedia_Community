@@ -1,4 +1,4 @@
-import { TOAST_ICON_MAP, TOAST_ICON_STYLES } from '@/app/shared/constants/config/toast.config';
+import { TOAST_ICON_MAP } from '@/app/shared/constants/config/toast.config';
 
 import styles from './toast.module.css';
 
@@ -10,9 +10,8 @@ import type { ToastType } from '@/app/shared/types/toast';
  */
 export function ToastIcon({ type }: { type: ToastType }) {
   const Icon = TOAST_ICON_MAP[type];
-  const { bg, color } = TOAST_ICON_STYLES[type];
   return (
-    <span className={styles.icon} style={{ backgroundColor: bg, color }}>
+    <span className={`${styles.icon} ${styles[`icon${type[0].toUpperCase()}${type.slice(1)}`]}`}>
       <Icon aria-hidden focusable="false" strokeWidth={2.5} />
     </span>
   );

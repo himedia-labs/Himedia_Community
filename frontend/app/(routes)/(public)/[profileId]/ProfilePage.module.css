@@ -150,6 +150,41 @@
   color: #7a7a7a;
 }
 
+.authorFollowButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid #99bcff;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #2469e7;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.authorFollowButton:hover {
+  border-color: #86abf4;
+  background: #e9f2ff;
+}
+
+.authorFollowButtonActive {
+  border-color: #d3d9e3;
+  color: #525f72;
+}
+
+.authorFollowButtonActive:hover:not(:disabled) {
+  border-color: #f0b4b4;
+  background: #fff1f1;
+  color: #cf2f2f;
+}
+
+.authorFollowButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 @media (max-width: 600px) {
   .headerMain {
     flex-direction: column;

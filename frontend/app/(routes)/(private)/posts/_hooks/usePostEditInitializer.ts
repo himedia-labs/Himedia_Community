@@ -1,0 +1,19 @@
+import { useEffect } from 'react';
+
+import { mapDraftToForm } from '@/app/shared/utils/post';
+
+import type { PostEditInitializerParams } from '@/app/shared/types/post';
+
+/**
+ * 게시물 수정 초기화 훅
+ * @description 상세 데이터를 폼 상태로 반영
+ */
+export const usePostEditInitializer = ({ postDetail, applyPartial, setTags }: PostEditInitializerParams) => {
+  // 데이터 반영
+  useEffect(() => {
+    if (!postDetail) return;
+    const formData = mapDraftToForm(postDetail);
+    applyPartial(formData);
+    setTags(formData.tags);
+  }, [applyPartial, postDetail, setTags]);
+};

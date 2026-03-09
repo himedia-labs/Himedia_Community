@@ -1,3 +1,15 @@
+// 공통 응답
+type NotificationReadResponse = {
+  id: string;
+};
+
+type NotificationQueryOptions = {
+  enabled?: boolean;
+};
+
+// 알림 모델
+export type NotificationTab = 'today' | 'week' | 'earlier';
+
 export type NotificationType =
   | 'POST_LIKE'
   | 'POST_COMMENT'
@@ -23,16 +35,13 @@ export interface NotificationListResponse {
   items: NotificationItem[];
 }
 
-export interface MarkNotificationReadResponse {
-  id: string;
-}
+export type MarkNotificationReadResponse = NotificationReadResponse;
 
 export interface MarkNotificationsReadAllResponse {
   updated: number;
 }
 
-// 알림 쿼리 옵션
-export type NotificationsQueryOptions = {
-  enabled?: boolean;
+// API 요청/응답
+export type NotificationsQueryOptions = NotificationQueryOptions & {
   limit?: number;
 };

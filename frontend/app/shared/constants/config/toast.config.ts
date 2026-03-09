@@ -17,17 +17,6 @@ export const TOAST_CONFIG = {
 } as const;
 
 /**
- * 토스트 아이콘 스타일
- * @description 타입별 배경색과 아이콘 색상 매핑
- */
-export const TOAST_ICON_STYLES: Record<ToastType, { bg: string; color: string }> = {
-  info: { bg: '#e7eefc', color: '#3050a6' },
-  success: { bg: '#e7f6ec', color: '#15803d' },
-  warning: { bg: '#ffdf8f', color: '#333D4B' },
-  error: { bg: '#ffe4e6', color: '#b91c1c' },
-};
-
-/**
  * 토스트 아이콘 매핑
  * @description 타입별 아이콘 컴포넌트 매핑
  */

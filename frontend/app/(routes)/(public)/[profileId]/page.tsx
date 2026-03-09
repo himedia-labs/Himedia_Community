@@ -12,15 +12,14 @@ import {
   createHandleFollowMouseEnter,
   createHandleFollowMouseLeave,
   createHandleTagButtonClick,
-} from '@/app/(routes)/(public)/[profileId]/handlers';
-import { useProfileData } from '@/app/(routes)/(public)/[profileId]/hooks/useProfileData';
-import { useProfileFilters } from '@/app/(routes)/(public)/[profileId]/hooks/useProfileFilters';
-import { useProfileFollow } from '@/app/(routes)/(public)/[profileId]/hooks/useProfileFollow';
+} from '@/app/(routes)/(public)/[profileId]/_handlers';
+import { useProfileData } from '@/app/(routes)/(public)/[profileId]/_hooks/useProfileData';
+import { useProfileFilters } from '@/app/(routes)/(public)/[profileId]/_hooks/useProfileFilters';
+import { useProfileFollow } from '@/app/(routes)/(public)/[profileId]/_hooks/useProfileFollow';
 import PostSummaryList from '@/app/shared/components/post/PostSummaryList';
 import { useToast } from '@/app/shared/components/toast/toast';
-import myPageStyles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
-import postListStyles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
-import postDetailStyles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
+import postListStyles from '@/app/shared/components/post/PostListView.module.css';
+import layoutStyles from '@/app/(routes)/(public)/[profileId]/ProfilePageLayout.module.css';
 import styles from '@/app/(routes)/(public)/[profileId]/ProfilePage.module.css';
 import markdownStyles from '@/app/shared/components/markdown-editor/markdown.module.css';
 
@@ -119,13 +118,13 @@ export default function ProfilePage() {
   return (
     <section className={styles.container} aria-label="프로필">
       <div className={styles.headerBlock}>
-        <header className={myPageStyles.header}>
-          <div className={myPageStyles.profileCard}>
-            <div className={myPageStyles.profileMain}>
-              <div className={myPageStyles.avatar} aria-hidden="true">
+        <header className={layoutStyles.header}>
+          <div className={layoutStyles.profileCard}>
+            <div className={layoutStyles.profileMain}>
+              <div className={layoutStyles.avatar} aria-hidden="true">
                 {profile.profileImageUrl ? (
                   <Image
-                    className={myPageStyles.avatarImage}
+                    className={layoutStyles.avatarImage}
                     src={profile.profileImageUrl}
                     alt=""
                     width={62}
@@ -134,25 +133,25 @@ export default function ProfilePage() {
                     unoptimized
                   />
                 ) : (
-                  <FaUser className={myPageStyles.avatarIcon} />
+                  <FaUser className={layoutStyles.avatarIcon} />
                 )}
               </div>
-              <div className={myPageStyles.profileInfo}>
-                <div className={myPageStyles.profileNameRow}>
-                  <span className={myPageStyles.profileName}>{profile.name}</span>
-                  <span className={myPageStyles.profileHandle}>{handleText}</span>
+              <div className={layoutStyles.profileInfo}>
+                <div className={layoutStyles.profileNameRow}>
+                  <span className={layoutStyles.profileName}>{profile.name}</span>
+                  <span className={layoutStyles.profileHandle}>{handleText}</span>
                 </div>
-                <div className={myPageStyles.profileStatsRow}>
-                  <div className={myPageStyles.profileStats}>
-                    <span className={myPageStyles.profileStat}>
+                <div className={layoutStyles.profileStatsRow}>
+                  <div className={layoutStyles.profileStats}>
+                    <span className={layoutStyles.profileStat}>
                       글 <strong>{postCount}</strong>
                     </span>
-                    <span className={myPageStyles.profileDivider}>·</span>
-                    <span className={myPageStyles.profileStat}>
+                    <span className={layoutStyles.profileDivider}>·</span>
+                    <span className={layoutStyles.profileStat}>
                       팔로워 <strong>{followerCount}</strong>
                     </span>
-                    <span className={myPageStyles.profileDivider}>·</span>
-                    <span className={myPageStyles.profileStat}>
+                    <span className={layoutStyles.profileDivider}>·</span>
+                    <span className={layoutStyles.profileStat}>
                       팔로잉 <strong>{followingCount}</strong>
                     </span>
                   </div>
@@ -162,8 +161,8 @@ export default function ProfilePage() {
                 {!isMyProfile ? (
                   <button
                     type="button"
-                    className={`${postDetailStyles.authorFollowButton} ${
-                      isFollowing ? postDetailStyles.authorFollowButtonActive : ''
+                    className={`${styles.authorFollowButton} ${
+                      isFollowing ? styles.authorFollowButtonActive : ''
                     }`}
                     disabled={isFollowLoading}
                     onMouseEnter={handleFollowMouseEnter}
@@ -175,11 +174,11 @@ export default function ProfilePage() {
                 ) : null}
                 {profileSocialLinks.length ? (
                   <div className={styles.profileSocialBottom}>
-                    <div className={myPageStyles.profileSocialRow} aria-label="소셜 링크">
+                    <div className={layoutStyles.profileSocialRow} aria-label="소셜 링크">
                       {profileSocialLinks.map(({ href, label, icon: Icon, external }) => (
                         <a
                           key={label}
-                          className={myPageStyles.profileSocialLink}
+                          className={layoutStyles.profileSocialLink}
                           href={href}
                           aria-label={label}
                           target={external ? '_blank' : undefined}
@@ -195,13 +194,13 @@ export default function ProfilePage() {
             </div>
           </div>
         </header>
-        <div className={myPageStyles.headerDivider} aria-hidden="true" />
+        <div className={layoutStyles.headerDivider} aria-hidden="true" />
       </div>
-      <section className={myPageStyles.settingsSection} aria-label="소개">
-        <div className={myPageStyles.settingsRow}>
-          <span className={myPageStyles.settingsLabel}>소개</span>
+      <section className={layoutStyles.settingsSection} aria-label="소개">
+        <div className={layoutStyles.settingsRow}>
+          <span className={layoutStyles.settingsLabel}>소개</span>
         </div>
-        <div className={myPageStyles.settingsBody}>
+        <div className={layoutStyles.settingsBody}>
           {profile.profileBio ? (
             <div className={markdownStyles.markdown}>{bioPreview}</div>
           ) : (
@@ -212,92 +211,92 @@ export default function ProfilePage() {
           )}
         </div>
       </section>
-      <div className={myPageStyles.headerDivider} aria-hidden="true" />
+      <div className={layoutStyles.headerDivider} aria-hidden="true" />
 
       {isPostsLoading ? (
         <ProfilePostListSkeleton />
       ) : (
-        <section className={myPageStyles.settingsSection} aria-label="게시글 목록">
-          <div className={myPageStyles.settingsRow}>
-            <span className={myPageStyles.settingsLabel}>게시글</span>
-            <div className={myPageStyles.settingsControlGroup}>
-              <div className={myPageStyles.filterDropdown}>
+        <section className={layoutStyles.settingsSection} aria-label="게시글 목록">
+          <div className={layoutStyles.settingsRow}>
+            <span className={layoutStyles.settingsLabel}>게시글</span>
+            <div className={layoutStyles.settingsControlGroup}>
+              <div className={layoutStyles.filterDropdown}>
                 <button
                   type="button"
-                  className={myPageStyles.filterButton}
+                  className={layoutStyles.filterButton}
                   onClick={toggleCategory}
                   disabled={!postCategories.length}
                 >
                   {selectedCategoryLabel ?? '카테고리'}
-                  <FiChevronDown className={myPageStyles.filterChevron} aria-hidden="true" />
+                  <FiChevronDown className={layoutStyles.filterChevron} aria-hidden="true" />
                 </button>
                 {isCategoryOpen ? (
-                  <div className={myPageStyles.filterMenu}>
+                  <div className={layoutStyles.filterMenu}>
                     {postCategories.map(category => (
                       <button
                         key={category.id}
                         type="button"
-                        className={`${myPageStyles.filterItem} ${
-                          selectedCategoryId === category.id ? myPageStyles.filterItemActive : ''
+                        className={`${layoutStyles.filterItem} ${
+                          selectedCategoryId === category.id ? layoutStyles.filterItemActive : ''
                         }`}
                         data-category-id={category.id}
                         onClick={handleCategoryButtonClick}
                       >
                         <span>{category.name}</span>
-                        <span className={myPageStyles.filterCount}>{category.count}</span>
+                        <span className={layoutStyles.filterCount}>{category.count}</span>
                       </button>
                     ))}
                   </div>
                 ) : null}
               </div>
-              <div className={myPageStyles.filterDropdown}>
+              <div className={layoutStyles.filterDropdown}>
                 <button
                   type="button"
-                  className={myPageStyles.filterButton}
+                  className={layoutStyles.filterButton}
                   onClick={toggleTag}
                   disabled={!postTags.length}
                 >
-                  <span className={myPageStyles.tagFilterLabel}>
+                  <span className={layoutStyles.tagFilterLabel}>
                     {selectedTagLabel ? `#${selectedTagLabel}` : '#태그'}
                   </span>
-                  <FiChevronDown className={myPageStyles.filterChevron} aria-hidden="true" />
+                  <FiChevronDown className={layoutStyles.filterChevron} aria-hidden="true" />
                 </button>
                 {isTagOpen ? (
-                  <div className={`${myPageStyles.filterMenu} ${myPageStyles.tagFilterMenu}`}>
+                  <div className={`${layoutStyles.filterMenu} ${layoutStyles.tagFilterMenu}`}>
                     {postTags.map(tag => (
                       <button
                         key={tag.id}
                         type="button"
-                        className={`${myPageStyles.filterItem} ${
+                        className={`${layoutStyles.filterItem} ${
                           selectedTagId === tag.id
-                            ? `${myPageStyles.filterItemActive} ${myPageStyles.tagFilterItemActive}`
+                            ? `${layoutStyles.filterItemActive} ${layoutStyles.tagFilterItemActive}`
                             : ''
                         }`}
                         data-tag-id={tag.id}
                         onClick={handleTagButtonClick}
                       >
-                        <span className={myPageStyles.tagFilterName}>#{tag.name}</span>
-                        <span className={myPageStyles.filterCount}>{tag.count}</span>
+                        <span className={layoutStyles.tagFilterName}>#{tag.name}</span>
+                        <span className={layoutStyles.filterCount}>{tag.count}</span>
                       </button>
                     ))}
                   </div>
                 ) : null}
               </div>
-              <div className={myPageStyles.settingsDivider} aria-hidden="true" />
-              <div className={myPageStyles.settingsSortGroup}>
+              <div className={layoutStyles.settingsDivider} aria-hidden="true" />
+              <div className={layoutStyles.settingsSortGroup}>
                 <button
                   type="button"
-                  className={`${myPageStyles.settingsSortButton} ${myPageStyles.settingsSortButtonActive}`}
+                  className={`${layoutStyles.settingsSortButton} ${layoutStyles.settingsSortButtonActive}`}
                   onClick={handleSortToggle}
                 >
                   {sortKey === 'popular' ? (
                     <>
-                      <FiTrendingUp className={myPageStyles.settingsSortIcon} aria-hidden="true" />
+                      <FiTrendingUp className={layoutStyles.settingsSortIcon} aria-hidden="true" />
                       인기순
                     </>
                   ) : (
                     <>
-                      <FiClock className={myPageStyles.settingsSortIcon} aria-hidden="true" />
+                      <FiClock className={layoutStyles.settingsSortIcon} aria-hidden="true" />
                       최신순
                     </>
                   )}

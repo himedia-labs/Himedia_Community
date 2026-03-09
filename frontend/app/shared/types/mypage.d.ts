@@ -1,23 +1,29 @@
-import type { ReactNode, RefObject } from 'react';
+import type { IconType } from 'react-icons';
+import type { Dispatch, ReactNode, RefObject, SetStateAction } from 'react';
+import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 import type { MyCommentItem } from '@/app/shared/types/comment';
 import type { PostListItem } from '@/app/shared/types/post';
 
+// 탭 상태
 export type TabKey = 'posts' | 'drafts' | 'comments' | 'likes' | 'recent' | 'settings' | 'account';
 export type ActivitySortKey = 'latest' | 'popular';
 export type DraftSortOrder = 'latest' | 'oldest';
+export type AccountEditField = 'email' | 'phone' | 'birthDate' | 'password' | null;
 
 // 필터
-export interface PostFilterItem {
+export interface FilterItem {
   id: string;
   name: string;
   count: number;
 }
 
-export interface FilterItem {
-  id: string;
-  name: string;
-  count: number;
+// 프로필 소셜 링크
+export interface ProfileSocialLink {
+  href: string;
+  label: string;
+  icon: IconType;
+  external?: boolean;
 }
 
 // 비밀번호 규칙
@@ -66,8 +72,8 @@ export interface MyPagePostsTabProps {
   isTagOpen: boolean;
   myPosts: PostListItem[];
   openPostMenuId: string | null;
-  postCategories: PostFilterItem[];
-  postTags: PostFilterItem[];
+  postCategories: FilterItem[];
+  postTags: FilterItem[];
   selectedCategoryId: string | null;
   selectedCategoryLabel?: string;
   selectedTagId: string | null;
@@ -219,3 +225,151 @@ export interface MyPageValueSkeletonProps {
 export interface MyPageDraftsProps {
   sortOrder: 'latest' | 'oldest';
 }
+
+// 훅 파라미터
+export interface UseProfileEditorParams {
+  name?: string;
+  handle?: string;
+  contactEmail?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  twitterUrl?: string;
+  facebookUrl?: string;
+  websiteUrl?: string;
+}
+
+export type UseAccountSettingsParams = {
+  birthDate: string;
+  email: string;
+  phone: string;
+};
+
+export type MyPageProfileActionParams = {
+  isProfileActionPending: boolean;
+  isProfileEditing: boolean;
+  handleProfileEditStart: () => void;
+  handleProfileSaveAll: () => Promise<void>;
+};
+
+export type MyPageProfileSaveAllParams = {
+  isProfileActionPending: boolean;
+  handleProfileSave: () => Promise<boolean>;
+  handleAvatarSave: () => Promise<boolean>;
+  handleProfileEditComplete: () => void;
+};
+
+export type MyPageProfileCancelAllParams = {
+  isProfileActionPending: boolean;
+  handleAvatarCancel: () => void;
+  handleProfileCancel: () => void;
+};
+
+export type MyPageCloseWithdrawModalParams = {
+  isWithdrawing: boolean;
+  setIsWithdrawModalOpen: (value: boolean) => void;
+  setShowWithdrawPassword: (value: boolean) => void;
+  setWithdrawPassword: (value: string) => void;
+};
+
+export type MyPageOpenWithdrawModalParams = {
+  isWithdrawing: boolean;
+  setShowWithdrawPassword: (value: boolean) => void;
+  setWithdrawPassword: (value: string) => void;
+  setIsWithdrawModalOpen: (value: boolean) => void;
+};
+
+export type MyPageHandleWithdrawParams = {
+  isWithdrawing: boolean;
+  withdrawPassword: string;
+  withdrawAccount: (data: { currentPassword: string }) => Promise<{ message: string }>;
+  setIsWithdrawModalOpen: (value: boolean) => void;
+  setShowWithdrawPassword: (value: boolean) => void;
+  setWithdrawPassword: (value: string) => void;
+  clearAuth: () => void;
+  showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
+  router: { replace: (path: string) => void };
+};
+
+export type MyPageToggleCategoryParams = {
+  setIsTagOpen: (value: boolean) => void;
+  setIsCategoryOpen: (updater: (prev: boolean) => boolean) => void;
+};
+
+export type MyPageToggleTagParams = {
+  setIsCategoryOpen: (value: boolean) => void;
+  setIsTagOpen: (updater: (prev: boolean) => boolean) => void;
+};
+
+export type MyPageHandleCategorySelectParams = {
+  setSelectedCategoryId: (updater: (prev: string | null) => string | null) => void;
+  setIsCategoryOpen: (value: boolean) => void;
+};
+
+export type MyPageHandleTagSelectParams = {
+  setSelectedTagId: (updater: (prev: string | null) => string | null) => void;
+  setIsTagOpen: (value: boolean) => void;
+};
+
+export type MyPageDeleteDraftParams = {
+  deleteDraft: (postId: string) => Promise<unknown>;
+  invalidateDrafts: (queryKey: readonly unknown[]) => Promise<unknown>;
+  showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
+};
+
+export type FormatProfileSocialLinksParams = {
+  profileContactEmail: string;
+  profileGithubUrl: string;
+  profileLinkedinUrl: string;
+  profileTwitterUrl: string;
+  profileFacebookUrl: string;
+  profileWebsiteUrl: string;
+};
+
+export type UseMyPageActivityParams = {
+  likedPosts: PostListItem[];
+  recentPosts: PostListItem[];
+  myComments: MyCommentItem[];
+  myPosts: PostListItem[];
+};
+
+export type UseMyPageProfileActionsParams = {
+  isProfileSaving: boolean;
+  isProfileUpdating: boolean;
+  isProfileEditing: boolean;
+  profileContactEmail: string;
+  profileGithubUrl: string;
+  profileLinkedinUrl: string;
+  profileTwitterUrl: string;
+  profileFacebookUrl: string;
+  profileWebsiteUrl: string;
+  setProfileContactEmail: (value: string) => void;
+  setProfileGithubUrl: (value: string) => void;
+  setProfileLinkedinUrl: (value: string) => void;
+  setProfileTwitterUrl: (value: string) => void;
+  setProfileFacebookUrl: (value: string) => void;
+  setProfileWebsiteUrl: (value: string) => void;
+  handleProfileSave: () => Promise<boolean>;
+  handleAvatarSave: () => Promise<boolean>;
+  handleProfileEditStart: () => void;
+  handleProfileEditComplete: () => void;
+  handleAvatarCancel: () => void;
+  handleProfileCancel: () => void;
+};
+
+export type UseMyPageWithdrawParams = {
+  isWithdrawing: boolean;
+  withdrawAccount: (data: { currentPassword: string }) => Promise<{ message: string }>;
+  clearAuth: () => void;
+  showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
+  router: AppRouterInstance;
+};
+
+export type MyPageFilterState = {
+  isCategoryOpen: boolean;
+  isTagOpen: boolean;
+  draftSortOrder: DraftSortOrder;
+  selectedCategoryId: string | null;
+  selectedTagId: string | null;
+  setShowWithdrawPassword: Dispatch<SetStateAction<boolean>>;
+  setWithdrawPassword: Dispatch<SetStateAction<string>>;
+};

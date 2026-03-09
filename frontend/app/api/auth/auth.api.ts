@@ -1,5 +1,5 @@
-import { axiosBare } from '@/app/shared/network/axios.config';
-import { axiosInstance } from '@/app/shared/network/axios.instance';
+import { axiosBare } from '@/app/shared/lib/axios/axios.config';
+import { axiosInstance } from '@/app/shared/lib/axios/axios.instance';
 
 import { useAuthStore } from '@/app/shared/store/authStore';
 

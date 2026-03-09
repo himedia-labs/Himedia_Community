@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -26,14 +24,15 @@ import {
   PHONE_CONFIG,
 } from '@/app/shared/constants/config/register.config';
 
-import { useEmailVerificationAutoVerify, useRegisterForm } from '@/app/(routes)/(public)/register/hooks';
 import {
-  createNextStepHandler,
-  createRegisterInputHandlers,
-  registerSubmit,
-  sendEmailCode,
-  verifyEmailCode,
-} from '@/app/(routes)/(public)/register/handlers';
+  useEmailVerificationAutoVerify,
+  useRegisterActionHandlers,
+  useRegisterForm,
+  useRegisterInputHandlers,
+  useRegisterRestoredToast,
+  useRegisterStepUi,
+  useRegisterVerificationState,
+} from '@/app/(routes)/(public)/register/_hooks';
 
 import styles from '@/app/(routes)/(public)/register/register.module.css';
 
@@ -55,6 +54,8 @@ export default function RegisterPage() {
     errors,
     setErrors,
     handlers: { handleBirthDateChange, handlePhoneChange, clearFormCache, markKeepCache },
+    hasCache,
+    restoredFromKeep,
   } = useRegisterForm();
 
   // 폼 입력값 상태
@@ -67,14 +68,12 @@ export default function RegisterPage() {
     passwordConfirm,
     phone,
     role,
-    course,
     courseTerm,
     privacyConsent,
     step: cachedStep,
     isEmailVerified: cachedEmailVerified,
     isEmailCodeSent: cachedEmailCodeSent,
   } = form;
-  const isCourseDisabled = role === 'instructor' || role === 'mentor';
   // 폼 에러 상태
   const {
     nameError,
@@ -87,110 +86,43 @@ export default function RegisterPage() {
     courseError,
     privacyError,
   } = errors;
-  // 에러 세터 모음
+
+  // 인증 상태
+  const verification = useRegisterVerificationState({
+    cachedStep,
+    cachedEmailCode,
+    cachedEmailVerified,
+    cachedEmailCodeSent,
+    setFormField,
+  });
   const {
-    setNameError,
-    setEmailError,
-    setPasswordError,
-    setPasswordConfirmError,
-    setPhoneError,
-    setBirthDateError,
-    setRoleError,
-    setCourseError,
-    setPrivacyError,
-  } = setErrors;
-
-  // 스텝 상태 (캐시에서 복구)
-  const [step, setStepState] = useState<1 | 2>(cachedStep);
-  const setStep = (newStep: 1 | 2) => {
-    setStepState(newStep);
-    setFormField('step', newStep);
-  };
-
-  // 이메일 인증 상태 (캐시에서 복구)
-  const [emailCode, setEmailCodeState] = useState(cachedEmailCode);
-  const [emailCodeError, setEmailCodeError] = useState('');
-  const [isEmailVerified, setIsEmailVerifiedState] = useState(cachedEmailVerified);
-  const [isEmailCodeSent, setIsEmailCodeSentState] = useState(cachedEmailCodeSent);
-
-  const setEmailCode = (code: string) => {
-    setEmailCodeState(code);
-    setFormField('emailCode', code);
-  };
-
-  const setIsEmailVerified = (verified: boolean) => {
-    setIsEmailVerifiedState(verified);
-    setFormField('isEmailVerified', verified);
-  };
-
-  const setIsEmailCodeSent = (sent: boolean) => {
-    setIsEmailCodeSentState(sent);
-    setFormField('isEmailCodeSent', sent);
-  };
-
-  // 회원가입 핸들러
-  const handleSubmit = registerSubmit({
-    name,
-    email,
-    password,
-    passwordConfirm,
-    phone,
-    birthDate,
-    role,
-    course,
-    courseTerm,
-    privacyConsent,
-    setNameError,
-    setEmailError,
-    setPasswordError,
-    setPasswordConfirmError,
-    setPhoneError,
-    setBirthDateError,
-    setRoleError,
-    setCourseError,
-    setPrivacyError,
-    setStep,
-    registerMutation,
-    showToast,
-    router,
-    onSuccessCleanup: clearFormCache,
-  });
-
-  const handleNextStep = createNextStepHandler({
-    name,
-    email,
-    birthDate,
-    password,
-    passwordConfirm,
-    phone,
+    step,
+    emailCode,
+    emailCodeError,
     isEmailVerified,
-    setNameError,
-    setEmailError,
-    setBirthDateError,
-    setPasswordError,
-    setPasswordConfirmError,
-    setPhoneError,
-    showToast,
-    setStep,
+    isEmailCodeSent,
+  } = verification;
+  const { isCourseDisabled, isStepOneActionDisabled, stepOneActionLabel } = useRegisterStepUi({
+    isEmailCodeSent,
+    isEmailVerified,
+    isSendingCode: sendCodeMutation.isPending,
+    isVerifyingCode: verifyCodeMutation.isPending,
+    role,
   });
 
-  const handleSendEmailCode = sendEmailCode({
-    email,
-    setEmailError,
-    setCodeError: setEmailCodeError,
-    setEmailCode,
-    setIsEmailCodeSent,
+  // 복구 안내
+  useRegisterRestoredToast({ hasCache, restoredFromKeep, showToast });
+
+  // 인증/제출 액션
+  const { handleNextStep, handleSendEmailCode, handleSubmit, handleVerifyEmailCode } = useRegisterActionHandlers({
+    clearFormCache,
+    form,
+    registerMutation,
+    router,
+    setErrors,
     sendCodeMutation,
     showToast,
-  });
-
-  const handleVerifyEmailCode = verifyEmailCode({
-    code: emailCode,
-    email,
-    setEmailError,
-    setCodeError: setEmailCodeError,
-    setIsEmailVerified,
-    showToast,
+    verification,
     verifyCodeMutation,
   });
 
@@ -207,41 +139,14 @@ export default function RegisterPage() {
     handleCourseSelectChange,
     handlePrivacyCheckboxChange,
     handlePrivacyLinkClick,
-  } = createRegisterInputHandlers({
-    name,
-    email,
-    birthDate,
-    password,
-    passwordConfirm,
-    phone,
-    role,
-    course,
-    courseTerm,
-    emailCode,
-    nameError,
-    emailError,
-    roleError,
-    courseError,
-    privacyError,
-    emailCodeError,
-    isEmailVerified,
-    isEmailCodeSent,
-    passwordConfirmError,
-    setStep,
+  } = useRegisterInputHandlers({
+    errors,
+    form,
     markKeepCache,
-    showToast,
-    setEmailCode,
-    setRoleError,
-    setNameError,
-    setEmailError,
-    setCourseError,
-    setPrivacyError,
-    setIsEmailVerified,
-    setIsEmailCodeSent,
-    setEmailCodeError,
-    setPasswordError,
-    setPasswordConfirmError,
     setFormField,
+    setErrors,
+    showToast,
+    verification,
   });
 
   useEmailVerificationAutoVerify({
@@ -433,18 +338,10 @@ export default function RegisterPage() {
                   <button
                     type="button"
                     className={styles.submitButton}
-                    disabled={
-                      sendCodeMutation.isPending ||
-                      verifyCodeMutation.isPending ||
-                      (isEmailCodeSent && !isEmailVerified)
-                    }
+                    disabled={isStepOneActionDisabled}
                     onClick={isEmailVerified ? handleNextStep : handleSendEmailCode}
                   >
-                    {sendCodeMutation.isPending
-                      ? '발송 중...'
-                      : isEmailVerified || isEmailCodeSent
-                        ? '다음'
-                        : '인증번호 발송'}
+                    {stepOneActionLabel}
                   </button>
                 </div>
               </>

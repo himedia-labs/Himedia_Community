@@ -1,19 +1,14 @@
 'use client';
 
-import { useEffect, type RefObject } from 'react';
+import { useEffect } from 'react';
+
+import type { InfiniteScrollObserverParams } from '@/app/shared/types/scroll';
 
 /**
  * 공용 무한 스크롤 옵저버 훅
  * @description 센티넬 노출 시 다음 페이지 요청을 트리거
  */
-export const useInfiniteScrollObserver = (params: {
-  enabled?: boolean;
-  hasNextPage?: boolean;
-  isFetchingNextPage: boolean;
-  targetRef: RefObject<HTMLDivElement | null>;
-  fetchNextPage: () => Promise<unknown>;
-  rootMargin?: string;
-}) => {
+export const useInfiniteScrollObserver = (params: InfiniteScrollObserverParams) => {
   const {
     enabled = true,
     rootMargin = '0px',

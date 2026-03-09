@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+// 액션 모달
 export type ActionModalProps = {
   body: ReactNode;
   leftAction?: ReactNode;
