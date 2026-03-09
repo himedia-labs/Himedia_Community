@@ -1,5 +1,5 @@
-import Banner from './(routes)/(public)/main/components/banner/banner';
-import PostListSection from './(routes)/(public)/main/components/postList/postList';
+import Banner from './(routes)/(public)/main/_components/banner/banner';
+import PostListSection from './(routes)/(public)/main/_components/postList/postList';
 
 import type { HomePageProps } from '@/app/shared/types/home';
 

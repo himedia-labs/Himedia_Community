@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/app/shared/network/axios.instance';
+import { axiosInstance } from '@/app/shared/lib/axios/axios.instance';
 
 import type { TagSuggestionResponse } from '@/app/shared/types/post';
 
