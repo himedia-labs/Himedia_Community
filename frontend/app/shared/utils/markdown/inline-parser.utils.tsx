@@ -1,8 +1,8 @@
 import { Fragment, type ReactNode } from 'react';
 import Image from 'next/image';
 
-import { MARKDOWN_INLINE_PATTERNS } from '@/app/shared/utils/markdown/constants';
-import { normalizeHref, splitTrailingPunctuation } from '@/app/shared/utils/markdown/helpers';
+import { MARKDOWN_INLINE_PATTERNS } from '@/app/shared/utils/markdown/constants.utils';
+import { normalizeHref, splitTrailingPunctuation } from '@/app/shared/utils/markdown/helpers.utils';
 
 import type { InlinePattern } from '@/app/shared/types/post';
 

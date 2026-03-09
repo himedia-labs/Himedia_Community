@@ -1,42 +1,58 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
-import { FiSave } from 'react-icons/fi';
+import { FiSend, FiSave, FiLogOut } from 'react-icons/fi';
 import { RxWidth } from 'react-icons/rx';
-import { useParams, useRouter } from 'next/navigation';
+import { CiImport } from 'react-icons/ci';
+import { useRouter } from 'next/navigation';
 
-import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
+import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
-import { createEditPreview } from '@/app/(routes)/(private)/posts/edit/[postId]/utils';
-import { EditorToolbar, PostPreview, PostDetailsForm } from '@/app/(routes)/(private)/posts/editor/components';
-import { useMarkdownEditor, usePostForm, useTagInput } from '@/app/(routes)/(private)/posts/editor/hooks';
+import { useFollowersQuery, useFollowingsQuery } from '@/app/api/follows/follows.queries';
+import { usePostsQuery } from '@/app/api/posts/posts.queries';
+
+import { useAuthStore } from '@/app/shared/store/authStore';
+import { formatDateLabel } from '@/app/shared/utils/date';
+import { renderMarkdownPreview } from '@/app/shared/utils/markdown';
+
 import {
-  createExitHandler,
+  DEFAULT_AUTHOR_NAME,
+  DEFAULT_CATEGORY_LABEL,
+  DEFAULT_PREVIEW_STATS,
+} from '@/app/shared/constants/config/post.config';
+
+import {
+  useDraftManager,
+  useMarkdownEditor,
+  usePostForm,
+  useTagInput,
+} from '@/app/(routes)/(private)/posts/editor/hooks';
+import {
+  createHandleExit,
   createHandleBoldClick,
   createHandleStrikeClick,
   createHandleItalicClick,
   createHandleUnderlineClick,
-} from '@/app/(routes)/(private)/posts/edit/[postId]/handlers';
-import { usePostEditInitializer, usePostEditSaver } from '@/app/(routes)/(private)/posts/edit/[postId]/hooks';
+  createHandleSaveDraftClick,
+} from '@/app/(routes)/(private)/posts/editor/handlers/postCreate.handlers';
+import { EditorToolbar, PostPreview, PostDetailsForm } from '@/app/(routes)/(private)/posts/editor/components';
 
-import styles from '@/app/(routes)/(private)/posts/editor/PostEditor.module.css';
 import markdownEditorStyles from '@/app/shared/components/markdown-editor/markdownEditor.module.css';
+import styles from '@/app/(routes)/(private)/posts/editor/PostEditor.module.css';
+
+import type { DraftData } from '@/app/shared/types/post';
 
 /**
- * 게시물 수정 페이지
- * @description 기존 게시물을 불러와 수정 화면을 제공
+ * 게시물 작성 페이지
+ * @description 작성 폼과 미리보기를 제공
  */
-export default function PostEditPage() {
+export default function PostCreatePage() {
   // 라우트 훅
   const router = useRouter();
-  const params = useParams<{ postId: string }>();
-  const postId = Array.isArray(params.postId) ? params.postId[0] : params.postId;
+  const { accessToken } = useAuthStore();
 
-  // 상세 조회
-  const { data: postDetail, isLoading } = usePostDetailQuery(postId, { enabled: Boolean(postId) });
-
-  // 기본 폼
+  // 기본 폼 상태
   const { state: formState, setters: formSetters, handlers: formHandlers } = usePostForm();
   const { title, categoryId, content, titleLengthError } = formState;
   const { setContent } = formSetters;
@@ -57,6 +73,20 @@ export default function PostEditPage() {
     handleRemoveTag,
   } = tagHandlers;
 
+  const applyDraftData = useCallback(
+    (data: Partial<DraftData>) => {
+      applyPartial(data);
+      if (data.tags !== undefined) setTags(data.tags);
+    },
+    [applyPartial, setTags],
+  );
+
+  // Draft 관리
+  const {
+    data: { draftList },
+    handlers: { saveDraft, publishPost, openDraftList },
+  } = useDraftManager({ title, categoryId, content, tags }, applyDraftData);
+
   // 마크다운 에디터
   const {
     refs: { splitRef, contentRef, imageInputRef },
@@ -75,64 +105,54 @@ export default function PostEditPage() {
     },
   } = useMarkdownEditor({ content, setContentValue: setContent });
 
-  // 저장 처리
-  const { handlePostUpdate } = usePostEditSaver({
-    postId,
-    formData: { title, categoryId, content, tags },
-  });
-
-  // 데이터 적용
-  usePostEditInitializer({ postDetail, applyPartial, setTags });
-
   // 카테고리 목록
-  const { data: categories, isLoading: isCategoryLoading } = useCategoriesQuery();
+  const { data: categories, isLoading } = useCategoriesQuery();
+  const { data: currentUser } = useCurrentUserQuery();
+  const currentUserId = currentUser?.id;
+  const { data: followersData } = useFollowersQuery({ enabled: Boolean(accessToken) });
+  const { data: followingsData } = useFollowingsQuery({ enabled: Boolean(accessToken) });
+  const { data: myPostsData } = usePostsQuery(
+    { authorId: currentUserId, status: 'PUBLISHED', sort: 'createdAt', order: 'DESC', page: 1, limit: 1 },
+    { enabled: Boolean(accessToken && currentUserId) },
+  );
 
   // 미리보기 데이터
-  const { authorName, categoryName, dateLabel, previewStats, previewContent } = useMemo(
-    () =>
-      createEditPreview({
-        categories,
-        categoryId,
-        content,
-      }),
-    [categories, categoryId, content],
-  );
+  const categoryName = categories?.find(category => String(category.id) === categoryId)?.name ?? DEFAULT_CATEGORY_LABEL;
+  const dateLabel = formatDateLabel(new Date());
+  const previewStats = DEFAULT_PREVIEW_STATS;
+  const authorName = DEFAULT_AUTHOR_NAME;
+  const draftCount = draftList?.items?.length ?? 0;
   const authorStats = {
-    postCount: postDetail?.author?.postCount ?? 0,
-    followerCount: postDetail?.author?.followerCount ?? 0,
-    followingCount: postDetail?.author?.followingCount ?? 0,
+    postCount: myPostsData?.total ?? 0,
+    followerCount: followersData?.length ?? 0,
+    followingCount: followingsData?.length ?? 0,
   };
+  const previewContent = useMemo(() => renderMarkdownPreview(content), [content]);
 
+  const handleExit = createHandleExit(router);
+  const handleSaveDraftClick = createHandleSaveDraftClick(saveDraft);
   const handleBoldClick = createHandleBoldClick(applyInlineWrap);
   const handleItalicClick = createHandleItalicClick(applyInlineWrap);
   const handleUnderlineClick = createHandleUnderlineClick(applyInlineWrap);
   const handleStrikeClick = createHandleStrikeClick(applyInlineWrap);
 
-  if (!postDetail && !isLoading) {
-    return (
-      <section className={styles.container} aria-label="게시물 수정">
-        <p className={styles.previewSummary}>게시글을 찾을 수 없습니다.</p>
-      </section>
-    );
-  }
-
   return (
-    <section className={styles.container} aria-label="게시물 수정">
+    <section className={styles.container} aria-label="게시물 작성">
       <header className={styles.header}>
         <div className={styles.headerCopy}>
-          <h1 className={styles.headerTitle}>게시물 수정</h1>
-          <p className={styles.headerDescription}>내용을 수정하고 저장하세요.</p>
+          <h1 className={styles.headerTitle}>새 게시물 작성</h1>
+          <p className={styles.headerDescription}>카테고리와 태그를 설정하고 내용을 작성하세요.</p>
         </div>
         <div className={styles.headerActions}>
           <button
             type="button"
             className={`${styles.headerAction} ${styles.headerActionText}`}
-            aria-label="저장하기"
-            title="저장하기"
-            onClick={handlePostUpdate}
+            aria-label="게시하기"
+            title="게시하기"
+            onClick={publishPost}
           >
-            <span>저장하기</span>
-            <FiSave aria-hidden />
+            <span>게시하기</span>
+            <FiSend aria-hidden />
           </button>
         </div>
       </header>
@@ -154,7 +174,7 @@ export default function PostEditPage() {
             category={{
               categoryId,
               categories,
-              isLoading: isCategoryLoading,
+              isLoading,
               onCategoryChange: handleCategoryChange,
             }}
             tag={{
@@ -250,9 +270,29 @@ export default function PostEditPage() {
         <button
           type="button"
           className={`${styles.actionButton} ${styles.actionButtonExit}`}
-          onClick={createExitHandler(router, postId)}
+          onClick={handleExit}
+          aria-label="나가기"
         >
-          <span>나가기</span>
+          <span className={styles.actionLabel}>나가기</span>
+          <FiLogOut className={styles.actionIcon} aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          className={styles.actionButton}
+          aria-label={`임시저장 ${draftCount}개`}
+          title="임시저장"
+          onClick={handleSaveDraftClick}
+        >
+          <span className={styles.actionLabel}>저장하기</span>
+          <FiSave className={`${styles.actionIcon} ${styles.actionIconSave}`} aria-hidden="true" />
+          <span className={styles.footerDivider} aria-hidden="true">
+            |
+          </span>
+          <span className={styles.footerCount}>{draftCount}</span>
+        </button>
+        <button type="button" className={styles.actionButton} onClick={openDraftList}>
+          <span className={styles.actionLabel}>불러오기</span>
+          <CiImport className={styles.actionIcon} aria-hidden="true" />
         </button>
       </footer>
     </section>

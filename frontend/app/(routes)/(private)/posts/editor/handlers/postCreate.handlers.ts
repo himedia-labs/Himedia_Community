@@ -1,6 +1,6 @@
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
-import { extractTags } from '@/app/(routes)/(private)/posts/new/utils';
+import { extractTags } from '@/app/(routes)/(private)/posts/editor/utils/extractTags.utils';
 
 import type { AddTagsFromInputParams, CommitTagInputParams } from '@/app/shared/types/post';
 

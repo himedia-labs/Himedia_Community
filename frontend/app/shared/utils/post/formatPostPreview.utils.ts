@@ -1,4 +1,4 @@
-import { stripInlineMarkdown } from '@/app/shared/utils/markdown/helpers';
+import { stripInlineMarkdown } from '@/app/shared/utils/markdown/helpers.utils';
 
 import type { FormatPostPreviewOptions } from '@/app/shared/types/post';
 

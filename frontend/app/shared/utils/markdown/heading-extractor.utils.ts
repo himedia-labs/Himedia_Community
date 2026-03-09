@@ -1,4 +1,4 @@
-import { createHeadingIdFactory, stripInlineMarkdown } from '@/app/shared/utils/markdown/helpers';
+import { createHeadingIdFactory, stripInlineMarkdown } from '@/app/shared/utils/markdown/helpers.utils';
 
 import type { PostTocItem } from '@/app/shared/types/post';
 

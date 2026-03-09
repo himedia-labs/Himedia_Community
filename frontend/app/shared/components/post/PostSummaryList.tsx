@@ -9,8 +9,8 @@ import { FaUser } from 'react-icons/fa';
 import { FiEdit2, FiEye, FiHeart, FiMessageCircle, FiMoreHorizontal, FiTrash2 } from 'react-icons/fi';
 
 import EmptyState from '@/app/shared/components/empty/EmptyState';
+import ListPostTagList from '@/app/shared/components/post/ListPostTagList';
 import { formatDate as formatDateLabel } from '@/app/shared/utils/date';
-import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 import { formatPostPreview } from '@/app/shared/utils/post';
 import {
   createHandlePostMenuButtonClick,
@@ -18,7 +18,7 @@ import {
   createHandlePostDeleteButtonClick,
 } from '@/app/shared/components/post/handlers/postSummary.handlers';
 
-import postListStyles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
+import postListStyles from '@/app/shared/components/post/PostListView.module.css';
 import styles from '@/app/shared/components/post/PostSummaryList.module.css';
 
 import type { MouseEvent } from 'react';

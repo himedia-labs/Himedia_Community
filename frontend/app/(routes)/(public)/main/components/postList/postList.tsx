@@ -13,11 +13,10 @@ import { CiCalendar, CiGrid41, CiSearch } from 'react-icons/ci';
 import { FiClock, FiEdit3, FiEye, FiHeart, FiMessageCircle, FiShare2, FiTrendingUp } from 'react-icons/fi';
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
+import ListPostTagList from '@/app/shared/components/post/ListPostTagList';
+import EmptyState from '@/app/shared/components/empty/EmptyState';
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { getVisibleTags } from '@/app/shared/utils/post';
-import EmptyState from '@/app/shared/components/empty/EmptyState';
-
-import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 import { usePostList, usePostListInfiniteScroll } from '@/app/(routes)/(public)/main/components/postList/hooks';
 import {
   createHandleCloseSearchMode,

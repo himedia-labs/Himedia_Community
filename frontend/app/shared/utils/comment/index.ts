@@ -4,3 +4,4 @@ export {
   sanitizeCommentContent,
   isCommentContentTooLong,
 } from '@/app/shared/utils/comment/comment.utils';
+export { splitCommentMentions } from '@/app/shared/utils/comment/splitCommentMentions.utils';

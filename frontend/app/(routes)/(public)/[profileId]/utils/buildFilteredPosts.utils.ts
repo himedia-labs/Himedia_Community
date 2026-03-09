@@ -1,4 +1,4 @@
-import { sortPostsByKey } from '@/app/(routes)/(private)/mypage/utils';
+import { sortPostsByKey } from '@/app/shared/utils/post';
 
 import type { ProfileSortKey } from '@/app/shared/types/profilePage';
 import type { PostListItem } from '@/app/shared/types/post';

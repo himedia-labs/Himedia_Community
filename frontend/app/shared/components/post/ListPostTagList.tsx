@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import styles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
+import styles from '@/app/shared/components/post/ListPostTagList.module.css';
 
 import type { ListPostTagListProps } from '@/app/shared/types/post';
 
@@ -84,11 +84,7 @@ export default function ListPostTagList({ tags, postId }: ListPostTagListProps) 
         </li>
       ))}
       {hiddenCount > 0 ? <li className={styles.listTagItem}>+{hiddenCount}</li> : null}
-      <li
-        ref={measureRef}
-        className={`${styles.listTagItem} ${styles.hiddenMeasure}`}
-        aria-hidden="true"
-      />
+      <li ref={measureRef} className={`${styles.listTagItem} ${styles.hiddenMeasure}`} aria-hidden="true" />
     </ul>
   );
 }

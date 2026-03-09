@@ -7,9 +7,9 @@ import { useAuthStore } from '@/app/shared/store/authStore';
 import { useDraftDetailQuery, useDraftsQuery } from '@/app/api/posts/posts.queries';
 
 import { mapDraftToForm } from '@/app/shared/utils/post';
-import { useAutoSave } from '@/app/(routes)/(private)/posts/new/hooks/useAutoSave';
-import { useDraftSaver } from '@/app/(routes)/(private)/posts/new/hooks/useDraftSaver';
-import { useDraftNotice } from '@/app/(routes)/(private)/posts/new/hooks/useDraftNotice';
+import { useAutoSave } from '@/app/(routes)/(private)/posts/editor/hooks/useAutoSave';
+import { useDraftSaver } from '@/app/(routes)/(private)/posts/editor/hooks/useDraftSaver';
+import { useDraftNotice } from '@/app/(routes)/(private)/posts/editor/hooks/useDraftNotice';
 
 import type { DraftData } from '@/app/shared/types/post';
 import type { ReadonlyURLSearchParams } from 'next/navigation';

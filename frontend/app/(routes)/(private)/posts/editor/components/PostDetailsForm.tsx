@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { IoIosArrowDown, IoMdCheckmark } from 'react-icons/io';
 
-import styles from '../PostCreate.module.css';
+import styles from '@/app/(routes)/(private)/posts/editor/PostEditor.module.css';
 import {
   createHandleCategoryClickOutside,
   createHandleResetCategory,
   createHandleTagChipClick,
   createHandleToggleCategoryOpen,
   createHandleCategoryOptionClick,
-} from '@/app/(routes)/(private)/posts/new/handlers/postDetailsForm.handlers';
+} from '@/app/(routes)/(private)/posts/editor/handlers/postDetailsForm.handlers';
 
 import type { PostDetailsFormProps } from '@/app/shared/types/post';
 

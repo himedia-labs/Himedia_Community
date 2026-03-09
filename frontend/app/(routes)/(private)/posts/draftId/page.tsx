@@ -1,1 +1,1 @@
-export { default } from '@/app/(routes)/(private)/posts/new/page';
+export { default } from '@/app/(routes)/(private)/posts/editor/PostCreatePage';
