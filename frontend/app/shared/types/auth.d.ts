@@ -270,6 +270,77 @@ export type LoginRedirectToastParams = {
 // 회원가입 페이지 상태
 export type RegisterSetError = (value: string) => void;
 
+export type RegisterErrorState = {
+  birthDateError: string;
+  courseError: string;
+  emailCodeError: string;
+  emailError: string;
+  nameError: string;
+  passwordConfirmError: string;
+  passwordError: string;
+  phoneError: string;
+  privacyError: string;
+  roleError: string;
+};
+
+export type RegisterErrorSetters = {
+  setBirthDateError: RegisterSetError;
+  setCourseError: RegisterSetError;
+  setEmailError: RegisterSetError;
+  setNameError: RegisterSetError;
+  setPasswordConfirmError: RegisterSetError;
+  setPasswordError: RegisterSetError;
+  setPhoneError: RegisterSetError;
+  setPrivacyError: RegisterSetError;
+  setRoleError: RegisterSetError;
+};
+
+export type RegisterVerificationState = {
+  emailCode: string;
+  emailCodeError: string;
+  isEmailCodeSent: boolean;
+  isEmailVerified: boolean;
+  setEmailCode: (value: string) => void;
+  setEmailCodeError: RegisterSetError;
+  setIsEmailCodeSent: (value: boolean) => void;
+  setIsEmailVerified: (value: boolean) => void;
+  setStep: (step: 1 | 2) => void;
+};
+
+export type UseRegisterActionHandlersParams = {
+  clearFormCache: () => void;
+  setErrors: RegisterErrorSetters;
+  form: RegisterFormCache;
+  registerMutation: UseMutationResult<void, Error, RegisterRequest>;
+  router: AppRouterInstance;
+  sendCodeMutation: UseMutationResult<SendEmailVerificationCodeResponse, Error, SendEmailVerificationCodeRequest>;
+  showToast: (options: ToastOptions) => void;
+  verification: RegisterVerificationState;
+  verifyCodeMutation: UseMutationResult<
+    VerifyEmailVerificationCodeResponse,
+    Error,
+    VerifyEmailVerificationCodeRequest
+  >;
+};
+
+export type UseRegisterInputHandlersParams = {
+  errors: Omit<RegisterErrorState, 'emailCodeError'>;
+  form: RegisterFormCache;
+  markKeepCache: () => void;
+  setFormField: <K extends keyof RegisterFormCache>(key: K, value: RegisterFormCache[K]) => void;
+  setErrors: RegisterErrorSetters;
+  showToast: (options: ToastOptions) => void;
+  verification: RegisterVerificationState;
+};
+
+export type UseRegisterStepUiParams = {
+  isEmailCodeSent: boolean;
+  isEmailVerified: boolean;
+  isSendingCode: boolean;
+  isVerifyingCode: boolean;
+  role: string;
+};
+
 // 회원가입 페이지 인증
 export type RegisterSendEmailCodeParams = {
   email: string;
