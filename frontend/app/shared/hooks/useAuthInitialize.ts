@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useAuthStore } from '@/app/shared/store/authStore';
-import { refreshAccessToken } from '@/app/shared/network/axios.instance';
+import { refreshAccessToken } from '@/app/shared/lib/axios/axios.instance';
 
 /**
  * 인증 초기화 훅

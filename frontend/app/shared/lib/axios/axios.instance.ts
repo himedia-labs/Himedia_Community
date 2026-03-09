@@ -1,10 +1,10 @@
 import { AxiosError, isAxiosError } from 'axios';
 
-import { useAuthStore } from '../store/authStore';
-import { axiosBare, axiosInstance } from './axios.config';
-import { PUBLIC_AUTH_PATHS } from '../constants/config/auth.config';
+import { useAuthStore } from '@/app/shared/store/authStore';
+import { axiosBare, axiosInstance } from '@/app/shared/lib/axios/axios.config';
+import { PUBLIC_AUTH_PATHS } from '@/app/shared/constants/config/auth.config';
 
-import type { RetriableConfig } from '../types/axios';
+import type { RetriableConfig } from '@/app/shared/types/axios';
 
 let refreshPromise: Promise<string | null> | null = null;
 

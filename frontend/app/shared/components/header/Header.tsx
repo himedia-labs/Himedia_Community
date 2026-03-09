@@ -20,16 +20,16 @@ import { LayoutVisibilityConfig } from '@/app/shared/constants/config/layout.con
 import { formatNotificationTime, getNotificationIcon } from '@/app/shared/utils/notification';
 
 import { HeaderConfig } from '@/app/shared/constants/config/header.config';
-import { useProfileMenu } from '@/app/shared/components/header/hooks/useProfileMenu';
-import { useScrollProgress } from '@/app/shared/components/header/hooks/useScrollProgress';
-import { usePostDetailPath } from '@/app/shared/components/header/hooks/usePostDetailPath';
-import { useNotificationMenu } from '@/app/shared/components/header/hooks/useNotificationMenu';
-import { handleLogout as createHandleLogout } from '@/app/shared/components/header/handlers/logout.handlers';
+import { handleLogout as createHandleLogout } from '@/app/shared/components/header/_handlers/logout.handlers';
 import {
   createHandleLogoutClick,
   createHandleNotificationItemClick,
   createHandleNotificationTabClick,
-} from '@/app/shared/components/header/handlers/menu.handlers';
+} from '@/app/shared/components/header/_handlers/menu.handlers';
+import { useNotificationMenu } from '@/app/shared/components/header/_hooks/useNotificationMenu';
+import { usePostDetailPath } from '@/app/shared/components/header/_hooks/usePostDetailPath';
+import { useProfileMenu } from '@/app/shared/components/header/_hooks/useProfileMenu';
+import { useScrollProgress } from '@/app/shared/components/header/_hooks/useScrollProgress';
 
 import styles from '@/app/shared/components/header/Header.module.css';
 
