@@ -1,5 +1,7 @@
 import { useCallback, useState } from 'react';
 
+import { useForcePostDraftMutation } from '@/app/api/admin/admin.mutations';
+
 import { postsApi } from '@/app/api/posts/posts.api';
 import { useToast } from '@/app/shared/components/toast/toast';
 
@@ -9,11 +11,12 @@ import type { UsePostDetailPostMenuParams } from '@/app/shared/types/post';
  * 게시글 메뉴 훅
  * @description 게시글 수정/삭제 메뉴 상태와 이벤트를 관리
  */
-export const usePostDetailPostMenu = ({ postId }: UsePostDetailPostMenuParams) => {
+export const usePostDetailPostMenu = ({ postId, isAdmin = false }: UsePostDetailPostMenuParams) => {
   // 상태/역할
   const { showToast } = useToast();
   const [isPostDeleting, setIsPostDeleting] = useState(false);
   const [isPostMenuOpen, setIsPostMenuOpen] = useState(false);
+  const { mutateAsync: forcePostToDraft, isPending: isForcingPostDraft } = useForcePostDraftMutation();
 
   // 핸들러/메뉴
   /**
@@ -54,8 +57,29 @@ export const usePostDetailPostMenu = ({ postId }: UsePostDetailPostMenuParams) =
     }
   }, [isPostDeleting, postId, showToast]);
 
+  /**
+   * 게시글 강제 임시저장 처리
+   * @description 관리자 요청으로 게시글을 임시저장 전환 후 메인으로 이동
+   */
+  const handleForcePostDraft = useCallback(async () => {
+    if (!postId || !isAdmin || isForcingPostDraft) return;
+    const confirmed = window.confirm('게시글을 임시저장으로 전환할까요?');
+    if (!confirmed) return;
+
+    try {
+      await forcePostToDraft(postId);
+      window.location.href = '/';
+    } catch {
+      showToast({ message: '강제 삭제(임시저장)에 실패했습니다.', type: 'error' });
+    } finally {
+      setIsPostMenuOpen(false);
+    }
+  }, [forcePostToDraft, isAdmin, isForcingPostDraft, postId, showToast]);
+
   return {
+    handleForcePostDraft,
     isPostDeleting,
+    isForcingPostDraft,
     isPostMenuOpen,
     handlePostEdit,
     handlePostDelete,

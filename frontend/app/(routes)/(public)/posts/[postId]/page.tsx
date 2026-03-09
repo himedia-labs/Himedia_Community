@@ -15,8 +15,6 @@ import { FiEdit2, FiEye, FiExternalLink, FiHeart, FiShare2, FiTrash2, FiMoreHori
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
-import { useForcePostDraftMutation } from '@/app/api/admin/admin.mutations';
-import { useToast } from '@/app/shared/components/toast/toast';
 import { createTocClickHandler } from '@/app/(routes)/(public)/posts/[postId]/_handlers';
 import {
   usePostDetailActions,
@@ -53,8 +51,6 @@ export default function PostDetailPage() {
   const accessToken = useAuthStore(state => state.accessToken);
   const isInitialized = useAuthStore(state => state.isInitialized);
   const { data: currentUser } = useCurrentUserQuery();
-  const { showToast } = useToast();
-  const { mutateAsync: forcePostToDraft, isPending: isForcingPostDraft } = useForcePostDraftMutation();
 
   // 요청 훅
   const isQueryEnabled = Boolean(postId) && isInitialized;
@@ -77,20 +73,15 @@ export default function PostDetailPage() {
   const authorSocialLinks = buildAuthorSocialLinks(data?.author);
 
   // 메뉴 상태
-  const { isPostDeleting, isPostMenuOpen, handlePostEdit, handlePostDelete, handlePostMenuToggle } =
-    usePostDetailPostMenu({ postId });
-  const handleForcePostDraft = async () => {
-    if (!postId || !isAdmin || isForcingPostDraft) return;
-    const confirmed = window.confirm('게시글을 임시저장으로 전환할까요?');
-    if (!confirmed) return;
-
-    try {
-      await forcePostToDraft(postId);
-      window.location.reload();
-    } catch {
-      showToast({ message: '강제 삭제(임시저장)에 실패했습니다.', type: 'error' });
-    }
-  };
+  const {
+    isPostDeleting,
+    isForcingPostDraft,
+    isPostMenuOpen,
+    handlePostEdit,
+    handlePostDelete,
+    handlePostMenuToggle,
+    handleForcePostDraft,
+  } = usePostDetailPostMenu({ isAdmin, postId });
 
   // 팔로우 상태
   const {

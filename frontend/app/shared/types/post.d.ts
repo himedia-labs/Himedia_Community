@@ -293,6 +293,7 @@ export interface UsePostDetailAuthorFollowParams {
 }
 
 export interface UsePostDetailPostMenuParams {
+  isAdmin?: boolean;
   postId: string;
 }
 
