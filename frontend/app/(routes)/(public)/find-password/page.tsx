@@ -13,8 +13,9 @@ import {
 } from '@/app/api/auth/auth.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { EMAIL_REGEX, RESET_CODE_EXPIRY_SECONDS } from '@/app/shared/constants/config/auth.config';
+import { isValidPassword } from '@/app/shared/utils/auth';
 
-import { formatRemainingTime, isValidPassword } from '@/app/(routes)/(public)/find-password/utils';
+import { formatRemainingTime } from '@/app/(routes)/(public)/find-password/utils';
 import {
   createHandleCodeChange,
   createHandleEmailChange,

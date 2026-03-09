@@ -1,6 +1,7 @@
 import { EMAIL_MESSAGES, REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
+import { isValidPassword } from '@/app/shared/utils/auth';
 
-import { formatCode, isValidPassword } from '@/app/(routes)/(public)/find-password/utils';
+import { formatCode } from '@/app/(routes)/(public)/find-password/utils';
 
 import type { ChangeEvent } from 'react';
 
