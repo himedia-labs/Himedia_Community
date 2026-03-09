@@ -15,7 +15,7 @@ import {
   MyPagePostsTab,
   MyPageRecentTab,
   MyPageSettingsTab,
-} from '@/app/(routes)/(private)/mypage/components/tabs';
+} from '@/app/(routes)/(private)/mypage/_components/tabs';
 import { MyPageValueSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
 import {
   useAccountSettings,
@@ -29,7 +29,7 @@ import {
   usePostMenu,
   useProfileEditor,
   useProfileImageEditor,
-} from '@/app/(routes)/(private)/mypage/hooks';
+} from '@/app/(routes)/(private)/mypage/_hooks';
 import { useWithdrawAccountMutation } from '@/app/api/auth/auth.mutations';
 
 import { useToast } from '@/app/shared/components/toast/toast';

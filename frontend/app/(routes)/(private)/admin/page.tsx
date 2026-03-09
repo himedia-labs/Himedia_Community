@@ -32,32 +32,32 @@ import {
   createHandlePendingSortClick,
   createHandleRoleFilterClick,
   createHandleCourseFilterClick,
-} from '@/app/(routes)/(private)/admin/handlers/adminUi.handlers';
+} from '@/app/(routes)/(private)/admin/_handlers/adminUi.handlers';
 import { formatDate } from '@/app/shared/utils/date';
 
-import { useAdminAccessGuard } from '@/app/(routes)/(private)/admin/hooks/useAdminAccessGuard';
-import { useTrackAdminAccess } from '@/app/(routes)/(private)/admin/hooks/useTrackAdminAccess';
-import { useAccessLogsInfiniteScroll } from '@/app/(routes)/(private)/admin/hooks/useAccessLogsInfiniteScroll';
-import { useAdminPageData } from '@/app/(routes)/(private)/admin/hooks/useAdminPageData';
-import { useAdminPageFilters } from '@/app/(routes)/(private)/admin/hooks/useAdminPageFilters';
-import { useAdminUserActions } from '@/app/(routes)/(private)/admin/hooks/useAdminUserActions';
+import { useAdminAccessGuard } from '@/app/(routes)/(private)/admin/_hooks/useAdminAccessGuard';
+import { useTrackAdminAccess } from '@/app/(routes)/(private)/admin/_hooks/useTrackAdminAccess';
+import { useAccessLogsInfiniteScroll } from '@/app/(routes)/(private)/admin/_hooks/useAccessLogsInfiniteScroll';
+import { useAdminPageData } from '@/app/(routes)/(private)/admin/_hooks/useAdminPageData';
+import { useAdminPageFilters } from '@/app/(routes)/(private)/admin/_hooks/useAdminPageFilters';
+import { useAdminUserActions } from '@/app/(routes)/(private)/admin/_hooks/useAdminUserActions';
 import {
   getRoleBadgeClassName,
   getAccessStatusBadgeClassName,
   getAuditResultBadgeClassName,
-} from '@/app/(routes)/(private)/admin/utils/adminDisplay.utils';
-import { formatRoleLabel } from '@/app/(routes)/(private)/admin/utils/formatRoleLabel.utils';
-import { formatPhoneNumber } from '@/app/(routes)/(private)/admin/utils/formatPhoneNumber.utils';
-import { getRelativeTimeLabel } from '@/app/(routes)/(private)/admin/utils/getRelativeTimeLabel.utils';
-import { formatUserAgentLabel } from '@/app/(routes)/(private)/admin/utils/formatUserAgentLabel.utils';
-import { formatSessionDuration } from '@/app/(routes)/(private)/admin/utils/formatSessionDuration.utils';
+} from '@/app/(routes)/(private)/admin/_utils/adminDisplay.utils';
+import { formatRoleLabel } from '@/app/(routes)/(private)/admin/_utils/formatRoleLabel.utils';
+import { formatPhoneNumber } from '@/app/(routes)/(private)/admin/_utils/formatPhoneNumber.utils';
+import { getRelativeTimeLabel } from '@/app/(routes)/(private)/admin/_utils/getRelativeTimeLabel.utils';
+import { formatUserAgentLabel } from '@/app/(routes)/(private)/admin/_utils/formatUserAgentLabel.utils';
+import { formatSessionDuration } from '@/app/(routes)/(private)/admin/_utils/formatSessionDuration.utils';
 import {
   formatAuditAfterLabel,
   formatAuditActionLabel,
   formatAuditBeforeLabel,
   formatAuditResultLabel,
   formatAuditTargetLabel,
-} from '@/app/(routes)/(private)/admin/utils/formatAuditLog.utils';
+} from '@/app/(routes)/(private)/admin/_utils/formatAuditLog.utils';
 
 import styles from '@/app/(routes)/(private)/admin/AdminPage.module.css';
 
