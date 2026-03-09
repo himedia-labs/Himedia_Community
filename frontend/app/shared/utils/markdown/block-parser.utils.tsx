@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { createHeadingIdFactory, stripInlineMarkdown } from '@/app/shared/utils/markdown/helpers';
-import { parseInline, renderInlineLines } from '@/app/shared/utils/markdown/inline-parser';
+import { parseInline, renderInlineLines } from '@/app/shared/utils/markdown/inline-parser.utils';
 
 /**
  * 마크다운 프리뷰 변환
