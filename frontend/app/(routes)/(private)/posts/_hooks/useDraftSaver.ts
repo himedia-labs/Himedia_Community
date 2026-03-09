@@ -11,8 +11,9 @@ import {
   TOAST_CATEGORY_REQUIRED_MESSAGE,
   TOAST_CONTENT_REQUIRED_MESSAGE,
   TOAST_DRAFT_SAVED_MESSAGE,
+  TOAST_PUBLISH_FAILURE_MESSAGE,
+  TOAST_PUBLISH_SUCCESS_MESSAGE,
   TOAST_SAVE_FAILURE_MESSAGE,
-  TOAST_SAVE_SUCCESS_MESSAGE,
   TOAST_TITLE_REQUIRED_MESSAGE,
 } from '@/app/shared/constants/messages/post.message';
 import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
@@ -58,9 +59,9 @@ export const useDraftSaver = ({ formData, draftId, isAuthenticated }: DraftSaver
   };
 
   // 에러 핸들링
-  const handleApiError = (error: unknown) => {
+  const handleApiError = (error: unknown, fallbackMessage = TOAST_SAVE_FAILURE_MESSAGE) => {
     const axiosError = error as AxiosError<ApiErrorResponse>;
-    const message = axiosError.response?.data?.message ?? TOAST_SAVE_FAILURE_MESSAGE;
+    const message = axiosError.response?.data?.message ?? fallbackMessage;
     showToast({ message, type: 'error' });
   };
 
@@ -105,7 +106,7 @@ export const useDraftSaver = ({ formData, draftId, isAuthenticated }: DraftSaver
       } else {
         const response = await createPostMutation.mutateAsync(payload);
         savedDraftId = response.id;
-        router.replace(`/posts/draftId?${response.id}`);
+        router.replace(`/posts/drafts/${response.id}`);
       }
 
       await invalidateQueryTargets(queryClient, [{ queryKey: postsKeys.drafts(), exact: false }]);
@@ -151,10 +152,10 @@ export const useDraftSaver = ({ formData, draftId, isAuthenticated }: DraftSaver
         { queryKey: postsKeys.list(), exact: false },
         { queryKey: postsKeys.infinite(), exact: false },
       ]);
-      showToast({ message: TOAST_SAVE_SUCCESS_MESSAGE, type: 'success' });
+      showToast({ message: TOAST_PUBLISH_SUCCESS_MESSAGE, type: 'success' });
       router.replace('/');
     } catch (error) {
-      handleApiError(error);
+      handleApiError(error, TOAST_PUBLISH_FAILURE_MESSAGE);
     }
   };
 

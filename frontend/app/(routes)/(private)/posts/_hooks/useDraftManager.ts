@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import { useDraftDetailQuery, useDraftsQuery } from '@/app/api/posts/posts.queries';
 
@@ -11,48 +11,36 @@ import { useDraftSaver } from '@/app/(routes)/(private)/posts/_hooks/useDraftSav
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { mapDraftToForm } from '@/app/shared/utils/post';
 
-import type { ReadonlyURLSearchParams } from 'next/navigation';
 import type { DraftData } from '@/app/shared/types/post';
-
-/**
- * draftId 추출
- * @description 쿼리 키(draftId) 또는 숫자-only 단일 쿼리 키를 draftId로 해석
- */
-const extractDraftId = (searchParams: ReadonlyURLSearchParams) => {
-  const draftIdParam = searchParams.get('draftId');
-  if (draftIdParam) return draftIdParam;
-
-  const firstKey = searchParams.keys().next().value;
-  if (!firstKey) return null;
-  return /^\d+$/.test(firstKey) ? firstKey : null;
-};
 
 /**
  * 임시저장 관리 훅
  * @description 임시저장 불러오기/저장/발행/자동저장을 통합 관리
  */
-export const useDraftManager = (formData: DraftData, setFormData: (data: Partial<DraftData>) => void) => {
+export const useDraftManager = (
+  formData: DraftData,
+  setFormData: (data: Partial<DraftData>) => void,
+  enabled = true,
+  routeDraftId?: string,
+) => {
   // 라우터 및 유틸리티
   const router = useRouter();
   const { accessToken } = useAuthStore();
 
-  // URL 파라미터
-  const searchParams = useSearchParams();
-  const searchDraftId = extractDraftId(searchParams);
-
   // State
-  const prevSearchDraftIdRef = useRef<string>(searchDraftId);
+  const prevDraftIdRef = useRef<string | undefined>(routeDraftId);
 
   // Queries
   const isAuthenticated = !!accessToken;
+  const isDraftFlowEnabled = isAuthenticated && enabled;
   const { data: draftList, isFetched: isDraftListFetched } = useDraftsQuery(
     { limit: 20 },
-    { enabled: isAuthenticated },
+    { enabled: isDraftFlowEnabled },
   );
 
   // 파생 상태
-  const draftId = searchDraftId;
-  const { data: draftDetail } = useDraftDetailQuery(draftId ?? undefined, { enabled: isAuthenticated });
+  const draftId = routeDraftId ?? null;
+  const { data: draftDetail } = useDraftDetailQuery(draftId ?? undefined, { enabled: isDraftFlowEnabled });
   const hasDrafts = (draftList?.items?.length ?? 0) > 0;
   const lastSavedAt = draftDetail?.updatedAt;
 
@@ -64,10 +52,10 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
 
   // draftId 변경 시 폼 초기화
   useEffect(() => {
-    if (prevSearchDraftIdRef.current === searchDraftId) return;
-    prevSearchDraftIdRef.current = searchDraftId;
+    if (prevDraftIdRef.current === routeDraftId) return;
+    prevDraftIdRef.current = routeDraftId;
 
-    if (!searchDraftId) {
+    if (!routeDraftId) {
       setFormData({
         title: '',
         categoryId: '',
@@ -75,13 +63,17 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
         tags: [],
       });
     }
-  }, [searchDraftId, setFormData]);
+  }, [routeDraftId, setFormData]);
 
   // draft 알림 표시
-  useDraftNotice({ draftId, hasDrafts, isDraftListFetched });
+  useDraftNotice({
+    draftId: enabled ? draftId : null,
+    hasDrafts: enabled ? hasDrafts : false,
+    isDraftListFetched: enabled ? isDraftListFetched : false,
+  });
 
   // 임시저장
-  const { saveDraft, publishPost } = useDraftSaver({ formData, draftId, isAuthenticated });
+  const { saveDraft, publishPost } = useDraftSaver({ formData, draftId, isAuthenticated: isDraftFlowEnabled });
 
   // 임시저장 목록 열기
   const openDraftList = () => {
@@ -89,7 +81,7 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
   };
 
   // 자동저장
-  useAutoSave({ formData, isAuthenticated, saveDraft });
+  useAutoSave({ formData, isAuthenticated: isDraftFlowEnabled, saveDraft });
 
   return {
     state: {

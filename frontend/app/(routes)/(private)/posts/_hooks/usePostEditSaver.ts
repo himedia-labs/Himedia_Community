@@ -9,9 +9,9 @@ import { useToast } from '@/app/shared/components/toast/toast';
 import {
   TOAST_CATEGORY_REQUIRED_MESSAGE,
   TOAST_CONTENT_REQUIRED_MESSAGE,
-  TOAST_SAVE_FAILURE_MESSAGE,
-  TOAST_SAVE_SUCCESS_MESSAGE,
   TOAST_TITLE_REQUIRED_MESSAGE,
+  TOAST_UPDATE_FAILURE_MESSAGE,
+  TOAST_UPDATE_SUCCESS_MESSAGE,
 } from '@/app/shared/constants/messages/post.message';
 import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 
@@ -58,7 +58,7 @@ export const usePostEditSaver = ({ postId, formData }: PostEditSaverParams) => {
   // 에러 처리
   const handleApiError = (error: unknown) => {
     const axiosError = error as AxiosError<ApiErrorResponse>;
-    const message = axiosError.response?.data?.message ?? TOAST_SAVE_FAILURE_MESSAGE;
+    const message = axiosError.response?.data?.message ?? TOAST_UPDATE_FAILURE_MESSAGE;
     showToast({ message, type: 'error' });
   };
 
@@ -86,7 +86,7 @@ export const usePostEditSaver = ({ postId, formData }: PostEditSaverParams) => {
         { queryKey: postsKeys.detail(postId) },
         { queryKey: postsKeys.list(), exact: false },
       ]);
-      showToast({ message: TOAST_SAVE_SUCCESS_MESSAGE, type: 'success' });
+      showToast({ message: TOAST_UPDATE_SUCCESS_MESSAGE, type: 'success' });
       router.replace(`/posts/${postId}`);
     } catch (error) {
       handleApiError(error);

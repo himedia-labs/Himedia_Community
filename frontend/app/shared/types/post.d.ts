@@ -236,6 +236,17 @@ export type DraftNoticeParams = {
   isDraftListFetched: boolean;
 };
 
+export type PostComposerPageParams = {
+  draftId?: string;
+  mode?: 'create' | 'draft' | 'edit';
+  postId?: string;
+  headerDescription: string;
+  headerTitle: string;
+  sectionLabel: string;
+  showDraftActions: boolean;
+  submitLabel: string;
+};
+
 // 게시글 요청
 export interface CreatePostRequest {
   title: string;
