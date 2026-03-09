@@ -31,7 +31,7 @@ import {
   getAuthorProfilePath,
   getAuthorProfileBioPreview,
 } from '@/app/(routes)/(public)/posts/[postId]/utils';
-import { buildRelativeTime, formatDate } from '@/app/shared/utils/date.utils';
+import { buildRelativeTime, formatDate } from '@/app/shared/utils/date';
 import { PostDetailError } from '@/app/(routes)/(public)/posts/[postId]/components/PostDetailError';
 import { PostDetailCommentsSection } from '@/app/(routes)/(public)/posts/[postId]/components/PostDetailCommentsSection';
 import { PostDetailSkeleton } from '@/app/(routes)/(public)/posts/[postId]/PostDetail.skeleton';

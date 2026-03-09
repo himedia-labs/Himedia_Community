@@ -10,7 +10,7 @@ import {
   isCommentContentTooLong,
   MAX_COMMENT_CONTENT_LENGTH,
   sanitizeCommentContent,
-} from '@/app/shared/utils/comment.utils';
+} from '@/app/shared/utils/comment';
 
 /**
  * 게시물 댓글 작성 훅

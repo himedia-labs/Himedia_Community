@@ -2,7 +2,7 @@
 import type { AxiosError } from 'axios';
 import type { SyntheticEvent } from 'react';
 
-import { isValidPassword } from '@/app/shared/utils/password';
+import { isValidPassword } from '@/app/shared/utils/auth';
 import { COURSE_NAME } from '@/app/shared/constants/config/register.config';
 import { REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 

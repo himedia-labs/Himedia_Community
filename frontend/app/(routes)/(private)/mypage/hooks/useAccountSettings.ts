@@ -11,7 +11,7 @@ import {
 
 import { useAuthStore } from '@/app/shared/store/authStore';
 
-import { isValidPassword } from '@/app/shared/utils/password';
+import { isValidPassword } from '@/app/shared/utils/auth';
 import { applyQueryDataUpdate } from '@/app/shared/lib/query/queryCache.utils';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { EMAIL_REGEX } from '@/app/shared/constants/config/auth.config';

@@ -15,7 +15,7 @@ import {
   MAX_COMMENT_CONTENT_LENGTH,
   normalizeCommentContent,
   sanitizeCommentContent,
-} from '@/app/shared/utils/comment.utils';
+} from '@/app/shared/utils/comment';
 
 import { usePostCommentForm } from '@/app/(routes)/(public)/posts/[postId]/hooks/usePostCommentForm';
 import {

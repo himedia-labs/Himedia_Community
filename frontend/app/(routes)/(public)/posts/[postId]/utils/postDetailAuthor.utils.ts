@@ -1,7 +1,7 @@
 import { FaFacebookF, FaLinkedinIn, FaXTwitter } from 'react-icons/fa6';
 import { FiGithub, FiGlobe, FiMail } from 'react-icons/fi';
 
-import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
+import { formatPostPreview } from '@/app/shared/utils/post';
 
 import type { PostAuthorRef } from '@/app/shared/types/post';
 import type { PostDetailAuthorSocialLink } from '@/app/shared/types/post';

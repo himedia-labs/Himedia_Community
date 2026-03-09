@@ -11,7 +11,7 @@ import { FiEdit2, FiEye, FiHeart, FiMessageCircle, FiMoreHorizontal, FiTrash2 } 
 import EmptyState from '@/app/shared/components/empty/EmptyState';
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 import { formatDateLabel } from '@/app/(routes)/(private)/mypage/utils';
-import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
+import { formatPostPreview } from '@/app/shared/utils/post';
 import {
   createHandlePostMenuButtonClick,
   createHandlePostEditButtonClick,

@@ -5,7 +5,7 @@ import {
   REGISTER_FORM_CACHE_KEEP_KEY,
   REGISTER_FORM_DEFAULT,
 } from '@/app/shared/constants/config/register.config';
-import { sessionStorage } from '@/app/shared/utils/session-storage';
+import { sessionStorage } from '@/app/shared/utils/storage';
 
 import { formatBirthDate, formatPhone } from '@/app/(routes)/(public)/register/utils';
 

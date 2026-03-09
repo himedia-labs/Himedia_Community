@@ -1,4 +1,4 @@
-import { isValidPassword } from '@/app/shared/utils/password';
+import { isValidPassword } from '@/app/shared/utils/auth';
 import { REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import type { RegisterNextStepParams } from '@/app/shared/types/auth';
 

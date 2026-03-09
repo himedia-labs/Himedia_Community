@@ -22,7 +22,7 @@ import {
 } from '@/app/(routes)/(private)/mypage/handlers';
 
 import { useAuthStore } from '@/app/shared/store/authStore';
-import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
+import { formatPostPreview } from '@/app/shared/utils/post';
 import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';

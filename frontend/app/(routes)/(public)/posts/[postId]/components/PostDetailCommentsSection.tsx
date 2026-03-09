@@ -21,8 +21,8 @@ import {
 } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
 
-import { isCommentContentTooLong } from '@/app/shared/utils/comment.utils';
-import { formatDate } from '@/app/shared/utils/date.utils';
+import { isCommentContentTooLong } from '@/app/shared/utils/comment';
+import { formatDate } from '@/app/shared/utils/date';
 import {
   formatRole,
   getMentionHighlightSegments,

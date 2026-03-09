@@ -1,4 +1,4 @@
-import { isValidPassword } from '@/app/shared/utils/password';
+import { isValidPassword } from '@/app/shared/utils/auth';
 import { EMAIL_REGEX } from '@/app/shared/constants/config/auth.config';
 import { EMAIL_MESSAGES, REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 

@@ -18,7 +18,7 @@ import {
   createHandlePostDeleteButtonClick,
 } from '@/app/(routes)/(private)/mypage/handlers';
 import { formatDateLabel } from '@/app/(routes)/(private)/mypage/utils';
-import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
+import { formatPostPreview } from '@/app/shared/utils/post';
 
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 import postListStyles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';

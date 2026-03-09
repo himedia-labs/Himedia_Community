@@ -58,7 +58,7 @@ import {
   createHandleRejectUserClick,
   createHandleUserRoleDraftChange,
 } from '@/app/(routes)/(private)/admin/handlers/adminUi.handlers';
-import { formatDate } from '@/app/shared/utils/date.utils';
+import { formatDate } from '@/app/shared/utils/date';
 
 import { useAdminAccessGuard } from '@/app/(routes)/(private)/admin/hooks/useAdminAccessGuard';
 import { useTrackAdminAccess } from '@/app/(routes)/(private)/admin/hooks/useTrackAdminAccess';

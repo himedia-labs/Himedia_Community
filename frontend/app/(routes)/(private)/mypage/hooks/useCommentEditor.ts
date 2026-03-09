@@ -10,7 +10,7 @@ import {
   MAX_COMMENT_CONTENT_LENGTH,
   normalizeCommentContent,
   sanitizeCommentContent,
-} from '@/app/shared/utils/comment.utils';
+} from '@/app/shared/utils/comment';
 
 import type { ChangeEvent } from 'react';
 

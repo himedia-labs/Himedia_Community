@@ -17,7 +17,7 @@ import { useAuthStore } from '@/app/shared/store/authStore';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { usePathVisibility } from '@/app/shared/hooks/usePathVisibility';
 import { LayoutVisibilityConfig } from '@/app/shared/constants/config/layout.config';
-import { formatNotificationTime, getNotificationIcon } from '@/app/shared/utils/notification.utils';
+import { formatNotificationTime, getNotificationIcon } from '@/app/shared/utils/notification';
 
 import { HeaderConfig } from '@/app/shared/constants/config/header.config';
 import { useProfileMenu } from '@/app/shared/components/header/hooks/useProfileMenu';

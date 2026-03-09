@@ -1,4 +1,4 @@
-export { formatDate } from '@/app/shared/utils/date.utils';
+export { formatDate } from '@/app/shared/utils/date';
 
 export { formatRole } from '@/app/(routes)/(public)/posts/[postId]/utils/role.utils';
 export { copyToClipboard } from '@/app/(routes)/(public)/posts/[postId]/utils/clipboard.utils';

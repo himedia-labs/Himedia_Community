@@ -1,5 +1,5 @@
-import { buildRelativeTime, formatDate } from '@/app/shared/utils/date.utils';
-import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
+import { buildRelativeTime, formatDate } from '@/app/shared/utils/date';
+import { formatPostPreview } from '@/app/shared/utils/post';
 
 import { extractImageUrl } from '@/app/(routes)/(public)/main/components/postList/utils/extractImageUrl.utils';
 

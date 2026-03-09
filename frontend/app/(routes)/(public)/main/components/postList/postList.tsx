@@ -14,7 +14,7 @@ import { FiClock, FiEdit3, FiEye, FiHeart, FiMessageCircle, FiShare2, FiTrending
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
-import { getVisibleTags } from '@/app/shared/utils/postTag.utils';
+import { getVisibleTags } from '@/app/shared/utils/post';
 import EmptyState from '@/app/shared/components/empty/EmptyState';
 
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';

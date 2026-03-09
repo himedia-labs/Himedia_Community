@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 import {
   useMarkNotificationReadMutation,
@@ -10,25 +9,22 @@ import {
 import { notificationsKeys } from '@/app/api/notifications/notifications.keys';
 import { useNotificationsQuery } from '@/app/api/notifications/notifications.queries';
 
-import { getNotificationSection } from '@/app/shared/utils/notification.utils';
+import { getNotificationSection } from '@/app/shared/utils/notification';
 import { applyQueryDataUpdate } from '@/app/shared/lib/query/queryCache.utils';
 
-import type { NotificationListResponse } from '@/app/shared/types/notification';
+import type { HeaderNotificationMenuParams } from '@/app/shared/types/header';
+import type { NotificationListResponse, NotificationTab } from '@/app/shared/types/notification';
 
 /**
  * 알림 메뉴 훅
  * @description 알림 드롭다운 메뉴 상태와 핸들러를 관리
  */
-export const useNotificationMenu = (params: {
-  isLoggedIn: boolean;
-  router: AppRouterInstance;
-  canFetchNotifications: boolean;
-}) => {
+export const useNotificationMenu = (params: HeaderNotificationMenuParams) => {
   const { isLoggedIn, router, canFetchNotifications } = params;
 
   // UI 상태
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const [notificationTab, setNotificationTab] = useState<'today' | 'week' | 'earlier'>('today');
+  const [notificationTab, setNotificationTab] = useState<NotificationTab>('today');
   const [isNotificationVisible, setIsNotificationVisible] = useState(false);
 
   // UI 참조
