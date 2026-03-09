@@ -1,17 +1,12 @@
 import { handleAdminReportStatusChange } from '@/app/(routes)/(private)/admin/handlers/handleAdminReportStatusChange.handlers';
 
-import type { QueryClient } from '@tanstack/react-query';
-import type { AdminReportStatus } from '@/app/shared/types/admin';
+import type { AdminReportStatus, AdminStatusChangeHandlerParams } from '@/app/shared/types/admin';
 
 /**
  * 신고 상태 변경 핸들러 생성
  * @description 신고 상태를 갱신하고 관련 캐시를 재검증한다
  */
-export const createHandleStatusChange = (params: {
-  queryClient: QueryClient;
-  mutateAsync: (payload: { reportId: string; status: AdminReportStatus }) => Promise<unknown>;
-  showToast: (options: { message: string; type: 'success' | 'error' | 'info' | 'warning' }) => void;
-}) => {
+export const createHandleStatusChange = (params: AdminStatusChangeHandlerParams) => {
   return async (reportId: string, status: AdminReportStatus) => {
     try {
       await handleAdminReportStatusChange({

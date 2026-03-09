@@ -1,16 +1,12 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import type { UseAdminAccessGuardParams } from '@/app/shared/types/admin';
 
 /**
  * 관리자 접근 가드
  * @description 인증 및 권한 상태에 따라 접근 제어 리다이렉트를 수행
  */
-export const useAdminAccessGuard = (params: {
-  isAdmin: boolean;
-  accessToken: string | null;
-  isInitialized: boolean;
-  isUserLoading: boolean;
-}) => {
+export const useAdminAccessGuard = (params: UseAdminAccessGuardParams) => {
   const router = useRouter();
 
   // 인증 리다이렉트

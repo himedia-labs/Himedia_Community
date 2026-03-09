@@ -1,21 +1,12 @@
 import type { AxiosError } from 'axios';
-import type { UseMutationResult } from '@tanstack/react-query';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
-import type { SendResetCodeRequest, SendResetCodeResponse } from '@/app/shared/types/auth';
+import type { FindPasswordSendCodeParams, SendResetCodeResponse } from '@/app/shared/types/auth';
 
 /**
  * 인증번호 발송
  * @description 이메일 인증번호 발송을 요청
  */
-export const sendCode = (params: {
-  email: string;
-  setEmailError: (value: string) => void;
-  setCodeError: (value: string) => void;
-  setCodeSent: (value: boolean) => void;
-  sendCodeMutation: UseMutationResult<SendResetCodeResponse, Error, SendResetCodeRequest>;
-  showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
-  onSendSuccess?: () => void;
-}) => {
+export const sendCode = (params: FindPasswordSendCodeParams) => {
   return (e?: React.FormEvent) => {
     if (e?.preventDefault) {
       e.preventDefault();

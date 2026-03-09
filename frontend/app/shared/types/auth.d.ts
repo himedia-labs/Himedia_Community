@@ -295,6 +295,87 @@ export type RegisterVerifyEmailCodeParams = {
   showToast: (options: ToastOptions) => void;
 };
 
+// 비밀번호 찾기 입력
+export type FindPasswordEmailChangeParams = {
+  codeError: string;
+  emailError: string;
+  setEmail: (value: string) => void;
+  setCodeError: (value: string) => void;
+  setEmailError: (value: string) => void;
+  emailRegex: RegExp;
+};
+
+export type FindPasswordCodeChangeParams = {
+  codeError: string;
+  setCode: (value: string) => void;
+  setCodeError: (value: string) => void;
+};
+
+export type FindPasswordNewPasswordChangeParams = {
+  setNewPassword: (value: string) => void;
+  setNewPasswordError: (value: string) => void;
+};
+
+export type FindPasswordConfirmPasswordChangeParams = {
+  confirmPasswordError: string;
+  setConfirmPassword: (value: string) => void;
+  setConfirmPasswordError: (value: string) => void;
+};
+
+// 비밀번호 찾기 액션
+export type FindPasswordSendCodeParams = {
+  email: string;
+  setEmailError: (value: string) => void;
+  setCodeError: (value: string) => void;
+  setCodeSent: (value: boolean) => void;
+  sendCodeMutation: UseMutationResult<SendResetCodeResponse, Error, SendResetCodeRequest>;
+  showToast: (options: ToastOptions) => void;
+  onSendSuccess?: () => void;
+};
+
+export type FindPasswordVerifyCodeParams = {
+  email: string;
+  code: string;
+  setEmailError: (value: string) => void;
+  setCodeError: (value: string) => void;
+  setStep: (value: AuthStep) => void;
+  verifyCodeMutation: UseMutationResult<VerifyResetCodeResponse, Error, VerifyResetCodeRequest>;
+  showToast: (options: ToastOptions) => void;
+};
+
+export type FindPasswordResetPasswordParams = {
+  email: string;
+  code: string;
+  newPassword: string;
+  confirmPassword: string;
+  setNewPasswordError: (value: string) => void;
+  setConfirmPasswordError: (value: string) => void;
+  setCodeError: (value: string) => void;
+  resetPasswordMutation: UseMutationResult<ResetPasswordResponse, Error, ResetPasswordRequest>;
+  showToast: (options: ToastOptions) => void;
+  router: AppRouterInstance;
+  isValidPassword: (value: string) => boolean;
+};
+
+export type FindPasswordResetStateParams = {
+  setNewPassword: (value: string) => void;
+  setConfirmPassword: (value: string) => void;
+  setNewPasswordError: (value: string) => void;
+  setConfirmPasswordError: (value: string) => void;
+};
+
+export type FindPasswordBackToVerifyParams = {
+  setStep: (value: AuthStep) => void;
+  handleResetPasswordState: () => void;
+};
+
+export type UseResetCodeTimerParams = {
+  codeSent: boolean;
+  remainingSeconds: number;
+  setRemainingSeconds: (updater: (prev: number) => number) => void;
+  showToast: (options: ToastOptions) => void;
+};
+
 // 회원가입 페이지 제출
 export type RegisterSubmitParams = {
   name: string;

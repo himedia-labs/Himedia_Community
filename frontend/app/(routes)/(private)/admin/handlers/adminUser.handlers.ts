@@ -2,18 +2,22 @@ import { adminKeys } from '@/app/api/admin/admin.keys';
 import { handleAdminUserApprove } from '@/app/(routes)/(private)/admin/handlers/handleAdminUserApprove.handlers';
 import { applyQueryDataUpdate, invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 
-import type { QueryClient } from '@tanstack/react-query';
-import type { AdminPendingUsersResponse, AdminUser, AdminUsersResponse } from '@/app/shared/types/admin';
+import type {
+  AdminDeleteRejectedUserHandlerParams,
+  AdminOptimisticUserParams,
+  AdminOptimisticUserRolesParams,
+  AdminPendingUsersResponse,
+  AdminSaveAllUserRolesHandlerParams,
+  AdminUserApproveHandlerParams,
+  AdminUserRejectHandlerParams,
+  AdminUsersResponse,
+} from '@/app/shared/types/admin';
 
 /**
  * 회원 승인 핸들러 생성
  * @description 승인 요청 처리 후 토스트를 표시한다
  */
-export const createHandleUserApprove = (params: {
-  queryClient: QueryClient;
-  mutateAsync: (userId: string) => Promise<unknown>;
-  showToast: (options: { message: string; type: 'success' | 'error' | 'info' | 'warning' }) => void;
-}) => {
+export const createHandleUserApprove = (params: AdminUserApproveHandlerParams) => {
   return async (userId: string) => {
     const rollback = applyOptimisticUserApprove({
       queryClient: params.queryClient,
@@ -38,11 +42,7 @@ export const createHandleUserApprove = (params: {
  * 회원 거절 핸들러 생성
  * @description 승인 거절 요청 처리 후 토스트를 표시한다
  */
-export const createHandleUserReject = (params: {
-  queryClient: QueryClient;
-  mutateAsync: (payload: { userId: string; reason: string }) => Promise<unknown>;
-  showToast: (options: { message: string; type: 'success' | 'error' | 'info' | 'warning' }) => void;
-}) => {
+export const createHandleUserReject = (params: AdminUserRejectHandlerParams) => {
   return async (userId: string, reason: string) => {
     const rollback = applyOptimisticUserReject({
       queryClient: params.queryClient,
@@ -67,11 +67,7 @@ export const createHandleUserReject = (params: {
  * 거절 계정 삭제 핸들러 생성
  * @description 승인 거절 계정을 삭제하여 재회원가입을 허용한다
  */
-export const createHandleDeleteRejectedUser = (params: {
-  queryClient: QueryClient;
-  mutateAsync: (userId: string) => Promise<unknown>;
-  showToast: (options: { message: string; type: 'success' | 'error' | 'info' | 'warning' }) => void;
-}) => {
+export const createHandleDeleteRejectedUser = (params: AdminDeleteRejectedUserHandlerParams) => {
   return async (userId: string) => {
     const rollback = applyOptimisticRejectedUserDelete({
       queryClient: params.queryClient,
@@ -113,14 +109,7 @@ export const createHandleChangeUserRoleDraft = (
  * 회원 역할 일괄 저장 핸들러 생성
  * @description 변경된 역할만 저장하고 관련 캐시를 갱신한다
  */
-export const createHandleSaveAllUserRoles = (params: {
-  allUsers: AdminUser[];
-  userRoleDrafts: Record<string, string>;
-  queryClient: QueryClient;
-  setIsUsersEditMode: (value: boolean) => void;
-  mutateAsync: (payload: { userId: string; role: 'TRAINEE' | 'GRADUATE' | 'MENTOR' | 'INSTRUCTOR' }) => Promise<unknown>;
-  showToast: (options: { message: string; type: 'success' | 'error' | 'info' | 'warning' }) => void;
-}) => {
+export const createHandleSaveAllUserRoles = (params: AdminSaveAllUserRolesHandlerParams) => {
   return async () => {
     const changedUsers = Object.entries(params.userRoleDrafts)
       .map(([userId, draftRole]) => {
@@ -179,7 +168,7 @@ const extractErrorMessage = (error: unknown, fallback: string) => {
  * 승인 대기 회원 낙관적 반영
  * @description 승인 요청 직후 pending/users 캐시에 즉시 반영하고 롤백 함수를 반환
  */
-const applyOptimisticUserApprove = (params: { queryClient: QueryClient; userId: string }) => {
+const applyOptimisticUserApprove = (params: AdminOptimisticUserParams) => {
   const previousPending = params.queryClient.getQueryData<AdminPendingUsersResponse>(adminKeys.pendingUsers());
   const previousUsers = params.queryClient.getQueryData<AdminUsersResponse>(adminKeys.users());
 
@@ -216,7 +205,7 @@ const applyOptimisticUserApprove = (params: { queryClient: QueryClient; userId: 
  * 승인 대기 회원 거절 낙관적 반영
  * @description 거절 요청 직후 pending/users 캐시에 즉시 반영하고 롤백 함수를 반환
  */
-const applyOptimisticUserReject = (params: { queryClient: QueryClient; userId: string }) => {
+const applyOptimisticUserReject = (params: AdminOptimisticUserParams) => {
   const previousPending = params.queryClient.getQueryData<AdminPendingUsersResponse>(adminKeys.pendingUsers());
   const previousUsers = params.queryClient.getQueryData<AdminUsersResponse>(adminKeys.users());
 
@@ -254,7 +243,7 @@ const applyOptimisticUserReject = (params: { queryClient: QueryClient; userId: s
  * 거절 계정 삭제 낙관적 반영
  * @description 거절 계정 삭제 요청 직후 관련 캐시를 즉시 반영하고 롤백 함수를 반환
  */
-const applyOptimisticRejectedUserDelete = (params: { queryClient: QueryClient; userId: string }) => {
+const applyOptimisticRejectedUserDelete = (params: AdminOptimisticUserParams) => {
   const previousRejected = params.queryClient.getQueryData<AdminPendingUsersResponse>(adminKeys.rejectedUsers());
 
   applyQueryDataUpdate<AdminPendingUsersResponse>(params.queryClient, adminKeys.rejectedUsers(), old => {
@@ -271,10 +260,7 @@ const applyOptimisticRejectedUserDelete = (params: { queryClient: QueryClient; u
  * 전체 회원 역할 낙관적 반영
  * @description 역할 변경 요청 직후 users 캐시에 즉시 반영하고 롤백 함수를 반환
  */
-const applyOptimisticUserRoles = (params: {
-  queryClient: QueryClient;
-  changedUsers: Array<{ userId: string; role: 'TRAINEE' | 'GRADUATE' | 'MENTOR' | 'INSTRUCTOR' }>;
-}) => {
+const applyOptimisticUserRoles = (params: AdminOptimisticUserRolesParams) => {
   const previousUsers = params.queryClient.getQueryData<AdminUsersResponse>(adminKeys.users());
 
   applyQueryDataUpdate<AdminUsersResponse>(params.queryClient, adminKeys.users(), old => {

@@ -3,17 +3,13 @@ import { useEffect, useRef } from 'react';
 import { adminKeys } from '@/app/api/admin/admin.keys';
 import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 
-import type { QueryClient } from '@tanstack/react-query';
+import type { UseTrackAdminAccessParams } from '@/app/shared/types/admin';
 
 /**
  * 관리자 접속 기록 훅
  * @description 관리자 첫 진입 시 접속 로그를 1회 기록하고 목록 캐시를 갱신
  */
-export const useTrackAdminAccess = (params: {
-  canAccess: boolean;
-  queryClient: QueryClient;
-  mutate: (payload: undefined, options: { onSuccess: () => Promise<void> }) => void;
-}) => {
+export const useTrackAdminAccess = (params: UseTrackAdminAccessParams) => {
   const { canAccess, mutate, queryClient } = params;
   const hasTrackedAccessRef = useRef(false);
 

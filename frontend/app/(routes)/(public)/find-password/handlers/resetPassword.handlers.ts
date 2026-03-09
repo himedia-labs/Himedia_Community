@@ -1,26 +1,12 @@
 import type { AxiosError } from 'axios';
-import type { UseMutationResult } from '@tanstack/react-query';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
-import type { ResetPasswordRequest, ResetPasswordResponse } from '@/app/shared/types/auth';
-import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import type { FindPasswordResetPasswordParams, ResetPasswordResponse } from '@/app/shared/types/auth';
 
 /**
  * 새 비밀번호 설정
  * @description 검증된 인증번호로 비밀번호를 변경
  */
-export const resetPassword = (params: {
-  email: string;
-  code: string;
-  newPassword: string;
-  confirmPassword: string;
-  setNewPasswordError: (value: string) => void;
-  setConfirmPasswordError: (value: string) => void;
-  setCodeError: (value: string) => void;
-  resetPasswordMutation: UseMutationResult<ResetPasswordResponse, Error, ResetPasswordRequest>;
-  showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
-  router: AppRouterInstance;
-  isValidPassword: (value: string) => boolean;
-}) => {
+export const resetPassword = (params: FindPasswordResetPasswordParams) => {
   return (e: React.FormEvent) => {
     e.preventDefault();
 

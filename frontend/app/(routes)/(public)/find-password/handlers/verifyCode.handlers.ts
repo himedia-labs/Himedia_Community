@@ -1,21 +1,12 @@
 import type { AxiosError } from 'axios';
-import type { UseMutationResult } from '@tanstack/react-query';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
-import type { AuthStep, VerifyResetCodeRequest, VerifyResetCodeResponse } from '@/app/shared/types/auth';
+import type { FindPasswordVerifyCodeParams, VerifyResetCodeResponse } from '@/app/shared/types/auth';
 
 /**
  * 인증번호 검증
  * @description 이메일 인증번호를 검증
  */
-export const verifyCode = (params: {
-  email: string;
-  code: string;
-  setEmailError: (value: string) => void;
-  setCodeError: (value: string) => void;
-  setStep: (value: AuthStep) => void;
-  verifyCodeMutation: UseMutationResult<VerifyResetCodeResponse, Error, VerifyResetCodeRequest>;
-  showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
-}) => {
+export const verifyCode = (params: FindPasswordVerifyCodeParams) => {
   return (e: React.FormEvent) => {
     e.preventDefault();
 

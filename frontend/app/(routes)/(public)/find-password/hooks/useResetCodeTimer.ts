@@ -1,15 +1,11 @@
 import { useEffect } from 'react';
+import type { UseResetCodeTimerParams } from '@/app/shared/types/auth';
 
 /**
  * 인증코드 타이머 훅
  * @description 인증코드 만료 카운트다운과 만료 알림을 처리
  */
-export const useResetCodeTimer = (params: {
-  codeSent: boolean;
-  remainingSeconds: number;
-  setRemainingSeconds: (updater: (prev: number) => number) => void;
-  showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
-}) => {
+export const useResetCodeTimer = (params: UseResetCodeTimerParams) => {
   const { codeSent, remainingSeconds, setRemainingSeconds, showToast } = params;
 
   // 타이머/카운트다운
