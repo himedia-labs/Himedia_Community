@@ -1,10 +1,10 @@
 import { ADMIN_MENU_LABELS } from '@/app/shared/constants/config/admin.config';
-import AdminUsersSection from '@/app/(routes)/(private)/admin/_components/sections/AdminUsersSection';
-import AdminAdminsSection from '@/app/(routes)/(private)/admin/_components/sections/AdminAdminsSection';
-import AdminAuditLogsSection from '@/app/(routes)/(private)/admin/_components/sections/AdminAuditLogsSection';
-import AdminAccessLogsSection from '@/app/(routes)/(private)/admin/_components/sections/AdminAccessLogsSection';
-import AdminPendingUsersSection from '@/app/(routes)/(private)/admin/_components/sections/AdminPendingUsersSection';
-import AdminRejectedUsersSection from '@/app/(routes)/(private)/admin/_components/sections/AdminRejectedUsersSection';
+import AdminUsersSection from '@/app/(routes)/(private)/admin/_components/features/AdminUsersSection';
+import AdminAdminsSection from '@/app/(routes)/(private)/admin/_components/features/AdminAdminsSection';
+import AdminAuditLogsSection from '@/app/(routes)/(private)/admin/_components/features/AdminAuditLogsSection';
+import AdminAccessLogsSection from '@/app/(routes)/(private)/admin/_components/features/AdminAccessLogsSection';
+import AdminPendingUsersSection from '@/app/(routes)/(private)/admin/_components/features/AdminPendingUsersSection';
+import AdminRejectedUsersSection from '@/app/(routes)/(private)/admin/_components/features/AdminRejectedUsersSection';
 
 import styles from '@/app/(routes)/(private)/admin/AdminPage.module.css';
 
