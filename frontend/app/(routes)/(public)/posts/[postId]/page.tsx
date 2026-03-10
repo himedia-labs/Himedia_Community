@@ -30,8 +30,10 @@ import {
   getAuthorProfileBioPreview,
 } from '@/app/(routes)/(public)/posts/[postId]/_utils';
 import { buildRelativeTime, formatDate } from '@/app/shared/utils/date';
-import { PostDetailError } from '@/app/(routes)/(public)/posts/[postId]/_components/PostDetailError';
-import { PostDetailCommentsSection } from '@/app/(routes)/(public)/posts/[postId]/_components/PostDetailCommentsSection';
+import {
+  PostDetailCommentsSection,
+  PostDetailError,
+} from '@/app/(routes)/(public)/posts/[postId]/_components';
 import { PostDetailSkeleton } from '@/app/(routes)/(public)/posts/[postId]/PostDetail.skeleton';
 
 import 'react-loading-skeleton/dist/skeleton.css';

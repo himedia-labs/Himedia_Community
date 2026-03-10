@@ -95,8 +95,8 @@ export type CreateCommentItemActionHandlersParams = {
   handleReplySubmit: (rootCommentId: string) => void;
 };
 
-// 댓글 아이템
-export interface PostDetailCommentItemProps {
+// 댓글 블록
+export interface PostDetailCommentBlockProps {
   accessToken: string | null;
   comment: CommentItem;
   depth?: number;
