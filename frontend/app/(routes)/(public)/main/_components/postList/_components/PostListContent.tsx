@@ -1,6 +1,6 @@
 import EmptyState from '@/app/shared/components/empty/EmptyState';
-import PostListCardView from '@/app/(routes)/(public)/main/_components/postList/_components/views/PostListCardView';
-import PostListListView from '@/app/(routes)/(public)/main/_components/postList/_components/views/PostListListView';
+import PostListCardView from '@/app/(routes)/(public)/main/_components/postList/_components/PostListCardView';
+import PostListListView from '@/app/(routes)/(public)/main/_components/postList/_components/PostListListView';
 
 import type { PostListContentProps } from '@/app/shared/types/post';
 

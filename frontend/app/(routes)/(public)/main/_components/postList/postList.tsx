@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation';
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
-import PostListContent from '@/app/(routes)/(public)/main/_components/postList/_components/layout/PostListContent';
-import PostListSidebar from '@/app/(routes)/(public)/main/_components/postList/_components/layout/PostListSidebar';
-import PostListToolbar from '@/app/(routes)/(public)/main/_components/postList/_components/layout/PostListToolbar';
+import {
+  PostListContent,
+  PostListSidebar,
+  PostListToolbar,
+} from '@/app/(routes)/(public)/main/_components/postList/_components';
 import { usePostList, usePostListInfiniteScroll } from '@/app/(routes)/(public)/main/_components/postList/_hooks';
 import {
   createHandleCloseSearchMode,
