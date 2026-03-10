@@ -4,7 +4,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
 import { useInfinitePostsQuery, usePostsQuery } from '@/app/api/posts/posts.queries';
-import { toViewPost } from '@/app/(routes)/(public)/main/_components/postList/utils/toViewPost.utils';
+import { toViewPost } from '@/app/(routes)/(public)/main/_components/postList/_utils/toViewPost.utils';
 
 import type { SortFilter, TopPost, ViewMode } from '@/app/shared/types/post';
 

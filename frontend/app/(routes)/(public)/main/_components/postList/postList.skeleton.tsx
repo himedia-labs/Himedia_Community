@@ -1,7 +1,11 @@
 import Skeleton from 'react-loading-skeleton';
 
 import styles from '@/app/(routes)/(public)/main/_components/postList/postList.module.css';
-import type { CardPostSkeletonItemProps } from '@/app/shared/types/post';
+import type {
+  CardPostSkeletonItemProps,
+  PostListListSkeletonProps,
+  PostListSidebarSkeletonProps,
+} from '@/app/shared/types/post';
 
 /**
  * 카드 포스트 스켈레톤 아이템
@@ -64,5 +68,96 @@ export default function CardPostSkeletonItem({
         </div>
       </article>
     </li>
+  );
+}
+
+/**
+ * 리스트 포스트 스켈레톤
+ * @description 리스트형 포스트 로딩 묶음을 렌더링합니다.
+ */
+export function PostListListSkeleton({
+  listTagSkeletonWidths,
+  listSkeletons,
+  skeletonKeyPrefix,
+}: PostListListSkeletonProps) {
+  return (
+    <>
+      {listSkeletons.map((_, index) => (
+        <li key={`${skeletonKeyPrefix}-${index}`}>
+          <article className={styles.listItem} aria-hidden="true">
+            <div className={styles.listBody}>
+              <Skeleton height={26} width="70%" />
+              <div className={styles.skeletonSummary}>
+                <Skeleton count={2} height={16} />
+              </div>
+              <ul className={styles.listTagList} aria-hidden="true">
+                {listTagSkeletonWidths.map(width => (
+                  <li key={`${skeletonKeyPrefix}-tag-${index}-${width}`}>
+                    <Skeleton height={24} width={width} borderRadius={4} />
+                  </li>
+                ))}
+              </ul>
+              <div className={styles.meta}>
+                <div className={styles.metaAuthorDate}>
+                  <div className={styles.cardAuthor}>
+                    <Skeleton circle width={24} height={24} />
+                    <Skeleton width={80} height={12} />
+                  </div>
+                  <span className={styles.separator} aria-hidden="true">
+                    |
+                  </span>
+                  <span className={styles.metaGroup}>
+                    <Skeleton width={140} height={12} />
+                  </span>
+                </div>
+                <span className={styles.metaGroup}>
+                  <Skeleton width={160} height={12} />
+                </span>
+              </div>
+            </div>
+            <Skeleton height={180} width="100%" borderRadius={12} />
+          </article>
+          {index < listSkeletons.length - 1 ? (
+            <div className={styles.listDividerItem} aria-hidden="true">
+              <div className={styles.listDivider} />
+            </div>
+          ) : null}
+        </li>
+      ))}
+    </>
+  );
+}
+
+/**
+ * 포스트 사이드바 스켈레톤
+ * @description 메인 우측 사이드바 로딩 묶음을 렌더링합니다.
+ */
+export function PostListSidebarSkeleton({ categorySkeletons, topSkeletons }: PostListSidebarSkeletonProps) {
+  return (
+    <>
+      <ol className={styles.topList}>
+        {topSkeletons.map((_, index) => (
+          <li key={`top-skeleton-${index}`} aria-hidden="true">
+            <span className={styles.rank}>
+              <Skeleton width="1.2ch" height={14} />
+            </span>
+            <span className={styles.topTitle}>
+              <Skeleton height={14} width="80%" />
+            </span>
+          </li>
+        ))}
+      </ol>
+      <div className={styles.sidebarDivider} aria-hidden="true" />
+      <div className={styles.sidebarHeader}>
+        <p className={styles.sidebarLabel}>
+          CATEGORY <span className={styles.sidebarSubLabel}>(카테고리)</span>
+        </p>
+      </div>
+      <div className={styles.categoryList}>
+        {categorySkeletons.map((_, index) => (
+          <Skeleton key={`category-skeleton-${index}`} height={32} width={80} borderRadius={20} />
+        ))}
+      </div>
+    </>
   );
 }

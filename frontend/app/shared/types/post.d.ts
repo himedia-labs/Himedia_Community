@@ -458,6 +458,85 @@ export type CardPostSkeletonItemProps = {
   cardTagSkeletonWidths: number[];
 };
 
+export interface PostListListSkeletonProps {
+  listTagSkeletonWidths: number[];
+  listSkeletons: unknown[];
+  skeletonKeyPrefix: string;
+}
+
+export interface PostListSidebarSkeletonProps {
+  categorySkeletons: unknown[];
+  topSkeletons: unknown[];
+}
+
+export interface PostListToolbarProps {
+  viewMode: ViewMode;
+  sortFilter: SortFilter;
+  isSearchMode: boolean;
+  searchKeyword: string;
+  searchInputValue: string;
+  selectedCategory: string;
+  categoryOrder: 'latest' | 'popular';
+  filteredPostCount: number;
+  handleCreatePost: () => void;
+  handleCloseSearchMode: () => void;
+  handleLatestSortFilter: () => void;
+  handleTopSortFilter: () => void;
+  handleFollowingSortFilter: () => void;
+  handleSearchInputKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
+  handleSearchInputChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  handleSelectQaCategory: () => void;
+  handleToggleCategoryOrder: () => void;
+  handleToggleViewMode: () => void;
+}
+
+export interface PostListContentProps {
+  viewMode: ViewMode;
+  currentUserId?: string;
+  isLoading: boolean;
+  isSearchMode: boolean;
+  isSearchEmpty: boolean;
+  isFollowingEmpty: boolean;
+  isCategoryEmpty: boolean;
+  isGeneralEmpty: boolean;
+  isFetchingNextPage: boolean;
+  filteredPosts: Post[];
+  cardTagSkeletonWidths: number[];
+  listTagSkeletonWidths: number[];
+  cardSkeletons: unknown[];
+  listSkeletons: unknown[];
+}
+
+export interface PostListSidebarProps {
+  selectedCategory: string;
+  isSearchMode: boolean;
+  isTopPostsLoading: boolean;
+  isCategoriesLoading: boolean;
+  topPosts: TopPost[];
+  categoryNames: string[];
+  categorySkeletons: unknown[];
+  topSkeletons: unknown[];
+  setSelectedCategory: (value: string) => void;
+}
+
+export interface PostListListViewProps {
+  currentUserId?: string;
+  isLoading: boolean;
+  isFetchingNextPage: boolean;
+  filteredPosts: Post[];
+  listTagSkeletonWidths: number[];
+  listSkeletons: unknown[];
+}
+
+export interface PostListCardViewProps {
+  currentUserId?: string;
+  isLoading: boolean;
+  isFetchingNextPage: boolean;
+  filteredPosts: Post[];
+  cardTagSkeletonWidths: number[];
+  cardSkeletons: unknown[];
+}
+
 export type ToolbarItem =
   | { type: 'separator' }
   | { type: 'heading'; level: 1 | 2 | 3; icon: IconType; label: string }
