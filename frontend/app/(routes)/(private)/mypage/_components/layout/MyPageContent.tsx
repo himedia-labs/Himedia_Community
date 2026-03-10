@@ -1,12 +1,8 @@
 import {
+  MyPageProfileTab,
+  MyPageActivityTab,
   MyPageAccountTab,
-  MyPageCommentsTab,
-  MyPageDraftsTab,
-  MyPageLikesTab,
-  MyPagePostsTab,
-  MyPageRecentTab,
-  MyPageSettingsTab,
-} from '@/app/(routes)/(private)/mypage/_components/tabs';
+} from '@/app/(routes)/(private)/mypage/_components/features/tabs';
 
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 
@@ -34,6 +30,7 @@ export default function MyPageContent({
   bioPreview,
   birthDateValue,
   cancelEdit,
+  commentSortKey,
   closeWithdrawModal,
   confirmPasswordValue,
   currentPasswordValue,
@@ -52,6 +49,7 @@ export default function MyPageContent({
   handleBioToggle,
   handleCategorySelect,
   handleCommentMenuToggle,
+  handleCommentSortToggle,
   handleDeleteComment,
   handleDraftSortToggle,
   handleEditCancel,
@@ -60,11 +58,13 @@ export default function MyPageContent({
   handleEditSubmit,
   handleEmailChange,
   handleEmailCodeChange,
+  handleLikedPostSortToggle,
   handlePhoneChange,
   handlePostDelete,
   handlePostEdit,
   handlePostMenuToggle,
-  handleSortToggle,
+  handlePostSortToggle,
+  handleRecentPostSortToggle,
   handleTagSelect,
   handleWithdraw,
   hasEditingLengthError,
@@ -99,10 +99,13 @@ export default function MyPageContent({
   openWithdrawModal,
   passwordRuleStatus,
   phoneValue,
+  likedPostSortKey,
+  postSortKey,
   postCategories,
   postTags,
   profileAvatarUrl,
   profileBio,
+  recentPostSortKey,
   saveBirthDate,
   saveEmail,
   savePassword,
@@ -122,7 +125,6 @@ export default function MyPageContent({
   showCurrentPassword,
   showNewPassword,
   showWithdrawPassword,
-  sortKey,
   sortedComments,
   sortedLikedPosts,
   sortedRecentPosts,
@@ -140,8 +142,8 @@ export default function MyPageContent({
 }: MyPageContentProps) {
   return (
     <div className={styles.content}>
-      {activeTab === 'settings' ? (
-        <MyPageSettingsTab
+      {activeTab === 'profile' ? (
+        <MyPageProfileTab
           bioPreview={bioPreview}
           isBioUpdating={isBioUpdating}
           isUserInfoLoading={isUserInfoLoading}
@@ -153,34 +155,60 @@ export default function MyPageContent({
           handlers={{ handleBioChange, handleBioSave, handleBioToggle, handleBioImageClick, handleBioImageSelect }}
           toolbar={{ applyBullet, applyCode, applyHeading, applyInlineWrap, applyLink, applyNumbered, applyQuote }}
         />
-      ) : activeTab === 'posts' ? (
-        <MyPagePostsTab
+      ) : activeTab === 'activity' ? (
+        <MyPageActivityTab
           currentUserId={currentUserId}
+          draftSortOrder={draftSortOrder}
+          editingCommentId={editingCommentId}
+          editingContent={editingContent}
           filteredPosts={filteredPosts}
+          hasEditingLengthError={hasEditingLengthError}
           isCategoryOpen={isCategoryOpen}
+          isDeleting={isDeleting}
+          isLikedPostsListLoading={isLikedPostsListLoading}
+          isMyCommentsListLoading={isMyCommentsListLoading}
           isMyPostsLoading={isMyPostsLoading}
           isPostDeleting={isPostDeleting}
+          isRecentPostsListLoading={isRecentPostsListLoading}
           isTagOpen={isTagOpen}
+          isUpdating={isUpdating}
+          myComments={myComments}
           myPosts={myPosts}
+          openCommentMenuId={openCommentMenuId}
           openPostMenuId={openPostMenuId}
           postCategories={postCategories}
           postTags={postTags}
+          postSortKey={postSortKey}
+          profileAvatarUrl={profileAvatarUrl}
+          recentPostSortKey={recentPostSortKey}
           selectedCategoryId={selectedCategoryId}
           selectedCategoryLabel={selectedCategoryLabel}
           selectedTagId={selectedTagId}
           selectedTagLabel={selectedTagLabel}
-          sortKey={sortKey}
+          commentSortKey={commentSortKey}
+          likedPostSortKey={likedPostSortKey}
+          sortedComments={sortedComments}
+          sortedLikedPosts={sortedLikedPosts}
+          sortedRecentPosts={sortedRecentPosts}
           handleCategorySelect={handleCategorySelect}
+          handleCommentMenuToggle={handleCommentMenuToggle}
+          handleCommentSortToggle={handleCommentSortToggle}
+          handleDeleteComment={handleDeleteComment}
+          handleDraftSortToggle={handleDraftSortToggle}
+          handleEditCancel={handleEditCancel}
+          handleEditChange={handleEditChange}
+          handleEditStart={handleEditStart}
+          handleEditSubmit={handleEditSubmit}
+          handleLikedPostSortToggle={handleLikedPostSortToggle}
           handlePostDelete={handlePostDelete}
           handlePostEdit={handlePostEdit}
           handlePostMenuToggle={handlePostMenuToggle}
-          handleSortToggle={handleSortToggle}
+          handlePostSortToggle={handlePostSortToggle}
+          handleRecentPostSortToggle={handleRecentPostSortToggle}
           handleTagSelect={handleTagSelect}
           toggleCategory={toggleCategory}
           toggleTag={toggleTag}
         />
-      ) : activeTab === 'drafts' ? (
-        <MyPageDraftsTab draftSortOrder={draftSortOrder} onSortChange={handleDraftSortToggle} />
       ) : activeTab === 'account' ? (
         <MyPageAccountTab
           accountBirthDateValue={accountBirthDateValue}
@@ -238,53 +266,6 @@ export default function MyPageContent({
           toggleConfirmPasswordVisibility={toggleConfirmPasswordVisibility}
           toggleCurrentPasswordVisibility={toggleCurrentPasswordVisibility}
           toggleNewPasswordVisibility={toggleNewPasswordVisibility}
-        />
-      ) : activeTab === 'comments' ? (
-        <MyPageCommentsTab
-          editingCommentId={editingCommentId}
-          editingContent={editingContent}
-          hasEditingLengthError={hasEditingLengthError}
-          isDeleting={isDeleting}
-          isMyCommentsListLoading={isMyCommentsListLoading}
-          isUpdating={isUpdating}
-          myComments={myComments}
-          openCommentMenuId={openCommentMenuId}
-          profileAvatarUrl={profileAvatarUrl}
-          sortKey={sortKey}
-          sortedComments={sortedComments}
-          handleCommentMenuToggle={handleCommentMenuToggle}
-          handleDeleteComment={handleDeleteComment}
-          handleEditCancel={handleEditCancel}
-          handleEditChange={handleEditChange}
-          handleEditStart={handleEditStart}
-          handleEditSubmit={handleEditSubmit}
-          handleSortToggle={handleSortToggle}
-        />
-      ) : activeTab === 'likes' ? (
-        <MyPageLikesTab
-          currentUserId={currentUserId}
-          isLikedPostsListLoading={isLikedPostsListLoading}
-          isPostDeleting={isPostDeleting}
-          openPostMenuId={openPostMenuId}
-          sortKey={sortKey}
-          sortedLikedPosts={sortedLikedPosts}
-          handlePostDelete={handlePostDelete}
-          handlePostEdit={handlePostEdit}
-          handlePostMenuToggle={handlePostMenuToggle}
-          handleSortToggle={handleSortToggle}
-        />
-      ) : activeTab === 'recent' ? (
-        <MyPageRecentTab
-          currentUserId={currentUserId}
-          isPostDeleting={isPostDeleting}
-          isRecentPostsListLoading={isRecentPostsListLoading}
-          openPostMenuId={openPostMenuId}
-          sortKey={sortKey}
-          sortedRecentPosts={sortedRecentPosts}
-          handlePostDelete={handlePostDelete}
-          handlePostEdit={handlePostEdit}
-          handlePostMenuToggle={handlePostMenuToggle}
-          handleSortToggle={handleSortToggle}
         />
       ) : null}
     </div>

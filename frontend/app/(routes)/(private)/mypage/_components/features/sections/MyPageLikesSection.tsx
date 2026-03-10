@@ -1,27 +1,29 @@
 import { Fragment } from 'react';
 
-import Link from 'next/link';
 import Image from 'next/image';
+import Link from 'next/link';
 import LinesEllipsis from 'react-lines-ellipsis';
 
 import { CiCalendar } from 'react-icons/ci';
 import { FaUser } from 'react-icons/fa';
 import { FiClock, FiEdit2, FiEye, FiHeart, FiMessageCircle, FiMoreHorizontal, FiTrash2, FiTrendingUp } from 'react-icons/fi';
 
+import { stopMenuPropagation } from '@/app/(routes)/(private)/mypage/_handlers';
+
 import EmptyState from '@/app/shared/components/empty/EmptyState';
 import ListPostTagList from '@/app/shared/components/post/ListPostTagList';
 import { formatDate as formatDateLabel } from '@/app/shared/utils/date';
 import { formatPostPreview } from '@/app/shared/utils/post';
+
 import { MyPagePostListSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
-import { stopMenuPropagation } from '@/app/(routes)/(private)/mypage/_handlers';
 
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 import postListStyles from '@/app/shared/components/post/PostListView.module.css';
 
 import type { MouseEvent } from 'react';
-import type { MyPageLikesTabProps } from '@/app/shared/types/mypage';
+import type { MyPageActivityTabProps } from '@/app/shared/types/mypage';
 
-// 게시글 메뉴 버튼 클릭
+// 메뉴 클릭
 const createHandlePostMenuButtonClick = (handlePostMenuToggle: (postId: string) => void) => {
   return (event: MouseEvent<HTMLButtonElement>) => {
     stopMenuPropagation(event);
@@ -31,7 +33,7 @@ const createHandlePostMenuButtonClick = (handlePostMenuToggle: (postId: string) 
   };
 };
 
-// 게시글 수정 버튼 클릭
+// 수정 클릭
 const createHandlePostEditButtonClick = (handlePostEdit: (postId: string) => void) => {
   return (event: MouseEvent<HTMLButtonElement>) => {
     stopMenuPropagation(event);
@@ -41,7 +43,7 @@ const createHandlePostEditButtonClick = (handlePostEdit: (postId: string) => voi
   };
 };
 
-// 게시글 삭제 버튼 클릭
+// 삭제 클릭
 const createHandlePostDeleteButtonClick = (handlePostDelete: (postId: string) => void) => {
   return (event: MouseEvent<HTMLButtonElement>) => {
     stopMenuPropagation(event);
@@ -52,40 +54,36 @@ const createHandlePostDeleteButtonClick = (handlePostDelete: (postId: string) =>
 };
 
 /**
- * 좋아한 포스트 탭
- * @description 사용자가 좋아요한 게시글 목록을 표시한다
+ * 활동 좋아요 섹션
+ * @description 좋아한 포스트 목록을 렌더링한다
  */
-export default function MyPageLikesTab({
+export default function MyPageLikesSection({
   currentUserId,
   isLikedPostsListLoading,
   isPostDeleting,
+  likedPostSortKey,
   openPostMenuId,
-  sortKey,
   sortedLikedPosts,
+  handleLikedPostSortToggle,
   handlePostDelete,
   handlePostEdit,
   handlePostMenuToggle,
-  handleSortToggle,
-}: MyPageLikesTabProps) {
+}: MyPageActivityTabProps) {
   const handlePostMenuButtonClick = createHandlePostMenuButtonClick(handlePostMenuToggle);
   const handlePostEditButtonClick = createHandlePostEditButtonClick(handlePostEdit);
   const handlePostDeleteButtonClick = createHandlePostDeleteButtonClick(handlePostDelete);
 
-  if (isLikedPostsListLoading) {
-    return <MyPagePostListSkeleton label="좋아한 포스트" showFilters={false} />;
-  }
-
   return (
-    <>
+    <section className={styles.activitySection}>
       <div className={styles.settingsRow}>
         <span className={styles.settingsLabel}>좋아한 포스트</span>
         <div className={styles.settingsSortGroup}>
           <button
             type="button"
             className={`${styles.settingsSortButton} ${styles.settingsSortButtonActive}`}
-            onClick={handleSortToggle}
+            onClick={handleLikedPostSortToggle}
           >
-            {sortKey === 'popular' ? (
+            {likedPostSortKey === 'popular' ? (
               <>
                 <FiTrendingUp className={styles.settingsSortIcon} aria-hidden="true" />
                 인기순
@@ -99,7 +97,9 @@ export default function MyPageLikesTab({
           </button>
         </div>
       </div>
-      {sortedLikedPosts.length ? (
+      {isLikedPostsListLoading ? (
+        <MyPagePostListSkeleton label="좋아한 포스트" showFilters={false} />
+      ) : sortedLikedPosts.length ? (
         <ul className={postListStyles.listView}>
           {sortedLikedPosts.map((post, index) => {
             const isMyPost = Boolean(currentUserId) && post.author?.id === currentUserId;
@@ -107,6 +107,7 @@ export default function MyPageLikesTab({
             const hasThumbnail = Boolean(thumbnailUrl);
             const tagNames = (post.tags ?? []).slice(0, 5).map(tag => `#${tag.name}`);
             const hasListTags = tagNames.length > 0;
+
             return (
               <Fragment key={post.id}>
                 <li>
@@ -252,11 +253,8 @@ export default function MyPageLikesTab({
           })}
         </ul>
       ) : (
-        <EmptyState
-          title="아직 좋아요한 게시물이 없습니다."
-          description="좋아요한 게시글이 이곳에 표시됩니다."
-        />
+        <EmptyState title="아직 좋아요한 게시물이 없습니다." description="좋아요한 게시글이 이곳에 표시됩니다." />
       )}
-    </>
+    </section>
   );
 }

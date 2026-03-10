@@ -6,8 +6,8 @@ import EditorToolbar from '@/app/shared/components/markdown-editor/EditorToolbar
 import { MyPageIntroSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
 import {
   createHandleBoldClick,
-  createHandleStrikeClick,
   createHandleItalicClick,
+  createHandleStrikeClick,
   createHandleUnderlineClick,
 } from '@/app/(routes)/(private)/mypage/_handlers';
 
@@ -15,13 +15,13 @@ import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 import markdownEditorStyles from '@/app/shared/components/markdown-editor/markdownEditor.module.css';
 import markdownStyles from '@/app/shared/components/markdown-editor/markdown.module.css';
 
-import type { MyPageSettingsTabProps } from '@/app/shared/types/mypage';
+import type { MyPageProfileTabProps } from '@/app/shared/types/mypage';
 
 /**
  * 자기소개 탭
- * @description 사용자 자기소개를 작성/수정하는 화면
+ * @description 사용자 자기소개를 작성하고 수정하는 화면
  */
-export default function MyPageSettingsTab({
+export default function MyPageProfileTab({
   bioPreview,
   isBioUpdating,
   isUserInfoLoading,
@@ -32,7 +32,7 @@ export default function MyPageSettingsTab({
   bioImageInputRef,
   handlers,
   toolbar,
-}: MyPageSettingsTabProps) {
+}: MyPageProfileTabProps) {
   const handleBoldClick = createHandleBoldClick(toolbar.applyInlineWrap);
   const handleItalicClick = createHandleItalicClick(toolbar.applyInlineWrap);
   const handleUnderlineClick = createHandleUnderlineClick(toolbar.applyInlineWrap);

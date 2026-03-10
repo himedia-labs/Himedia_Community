@@ -1,19 +1,20 @@
 import { FiClock, FiTrendingUp } from 'react-icons/fi';
 
-import EmptyState from '@/app/shared/components/empty/EmptyState';
-import PostSummaryList from '@/app/shared/components/post/PostSummaryList';
 import { MyPagePostListSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
 import MyPageFilterDropdown from '@/app/(routes)/(private)/mypage/_components/ui/MyPageFilterDropdown';
 
+import EmptyState from '@/app/shared/components/empty/EmptyState';
+import PostSummaryList from '@/app/shared/components/post/PostSummaryList';
+
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 
-import type { MyPagePostsTabProps } from '@/app/shared/types/mypage';
+import type { MyPageActivityTabProps } from '@/app/shared/types/mypage';
 
 /**
- * 내 블로그 탭
- * @description 작성한 게시글 목록을 필터링하여 표시한다
+ * 활동 게시글 섹션
+ * @description 내가 작성한 게시글 목록과 필터를 렌더링한다
  */
-export default function MyPagePostsTab({
+export default function MyPagePostsSection({
   currentUserId,
   filteredPosts,
   isCategoryOpen,
@@ -24,26 +25,22 @@ export default function MyPagePostsTab({
   openPostMenuId,
   postCategories,
   postTags,
+  postSortKey,
   selectedCategoryId,
   selectedCategoryLabel,
   selectedTagId,
   selectedTagLabel,
-  sortKey,
   handleCategorySelect,
   handlePostDelete,
   handlePostEdit,
   handlePostMenuToggle,
-  handleSortToggle,
+  handlePostSortToggle,
   handleTagSelect,
   toggleCategory,
   toggleTag,
-}: MyPagePostsTabProps) {
-  if (isMyPostsLoading) {
-    return <MyPagePostListSkeleton label="내 블로그" />;
-  }
-
+}: MyPageActivityTabProps) {
   return (
-    <div className={styles.postsMain}>
+    <section className={styles.activitySection}>
       <div className={styles.settingsRow}>
         <span className={styles.settingsLabel}>내 블로그</span>
         <div className={styles.settingsControlGroup}>
@@ -70,9 +67,9 @@ export default function MyPagePostsTab({
             <button
               type="button"
               className={`${styles.settingsSortButton} ${styles.settingsSortButtonActive}`}
-              onClick={handleSortToggle}
+              onClick={handlePostSortToggle}
             >
-              {sortKey === 'popular' ? (
+              {postSortKey === 'popular' ? (
                 <>
                   <FiTrendingUp className={styles.settingsSortIcon} aria-hidden="true" />
                   인기순
@@ -87,7 +84,9 @@ export default function MyPagePostsTab({
           </div>
         </div>
       </div>
-      {myPosts.length ? (
+      {isMyPostsLoading ? (
+        <MyPagePostListSkeleton label="내 블로그" />
+      ) : myPosts.length ? (
         filteredPosts.length ? (
           <PostSummaryList
             posts={filteredPosts}
@@ -113,6 +112,6 @@ export default function MyPagePostsTab({
           description="첫 게시글을 작성하면 이곳에 표시됩니다."
         />
       )}
-    </div>
+    </section>
   );
 }

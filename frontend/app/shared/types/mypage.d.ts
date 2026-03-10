@@ -6,7 +6,7 @@ import type { MyCommentItem } from '@/app/shared/types/comment';
 import type { PostListItem } from '@/app/shared/types/post';
 
 // 탭 상태
-export type TabKey = 'posts' | 'drafts' | 'comments' | 'likes' | 'recent' | 'settings' | 'account';
+export type TabKey = 'activity' | 'profile' | 'account';
 export type ActivitySortKey = 'latest' | 'popular';
 export type DraftSortOrder = 'latest' | 'oldest';
 export type AccountEditField = 'email' | 'phone' | 'birthDate' | 'password' | null;
@@ -35,7 +35,7 @@ export interface PasswordRuleStatus {
 }
 
 // 자기소개 탭
-export interface MyPageSettingsTabProps {
+export interface MyPageProfileTabProps {
   bioPreview: ReactNode;
   isBioUpdating: boolean;
   isUserInfoLoading: boolean;
@@ -62,37 +62,59 @@ export interface MyPageSettingsTabProps {
   };
 }
 
-// 게시글 탭
-export interface MyPagePostsTabProps {
+// 활동 탭
+export interface MyPageActivityTabProps {
   currentUserId: string;
+  commentSortKey: ActivitySortKey;
+  draftSortOrder: DraftSortOrder;
+  editingCommentId: string | null;
+  editingContent: string;
   filteredPosts: PostListItem[];
+  hasEditingLengthError: boolean;
   isCategoryOpen: boolean;
+  isDeleting: boolean;
+  isLikedPostsListLoading: boolean;
+  isMyCommentsListLoading: boolean;
   isMyPostsLoading: boolean;
   isPostDeleting: boolean;
+  isRecentPostsListLoading: boolean;
   isTagOpen: boolean;
+  isUpdating: boolean;
+  myComments: MyCommentItem[];
   myPosts: PostListItem[];
+  openCommentMenuId: string | null;
   openPostMenuId: string | null;
   postCategories: FilterItem[];
   postTags: FilterItem[];
+  postSortKey: ActivitySortKey;
+  profileAvatarUrl: string;
   selectedCategoryId: string | null;
   selectedCategoryLabel?: string;
   selectedTagId: string | null;
   selectedTagLabel?: string;
-  sortKey: ActivitySortKey;
+  likedPostSortKey: ActivitySortKey;
+  recentPostSortKey: ActivitySortKey;
+  sortedComments: MyCommentItem[];
+  sortedLikedPosts: PostListItem[];
+  sortedRecentPosts: PostListItem[];
   handleCategorySelect: (categoryId: string) => void;
+  handleCommentMenuToggle: (commentId: string) => void;
+  handleCommentSortToggle: () => void;
+  handleDeleteComment: (postId: string, commentId: string) => void;
+  handleDraftSortToggle: () => void;
+  handleEditCancel: () => void;
+  handleEditChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  handleEditStart: (commentId: string, content: string) => void;
+  handleEditSubmit: (postId: string, commentId: string) => void;
+  handleLikedPostSortToggle: () => void;
   handlePostDelete: (postId: string) => void;
   handlePostEdit: (postId: string) => void;
   handlePostMenuToggle: (postId: string) => void;
-  handleSortToggle: () => void;
+  handlePostSortToggle: () => void;
+  handleRecentPostSortToggle: () => void;
   handleTagSelect: (tagId: string) => void;
   toggleCategory: () => void;
   toggleTag: () => void;
-}
-
-// 임시저장 탭
-export interface MyPageDraftsTabProps {
-  draftSortOrder: DraftSortOrder;
-  onSortChange: () => void;
 }
 
 // 계정 설정 탭
@@ -154,55 +176,6 @@ export interface MyPageAccountTabProps {
   toggleNewPasswordVisibility: () => void;
 }
 
-// 댓글 탭
-export interface MyPageCommentsTabProps {
-  editingCommentId: string | null;
-  editingContent: string;
-  hasEditingLengthError: boolean;
-  isDeleting: boolean;
-  isMyCommentsListLoading: boolean;
-  isUpdating: boolean;
-  myComments: MyCommentItem[];
-  openCommentMenuId: string | null;
-  profileAvatarUrl: string;
-  sortKey: ActivitySortKey;
-  sortedComments: MyCommentItem[];
-  handleCommentMenuToggle: (commentId: string) => void;
-  handleDeleteComment: (postId: string, commentId: string) => void;
-  handleEditCancel: () => void;
-  handleEditChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  handleEditStart: (commentId: string, content: string) => void;
-  handleEditSubmit: (postId: string, commentId: string) => void;
-  handleSortToggle: () => void;
-}
-
-// 좋아요 탭
-export interface MyPageLikesTabProps {
-  currentUserId: string;
-  isLikedPostsListLoading: boolean;
-  isPostDeleting: boolean;
-  openPostMenuId: string | null;
-  sortKey: ActivitySortKey;
-  sortedLikedPosts: PostListItem[];
-  handlePostDelete: (postId: string) => void;
-  handlePostEdit: (postId: string) => void;
-  handlePostMenuToggle: (postId: string) => void;
-  handleSortToggle: () => void;
-}
-
-// 최근 읽은 포스트 탭
-export interface MyPageRecentTabProps {
-  currentUserId: string;
-  isPostDeleting: boolean;
-  isRecentPostsListLoading: boolean;
-  openPostMenuId: string | null;
-  sortKey: ActivitySortKey;
-  sortedRecentPosts: PostListItem[];
-  handlePostDelete: (postId: string) => void;
-  handlePostEdit: (postId: string) => void;
-  handlePostMenuToggle: (postId: string) => void;
-  handleSortToggle: () => void;
-}
 
 // 필터 드롭다운
 export interface MyPageFilterDropdownProps {
@@ -274,6 +247,7 @@ export interface MyPageProfileHeaderProps {
 // 콘텐츠
 export interface MyPageContentProps {
   activeTab: TabKey;
+  commentSortKey: ActivitySortKey;
   currentUserId: string;
   filteredPosts: PostListItem[];
   sortedComments: MyCommentItem[];
@@ -282,9 +256,11 @@ export interface MyPageContentProps {
   myComments: MyCommentItem[];
   myPosts: PostListItem[];
   draftSortOrder: DraftSortOrder;
-  sortKey: ActivitySortKey;
+  likedPostSortKey: ActivitySortKey;
+  postSortKey: ActivitySortKey;
   postCategories: FilterItem[];
   postTags: FilterItem[];
+  recentPostSortKey: ActivitySortKey;
   selectedCategoryId: string | null;
   selectedTagId: string | null;
   selectedCategoryLabel?: string;
@@ -351,6 +327,7 @@ export interface MyPageContentProps {
   handleBioToggle: () => void;
   handleCategorySelect: (categoryId: string) => void;
   handleCommentMenuToggle: (commentId: string) => void;
+  handleCommentSortToggle: () => void;
   handleDeleteComment: (postId: string, commentId: string) => void;
   handleDraftSortToggle: () => void;
   handleEditCancel: () => void;
@@ -359,11 +336,13 @@ export interface MyPageContentProps {
   handleEditSubmit: (postId: string, commentId: string) => void;
   handleEmailChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   handleEmailCodeChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleLikedPostSortToggle: () => void;
   handlePhoneChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   handlePostDelete: (postId: string) => void;
   handlePostEdit: (postId: string) => void;
   handlePostMenuToggle: (postId: string) => void;
-  handleSortToggle: () => void;
+  handlePostSortToggle: () => void;
+  handleRecentPostSortToggle: () => void;
   handleTagSelect: (tagId: string) => void;
   handleWithdraw: () => void;
   openWithdrawModal: () => void;

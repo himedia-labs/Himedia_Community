@@ -1,44 +1,41 @@
 import { FiClock, FiTrendingUp } from 'react-icons/fi';
 
+import { MyPagePostListSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
+
 import EmptyState from '@/app/shared/components/empty/EmptyState';
 import PostSummaryList from '@/app/shared/components/post/PostSummaryList';
-import { MyPagePostListSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
 
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 
-import type { MyPageRecentTabProps } from '@/app/shared/types/mypage';
+import type { MyPageActivityTabProps } from '@/app/shared/types/mypage';
 
 /**
- * 최근 읽은 포스트 탭
- * @description 최근 조회한 게시글 목록을 표시한다
+ * 활동 최근 조회 섹션
+ * @description 최근 읽은 포스트 목록을 렌더링한다
  */
-export default function MyPageRecentTab({
+export default function MyPageRecentSection({
   currentUserId,
   isPostDeleting,
   isRecentPostsListLoading,
   openPostMenuId,
-  sortKey,
+  recentPostSortKey,
   sortedRecentPosts,
   handlePostDelete,
   handlePostEdit,
   handlePostMenuToggle,
-  handleSortToggle,
-}: MyPageRecentTabProps) {
-  if (isRecentPostsListLoading) {
-    return <MyPagePostListSkeleton label="최근 읽은 포스트" showFilters={false} />;
-  }
-
+  handleRecentPostSortToggle,
+}: MyPageActivityTabProps) {
   return (
-    <>
+    <section className={styles.activitySection}>
       <div className={styles.settingsRow}>
         <span className={styles.settingsLabel}>최근 읽은 포스트</span>
         <div className={styles.settingsSortGroup}>
           <button
             type="button"
             className={`${styles.settingsSortButton} ${styles.settingsSortButtonActive}`}
-            onClick={handleSortToggle}
+            onClick={handleRecentPostSortToggle}
           >
-            {sortKey === 'popular' ? (
+            {recentPostSortKey === 'popular' ? (
               <>
                 <FiTrendingUp className={styles.settingsSortIcon} aria-hidden="true" />
                 인기순
@@ -52,7 +49,9 @@ export default function MyPageRecentTab({
           </button>
         </div>
       </div>
-      {sortedRecentPosts.length ? (
+      {isRecentPostsListLoading ? (
+        <MyPagePostListSkeleton label="최근 읽은 포스트" showFilters={false} />
+      ) : sortedRecentPosts.length ? (
         <PostSummaryList
           posts={sortedRecentPosts}
           emptyText="아직 최근 읽은 게시물이 없습니다."
@@ -71,6 +70,6 @@ export default function MyPageRecentTab({
           description="게시글을 읽으면 이곳에 표시됩니다."
         />
       )}
-    </>
+    </section>
   );
 }

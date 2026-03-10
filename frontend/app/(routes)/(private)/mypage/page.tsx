@@ -34,7 +34,7 @@ export default function MyPage() {
   const router = useRouter();
   const { showToast } = useToast();
   const { clearAuth } = useAuthStore();
-  const activeTab = useMyTabState('settings');
+  const activeTab = useMyTabState('profile');
   const { mutateAsync: withdrawAccount, isPending: isWithdrawing } = useWithdrawAccountMutation();
 
   // 데이터 조회
@@ -68,8 +68,11 @@ export default function MyPage() {
 
   // 정렬/필터
   const {
-    sortKey,
+    commentSortKey,
     filteredPosts,
+    likedPostSortKey,
+    postSortKey,
+    recentPostSortKey,
     sortedComments,
     sortedLikedPosts,
     sortedRecentPosts,
@@ -83,7 +86,10 @@ export default function MyPage() {
     selectedTagId,
     selectedTagLabel,
     handlers: {
-      handleSortToggle,
+      handleCommentSortToggle,
+      handleLikedPostSortToggle,
+      handlePostSortToggle,
+      handleRecentPostSortToggle,
       handleTagSelect,
       toggleTag,
       toggleCategory,
@@ -315,15 +321,18 @@ export default function MyPage() {
   };
   const contentProps = {
     activeTab,
+    commentSortKey,
     currentUserId,
     filteredPosts,
+    likedPostSortKey,
+    postSortKey,
+    recentPostSortKey,
     sortedComments,
     sortedLikedPosts,
     sortedRecentPosts,
     myComments,
     myPosts,
     draftSortOrder,
-    sortKey,
     postCategories,
     postTags,
     selectedCategoryId,
@@ -392,6 +401,7 @@ export default function MyPage() {
     handleBioToggle,
     handleCategorySelect,
     handleCommentMenuToggle,
+    handleCommentSortToggle,
     handleDeleteComment,
     handleDraftSortToggle,
     handleEditCancel,
@@ -400,11 +410,13 @@ export default function MyPage() {
     handleEditSubmit,
     handleEmailChange,
     handleEmailCodeChange,
+    handleLikedPostSortToggle,
     handlePhoneChange,
     handlePostDelete,
     handlePostEdit,
     handlePostMenuToggle,
-    handleSortToggle,
+    handlePostSortToggle,
+    handleRecentPostSortToggle,
     handleTagSelect,
     handleWithdraw,
     openWithdrawModal,

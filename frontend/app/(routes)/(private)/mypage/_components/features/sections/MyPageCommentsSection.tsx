@@ -1,36 +1,36 @@
 import { Fragment } from 'react';
 
-import Link from 'next/link';
 import Image from 'next/image';
+import Link from 'next/link';
 
 import { FaUser } from 'react-icons/fa';
 import { FiClock, FiEdit2, FiHeart, FiMessageCircle, FiMoreHorizontal, FiTrash2, FiTrendingUp } from 'react-icons/fi';
 
 import { COMMENT_MAX_LENGTH_MESSAGE } from '@/app/shared/constants/config/mypage.config';
 
+import { MyPageCommentsSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
+import {
+  createHandleCommentMenuButtonClick,
+  createHandleDeleteButtonClick,
+  createHandleEditStartButtonClick,
+  createHandleEditSubmitButtonClick,
+  stopMenuPropagation,
+} from '@/app/(routes)/(private)/mypage/_handlers';
+
 import EmptyState from '@/app/shared/components/empty/EmptyState';
 import { splitCommentMentions } from '@/app/shared/utils/comment';
 import { formatDate } from '@/app/shared/utils/date';
 
-import {
-  stopMenuPropagation,
-  createHandleDeleteButtonClick,
-  createHandleEditStartButtonClick,
-  createHandleEditSubmitButtonClick,
-  createHandleCommentMenuButtonClick,
-} from '@/app/(routes)/(private)/mypage/_handlers';
-import { MyPageCommentsSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
-
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 import commentStyles from '@/app/shared/components/comment/CommentThread.module.css';
 
-import type { MyPageCommentsTabProps } from '@/app/shared/types/mypage';
+import type { MyPageActivityTabProps } from '@/app/shared/types/mypage';
 
 /**
- * 남긴 댓글 탭
- * @description 사용자가 작성한 댓글 목록을 표시한다
+ * 활동 댓글 섹션
+ * @description 내가 남긴 댓글 목록과 수정 상태를 렌더링한다
  */
-export default function MyPageCommentsTab({
+export default function MyPageCommentsSection({
   editingCommentId,
   editingContent,
   hasEditingLengthError,
@@ -38,38 +38,34 @@ export default function MyPageCommentsTab({
   isMyCommentsListLoading,
   isUpdating,
   myComments,
+  commentSortKey,
   openCommentMenuId,
   profileAvatarUrl,
-  sortKey,
   sortedComments,
   handleCommentMenuToggle,
+  handleCommentSortToggle,
   handleDeleteComment,
   handleEditCancel,
   handleEditChange,
   handleEditStart,
   handleEditSubmit,
-  handleSortToggle,
-}: MyPageCommentsTabProps) {
+}: MyPageActivityTabProps) {
   const handleCommentMenuButtonClick = createHandleCommentMenuButtonClick(handleCommentMenuToggle);
   const handleEditStartButtonClick = createHandleEditStartButtonClick(handleEditStart);
   const handleDeleteButtonClick = createHandleDeleteButtonClick(handleDeleteComment);
   const handleEditSubmitButtonClick = createHandleEditSubmitButtonClick(handleEditSubmit);
 
-  if (isMyCommentsListLoading) {
-    return <MyPageCommentsSkeleton />;
-  }
-
   return (
-    <>
+    <section className={styles.activitySection}>
       <div className={styles.settingsRow}>
         <span className={styles.settingsLabel}>남긴 댓글</span>
         <div className={styles.settingsSortGroup}>
           <button
             type="button"
             className={`${styles.settingsSortButton} ${styles.settingsSortButtonActive}`}
-            onClick={handleSortToggle}
+            onClick={handleCommentSortToggle}
           >
-            {sortKey === 'popular' ? (
+            {commentSortKey === 'popular' ? (
               <>
                 <FiTrendingUp className={styles.settingsSortIcon} aria-hidden="true" />
                 인기순
@@ -83,7 +79,9 @@ export default function MyPageCommentsTab({
           </button>
         </div>
       </div>
-      {myComments.length ? (
+      {isMyCommentsListLoading ? (
+        <MyPageCommentsSkeleton />
+      ) : myComments.length ? (
         <div className={commentStyles.commentList}>
           {sortedComments.map((comment, index) => {
             const postId = comment.post?.id ?? '';
@@ -249,6 +247,6 @@ export default function MyPageCommentsTab({
       ) : (
         <EmptyState title="아직 남긴 댓글이 없습니다." description="댓글을 남기면 이곳에 표시됩니다." />
       )}
-    </>
+    </section>
   );
 }
