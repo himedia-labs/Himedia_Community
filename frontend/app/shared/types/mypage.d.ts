@@ -216,14 +216,183 @@ export interface MyPageFilterDropdownProps {
 }
 
 // 스켈레톤
-export interface MyPageValueSkeletonProps {
-  width: number;
-  height: number;
-}
-
 // 임시저장 컴포넌트
 export interface MyPageDraftsProps {
   sortOrder: 'latest' | 'oldest';
+}
+
+// 레이아웃
+export interface MyPageLayoutProps {
+  children: ReactNode;
+}
+
+// 사이드바
+export interface MyPageSidebarProps {
+  activeTab: TabKey;
+}
+
+// 헤더 스켈레톤
+export interface MyPagePostListSkeletonProps {
+  label: string;
+  showFilters?: boolean;
+}
+
+// 프로필 헤더
+export interface MyPageProfileHeaderProps {
+  editingHandle: string;
+  followerCount: number;
+  followingCount: number;
+  isProfileEditing: boolean;
+  isProfileActionPending: boolean;
+  isUserInfoLoading: boolean;
+  myPostCount: number;
+  profileAvatarUrl: string;
+  profileHandleValue: ReactNode;
+  profileNameValue: ReactNode;
+  editingContactEmail: string;
+  editingGithubUrl: string;
+  editingLinkedinUrl: string;
+  editingTwitterUrl: string;
+  editingFacebookUrl: string;
+  editingWebsiteUrl: string;
+  profileSocialLinks: ProfileSocialLink[];
+  avatarInputRef: RefObject<HTMLInputElement | null>;
+  handleAvatarClick: () => void;
+  handleAvatarRemove: () => void;
+  handleProfileAction: () => void;
+  handleProfileCancelAll: () => void;
+  handleAvatarChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleProfileHandleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleProfileContactEmailChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleProfileGithubUrlChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleProfileLinkedinUrlChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleProfileTwitterUrlChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleProfileFacebookUrlChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleProfileWebsiteUrlChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+// 콘텐츠
+export interface MyPageContentProps {
+  activeTab: TabKey;
+  currentUserId: string;
+  filteredPosts: PostListItem[];
+  sortedComments: MyCommentItem[];
+  sortedLikedPosts: PostListItem[];
+  sortedRecentPosts: PostListItem[];
+  myComments: MyCommentItem[];
+  myPosts: PostListItem[];
+  draftSortOrder: DraftSortOrder;
+  sortKey: ActivitySortKey;
+  postCategories: FilterItem[];
+  postTags: FilterItem[];
+  selectedCategoryId: string | null;
+  selectedTagId: string | null;
+  selectedCategoryLabel?: string;
+  selectedTagLabel?: string;
+  openPostMenuId: string | null;
+  openCommentMenuId: string | null;
+  profileAvatarUrl: string;
+  editingCommentId: string | null;
+  editingContent: string;
+  hasEditingLengthError: boolean;
+  isBioUpdating: boolean;
+  isDeleting: boolean;
+  isMyCommentsListLoading: boolean;
+  isMyPostsLoading: boolean;
+  isLikedPostsListLoading: boolean;
+  isRecentPostsListLoading: boolean;
+  isPostDeleting: boolean;
+  isTagOpen: boolean;
+  isCategoryOpen: boolean;
+  isUpdating: boolean;
+  isUserInfoLoading: boolean;
+  showBioEditor: boolean;
+  profileBio: string;
+  userBio: string;
+  bioPreview: ReactNode;
+  bioEditorRef: RefObject<HTMLTextAreaElement | null>;
+  bioImageInputRef: RefObject<HTMLInputElement | null>;
+  accountBirthDateValue: ReactNode;
+  accountEmailValue: ReactNode;
+  accountNameValue: ReactNode;
+  accountPhoneValue: ReactNode;
+  birthDateValue: string;
+  confirmPasswordValue: string;
+  currentPasswordValue: string;
+  emailCodeValue: string;
+  emailValue: string;
+  isEditingAny: boolean;
+  isEditingBirthDate: boolean;
+  isEditingEmail: boolean;
+  isEditingPassword: boolean;
+  isEditingPhone: boolean;
+  isEmailCodeSent: boolean;
+  isEmailVerified: boolean;
+  isSaving: boolean;
+  isSendingEmailCode: boolean;
+  isVerifyingEmailCode: boolean;
+  isWithdrawing: boolean;
+  isWithdrawModalOpen: boolean;
+  newPasswordValue: string;
+  passwordRuleStatus: PasswordRuleStatus;
+  phoneValue: string;
+  showConfirmPassword: boolean;
+  showCurrentPassword: boolean;
+  showNewPassword: boolean;
+  showWithdrawPassword: boolean;
+  withdrawPassword: string;
+  cancelEdit: () => void;
+  closeWithdrawModal: () => void;
+  handleBirthDateChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleBioChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  handleBioImageClick: () => void;
+  handleBioImageSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleBioSave: () => void;
+  handleBioToggle: () => void;
+  handleCategorySelect: (categoryId: string) => void;
+  handleCommentMenuToggle: (commentId: string) => void;
+  handleDeleteComment: (postId: string, commentId: string) => void;
+  handleDraftSortToggle: () => void;
+  handleEditCancel: () => void;
+  handleEditChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  handleEditStart: (commentId: string, content: string) => void;
+  handleEditSubmit: (postId: string, commentId: string) => void;
+  handleEmailChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleEmailCodeChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handlePhoneChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handlePostDelete: (postId: string) => void;
+  handlePostEdit: (postId: string) => void;
+  handlePostMenuToggle: (postId: string) => void;
+  handleSortToggle: () => void;
+  handleTagSelect: (tagId: string) => void;
+  handleWithdraw: () => void;
+  openWithdrawModal: () => void;
+  saveBirthDate: () => void;
+  saveEmail: () => void;
+  savePassword: () => void;
+  savePhone: () => void;
+  sendEmailVerificationCode: () => void;
+  setConfirmPasswordValue: (value: string) => void;
+  setCurrentPasswordValue: (value: string) => void;
+  setNewPasswordValue: (value: string) => void;
+  setShowWithdrawPassword: (value: boolean) => void;
+  setWithdrawPassword: (value: string) => void;
+  startBirthDateEdit: () => void;
+  startEmailEdit: () => void;
+  startPasswordEdit: () => void;
+  startPhoneEdit: () => void;
+  toggleCategory: () => void;
+  toggleConfirmPasswordVisibility: () => void;
+  toggleCurrentPasswordVisibility: () => void;
+  toggleNewPasswordVisibility: () => void;
+  toggleTag: () => void;
+  applyBullet: () => void;
+  applyCode: () => void;
+  applyHeading: (level: 1 | 2 | 3) => void;
+  applyInlineWrap: (prefix: string, suffix?: string) => void;
+  applyLink: () => void;
+  applyNumbered: () => void;
+  applyQuote: () => void;
 }
 
 // 훅 파라미터

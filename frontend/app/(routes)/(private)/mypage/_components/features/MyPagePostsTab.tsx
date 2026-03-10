@@ -2,8 +2,8 @@ import { FiClock, FiTrendingUp } from 'react-icons/fi';
 
 import EmptyState from '@/app/shared/components/empty/EmptyState';
 import PostSummaryList from '@/app/shared/components/post/PostSummaryList';
-import MyPageFilterDropdown from '@/app/(routes)/(private)/mypage/_components/MyPageFilterDropdown';
 import { MyPagePostListSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
+import MyPageFilterDropdown from '@/app/(routes)/(private)/mypage/_components/ui/MyPageFilterDropdown';
 
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 

@@ -7,9 +7,8 @@ import Link from 'next/link';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { CiCalendar } from 'react-icons/ci';
-import Skeleton from 'react-loading-skeleton';
 
-import { SKELETON_DRAFT_ITEM_COUNT } from '@/app/shared/constants/config/mypage.config';
+import { MyPageDraftsSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
 
 import { postsApi } from '@/app/api/posts/posts.api';
 import { useDraftsQuery } from '@/app/api/posts/posts.queries';
@@ -27,7 +26,6 @@ import { formatDate } from '@/app/shared/utils/date';
 import { formatPostPreview } from '@/app/shared/utils/post';
 import { invalidateQueryTargets } from '@/app/shared/lib/query/queryCache.utils';
 
-import 'react-loading-skeleton/dist/skeleton.css';
 import postListStyles from '@/app/shared/components/post/PostListView.module.css';
 import styles from '@/app/(routes)/(private)/mypage/_components/MyPageDrafts.module.css';
 
@@ -50,7 +48,6 @@ export default function MyPageDrafts({ sortOrder }: MyPageDraftsProps) {
     mutationFn: (postId: string) => postsApi.deletePost(postId),
   });
   const drafts = useMemo<PostListItem[]>(() => data?.items ?? [], [data?.items]);
-  const listTagSkeletonWidths = [48, 64, 56];
   const sortedDrafts = useMemo(() => {
     const nextDrafts = [...drafts];
     nextDrafts.sort((a, b) => {
@@ -69,47 +66,7 @@ export default function MyPageDrafts({ sortOrder }: MyPageDraftsProps) {
   const handleDeleteDraftClick = createHandleDeleteDraftClick(handleDeleteDraft);
 
   if (isLoading) {
-    return (
-      <ul className={postListStyles.listView} aria-label="임시저장 로딩">
-        {Array.from({ length: SKELETON_DRAFT_ITEM_COUNT }).map((_, index) => (
-          <Fragment key={`draft-skeleton-${index}`}>
-            <li>
-              <article className={postListStyles.listItem} aria-hidden="true">
-                <div className={postListStyles.listBody}>
-                  <Skeleton height={26} width="70%" />
-                  <div className={postListStyles.skeletonSummary}>
-                    <Skeleton count={2} height={16} />
-                  </div>
-                  <ul className={postListStyles.listTagList} aria-hidden="true">
-                    {listTagSkeletonWidths.map(width => (
-                      <li key={`draft-tag-skeleton-${index}-${width}`}>
-                        <Skeleton height={24} width={width} borderRadius={4} />
-                      </li>
-                    ))}
-                  </ul>
-                  <div className={postListStyles.meta}>
-                    <div className={postListStyles.metaAuthorDate}>
-                      <span className={postListStyles.metaGroup}>
-                        <Skeleton width={170} height={12} />
-                      </span>
-                    </div>
-                    <span className={postListStyles.metaGroup}>
-                      <Skeleton width={32} height={12} />
-                    </span>
-                  </div>
-                </div>
-                <Skeleton height={180} width="100%" borderRadius={12} />
-              </article>
-            </li>
-            {index < 4 ? (
-              <li className={postListStyles.listDividerItem} aria-hidden="true">
-                <div className={postListStyles.listDivider} />
-              </li>
-            ) : null}
-          </Fragment>
-        ))}
-      </ul>
-    );
+    return <MyPageDraftsSkeleton />;
   }
 
   if (!drafts.length) {
