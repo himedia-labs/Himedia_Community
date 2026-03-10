@@ -3,10 +3,12 @@
 import { useParams } from 'next/navigation';
 
 import { ProfilePageSkeleton, ProfilePostListSkeleton } from '@/app/(routes)/(public)/[profileId]/ProfilePage.skeleton';
-import ProfilePageIntro from '@/app/(routes)/(public)/[profileId]/_components/features/profile/ProfilePageIntro';
-import ProfilePagePostsSection from '@/app/(routes)/(public)/[profileId]/_components/features/posts/ProfilePagePostsSection';
-import ProfilePageHeader from '@/app/(routes)/(public)/[profileId]/_components/layout/ProfilePageHeader';
-import ProfilePageEmptyState from '@/app/(routes)/(public)/[profileId]/_components/ui/ProfilePageEmptyState';
+import {
+  ProfilePageEmptyState,
+  ProfilePageHeader,
+  ProfilePageIntro,
+  ProfilePagePostsSection,
+} from '@/app/(routes)/(public)/[profileId]/_components';
 import {
   createHandleCategoryButtonClick,
   createHandleFollowMouseEnter,
