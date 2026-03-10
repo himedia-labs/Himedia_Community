@@ -1,0 +1,20 @@
+.draftMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.deleteLinkButton {
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 0.9rem;
+  color: #d14343;
+  cursor: pointer;
+}
+
+.deleteLinkButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

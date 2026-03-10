@@ -8,7 +8,6 @@ import {
   createToggleCategory,
   createToggleTag,
 } from '@/app/(routes)/(private)/mypage/_handlers';
-import { useActivitySort } from '@/app/(routes)/(private)/mypage/_hooks/useActivitySort';
 import { usePostSidebarData } from '@/app/(routes)/(private)/mypage/_hooks/usePostSidebarData';
 import { sortPostsByKey } from '@/app/shared/utils/post';
 
@@ -20,10 +19,35 @@ import type { DraftSortOrder, UseMyPageActivityParams } from '@/app/shared/types
  */
 export const useMyPageActivity = (params: UseMyPageActivityParams) => {
   // 정렬 상태
-  const { sortKey, sortedPosts, sortedComments, handleSortChange } = useActivitySort(params.myPosts, params.myComments);
-  const handleSortToggle = createHandleSortToggle(handleSortChange, sortKey);
-  const sortedLikedPosts = useMemo(() => sortPostsByKey(params.likedPosts, sortKey), [params.likedPosts, sortKey]);
-  const sortedRecentPosts = useMemo(() => sortPostsByKey(params.recentPosts, sortKey), [params.recentPosts, sortKey]);
+  const [postSortKey, setPostSortKey] = useState<'latest' | 'popular'>('latest');
+  const [commentSortKey, setCommentSortKey] = useState<'latest' | 'popular'>('latest');
+  const [likedPostSortKey, setLikedPostSortKey] = useState<'latest' | 'popular'>('latest');
+  const [recentPostSortKey, setRecentPostSortKey] = useState<'latest' | 'popular'>('latest');
+  const sortedPosts = useMemo(() => sortPostsByKey(params.myPosts, postSortKey), [params.myPosts, postSortKey]);
+  const sortedLikedPosts = useMemo(
+    () => sortPostsByKey(params.likedPosts, likedPostSortKey),
+    [likedPostSortKey, params.likedPosts],
+  );
+  const sortedRecentPosts = useMemo(
+    () => sortPostsByKey(params.recentPosts, recentPostSortKey),
+    [params.recentPosts, recentPostSortKey],
+  );
+  const sortedComments = useMemo(() => {
+    const list = [...params.myComments];
+    if (commentSortKey === 'popular') {
+      return list.sort(
+        (a, b) =>
+          b.likeCount - a.likeCount ||
+          b.replyCount - a.replyCount ||
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+    }
+    return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [commentSortKey, params.myComments]);
+  const handlePostSortToggle = createHandleSortToggle(setPostSortKey, postSortKey);
+  const handleCommentSortToggle = createHandleSortToggle(setCommentSortKey, commentSortKey);
+  const handleLikedPostSortToggle = createHandleSortToggle(setLikedPostSortKey, likedPostSortKey);
+  const handleRecentPostSortToggle = createHandleSortToggle(setRecentPostSortKey, recentPostSortKey);
 
   // 필터 상태
   const { categories: postCategories, tags: postTags } = usePostSidebarData(params.myPosts);
@@ -53,8 +77,11 @@ export const useMyPageActivity = (params: UseMyPageActivityParams) => {
   }, [selectedCategoryId, selectedTagId, sortedPosts]);
 
   return {
-    sortKey,
+    commentSortKey,
     filteredPosts,
+    likedPostSortKey,
+    postSortKey,
+    recentPostSortKey,
     sortedPosts,
     sortedComments,
     sortedLikedPosts,
@@ -69,7 +96,10 @@ export const useMyPageActivity = (params: UseMyPageActivityParams) => {
     selectedTagId,
     selectedTagLabel,
     handlers: {
-      handleSortToggle,
+      handleCommentSortToggle,
+      handleLikedPostSortToggle,
+      handlePostSortToggle,
+      handleRecentPostSortToggle,
       handleTagSelect,
       toggleTag,
       toggleCategory,

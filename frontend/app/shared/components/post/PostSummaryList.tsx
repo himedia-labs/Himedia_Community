@@ -10,59 +10,19 @@ import { FiEdit2, FiEye, FiHeart, FiMessageCircle, FiMoreHorizontal, FiTrash2 } 
 
 import EmptyState from '@/app/shared/components/empty/EmptyState';
 import ListPostTagList from '@/app/shared/components/post/ListPostTagList';
+import {
+  createHandlePostDeleteButtonClick,
+  createHandlePostEditButtonClick,
+  createHandlePostMenuButtonClick,
+  stopLinkNavigation,
+} from '@/app/shared/components/post/_handlers/postSummary.handlers';
 import { formatDate as formatDateLabel } from '@/app/shared/utils/date';
 import { formatPostPreview } from '@/app/shared/utils/post';
 
 import postListStyles from '@/app/shared/components/post/PostListView.module.css';
 import styles from '@/app/shared/components/post/PostSummaryList.module.css';
 
-import type { MouseEvent } from 'react';
 import type { PostSummaryListProps } from '@/app/shared/types/post';
-
-// 링크 이동 중단
-const stopLinkNavigation = (event: MouseEvent<HTMLElement>) => {
-  event.preventDefault();
-  event.stopPropagation();
-};
-
-// 게시글 메뉴 버튼 클릭 핸들러 생성
-const createHandlePostMenuButtonClick = (params: {
-  stopLinkNavigation: (event: MouseEvent<HTMLElement>) => void;
-  onPostMenuToggle?: (postId: string) => void;
-}) => {
-  return (event: MouseEvent<HTMLButtonElement>) => {
-    params.stopLinkNavigation(event);
-    const { postId } = event.currentTarget.dataset;
-    if (!postId) return;
-    params.onPostMenuToggle?.(postId);
-  };
-};
-
-// 게시글 수정 버튼 클릭 핸들러 생성
-const createHandlePostEditButtonClick = (params: {
-  stopLinkNavigation: (event: MouseEvent<HTMLElement>) => void;
-  onPostEdit?: (postId: string) => void;
-}) => {
-  return (event: MouseEvent<HTMLButtonElement>) => {
-    params.stopLinkNavigation(event);
-    const { postId } = event.currentTarget.dataset;
-    if (!postId) return;
-    params.onPostEdit?.(postId);
-  };
-};
-
-// 게시글 삭제 버튼 클릭 핸들러 생성
-const createHandlePostDeleteButtonClick = (params: {
-  stopLinkNavigation: (event: MouseEvent<HTMLElement>) => void;
-  onPostDelete?: (postId: string) => void;
-}) => {
-  return (event: MouseEvent<HTMLButtonElement>) => {
-    params.stopLinkNavigation(event);
-    const { postId } = event.currentTarget.dataset;
-    if (!postId) return;
-    params.onPostDelete?.(postId);
-  };
-};
 
 /**
  * 게시글 요약 리스트

@@ -51,3 +51,23 @@ export const PostDetailSkeleton = () => {
     </section>
   );
 };
+
+/**
+ * 댓글 스켈레톤
+ * @description 댓글 섹션 로딩 UI를 렌더링합니다.
+ */
+export const PostDetailCommentsSkeleton = () => {
+  return (
+    <>
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div key={`comment-skeleton-${index}`} className={styles.commentItem} aria-hidden="true">
+          <div className={styles.commentHeaderRow}>
+            <Skeleton width={120} height={12} />
+            <Skeleton width={60} height={12} />
+          </div>
+          <Skeleton height={16} count={2} />
+        </div>
+      ))}
+    </>
+  );
+};

@@ -11,21 +11,13 @@ import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 import commentStyles from '@/app/shared/components/comment/CommentThread.module.css';
 import postListStyles from '@/app/shared/components/post/PostListView.module.css';
 
-import type { MyPageValueSkeletonProps } from '@/app/shared/types/mypage';
-
-/**
- * 마이페이지 값 스켈레톤
- * @description 텍스트 자리 스켈레톤을 렌더링
- */
-export function MyPageValueSkeleton({ width, height }: MyPageValueSkeletonProps) {
-  return <Skeleton width={width} height={height} />;
-}
+import type { MyPagePostListSkeletonProps } from '@/app/shared/types/mypage';
 
 /**
  * 마이페이지 게시글 스켈레톤
  * @description 내 블로그/좋아요 탭의 리스트 로딩 UI를 렌더링
  */
-export function MyPagePostListSkeleton({ label, showFilters = true }: { label: string; showFilters?: boolean }) {
+export function MyPagePostListSkeleton({ label, showFilters = true }: MyPagePostListSkeletonProps) {
   return (
     <div className={styles.postsMain} aria-hidden="true">
       <div className={styles.settingsRow}>
@@ -169,5 +161,49 @@ export function MyPageIntroSkeleton() {
       <Skeleton width="92%" height={18} />
       <Skeleton width="78%" height={18} />
     </div>
+  );
+}
+
+/**
+ * 마이페이지 임시저장 스켈레톤
+ * @description 임시저장 목록 로딩 UI를 렌더링합니다.
+ */
+export function MyPageDraftsSkeleton() {
+  const listTagSkeletonWidths = [48, 64, 56];
+
+  return (
+    <ul className={postListStyles.listView} aria-label="임시저장 로딩">
+      {Array.from({ length: SKELETON_POST_LIST_COUNT }).map((_, index) => (
+        <li key={`mypage-draft-skeleton-${index}`}>
+          <article className={postListStyles.listItem} aria-hidden="true">
+            <div className={postListStyles.listBody}>
+              <Skeleton height={26} width="70%" />
+              <div className={postListStyles.skeletonSummary}>
+                <Skeleton count={2} height={16} />
+              </div>
+              <ul className={postListStyles.listTagList} aria-hidden="true">
+                {listTagSkeletonWidths.map(width => (
+                  <li key={`mypage-draft-tag-skeleton-${index}-${width}`}>
+                    <Skeleton height={24} width={width} borderRadius={4} />
+                  </li>
+                ))}
+              </ul>
+              <div className={postListStyles.meta}>
+                <div className={postListStyles.metaAuthorDate}>
+                  <span className={postListStyles.metaGroup}>
+                    <Skeleton width={170} height={12} />
+                  </span>
+                </div>
+                <span className={postListStyles.metaGroup}>
+                  <Skeleton width={32} height={12} />
+                </span>
+              </div>
+            </div>
+            <Skeleton height={180} width="100%" borderRadius={12} />
+          </article>
+          {index < SKELETON_POST_LIST_COUNT - 1 ? <div className={postListStyles.listDivider} /> : null}
+        </li>
+      ))}
+    </ul>
   );
 }

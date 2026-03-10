@@ -1,22 +1,12 @@
 'use client';
 
-import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-
-import { FaUser, FaUserEdit } from 'react-icons/fa';
-
-import { MYPAGE_TABS, PROFILE_SOCIAL_SKELETON_COUNT } from '@/app/shared/constants/config/mypage.config';
+import Skeleton from 'react-loading-skeleton';
 import {
-  MyPageAccountTab,
-  MyPageCommentsTab,
-  MyPageDraftsTab,
-  MyPageLikesTab,
-  MyPagePostsTab,
-  MyPageRecentTab,
-  MyPageSettingsTab,
-} from '@/app/(routes)/(private)/mypage/_components/tabs';
-import { MyPageValueSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
+  MyPageContent,
+  MyPageProfileHeader,
+  MyPageSidebar,
+} from '@/app/(routes)/(private)/mypage/_components';
 import {
   useAccountSettings,
   useBioEditor,
@@ -46,7 +36,7 @@ export default function MyPage() {
   const router = useRouter();
   const { showToast } = useToast();
   const { clearAuth } = useAuthStore();
-  const activeTab = useMyTabState('settings');
+  const activeTab = useMyTabState('profile');
   const { mutateAsync: withdrawAccount, isPending: isWithdrawing } = useWithdrawAccountMutation();
 
   // 데이터 조회
@@ -80,8 +70,11 @@ export default function MyPage() {
 
   // 정렬/필터
   const {
-    sortKey,
+    commentSortKey,
     filteredPosts,
+    likedPostSortKey,
+    postSortKey,
+    recentPostSortKey,
     sortedComments,
     sortedLikedPosts,
     sortedRecentPosts,
@@ -95,7 +88,10 @@ export default function MyPage() {
     selectedTagId,
     selectedTagLabel,
     handlers: {
-      handleSortToggle,
+      handleCommentSortToggle,
+      handleLikedPostSortToggle,
+      handlePostSortToggle,
+      handleRecentPostSortToggle,
       handleTagSelect,
       toggleTag,
       toggleCategory,
@@ -232,16 +228,16 @@ export default function MyPage() {
   } = useBioEditor(userBio);
 
   // 포맷팅
-  const accountNameValue = isUserInfoLoading ? <MyPageValueSkeleton width={88} height={18} /> : displayName || '사용자';
-  const accountEmailValue = isUserInfoLoading ? <MyPageValueSkeleton width={180} height={18} /> : userEmail || '미등록';
-  const accountPhoneValue = isUserInfoLoading ? <MyPageValueSkeleton width={140} height={18} /> : userPhone || '미등록';
+  const accountNameValue = isUserInfoLoading ? <Skeleton width={88} height={18} /> : displayName || '사용자';
+  const accountEmailValue = isUserInfoLoading ? <Skeleton width={180} height={18} /> : userEmail || '미등록';
+  const accountPhoneValue = isUserInfoLoading ? <Skeleton width={140} height={18} /> : userPhone || '미등록';
   const accountBirthDateValue = isUserInfoLoading ? (
-    <MyPageValueSkeleton width={120} height={18} />
+    <Skeleton width={120} height={18} />
   ) : (
     userBirthDate || '미등록'
   );
-  const profileNameValue = isUserInfoLoading ? <MyPageValueSkeleton width={96} height={34} /> : displayName || '사용자';
-  const profileHandleValue = isUserInfoLoading ? <MyPageValueSkeleton width={86} height={18} /> : `@${profileHandle}`;
+  const profileNameValue = isUserInfoLoading ? <Skeleton width={96} height={34} /> : displayName || '사용자';
+  const profileHandleValue = isUserInfoLoading ? <Skeleton width={86} height={18} /> : `@${profileHandle}`;
   const {
     isProfileActionPending,
     profileSocialLinks,
@@ -293,467 +289,175 @@ export default function MyPage() {
     router,
   });
 
+  const profileHeaderProps = {
+    editingContactEmail,
+    editingFacebookUrl,
+    editingGithubUrl,
+    editingHandle,
+    editingLinkedinUrl,
+    editingTwitterUrl,
+    editingWebsiteUrl,
+    followerCount,
+    followingCount,
+    isProfileActionPending,
+    isProfileEditing,
+    isUserInfoLoading,
+    myPostCount: myPosts.length,
+    profileAvatarUrl,
+    profileHandleValue,
+    profileNameValue,
+    profileSocialLinks,
+    avatarInputRef,
+    handleAvatarChange,
+    handleAvatarClick,
+    handleAvatarRemove,
+    handleProfileAction,
+    handleProfileCancelAll,
+    handleProfileContactEmailChange,
+    handleProfileFacebookUrlChange,
+    handleProfileGithubUrlChange,
+    handleProfileHandleChange,
+    handleProfileLinkedinUrlChange,
+    handleProfileTwitterUrlChange,
+    handleProfileWebsiteUrlChange,
+  };
+  const contentProps = {
+    activeTab,
+    commentSortKey,
+    currentUserId,
+    filteredPosts,
+    likedPostSortKey,
+    postSortKey,
+    recentPostSortKey,
+    sortedComments,
+    sortedLikedPosts,
+    sortedRecentPosts,
+    myComments,
+    myPosts,
+    draftSortOrder,
+    postCategories,
+    postTags,
+    selectedCategoryId,
+    selectedTagId,
+    selectedCategoryLabel,
+    selectedTagLabel,
+    openPostMenuId,
+    openCommentMenuId,
+    profileAvatarUrl,
+    editingCommentId,
+    editingContent,
+    hasEditingLengthError,
+    isBioUpdating,
+    isDeleting,
+    isMyCommentsListLoading,
+    isMyPostsLoading,
+    isLikedPostsListLoading,
+    isRecentPostsListLoading,
+    isPostDeleting,
+    isTagOpen,
+    isCategoryOpen,
+    isUpdating,
+    isUserInfoLoading,
+    showBioEditor,
+    profileBio,
+    userBio,
+    bioPreview,
+    bioEditorRef,
+    bioImageInputRef,
+    accountBirthDateValue,
+    accountEmailValue,
+    accountNameValue,
+    accountPhoneValue,
+    birthDateValue,
+    confirmPasswordValue,
+    currentPasswordValue,
+    emailCodeValue,
+    emailValue,
+    isEditingAny,
+    isEditingBirthDate,
+    isEditingEmail,
+    isEditingPassword,
+    isEditingPhone,
+    isEmailCodeSent,
+    isEmailVerified,
+    isSaving,
+    isSendingEmailCode,
+    isVerifyingEmailCode,
+    isWithdrawing,
+    isWithdrawModalOpen,
+    newPasswordValue,
+    passwordRuleStatus,
+    phoneValue,
+    showConfirmPassword,
+    showCurrentPassword,
+    showNewPassword,
+    showWithdrawPassword,
+    withdrawPassword,
+    cancelEdit,
+    closeWithdrawModal,
+    handleBirthDateChange,
+    handleBioChange,
+    handleBioImageClick,
+    handleBioImageSelect,
+    handleBioSave,
+    handleBioToggle,
+    handleCategorySelect,
+    handleCommentMenuToggle,
+    handleCommentSortToggle,
+    handleDeleteComment,
+    handleDraftSortToggle,
+    handleEditCancel,
+    handleEditChange,
+    handleEditStart,
+    handleEditSubmit,
+    handleEmailChange,
+    handleEmailCodeChange,
+    handleLikedPostSortToggle,
+    handlePhoneChange,
+    handlePostDelete,
+    handlePostEdit,
+    handlePostMenuToggle,
+    handlePostSortToggle,
+    handleRecentPostSortToggle,
+    handleTagSelect,
+    handleWithdraw,
+    openWithdrawModal,
+    saveBirthDate,
+    saveEmail,
+    savePassword,
+    savePhone,
+    sendEmailVerificationCode,
+    setConfirmPasswordValue,
+    setCurrentPasswordValue,
+    setNewPasswordValue,
+    setShowWithdrawPassword,
+    setWithdrawPassword,
+    startBirthDateEdit,
+    startEmailEdit,
+    startPasswordEdit,
+    startPhoneEdit,
+    toggleCategory,
+    toggleConfirmPasswordVisibility,
+    toggleCurrentPasswordVisibility,
+    toggleNewPasswordVisibility,
+    toggleTag,
+    applyBullet,
+    applyCode,
+    applyHeading,
+    applyInlineWrap,
+    applyLink,
+    applyNumbered,
+    applyQuote,
+  };
+
   return (
     <section className={styles.container} aria-label="마이페이지">
       <div className={styles.layout}>
-        <aside className={styles.leftPanel}>
-          <nav className={styles.list} aria-label="마이페이지 메뉴">
-            <div className={styles.listSection}>
-              <Link
-                className={
-                  activeTab === MYPAGE_TABS[0].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
-                }
-                href={MYPAGE_TABS[0].href}
-              >
-                {MYPAGE_TABS[0].label}
-              </Link>
-              <div className={styles.listDividerLine} aria-hidden="true" />
-              <span className={styles.listGroupTitle}>활동</span>
-              <Link
-                className={
-                  activeTab === MYPAGE_TABS[1].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
-                }
-                href={MYPAGE_TABS[1].href}
-              >
-                {MYPAGE_TABS[1].label}
-              </Link>
-              <Link
-                className={
-                  activeTab === MYPAGE_TABS[2].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
-                }
-                href={MYPAGE_TABS[2].href}
-              >
-                {MYPAGE_TABS[2].label}
-              </Link>
-              <Link
-                className={
-                  activeTab === MYPAGE_TABS[3].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
-                }
-                href={MYPAGE_TABS[3].href}
-              >
-                {MYPAGE_TABS[3].label}
-              </Link>
-              <div className={styles.listDividerLine} aria-hidden="true" />
-              <span className={styles.listGroupTitle}>반응</span>
-              <Link
-                className={
-                  activeTab === MYPAGE_TABS[4].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
-                }
-                href={MYPAGE_TABS[4].href}
-              >
-                {MYPAGE_TABS[4].label}
-              </Link>
-              <Link
-                className={
-                  activeTab === MYPAGE_TABS[5].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
-                }
-                href={MYPAGE_TABS[5].href}
-              >
-                {MYPAGE_TABS[5].label}
-              </Link>
-              <div className={styles.listDividerLine} aria-hidden="true" />
-              <span className={styles.listGroupTitle}>설정</span>
-              <Link
-                className={
-                  activeTab === MYPAGE_TABS[6].key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink
-                }
-                href={MYPAGE_TABS[6].href}
-              >
-                {MYPAGE_TABS[6].label}
-              </Link>
-            </div>
-          </nav>
-        </aside>
+        <MyPageSidebar activeTab={activeTab} />
         <div className={styles.main}>
-          <header className={styles.header}>
-            <div className={styles.profileCard}>
-              <div className={styles.profileMain}>
-                <button
-                  type="button"
-                  className={styles.avatarButton}
-                  aria-label="프로필 이미지 업로드"
-                  onClick={handleAvatarClick}
-                >
-                  <div className={styles.avatar} aria-hidden="true">
-                    {profileAvatarUrl ? (
-                      <Image
-                        className={styles.avatarImage}
-                        src={profileAvatarUrl}
-                        alt=""
-                        width={62}
-                        height={62}
-                        sizes="62px"
-                        unoptimized
-                      />
-                    ) : isProfileEditing ? (
-                      <FaUserEdit className={`${styles.avatarIcon} ${styles.avatarIconEdit}`} />
-                    ) : (
-                      <FaUser className={styles.avatarIcon} />
-                    )}
-                  </div>
-                  <input
-                    ref={avatarInputRef}
-                    className={styles.avatarInput}
-                    type="file"
-                    accept="image/*"
-                    disabled={!isProfileEditing}
-                    onChange={handleAvatarChange}
-                  />
-                </button>
-                <div className={styles.profileInfo}>
-                  {isProfileEditing ? (
-                    <div className={styles.profileNameRow}>
-                      <span className={styles.profileName}>{profileNameValue}</span>
-                      <span className={styles.profileHandleInputGroup}>
-                        <span className={styles.profileHandlePrefix}>@</span>
-                        <input
-                          className={styles.profileHandleInput}
-                          value={editingHandle}
-                          onChange={handleProfileHandleChange}
-                          placeholder="아이디"
-                        />
-                      </span>
-                    </div>
-                  ) : (
-                    <div className={styles.profileNameRow}>
-                      <span className={styles.profileName}>{profileNameValue}</span>
-                      <span className={styles.profileHandle}>{profileHandleValue}</span>
-                    </div>
-                  )}
-                  <div className={styles.profileStatsRow}>
-                    <div className={styles.profileStats}>
-                      <span className={styles.profileStat}>
-                        글 <strong>{myPosts.length}</strong>
-                      </span>
-                      <span className={styles.profileDivider}>·</span>
-                      <span className={styles.profileStat}>
-                        팔로워 <strong>{followerCount}</strong>
-                      </span>
-                      <span className={styles.profileDivider}>·</span>
-                      <span className={styles.profileStat}>
-                        팔로잉 <strong>{followingCount}</strong>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className={styles.profileSide}>
-                  <div className={styles.profileActions}>
-                    {isUserInfoLoading ? (
-                      <span
-                        className={`${styles.profileEditButton} ${styles.profileButtonSkeleton}`}
-                        aria-hidden="true"
-                      >
-                        <MyPageValueSkeleton width={54} height={14} />
-                      </span>
-                    ) : (
-                      <>
-                        {isProfileEditing ? (
-                          <>
-                            <button
-                              type="button"
-                              className={styles.profileDeleteButton}
-                              disabled={isProfileActionPending}
-                              onClick={handleAvatarRemove}
-                            >
-                              사진 지우기
-                            </button>
-                            <span className={styles.profileActionDivider} aria-hidden="true">
-                              |
-                            </span>
-                            <button
-                              type="button"
-                              className={styles.profileCancelButton}
-                              disabled={isProfileActionPending}
-                              onClick={handleProfileCancelAll}
-                            >
-                              취소
-                            </button>
-                          </>
-                        ) : null}
-                        <button
-                          type="button"
-                          className={styles.profileEditButton}
-                          disabled={isProfileActionPending}
-                          onClick={handleProfileAction}
-                        >
-                          {isProfileEditing ? '저장' : '프로필 수정'}
-                        </button>
-                      </>
-                    )}
-                  </div>
-                  {isUserInfoLoading ? (
-                    <div className={styles.profileSocialRow} aria-hidden="true">
-                      {Array.from({ length: PROFILE_SOCIAL_SKELETON_COUNT }).map((_, index) => (
-                        <span
-                          key={`profile-social-skeleton-${index}`}
-                          className={`${styles.profileSocialLink} ${styles.profileSocialLinkSkeleton}`}
-                        >
-                          <MyPageValueSkeleton width={16} height={16} />
-                        </span>
-                      ))}
-                    </div>
-                  ) : profileSocialLinks.length ? (
-                    <div className={styles.profileSocialRow} aria-label="소셜 링크">
-                      {profileSocialLinks.map(({ href, label, icon: Icon, external }) => (
-                        <a
-                          key={label}
-                          className={styles.profileSocialLink}
-                          href={href}
-                          aria-label={label}
-                          target={external ? '_blank' : undefined}
-                          rel={external ? 'noreferrer' : undefined}
-                        >
-                          <Icon aria-hidden="true" />
-                        </a>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-              {isProfileEditing ? (
-                <div className={styles.profileSocialEditor}>
-                  <div className={styles.profileSocialEditorGrid}>
-                    <label className={styles.profileSocialEditorField}>
-                      <span className={styles.profileSocialEditorLabel}>이메일</span>
-                      <div className={styles.profileSocialEditorInputRow}>
-                        <input
-                          type="email"
-                          className={styles.profileSocialEditorInput}
-                          placeholder="example@email.com"
-                          value={editingContactEmail}
-                          disabled={isProfileActionPending}
-                          onChange={handleProfileContactEmailChange}
-                        />
-                      </div>
-                    </label>
-                    <label className={styles.profileSocialEditorField}>
-                      <span className={styles.profileSocialEditorLabel}>깃허브</span>
-                      <div className={styles.profileSocialEditorInputRow}>
-                        <span className={styles.profileSocialEditorPrefix}>https://github.com/</span>
-                        <input
-                          type="text"
-                          className={styles.profileSocialEditorInput}
-                          placeholder="username"
-                          value={editingGithubUrl}
-                          disabled={isProfileActionPending}
-                          onChange={handleProfileGithubUrlChange}
-                        />
-                      </div>
-                    </label>
-                    <label className={styles.profileSocialEditorField}>
-                      <span className={styles.profileSocialEditorLabel}>링크드인</span>
-                      <div className={styles.profileSocialEditorInputRow}>
-                        <span className={styles.profileSocialEditorPrefix}>https://www.linkedin.com/in/</span>
-                        <input
-                          type="text"
-                          className={styles.profileSocialEditorInput}
-                          placeholder="username"
-                          value={editingLinkedinUrl}
-                          disabled={isProfileActionPending}
-                          onChange={handleProfileLinkedinUrlChange}
-                        />
-                      </div>
-                    </label>
-                    <label className={styles.profileSocialEditorField}>
-                      <span className={styles.profileSocialEditorLabel}>X (Twitter)</span>
-                      <div className={styles.profileSocialEditorInputRow}>
-                        <span className={styles.profileSocialEditorPrefix}>https://x.com/</span>
-                        <input
-                          type="text"
-                          className={styles.profileSocialEditorInput}
-                          placeholder="username"
-                          value={editingTwitterUrl}
-                          disabled={isProfileActionPending}
-                          onChange={handleProfileTwitterUrlChange}
-                        />
-                      </div>
-                    </label>
-                    <label className={styles.profileSocialEditorField}>
-                      <span className={styles.profileSocialEditorLabel}>페이스북</span>
-                      <div className={styles.profileSocialEditorInputRow}>
-                        <span className={styles.profileSocialEditorPrefix}>https://www.facebook.com/</span>
-                        <input
-                          type="text"
-                          className={styles.profileSocialEditorInput}
-                          placeholder="username"
-                          value={editingFacebookUrl}
-                          disabled={isProfileActionPending}
-                          onChange={handleProfileFacebookUrlChange}
-                        />
-                      </div>
-                    </label>
-                    <label className={styles.profileSocialEditorField}>
-                      <span className={styles.profileSocialEditorLabel}>홈페이지</span>
-                      <div className={styles.profileSocialEditorInputRow}>
-                        <input
-                          type="text"
-                          className={styles.profileSocialEditorInput}
-                          placeholder="https://example.com"
-                          value={editingWebsiteUrl}
-                          disabled={isProfileActionPending}
-                          onChange={handleProfileWebsiteUrlChange}
-                        />
-                      </div>
-                    </label>
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          </header>
+          <MyPageProfileHeader {...profileHeaderProps} />
           <div className={styles.headerDivider} aria-hidden="true" />
-
-          <div className={styles.content}>
-            {activeTab === 'settings' ? (
-              <MyPageSettingsTab
-                bioPreview={bioPreview}
-                isBioUpdating={isBioUpdating}
-                isUserInfoLoading={isUserInfoLoading}
-                profileBio={profileBio}
-                showBioEditor={showBioEditor}
-                userBio={userBio}
-                bioEditorRef={bioEditorRef}
-                bioImageInputRef={bioImageInputRef}
-                handlers={{ handleBioChange, handleBioSave, handleBioToggle, handleBioImageClick, handleBioImageSelect }}
-                toolbar={{ applyBullet, applyCode, applyHeading, applyInlineWrap, applyLink, applyNumbered, applyQuote }}
-              />
-            ) : activeTab === 'posts' ? (
-              <MyPagePostsTab
-                currentUserId={currentUserId}
-                filteredPosts={filteredPosts}
-                isCategoryOpen={isCategoryOpen}
-                isMyPostsLoading={isMyPostsLoading}
-                isPostDeleting={isPostDeleting}
-                isTagOpen={isTagOpen}
-                myPosts={myPosts}
-                openPostMenuId={openPostMenuId}
-                postCategories={postCategories}
-                postTags={postTags}
-                selectedCategoryId={selectedCategoryId}
-                selectedCategoryLabel={selectedCategoryLabel}
-                selectedTagId={selectedTagId}
-                selectedTagLabel={selectedTagLabel}
-                sortKey={sortKey}
-                handleCategorySelect={handleCategorySelect}
-                handlePostDelete={handlePostDelete}
-                handlePostEdit={handlePostEdit}
-                handlePostMenuToggle={handlePostMenuToggle}
-                handleSortToggle={handleSortToggle}
-                handleTagSelect={handleTagSelect}
-                toggleCategory={toggleCategory}
-                toggleTag={toggleTag}
-              />
-            ) : activeTab === 'drafts' ? (
-              <MyPageDraftsTab
-                draftSortOrder={draftSortOrder}
-                onSortChange={handleDraftSortToggle}
-              />
-            ) : activeTab === 'account' ? (
-              <MyPageAccountTab
-                accountBirthDateValue={accountBirthDateValue}
-                accountEmailValue={accountEmailValue}
-                accountNameValue={accountNameValue}
-                accountPhoneValue={accountPhoneValue}
-                birthDateValue={birthDateValue}
-                confirmPasswordValue={confirmPasswordValue}
-                currentPasswordValue={currentPasswordValue}
-                emailCodeValue={emailCodeValue}
-                emailValue={emailValue}
-                isEditingAny={isEditingAny}
-                isEditingBirthDate={isEditingBirthDate}
-                isEditingEmail={isEditingEmail}
-                isEditingPassword={isEditingPassword}
-                isEditingPhone={isEditingPhone}
-                isEmailCodeSent={isEmailCodeSent}
-                isEmailVerified={isEmailVerified}
-                isSaving={isSaving}
-                isSendingEmailCode={isSendingEmailCode}
-                isUserInfoLoading={isUserInfoLoading}
-                isVerifyingEmailCode={isVerifyingEmailCode}
-                isWithdrawing={isWithdrawing}
-                isWithdrawModalOpen={isWithdrawModalOpen}
-                newPasswordValue={newPasswordValue}
-                passwordRuleStatus={passwordRuleStatus}
-                phoneValue={phoneValue}
-                showConfirmPassword={showConfirmPassword}
-                showCurrentPassword={showCurrentPassword}
-                showNewPassword={showNewPassword}
-                showWithdrawPassword={showWithdrawPassword}
-                withdrawPassword={withdrawPassword}
-                cancelEdit={cancelEdit}
-                closeWithdrawModal={closeWithdrawModal}
-                handleBirthDateChange={handleBirthDateChange}
-                handleEmailChange={handleEmailChange}
-                handleEmailCodeChange={handleEmailCodeChange}
-                handlePhoneChange={handlePhoneChange}
-                handleWithdraw={handleWithdraw}
-                openWithdrawModal={openWithdrawModal}
-                saveBirthDate={saveBirthDate}
-                saveEmail={saveEmail}
-                savePassword={savePassword}
-                savePhone={savePhone}
-                sendEmailVerificationCode={sendEmailVerificationCode}
-                setConfirmPasswordValue={setConfirmPasswordValue}
-                setCurrentPasswordValue={setCurrentPasswordValue}
-                setNewPasswordValue={setNewPasswordValue}
-                setShowWithdrawPassword={setShowWithdrawPassword}
-                setWithdrawPassword={setWithdrawPassword}
-                startBirthDateEdit={startBirthDateEdit}
-                startEmailEdit={startEmailEdit}
-                startPasswordEdit={startPasswordEdit}
-                startPhoneEdit={startPhoneEdit}
-                toggleConfirmPasswordVisibility={toggleConfirmPasswordVisibility}
-                toggleCurrentPasswordVisibility={toggleCurrentPasswordVisibility}
-                toggleNewPasswordVisibility={toggleNewPasswordVisibility}
-              />
-            ) : activeTab === 'comments' ? (
-              <MyPageCommentsTab
-                editingCommentId={editingCommentId}
-                editingContent={editingContent}
-                hasEditingLengthError={hasEditingLengthError}
-                isDeleting={isDeleting}
-                isMyCommentsListLoading={isMyCommentsListLoading}
-                isUpdating={isUpdating}
-                myComments={myComments}
-                openCommentMenuId={openCommentMenuId}
-                profileAvatarUrl={profileAvatarUrl}
-                sortKey={sortKey}
-                sortedComments={sortedComments}
-                handleCommentMenuToggle={handleCommentMenuToggle}
-                handleDeleteComment={handleDeleteComment}
-                handleEditCancel={handleEditCancel}
-                handleEditChange={handleEditChange}
-                handleEditStart={handleEditStart}
-                handleEditSubmit={handleEditSubmit}
-                handleSortToggle={handleSortToggle}
-              />
-            ) : activeTab === 'likes' ? (
-              <MyPageLikesTab
-                currentUserId={currentUserId}
-                isLikedPostsListLoading={isLikedPostsListLoading}
-                isPostDeleting={isPostDeleting}
-                openPostMenuId={openPostMenuId}
-                sortKey={sortKey}
-                sortedLikedPosts={sortedLikedPosts}
-                handlePostDelete={handlePostDelete}
-                handlePostEdit={handlePostEdit}
-                handlePostMenuToggle={handlePostMenuToggle}
-                handleSortToggle={handleSortToggle}
-              />
-            ) : activeTab === 'recent' ? (
-              <MyPageRecentTab
-                currentUserId={currentUserId}
-                isPostDeleting={isPostDeleting}
-                isRecentPostsListLoading={isRecentPostsListLoading}
-                openPostMenuId={openPostMenuId}
-                sortKey={sortKey}
-                sortedRecentPosts={sortedRecentPosts}
-                handlePostDelete={handlePostDelete}
-                handlePostEdit={handlePostEdit}
-                handlePostMenuToggle={handlePostMenuToggle}
-                handleSortToggle={handleSortToggle}
-              />
-            ) : null}
-          </div>
+          <MyPageContent {...contentProps} />
         </div>
       </div>
     </section>
