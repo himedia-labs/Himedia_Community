@@ -2,7 +2,8 @@ import type { ADMIN_MENU_LABELS, ADMIN_PENDING_SORT } from '@/app/shared/constan
 import type { QueryClient } from '@tanstack/react-query';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import type { ReadonlyURLSearchParams } from 'next/navigation';
-import type { RefObject, Dispatch, SetStateAction } from 'react';
+import type { IconType } from 'react-icons';
+import type { ChangeEvent, RefObject, Dispatch, SetStateAction } from 'react';
 import type { ToastOptions } from './toast';
 
 // 공통 응답
@@ -296,6 +297,20 @@ export type UseAdminUserActionsParams = {
   updateUserRole: (payload: UpdateAdminUserRoleRequest) => Promise<unknown>;
 };
 
+export type AdminRejectModalOpenParams = {
+  setRejectReason: Dispatch<SetStateAction<string>>;
+  setRejectTargetUserId: Dispatch<SetStateAction<string | null>>;
+};
+
+export type AdminRejectModalCloseParams = {
+  setRejectReason: Dispatch<SetStateAction<string>>;
+  setRejectTargetUserId: Dispatch<SetStateAction<string | null>>;
+};
+
+export type AdminRejectReasonChangeParams = {
+  setRejectReason: Dispatch<SetStateAction<string>>;
+};
+
 export type AdminDropdownState = {
   isRoleSortOpen: boolean;
   isCourseSortOpen: boolean;
@@ -308,3 +323,117 @@ export type AdminUserEditState = {
   setIsUsersEditMode: Dispatch<SetStateAction<boolean>>;
   setUserRoleDrafts: Dispatch<SetStateAction<Record<string, string>>>;
 };
+
+// 관리자 레이아웃
+export interface AdminSidebarProps {
+  selectedMenu: AdminMenuLabel;
+  handleMenuButtonClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
+export interface AdminHeaderProps {
+  currentUserName?: string;
+  isUsersEditMode: boolean;
+  pendingSort: AdminPendingSort;
+  selectedMenu: AdminMenuLabel;
+  selectedRoleFilter: string;
+  selectedCourseFilter: string;
+  isRoleSortOpen: boolean;
+  isCourseSortOpen: boolean;
+  isPendingSortOpen: boolean;
+  courseFilterOptions: string[];
+  CurrentMenuIcon: IconType;
+  handleUserEdit: () => void;
+  handleSaveAllUserRoles: () => Promise<void>;
+  toggleRoleSort: () => void;
+  toggleCourseSort: () => void;
+  togglePendingSort: () => void;
+  handlePendingSortClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  handleRoleFilterClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  handleCourseFilterClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
+export interface AdminContentProps {
+  allUsers: AdminUser[];
+  auditLogs: AdminAuditLog[];
+  accessLogs: AdminAccessLog[];
+  adminUsers: AdminUser[];
+  rejectedUsers: AdminPendingUser[];
+  filteredPendingUsers: AdminPendingUser[];
+  hasNextAccessLogsPage: boolean;
+  isAccessLogsFetchingMore: boolean;
+  isAccessLogsLoading: boolean;
+  isLogsLoading: boolean;
+  isPendingUsersLoading: boolean;
+  isRejectedUsersLoading: boolean;
+  isUsersEditMode: boolean;
+  isUsersLoading: boolean;
+  selectedMenu: AdminMenuLabel;
+  userRoleDrafts: Record<string, string>;
+  accessLogsLoadMoreRef: RefObject<HTMLDivElement | null>;
+  handleApproveUserClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  handleDeleteRejectedUserClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  handleRejectUserClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  handleUserRoleDraftChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+}
+
+export interface AdminPendingUsersSectionProps {
+  filteredPendingUsers: AdminPendingUser[];
+  isPendingUsersLoading: boolean;
+  handleApproveUserClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  handleRejectUserClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
+export interface AdminRejectedUsersSectionProps {
+  rejectedUsers: AdminPendingUser[];
+  isRejectedUsersLoading: boolean;
+  handleDeleteRejectedUserClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
+export interface AdminUsersSectionProps {
+  allUsers: AdminUser[];
+  isUsersEditMode: boolean;
+  isUsersLoading: boolean;
+  userRoleDrafts: Record<string, string>;
+  handleUserRoleDraftChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+}
+
+export interface AdminAdminsSectionProps {
+  adminUsers: AdminUser[];
+  isUsersLoading: boolean;
+}
+
+export interface AdminAuditLogsSectionProps {
+  auditLogs: AdminAuditLog[];
+  isLogsLoading: boolean;
+}
+
+export interface AdminAccessLogsSectionProps {
+  accessLogs: AdminAccessLog[];
+  hasNextAccessLogsPage: boolean;
+  isAccessLogsFetchingMore: boolean;
+  isAccessLogsLoading: boolean;
+  accessLogsLoadMoreRef: RefObject<HTMLDivElement | null>;
+}
+
+export interface AdminFilterDropdownProps {
+  label: string;
+  isOpen: boolean;
+  buttonClassName?: string;
+  wrapperClassName?: string;
+  onToggle: () => void;
+  items: Array<{
+    id: string;
+    label: string;
+    active: boolean;
+    dataAttributeName: string;
+  }>;
+  onItemClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
+export interface AdminRejectUserModalProps {
+  rejectReason: string;
+  isRejectingUser: boolean;
+  onClose: () => void;
+  onConfirm: () => Promise<void>;
+  onChange: (event: ChangeEvent<HTMLTextAreaElement>) => void;
+}

@@ -1,7 +1,12 @@
 import type { ChangeEvent, MouseEvent } from 'react';
 
 import { ADMIN_PENDING_SORT } from '@/app/shared/constants/config/admin.config';
-import type { AdminMenuLabel } from '@/app/shared/types/admin';
+import type {
+  AdminMenuLabel,
+  AdminRejectModalCloseParams,
+  AdminRejectModalOpenParams,
+  AdminRejectReasonChangeParams,
+} from '@/app/shared/types/admin';
 
 /**
  * 관리자 메뉴 클릭 핸들러 생성
@@ -74,6 +79,38 @@ export const createHandleRejectUserClick = (handleUserReject: (userId: string) =
     const { userId } = event.currentTarget.dataset;
     if (!userId) return;
     handleUserReject(userId);
+  };
+};
+
+/**
+ * 거절 모달 열기 핸들러 생성
+ * @description 선택한 사용자 id를 저장하고 거절 사유 입력을 초기화합니다.
+ */
+export const createHandleOpenRejectModal = (params: AdminRejectModalOpenParams) => {
+  return (userId: string) => {
+    params.setRejectReason('');
+    params.setRejectTargetUserId(userId);
+  };
+};
+
+/**
+ * 거절 모달 닫기 핸들러 생성
+ * @description 선택 상태와 거절 사유를 함께 초기화합니다.
+ */
+export const createHandleCloseRejectModal = (params: AdminRejectModalCloseParams) => {
+  return () => {
+    params.setRejectReason('');
+    params.setRejectTargetUserId(null);
+  };
+};
+
+/**
+ * 거절 사유 입력 핸들러 생성
+ * @description textarea 값을 거절 사유 상태에 반영합니다.
+ */
+export const createHandleRejectReasonChange = (params: AdminRejectReasonChangeParams) => {
+  return (event: ChangeEvent<HTMLTextAreaElement>) => {
+    params.setRejectReason(event.target.value);
   };
 };
 

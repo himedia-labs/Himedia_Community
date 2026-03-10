@@ -1,3 +1,5 @@
+import { FiFileText, FiLogIn, FiUserCheck, FiUsers } from 'react-icons/fi';
+
 // 메뉴 레이블
 export const ADMIN_MENU_LABELS = {
   PENDING_USERS: '가입 요청',
@@ -52,3 +54,38 @@ export const ADMIN_SORT_QUERY_VALUE = {
   COURSE_ASC: 'course-asc',
   COURSE_DESC: 'course-desc',
 } as const;
+
+// 사이드바 섹션
+export const ADMIN_SIDEBAR_SECTIONS = [
+  {
+    label: '관리',
+    items: [
+      { menuLabel: ADMIN_MENU_LABELS.USERS, text: '사용자', Icon: FiUsers },
+      { menuLabel: ADMIN_MENU_LABELS.ADMINS, text: '관리자', Icon: FiUsers },
+      { menuLabel: ADMIN_MENU_LABELS.PENDING_USERS, text: '가입 요청', Icon: FiUserCheck },
+      { menuLabel: ADMIN_MENU_LABELS.REJECTED_USERS, text: '거절 계정', Icon: FiUserCheck },
+    ],
+  },
+  {
+    label: '모니터링',
+    items: [
+      { menuLabel: ADMIN_MENU_LABELS.AUDIT_LOGS, text: '감사 로그', Icon: FiFileText },
+      { menuLabel: ADMIN_MENU_LABELS.ACCESS_LOGS, text: '관리자 접속일지', Icon: FiLogIn },
+    ],
+  },
+] as const;
+
+// 승인 정렬 옵션
+export const ADMIN_PENDING_SORT_OPTIONS = [
+  { id: ADMIN_PENDING_SORT.OLDEST, label: '오래된 가입 순' },
+  { id: ADMIN_PENDING_SORT.NEWEST, label: '최근 가입 순' },
+] as const;
+
+// 역할 필터 옵션
+export const ADMIN_ROLE_FILTER_OPTIONS = [
+  { id: 'ALL', label: '전체 역할' },
+  { id: 'TRAINEE', label: '훈련생' },
+  { id: 'GRADUATE', label: '수료생' },
+  { id: 'MENTOR', label: '멘토' },
+  { id: 'INSTRUCTOR', label: '강사' },
+] as const;

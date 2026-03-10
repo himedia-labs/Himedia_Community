@@ -267,6 +267,44 @@
   font-size: 0.9rem;
 }
 
+.rejectModalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.rejectModalLabel {
+  color: #334155;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.rejectModalTextarea {
+  width: 100%;
+  min-height: 140px;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid #d6deea;
+  border-radius: 12px;
+  box-sizing: border-box;
+  resize: vertical;
+  background: #fff;
+  color: #111827;
+  font: inherit;
+  line-height: 1.6;
+}
+
+.rejectModalTextarea:focus {
+  outline: none;
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+}
+
+.rejectModalHint {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.78rem;
+}
+
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
