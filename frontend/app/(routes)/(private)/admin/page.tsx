@@ -28,10 +28,12 @@ import {
   createHandleRoleFilterClick,
   createHandleCourseFilterClick,
 } from '@/app/(routes)/(private)/admin/_handlers/adminUi.handlers';
-import AdminHeader from '@/app/(routes)/(private)/admin/_components/layout/AdminHeader';
-import AdminContent from '@/app/(routes)/(private)/admin/_components/layout/AdminContent';
-import AdminSidebar from '@/app/(routes)/(private)/admin/_components/layout/AdminSidebar';
-import AdminRejectUserModal from '@/app/(routes)/(private)/admin/_components/modals/AdminRejectUserModal';
+import {
+  AdminContent,
+  AdminHeader,
+  AdminRejectUserModal,
+  AdminSidebar,
+} from '@/app/(routes)/(private)/admin/_components';
 import { useAdminAccessGuard } from '@/app/(routes)/(private)/admin/_hooks/useAdminAccessGuard';
 import { useTrackAdminAccess } from '@/app/(routes)/(private)/admin/_hooks/useTrackAdminAccess';
 import { useAccessLogsInfiniteScroll } from '@/app/(routes)/(private)/admin/_hooks/useAccessLogsInfiniteScroll';

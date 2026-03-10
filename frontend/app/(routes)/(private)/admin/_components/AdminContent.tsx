@@ -1,12 +1,22 @@
 import { ADMIN_MENU_LABELS } from '@/app/shared/constants/config/admin.config';
 import {
-  AdminAccessLogsSection,
-  AdminAdminsSection,
-  AdminAuditLogsSection,
-  AdminPendingUsersSection,
-  AdminRejectedUsersSection,
-  AdminUsersSection,
-} from '@/app/(routes)/(private)/admin/_components/features';
+  default as AdminAccessLogsSection,
+} from '@/app/(routes)/(private)/admin/_components/AdminAccessLogsSection';
+import {
+  default as AdminAdminsSection,
+} from '@/app/(routes)/(private)/admin/_components/AdminAdminsSection';
+import {
+  default as AdminAuditLogsSection,
+} from '@/app/(routes)/(private)/admin/_components/AdminAuditLogsSection';
+import {
+  default as AdminPendingUsersSection,
+} from '@/app/(routes)/(private)/admin/_components/AdminPendingUsersSection';
+import {
+  default as AdminRejectedUsersSection,
+} from '@/app/(routes)/(private)/admin/_components/AdminRejectedUsersSection';
+import {
+  default as AdminUsersSection,
+} from '@/app/(routes)/(private)/admin/_components/AdminUsersSection';
 
 import styles from '@/app/(routes)/(private)/admin/AdminPage.module.css';
 

@@ -5,7 +5,7 @@ import {
   ADMIN_PENDING_SORT_OPTIONS,
   ADMIN_ROLE_FILTER_OPTIONS,
 } from '@/app/shared/constants/config/admin.config';
-import AdminFilterDropdown from '@/app/(routes)/(private)/admin/_components/ui/AdminFilterDropdown';
+import AdminFilterDropdown from '@/app/(routes)/(private)/admin/_components/AdminFilterDropdown';
 import { formatRoleLabel } from '@/app/(routes)/(private)/admin/_utils/formatRoleLabel.utils';
 
 import styles from '@/app/(routes)/(private)/admin/AdminPage.module.css';
