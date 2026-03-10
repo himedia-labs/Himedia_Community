@@ -1,6 +1,6 @@
 import { MyPageAccountSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
-import MyPageWithdrawModal from '@/app/(routes)/(private)/mypage/_components/modals/MyPageWithdrawModal';
-import MyPageAccountSettingsSection from '@/app/(routes)/(private)/mypage/_components/features/sections/MyPageAccountSettingsSection';
+import MyPageWithdrawModal from '@/app/(routes)/(private)/mypage/_components/MyPageWithdrawModal';
+import MyPageAccountSettingsSection from '@/app/(routes)/(private)/mypage/_components/MyPageAccountSettingsSection';
 
 import type { MyPageAccountTabProps } from '@/app/shared/types/mypage';
 

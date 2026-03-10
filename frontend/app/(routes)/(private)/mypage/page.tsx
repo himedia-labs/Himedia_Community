@@ -2,9 +2,11 @@
 
 import { useRouter } from 'next/navigation';
 import Skeleton from 'react-loading-skeleton';
-import MyPageContent from '@/app/(routes)/(private)/mypage/_components/layout/MyPageContent';
-import MyPageSidebar from '@/app/(routes)/(private)/mypage/_components/layout/MyPageSidebar';
-import MyPageProfileHeader from '@/app/(routes)/(private)/mypage/_components/layout/MyPageProfileHeader';
+import {
+  MyPageContent,
+  MyPageProfileHeader,
+  MyPageSidebar,
+} from '@/app/(routes)/(private)/mypage/_components';
 import {
   useAccountSettings,
   useBioEditor,

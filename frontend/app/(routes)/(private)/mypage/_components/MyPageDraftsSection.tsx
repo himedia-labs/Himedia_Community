@@ -28,7 +28,7 @@ import { formatPostPreview } from '@/app/shared/utils/post';
 
 import sectionStyles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 import postListStyles from '@/app/shared/components/post/PostListView.module.css';
-import styles from '@/app/(routes)/(private)/mypage/_components/features/sections/MyPageDraftsSection.module.css';
+import styles from '@/app/(routes)/(private)/mypage/_components/MyPageDraftsSection.module.css';
 
 import type { DraftSortOrder } from '@/app/shared/types/mypage';
 import type { PostListItem } from '@/app/shared/types/post';

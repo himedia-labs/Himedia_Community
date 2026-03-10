@@ -1,8 +1,6 @@
-import {
-  MyPageProfileTab,
-  MyPageActivityTab,
-  MyPageAccountTab,
-} from '@/app/(routes)/(private)/mypage/_components/features/tabs';
+import MyPageAccountTab from '@/app/(routes)/(private)/mypage/_components/MyPageAccountTab';
+import MyPageActivityTab from '@/app/(routes)/(private)/mypage/_components/MyPageActivityTab';
+import MyPageProfileTab from '@/app/(routes)/(private)/mypage/_components/MyPageProfileTab';
 
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 

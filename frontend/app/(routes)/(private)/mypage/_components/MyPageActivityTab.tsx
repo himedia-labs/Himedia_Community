@@ -1,8 +1,8 @@
-import MyPageCommentsSection from '@/app/(routes)/(private)/mypage/_components/features/sections/MyPageCommentsSection';
-import MyPageDraftsSection from '@/app/(routes)/(private)/mypage/_components/features/sections/MyPageDraftsSection';
-import MyPageLikesSection from '@/app/(routes)/(private)/mypage/_components/features/sections/MyPageLikesSection';
-import MyPagePostsSection from '@/app/(routes)/(private)/mypage/_components/features/sections/MyPagePostsSection';
-import MyPageRecentSection from '@/app/(routes)/(private)/mypage/_components/features/sections/MyPageRecentSection';
+import MyPageCommentsSection from '@/app/(routes)/(private)/mypage/_components/MyPageCommentsSection';
+import MyPageDraftsSection from '@/app/(routes)/(private)/mypage/_components/MyPageDraftsSection';
+import MyPageLikesSection from '@/app/(routes)/(private)/mypage/_components/MyPageLikesSection';
+import MyPagePostsSection from '@/app/(routes)/(private)/mypage/_components/MyPagePostsSection';
+import MyPageRecentSection from '@/app/(routes)/(private)/mypage/_components/MyPageRecentSection';
 
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 
