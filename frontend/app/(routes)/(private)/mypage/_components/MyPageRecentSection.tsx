@@ -26,7 +26,7 @@ export default function MyPageRecentSection({
   handleRecentPostSortToggle,
 }: MyPageActivityTabProps) {
   return (
-    <section className={styles.activitySection}>
+    <section className={styles.activitySection} id="mypage-recent">
       <div className={styles.settingsRow}>
         <span className={styles.settingsLabel}>최근 읽은 포스트</span>
         <div className={styles.settingsSortGroup}>

@@ -1,10 +1,14 @@
 import MyPageAccountTab from '@/app/(routes)/(private)/mypage/_components/MyPageAccountTab';
-import MyPageActivityTab from '@/app/(routes)/(private)/mypage/_components/MyPageActivityTab';
 import MyPageProfileTab from '@/app/(routes)/(private)/mypage/_components/MyPageProfileTab';
+import MyPageLikesSection from '@/app/(routes)/(private)/mypage/_components/MyPageLikesSection';
+import MyPagePostsSection from '@/app/(routes)/(private)/mypage/_components/MyPagePostsSection';
+import MyPageDraftsSection from '@/app/(routes)/(private)/mypage/_components/MyPageDraftsSection';
+import MyPageRecentSection from '@/app/(routes)/(private)/mypage/_components/MyPageRecentSection';
+import MyPageCommentsSection from '@/app/(routes)/(private)/mypage/_components/MyPageCommentsSection';
 
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 
-import type { MyPageContentProps } from '@/app/shared/types/mypage';
+import type { MyPageActivityTabProps, MyPageContentProps } from '@/app/shared/types/mypage';
 
 /**
  * 마이페이지 콘텐츠
@@ -138,9 +142,64 @@ export default function MyPageContent({
   userBio,
   withdrawPassword,
 }: MyPageContentProps) {
+  // 활동/props 구성
+  const activityProps: MyPageActivityTabProps = {
+    commentSortKey,
+    currentUserId,
+    draftSortOrder,
+    editingCommentId,
+    editingContent,
+    filteredPosts,
+    hasEditingLengthError,
+    isCategoryOpen,
+    isDeleting,
+    isLikedPostsListLoading,
+    isMyCommentsListLoading,
+    isMyPostsLoading,
+    isPostDeleting,
+    isRecentPostsListLoading,
+    isTagOpen,
+    isUpdating,
+    likedPostSortKey,
+    myComments,
+    myPosts,
+    openCommentMenuId,
+    openPostMenuId,
+    postCategories,
+    postSortKey,
+    postTags,
+    profileAvatarUrl,
+    recentPostSortKey,
+    selectedCategoryId,
+    selectedCategoryLabel,
+    selectedTagId,
+    selectedTagLabel,
+    sortedComments,
+    sortedLikedPosts,
+    sortedRecentPosts,
+    handleCategorySelect,
+    handleCommentMenuToggle,
+    handleCommentSortToggle,
+    handleDeleteComment,
+    handleDraftSortToggle,
+    handleEditCancel,
+    handleEditChange,
+    handleEditStart,
+    handleEditSubmit,
+    handleLikedPostSortToggle,
+    handlePostDelete,
+    handlePostEdit,
+    handlePostMenuToggle,
+    handlePostSortToggle,
+    handleRecentPostSortToggle,
+    handleTagSelect,
+    toggleCategory,
+    toggleTag,
+  };
+
   return (
     <div className={styles.content}>
-      {activeTab === 'profile' ? (
+      {activeTab === 'settings' ? (
         <MyPageProfileTab
           bioPreview={bioPreview}
           isBioUpdating={isBioUpdating}
@@ -153,60 +212,16 @@ export default function MyPageContent({
           handlers={{ handleBioChange, handleBioSave, handleBioToggle, handleBioImageClick, handleBioImageSelect }}
           toolbar={{ applyBullet, applyCode, applyHeading, applyInlineWrap, applyLink, applyNumbered, applyQuote }}
         />
-      ) : activeTab === 'activity' ? (
-        <MyPageActivityTab
-          currentUserId={currentUserId}
-          draftSortOrder={draftSortOrder}
-          editingCommentId={editingCommentId}
-          editingContent={editingContent}
-          filteredPosts={filteredPosts}
-          hasEditingLengthError={hasEditingLengthError}
-          isCategoryOpen={isCategoryOpen}
-          isDeleting={isDeleting}
-          isLikedPostsListLoading={isLikedPostsListLoading}
-          isMyCommentsListLoading={isMyCommentsListLoading}
-          isMyPostsLoading={isMyPostsLoading}
-          isPostDeleting={isPostDeleting}
-          isRecentPostsListLoading={isRecentPostsListLoading}
-          isTagOpen={isTagOpen}
-          isUpdating={isUpdating}
-          myComments={myComments}
-          myPosts={myPosts}
-          openCommentMenuId={openCommentMenuId}
-          openPostMenuId={openPostMenuId}
-          postCategories={postCategories}
-          postTags={postTags}
-          postSortKey={postSortKey}
-          profileAvatarUrl={profileAvatarUrl}
-          recentPostSortKey={recentPostSortKey}
-          selectedCategoryId={selectedCategoryId}
-          selectedCategoryLabel={selectedCategoryLabel}
-          selectedTagId={selectedTagId}
-          selectedTagLabel={selectedTagLabel}
-          commentSortKey={commentSortKey}
-          likedPostSortKey={likedPostSortKey}
-          sortedComments={sortedComments}
-          sortedLikedPosts={sortedLikedPosts}
-          sortedRecentPosts={sortedRecentPosts}
-          handleCategorySelect={handleCategorySelect}
-          handleCommentMenuToggle={handleCommentMenuToggle}
-          handleCommentSortToggle={handleCommentSortToggle}
-          handleDeleteComment={handleDeleteComment}
-          handleDraftSortToggle={handleDraftSortToggle}
-          handleEditCancel={handleEditCancel}
-          handleEditChange={handleEditChange}
-          handleEditStart={handleEditStart}
-          handleEditSubmit={handleEditSubmit}
-          handleLikedPostSortToggle={handleLikedPostSortToggle}
-          handlePostDelete={handlePostDelete}
-          handlePostEdit={handlePostEdit}
-          handlePostMenuToggle={handlePostMenuToggle}
-          handlePostSortToggle={handlePostSortToggle}
-          handleRecentPostSortToggle={handleRecentPostSortToggle}
-          handleTagSelect={handleTagSelect}
-          toggleCategory={toggleCategory}
-          toggleTag={toggleTag}
-        />
+      ) : activeTab === 'posts' ? (
+        <MyPagePostsSection {...activityProps} />
+      ) : activeTab === 'drafts' ? (
+        <MyPageDraftsSection {...activityProps} />
+      ) : activeTab === 'recent' ? (
+        <MyPageRecentSection {...activityProps} />
+      ) : activeTab === 'comments' ? (
+        <MyPageCommentsSection {...activityProps} />
+      ) : activeTab === 'likes' ? (
+        <MyPageLikesSection {...activityProps} />
       ) : activeTab === 'account' ? (
         <MyPageAccountTab
           accountBirthDateValue={accountBirthDateValue}

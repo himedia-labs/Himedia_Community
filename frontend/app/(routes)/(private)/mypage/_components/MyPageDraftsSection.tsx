@@ -73,7 +73,7 @@ export default function MyPageDraftsSection({
   const handleDeleteDraftClick = createHandleDeleteDraftClick(handleDeleteDraft);
 
   return (
-    <section className={sectionStyles.activitySection}>
+    <section className={sectionStyles.activitySection} id="mypage-drafts">
       <div className={sectionStyles.settingsRow}>
         <span className={sectionStyles.settingsLabel}>임시저장 목록</span>
         <div className={sectionStyles.settingsSortGroup}>

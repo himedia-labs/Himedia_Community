@@ -56,7 +56,7 @@ export default function MyPageCommentsSection({
   const handleEditSubmitButtonClick = createHandleEditSubmitButtonClick(handleEditSubmit);
 
   return (
-    <section className={styles.activitySection}>
+    <section className={styles.activitySection} id="mypage-comments">
       <div className={styles.settingsRow}>
         <span className={styles.settingsLabel}>남긴 댓글</span>
         <div className={styles.settingsSortGroup}>

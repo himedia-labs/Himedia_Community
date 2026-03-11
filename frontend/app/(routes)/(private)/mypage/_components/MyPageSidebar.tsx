@@ -11,28 +11,44 @@ import type { MyPageSidebarProps } from '@/app/shared/types/mypage';
  * @description 현재 탭 기준으로 좌측 메뉴를 렌더링합니다.
  */
 export default function MyPageSidebar({ activeTab }: MyPageSidebarProps) {
-  const profileTab = MYPAGE_TABS[0];
-  const activityTab = MYPAGE_TABS[1];
-  const accountTab = MYPAGE_TABS[2];
+  // 탭 데이터
+  const accountTab = MYPAGE_TABS[6];
+  const settingsTab = MYPAGE_TABS[0];
+  const activityTabs = MYPAGE_TABS.slice(1, 4);
+  const reactionTabs = MYPAGE_TABS.slice(4, 6);
 
   return (
     <aside className={styles.leftPanel}>
       <nav className={styles.list} aria-label="마이페이지 메뉴">
         <div className={styles.listSection}>
           <Link
-            className={activeTab === profileTab.key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink}
-            href={profileTab.href}
+            className={activeTab === settingsTab.key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink}
+            href={settingsTab.href}
           >
-            {profileTab.label}
+            {settingsTab.label}
           </Link>
           <div className={styles.listDividerLine} aria-hidden="true" />
           <span className={styles.listGroupTitle}>활동</span>
-          <Link
-            className={activeTab === activityTab.key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink}
-            href={activityTab.href}
-          >
-            {activityTab.label}
-          </Link>
+          {activityTabs.map((tab) => (
+            <Link
+              className={activeTab === tab.key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink}
+              href={tab.href}
+              key={tab.key}
+            >
+              {tab.label}
+            </Link>
+          ))}
+          <div className={styles.listDividerLine} aria-hidden="true" />
+          <span className={styles.listGroupTitle}>반응</span>
+          {reactionTabs.map((tab) => (
+            <Link
+              className={activeTab === tab.key ? `${styles.listLink} ${styles.listLinkActive}` : styles.listLink}
+              href={tab.href}
+              key={tab.key}
+            >
+              {tab.label}
+            </Link>
+          ))}
           <div className={styles.listDividerLine} aria-hidden="true" />
           <span className={styles.listGroupTitle}>설정</span>
           <Link
