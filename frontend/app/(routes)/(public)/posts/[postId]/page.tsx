@@ -36,7 +36,6 @@ import {
 } from '@/app/(routes)/(public)/posts/[postId]/_components';
 import { PostDetailSkeleton } from '@/app/(routes)/(public)/posts/[postId]/PostDetail.skeleton';
 
-import 'react-loading-skeleton/dist/skeleton.css';
 import markdownStyles from '@/app/shared/components/markdown-editor/markdown.module.css';
 import styles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
 
