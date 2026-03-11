@@ -81,13 +81,18 @@ export default function RegisterStepOneSection({
             id="emailCode"
             value={emailCode}
             onChange={handleEmailCodeInputChange}
-            className={emailCodeError ? `${styles.input} ${styles.error}` : styles.input}
+            className={emailCodeError ? `${styles.input} ${styles.error}` : isEmailVerified ? styles.input : `${styles.input} ${styles.codeInput}`}
             placeholder="8자리 인증번호"
             maxLength={EMAIL_VERIFICATION_CODE_LENGTH}
             autoComplete="one-time-code"
+            autoFocus
             disabled={isEmailVerified}
           />
-          {emailCodeError ? <p className={styles.errorMessage}>{emailCodeError}</p> : null}
+          {emailCodeError ? (
+            <p className={styles.errorMessage}>{emailCodeError}</p>
+          ) : !isEmailVerified ? (
+            <p className={styles.infoMessage}>이메일로 발송된 인증번호를 입력해주세요</p>
+          ) : null}
         </div>
       ) : null}
       <div className={styles.formGroup}>
