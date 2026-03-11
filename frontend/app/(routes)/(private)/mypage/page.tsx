@@ -36,7 +36,7 @@ export default function MyPage() {
   const router = useRouter();
   const { showToast } = useToast();
   const { clearAuth } = useAuthStore();
-  const activeTab = useMyTabState('profile');
+  const activeTab = useMyTabState('settings');
   const { mutateAsync: withdrawAccount, isPending: isWithdrawing } = useWithdrawAccountMutation();
 
   // 데이터 조회

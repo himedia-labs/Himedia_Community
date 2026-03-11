@@ -74,7 +74,7 @@ export default function MyPageLikesSection({
   const handlePostDeleteButtonClick = createHandlePostDeleteButtonClick(handlePostDelete);
 
   return (
-    <section className={styles.activitySection}>
+    <section className={styles.activitySection} id="mypage-likes">
       <div className={styles.settingsRow}>
         <span className={styles.settingsLabel}>좋아한 포스트</span>
         <div className={styles.settingsSortGroup}>

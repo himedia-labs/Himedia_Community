@@ -40,7 +40,7 @@ export default function MyPagePostsSection({
   toggleTag,
 }: MyPageActivityTabProps) {
   return (
-    <section className={styles.activitySection}>
+    <section className={styles.activitySection} id="mypage-posts">
       <div className={styles.settingsRow}>
         <span className={styles.settingsLabel}>내 블로그</span>
         <div className={styles.settingsControlGroup}>

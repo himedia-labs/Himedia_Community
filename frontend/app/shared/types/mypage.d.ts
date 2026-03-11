@@ -6,7 +6,7 @@ import type { MyCommentItem } from '@/app/shared/types/comment';
 import type { PostListItem } from '@/app/shared/types/post';
 
 // 탭 상태
-export type TabKey = 'activity' | 'profile' | 'account';
+export type TabKey = 'account' | 'comments' | 'drafts' | 'likes' | 'posts' | 'recent' | 'settings';
 export type ActivitySortKey = 'latest' | 'popular';
 export type DraftSortOrder = 'latest' | 'oldest';
 export type AccountEditField = 'email' | 'phone' | 'birthDate' | 'password' | null;
