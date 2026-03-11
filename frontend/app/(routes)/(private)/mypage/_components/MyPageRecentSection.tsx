@@ -50,7 +50,7 @@ export default function MyPageRecentSection({
         </div>
       </div>
       {isRecentPostsListLoading ? (
-        <MyPagePostListSkeleton label="최근 읽은 포스트" showFilters={false} />
+        <MyPagePostListSkeleton showHeader={false} />
       ) : sortedRecentPosts.length ? (
         <PostSummaryList
           posts={sortedRecentPosts}

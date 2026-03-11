@@ -1,12 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import Skeleton from 'react-loading-skeleton';
+
 import {
   MyPageContent,
   MyPageProfileHeader,
   MyPageSidebar,
 } from '@/app/(routes)/(private)/mypage/_components';
+import { MyPageProfileHeaderSkeleton } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
 import {
   useAccountSettings,
   useBioEditor,
@@ -227,17 +228,7 @@ export default function MyPage() {
     toolbar: { applyBullet, applyCode, applyHeading, applyInlineWrap, applyLink, applyNumbered, applyQuote },
   } = useBioEditor(userBio);
 
-  // 포맷팅
-  const accountNameValue = isUserInfoLoading ? <Skeleton width={88} height={18} /> : displayName || '사용자';
-  const accountEmailValue = isUserInfoLoading ? <Skeleton width={180} height={18} /> : userEmail || '미등록';
-  const accountPhoneValue = isUserInfoLoading ? <Skeleton width={140} height={18} /> : userPhone || '미등록';
-  const accountBirthDateValue = isUserInfoLoading ? (
-    <Skeleton width={120} height={18} />
-  ) : (
-    userBirthDate || '미등록'
-  );
-  const profileNameValue = isUserInfoLoading ? <Skeleton width={96} height={34} /> : displayName || '사용자';
-  const profileHandleValue = isUserInfoLoading ? <Skeleton width={86} height={18} /> : `@${profileHandle}`;
+  // 프로필 액션
   const {
     isProfileActionPending,
     profileSocialLinks,
@@ -274,6 +265,8 @@ export default function MyPage() {
     handleAvatarCancel,
     handleProfileCancel,
   });
+
+  // 회원탈퇴
   const {
     showWithdrawPassword,
     withdrawPassword,
@@ -289,6 +282,14 @@ export default function MyPage() {
     router,
   });
 
+  // 포맷팅
+  const accountNameValue = displayName || '사용자';
+  const accountEmailValue = userEmail || '미등록';
+  const accountPhoneValue = userPhone || '미등록';
+  const accountBirthDateValue = userBirthDate || '미등록';
+  const profileNameValue = displayName || '사용자';
+  const profileHandleValue = `@${profileHandle}`;
+
   const profileHeaderProps = {
     editingContactEmail,
     editingFacebookUrl,
@@ -301,7 +302,6 @@ export default function MyPage() {
     followingCount,
     isProfileActionPending,
     isProfileEditing,
-    isUserInfoLoading,
     myPostCount: myPosts.length,
     profileAvatarUrl,
     profileHandleValue,
@@ -455,7 +455,7 @@ export default function MyPage() {
       <div className={styles.layout}>
         <MyPageSidebar activeTab={activeTab} />
         <div className={styles.main}>
-          <MyPageProfileHeader {...profileHeaderProps} />
+          {isUserInfoLoading ? <MyPageProfileHeaderSkeleton /> : <MyPageProfileHeader {...profileHeaderProps} />}
           <div className={styles.headerDivider} aria-hidden="true" />
           <MyPageContent {...contentProps} />
         </div>

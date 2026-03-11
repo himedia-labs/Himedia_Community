@@ -206,7 +206,8 @@ export interface MyPageSidebarProps {
 
 // 헤더 스켈레톤
 export interface MyPagePostListSkeletonProps {
-  label: string;
+  label?: string;
+  showHeader?: boolean;
   showFilters?: boolean;
 }
 
@@ -217,11 +218,10 @@ export interface MyPageProfileHeaderProps {
   followingCount: number;
   isProfileEditing: boolean;
   isProfileActionPending: boolean;
-  isUserInfoLoading: boolean;
   myPostCount: number;
   profileAvatarUrl: string;
-  profileHandleValue: ReactNode;
-  profileNameValue: ReactNode;
+  profileHandleValue: string;
+  profileNameValue: string;
   editingContactEmail: string;
   editingGithubUrl: string;
   editingLinkedinUrl: string;

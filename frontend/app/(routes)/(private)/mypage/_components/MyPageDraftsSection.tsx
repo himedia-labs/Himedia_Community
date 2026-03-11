@@ -45,7 +45,7 @@ export default function MyPageDraftsSection({
   handleDraftSortToggle: () => void;
 }) {
   // 상태
-  const { accessToken } = useAuthStore();
+  const { accessToken, isInitialized } = useAuthStore();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
 
@@ -96,7 +96,7 @@ export default function MyPageDraftsSection({
           </button>
         </div>
       </div>
-      {isLoading ? (
+      {!isInitialized || isLoading ? (
         <MyPageDraftsSkeleton />
       ) : !drafts.length ? (
         <EmptyState title="임시저장된 게시물이 없습니다." description="임시저장한 글이 생기면 이곳에 표시됩니다." />

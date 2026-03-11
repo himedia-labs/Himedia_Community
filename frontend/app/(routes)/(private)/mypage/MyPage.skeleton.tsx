@@ -1,4 +1,5 @@
 import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 import {
   SKELETON_ACCOUNT_ITEM_COUNT,
@@ -6,7 +7,6 @@ import {
   SKELETON_POST_LIST_COUNT,
 } from '@/app/shared/constants/config/mypage.config';
 
-import 'react-loading-skeleton/dist/skeleton.css';
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 import commentStyles from '@/app/shared/components/comment/CommentThread.module.css';
 import postListStyles from '@/app/shared/components/post/PostListView.module.css';
@@ -17,32 +17,38 @@ import type { MyPagePostListSkeletonProps } from '@/app/shared/types/mypage';
  * 마이페이지 게시글 스켈레톤
  * @description 내 블로그/좋아요 탭의 리스트 로딩 UI를 렌더링
  */
-export function MyPagePostListSkeleton({ label, showFilters = true }: MyPagePostListSkeletonProps) {
+export function MyPagePostListSkeleton({
+  label,
+  showHeader = true,
+  showFilters = true,
+}: MyPagePostListSkeletonProps) {
   return (
     <div className={styles.postsMain} aria-hidden="true">
-      <div className={styles.settingsRow}>
-        <span className={styles.settingsLabel}>{label}</span>
-        {showFilters ? (
-          <div className={styles.settingsControlGroup}>
-            <span className={styles.filterButton}>
-              <Skeleton width={62} height={14} />
-            </span>
-            <span className={styles.filterButton}>
-              <Skeleton width={52} height={14} />
-            </span>
-            <div className={styles.settingsDivider} />
-            <span className={styles.settingsSortButton}>
-              <Skeleton width={58} height={14} />
-            </span>
-          </div>
-        ) : (
-          <div className={styles.settingsSortGroup}>
-            <span className={styles.settingsSortButton}>
+      {showHeader ? (
+        <div className={styles.settingsRow}>
+          <span className={styles.settingsLabel}>{label}</span>
+          {showFilters ? (
+            <div className={styles.settingsControlGroup}>
+              <span className={styles.filterButton}>
+                <Skeleton width={62} height={14} />
+              </span>
+              <span className={styles.filterButton}>
+                <Skeleton width={52} height={14} />
+              </span>
+              <div className={styles.settingsDivider} />
+              <span className={styles.settingsSortButton}>
+                <Skeleton width={58} height={14} />
+              </span>
+            </div>
+          ) : (
+            <div className={styles.settingsSortGroup}>
+              <span className={styles.settingsSortButton}>
               <Skeleton width={58} height={14} />
             </span>
           </div>
         )}
-      </div>
+        </div>
+      ) : null}
       <ul className={postListStyles.listView}>
         {Array.from({ length: SKELETON_POST_LIST_COUNT }).map((_, index) => (
           <li key={`mypage-post-list-skeleton-${index}`}>
@@ -79,14 +85,6 @@ export function MyPagePostListSkeleton({ label, showFilters = true }: MyPagePost
 export function MyPageCommentsSkeleton() {
   return (
     <div aria-hidden="true">
-      <div className={styles.settingsRow}>
-        <span className={styles.settingsLabel}>남긴 댓글</span>
-        <div className={styles.settingsSortGroup}>
-          <span className={styles.settingsSortButton}>
-            <Skeleton width={58} height={14} />
-          </span>
-        </div>
-      </div>
       <div className={commentStyles.commentList}>
         {Array.from({ length: SKELETON_COMMENT_LIST_COUNT }).map((_, index) => (
           <div key={`mypage-comment-skeleton-${index}`}>
@@ -151,6 +149,45 @@ export function MyPageAccountSkeleton() {
 }
 
 /**
+ * 마이페이지 프로필 헤더 스켈레톤
+ * @description 프로필 헤더 로딩 UI를 렌더링
+ */
+export function MyPageProfileHeaderSkeleton() {
+  return (
+    <header className={styles.header} aria-hidden="true">
+      <div className={styles.profileCard}>
+        <div className={styles.profileMain}>
+          <span className={styles.avatar}>
+            <Skeleton circle width={62} height={62} />
+          </span>
+          <div className={styles.profileInfo}>
+            <div className={styles.profileNameRow}>
+              <Skeleton width={96} height={34} />
+              <Skeleton width={86} height={18} />
+            </div>
+            <div className={styles.profileStatsRow}>
+              <Skeleton width={220} height={18} />
+            </div>
+          </div>
+          <div className={styles.profileSide}>
+            <div className={styles.profileActions}>
+              <Skeleton width={88} height={32} />
+            </div>
+            <div className={styles.profileSocialRow}>
+              {Array.from({ length: 4 }).map((_, index) => (
+                <span key={`profile-social-skeleton-${index}`} className={styles.profileSocialLink}>
+                  <Skeleton width={16} height={16} />
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/**
  * 마이페이지 소개 스켈레톤
  * @description 내 정보 탭 소개 영역 로딩 UI를 렌더링
  */
@@ -205,5 +242,87 @@ export function MyPageDraftsSkeleton() {
         </li>
       ))}
     </ul>
+  );
+}
+
+/**
+ * 마이페이지 전체 스켈레톤
+ * @description 페이지 로딩 시 전체 레이아웃 스켈레톤 표시
+ */
+export function MyPageSkeleton() {
+  return (
+    <section className={styles.container} aria-label="마이페이지">
+      <div className={styles.layout}>
+        <aside className={styles.leftPanel} aria-hidden="true">
+          <nav className={styles.list}>
+            <div className={styles.listSection}>
+              <span className={styles.listLink}>
+                <Skeleton width={60} height={16} />
+              </span>
+              <div className={styles.listDividerLine} aria-hidden="true" />
+              <span className={styles.listGroupTitle}>활동</span>
+              <span className={styles.listLink}>
+                <Skeleton width={70} height={16} />
+              </span>
+              <span className={styles.listLink}>
+                <Skeleton width={96} height={16} />
+              </span>
+              <span className={styles.listLink}>
+                <Skeleton width={126} height={16} />
+              </span>
+              <div className={styles.listDividerLine} aria-hidden="true" />
+              <span className={styles.listGroupTitle}>반응</span>
+              <span className={styles.listLink}>
+                <Skeleton width={70} height={16} />
+              </span>
+              <span className={styles.listLink}>
+                <Skeleton width={96} height={16} />
+              </span>
+              <div className={styles.listDividerLine} aria-hidden="true" />
+              <span className={styles.listGroupTitle}>설정</span>
+              <span className={styles.listLink}>
+                <Skeleton width={70} height={16} />
+              </span>
+            </div>
+          </nav>
+        </aside>
+        <div className={styles.main}>
+          <header className={styles.header} aria-hidden="true">
+            <div className={styles.profileCard}>
+              <div className={styles.profileMain}>
+                <span className={styles.avatar}>
+                  <Skeleton circle width={62} height={62} />
+                </span>
+                <div className={styles.profileInfo}>
+                  <div className={styles.profileNameRow}>
+                    <Skeleton width={96} height={34} />
+                    <Skeleton width={86} height={18} />
+                  </div>
+                  <div className={styles.profileStatsRow}>
+                    <Skeleton width={220} height={18} />
+                  </div>
+                </div>
+                <div className={styles.profileSide}>
+                  <div className={styles.profileActions}>
+                    <Skeleton width={88} height={32} />
+                  </div>
+                  <div className={styles.profileSocialRow}>
+                    {Array.from({ length: 4 }).map((_, index) => (
+                      <span key={`profile-social-skeleton-${index}`} className={styles.profileSocialLink}>
+                        <Skeleton width={16} height={16} />
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </header>
+          <div className={styles.headerDivider} aria-hidden="true" />
+          <div aria-hidden="true">
+            <MyPageAccountSkeleton />
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
