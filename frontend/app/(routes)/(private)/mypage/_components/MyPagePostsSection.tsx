@@ -85,7 +85,7 @@ export default function MyPagePostsSection({
         </div>
       </div>
       {isMyPostsLoading ? (
-        <MyPagePostListSkeleton label="내 블로그" />
+        <MyPagePostListSkeleton showHeader={false} />
       ) : myPosts.length ? (
         filteredPosts.length ? (
           <PostSummaryList

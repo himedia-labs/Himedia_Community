@@ -98,7 +98,7 @@ export default function MyPageLikesSection({
         </div>
       </div>
       {isLikedPostsListLoading ? (
-        <MyPagePostListSkeleton label="좋아한 포스트" showFilters={false} />
+        <MyPagePostListSkeleton showHeader={false} />
       ) : sortedLikedPosts.length ? (
         <ul className={postListStyles.listView}>
           {sortedLikedPosts.map((post, index) => {

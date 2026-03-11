@@ -2,9 +2,6 @@ import Image from 'next/image';
 
 import { FaUser, FaUserEdit } from 'react-icons/fa';
 
-import Skeleton from 'react-loading-skeleton';
-
-import { PROFILE_SOCIAL_SKELETON_COUNT } from '@/app/shared/constants/config/mypage.config';
 import ProfileSocialLinks from '@/app/shared/components/profile/ProfileSocialLinks';
 
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
@@ -27,7 +24,6 @@ export default function MyPageProfileHeader({
   followingCount,
   isProfileActionPending,
   isProfileEditing,
-  isUserInfoLoading,
   myPostCount,
   profileAvatarUrl,
   profileHandleValue,
@@ -121,58 +117,39 @@ export default function MyPageProfileHeader({
           </div>
           <div className={styles.profileSide}>
             <div className={styles.profileActions}>
-              {isUserInfoLoading ? (
-                <span className={`${styles.profileEditButton} ${styles.profileButtonSkeleton}`} aria-hidden="true">
-                  <Skeleton width={54} height={14} />
-                </span>
-              ) : (
+              {isProfileEditing ? (
                 <>
-                  {isProfileEditing ? (
-                    <>
-                      <button
-                        type="button"
-                        className={styles.profileDeleteButton}
-                        disabled={isProfileActionPending}
-                        onClick={handleAvatarRemove}
-                      >
-                        사진 지우기
-                      </button>
-                      <span className={styles.profileActionDivider} aria-hidden="true">
-                        |
-                      </span>
-                      <button
-                        type="button"
-                        className={styles.profileCancelButton}
-                        disabled={isProfileActionPending}
-                        onClick={handleProfileCancelAll}
-                      >
-                        취소
-                      </button>
-                    </>
-                  ) : null}
                   <button
                     type="button"
-                    className={styles.profileEditButton}
+                    className={styles.profileDeleteButton}
                     disabled={isProfileActionPending}
-                    onClick={handleProfileAction}
+                    onClick={handleAvatarRemove}
                   >
-                    {isProfileEditing ? '저장' : '프로필 수정'}
+                    사진 지우기
+                  </button>
+                  <span className={styles.profileActionDivider} aria-hidden="true">
+                    |
+                  </span>
+                  <button
+                    type="button"
+                    className={styles.profileCancelButton}
+                    disabled={isProfileActionPending}
+                    onClick={handleProfileCancelAll}
+                  >
+                    취소
                   </button>
                 </>
-              )}
+              ) : null}
+              <button
+                type="button"
+                className={styles.profileEditButton}
+                disabled={isProfileActionPending}
+                onClick={handleProfileAction}
+              >
+                {isProfileEditing ? '저장' : '프로필 수정'}
+              </button>
             </div>
-            {isUserInfoLoading ? (
-              <div className={styles.profileSocialRow} aria-hidden="true">
-                {Array.from({ length: PROFILE_SOCIAL_SKELETON_COUNT }).map((_, index) => (
-                  <span
-                    key={`profile-social-skeleton-${index}`}
-                    className={`${styles.profileSocialLink} ${styles.profileSocialLinkSkeleton}`}
-                  >
-                    <Skeleton width={16} height={16} />
-                  </span>
-                ))}
-              </div>
-            ) : profileSocialLinks.length ? (
+            {profileSocialLinks.length ? (
               <ProfileSocialLinks
                 links={profileSocialLinks}
                 containerClassName={styles.profileSocialRow}

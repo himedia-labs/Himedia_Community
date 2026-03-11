@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
 
 import { authApi } from '@/app/api/auth/auth.api';
 import { authKeys } from '@/app/api/auth/auth.keys';
@@ -25,5 +26,12 @@ export const useProfileByHandleQuery = (handle?: string | null) => {
     queryKey: authKeys.profile(safeHandle ?? ''),
     queryFn: () => authApi.getProfileByHandle(safeHandle ?? ''),
     enabled: Boolean(safeHandle),
+    retry: (failureCount, error) => {
+      if (isAxiosError(error) && error.response?.status === 404) {
+        return false;
+      }
+
+      return failureCount < 3;
+    },
   });
 };
