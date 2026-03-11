@@ -1,0 +1,83 @@
+# 태그 푸시 시 자동으로 Release Notes와 체인지로그를 생성하고 문서를 배포합니다.
+name: Auto Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Get previous tag
+        id: previoustag
+        run: |
+          PREV_TAG=$(git tag --sort=-version:refname | grep -v "^${{ github.ref_name }}$" | head -n 1)
+          echo "tag=${PREV_TAG:-$(git rev-list --max-parents=0 HEAD)}" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          echo "# 📝 변경사항" > CHANGELOG.md
+          echo "" >> CHANGELOG.md
+
+          echo "## ✨ 새로운 기능" >> CHANGELOG.md
+          git log ${{ steps.previoustag.outputs.tag }}..${{ github.ref_name }} --pretty=format:"- %s (%h)" --grep="^feat" >> CHANGELOG.md || echo "- 없음" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+
+          echo "## 🐛 버그 수정" >> CHANGELOG.md
+          git log ${{ steps.previoustag.outputs.tag }}..${{ github.ref_name }} --pretty=format:"- %s (%h)" --grep="^fix" >> CHANGELOG.md || echo "- 없음" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+
+          echo "## 🔧 리팩토링" >> CHANGELOG.md
+          git log ${{ steps.previoustag.outputs.tag }}..${{ github.ref_name }} --pretty=format:"- %s (%h)" --grep="^refactor" >> CHANGELOG.md || echo "- 없음" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+
+          echo "## 📚 문서" >> CHANGELOG.md
+          git log ${{ steps.previoustag.outputs.tag }}..${{ github.ref_name }} --pretty=format:"- %s (%h)" --grep="^docs" >> CHANGELOG.md || echo "- 없음" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+
+          echo "## 🔨 기타 변경사항" >> CHANGELOG.md
+          git log ${{ steps.previoustag.outputs.tag }}..${{ github.ref_name }} --pretty=format:"- %s (%h)" --grep="^chore" >> CHANGELOG.md || echo "- 없음" >> CHANGELOG.md
+
+          cat CHANGELOG.md
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: CHANGELOG.md
+          generate_release_notes: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate version docs
+        run: |
+          mkdir -p docs/releases
+          cp CHANGELOG.md docs/releases/${{ github.ref_name }}.md
+          echo "---" > docs/releases/${{ github.ref_name }}.md
+          echo "version: ${{ github.ref_name }}" >> docs/releases/${{ github.ref_name }}.md
+          echo "date: $(date +'%Y-%m-%d')" >> docs/releases/${{ github.ref_name }}.md
+          echo "---" >> docs/releases/${{ github.ref_name }}.md
+          echo "" >> docs/releases/${{ github.ref_name }}.md
+          cat CHANGELOG.md >> docs/releases/${{ github.ref_name }}.md
+
+      - name: Commit version docs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout main
+          git add docs/releases/${{ github.ref_name }}.md
+          git commit -m "docs: ${{ github.ref_name }} 릴리스 문서 추가" || echo "No changes to commit"
+          git push origin main || echo "Nothing to push"
