@@ -1,4 +1,5 @@
 import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 import markdownStyles from '@/app/shared/components/markdown-editor/markdown.module.css';
 import styles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';

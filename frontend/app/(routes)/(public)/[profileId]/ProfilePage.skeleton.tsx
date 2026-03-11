@@ -1,4 +1,5 @@
 import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 import postListStyles from '@/app/shared/components/post/PostListView.module.css';
 import layoutStyles from '@/app/(routes)/(public)/[profileId]/ProfilePageLayout.module.css';
