@@ -482,3 +482,21 @@
   cursor: pointer;
   accent-color: #ff6363;
 }
+
+.codeInput {
+  border-color: #3b82f6;
+}
+
+.codeInput:hover {
+  border-color: #3b82f6;
+}
+
+.codeInput:focus {
+  border-color: #3b82f6;
+}
+
+.infoMessage {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #3b82f6;
+}
