@@ -16,13 +16,26 @@ export const stripInlineMarkdown = (value: string) =>
 
 /**
  * 링크 주소 정규화
- * @description 외부 링크 형식으로 보정
+ * @description 안전한 스킴만 허용해 링크 주소를 보정
  */
 export const normalizeHref = (href: string) => {
-  if (!href) return href;
-  if (/^[a-z][a-z0-9+.-]*:/i.test(href)) return href;
-  if (href.startsWith('#') || href.startsWith('/')) return href;
-  return `https://${href}`;
+  const safeHrefFallback = '#';
+  const allowedProtocols = new Set(['http:', 'https:', 'mailto:', 'tel:']);
+  const trimmedHref = href.trim();
+
+  if (!trimmedHref) return safeHrefFallback;
+  if (trimmedHref.startsWith('#') || trimmedHref.startsWith('/')) return trimmedHref;
+  if (trimmedHref.startsWith('//')) return `https:${trimmedHref}`;
+
+  const hasProtocol = /^[a-z][a-z0-9+.-]*:/i.test(trimmedHref);
+  if (!hasProtocol) return `https://${trimmedHref}`;
+
+  try {
+    const parsedUrl = new URL(trimmedHref);
+    return allowedProtocols.has(parsedUrl.protocol) ? trimmedHref : safeHrefFallback;
+  } catch {
+    return safeHrefFallback;
+  }
 };
 
 /**
