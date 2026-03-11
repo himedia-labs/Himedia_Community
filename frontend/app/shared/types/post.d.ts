@@ -307,6 +307,52 @@ export type PostTocItem = {
   text: string;
 };
 
+export interface PostDetailHeaderSectionProps {
+  canManagePost: boolean;
+  data: PostDetailResponse;
+  isAdmin: boolean;
+  isMyPost: boolean;
+  isPostDeleting: boolean;
+  isForcingPostDraft: boolean;
+  isPostMenuOpen: boolean;
+  handlePostDelete: () => void;
+  handlePostEdit: () => void;
+  handlePostMenuToggle: () => void;
+  handleForcePostDraft: () => void;
+}
+
+export interface PostDetailTocSectionProps {
+  tocItems: PostTocItem[];
+  handleTocClick: (id: string) => (event: MouseEvent<HTMLAnchorElement>) => void;
+}
+
+export interface PostDetailActionsSectionProps {
+  isLiked: boolean;
+  likeCount: number;
+  shareCount: number;
+  viewCount: number;
+  handleLikeClick: () => void;
+  handleShareCopy: () => void;
+}
+
+export interface PostDetailAuthorSectionProps {
+  author: PostAuthorRef;
+  authorFollowerCount: number;
+  authorFollowingCount: number;
+  authorPostCount: number;
+  authorProfilePath: string | null;
+  canShowAuthorFollowButton: boolean;
+  isAuthorFollowHover: boolean;
+  isAuthorFollowLoading: boolean;
+  isAuthorFollowing: boolean;
+  postAuthorId: string | null;
+  authorProfileBioPreview: string;
+  authorSocialLinks: PostDetailAuthorSocialLink[];
+  handleAuthorFollowToggle: () => void;
+  handleAuthorFollowMouseEnter: () => void;
+  handleAuthorFollowMouseLeave: () => void;
+}
+
 // 드래프트 데이터
 export type DraftData = {
   title: string;
