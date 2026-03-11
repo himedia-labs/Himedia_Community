@@ -137,3 +137,15 @@ export interface PostDetailCommentBlockProps {
   setReplyTextareaRef: (rootId: string) => (node: HTMLDivElement | null) => void;
   syncReplyMentionQuery: (rootId: string) => () => void;
 }
+
+// 멘션 라벨
+export interface MentionLabelProps {
+  name: string;
+  query: string | null;
+}
+
+// 멘션 역할
+export interface MentionRoleProps {
+  name: string;
+  mentionRoleMap: Map<string, string>;
+}

@@ -28,13 +28,18 @@ import { formatRole, getMentionHighlightSegments } from '@/app/(routes)/(public)
 
 import styles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
 
-import type { PostDetailCommentBlockProps, PostDetailCommentsSectionProps } from '@/app/shared/types/postDetailComments';
+import type {
+  MentionLabelProps,
+  MentionRoleProps,
+  PostDetailCommentBlockProps,
+  PostDetailCommentsSectionProps,
+} from '@/app/shared/types/postDetailComments';
 
 /**
  * 멘션 이름 텍스트
  * @description 검색어와 일치하는 멘션 이름을 강조해 렌더링합니다.
  */
-function MentionLabel({ name, query }: { name: string; query: string | null }) {
+function MentionLabel({ name, query }: MentionLabelProps) {
   const segments = getMentionHighlightSegments(name, query);
 
   return (
@@ -56,7 +61,7 @@ function MentionLabel({ name, query }: { name: string; query: string | null }) {
  * 멘션 역할 텍스트
  * @description 멘션 대상의 역할 라벨을 렌더링합니다.
  */
-function MentionRole({ name, mentionRoleMap }: { name: string; mentionRoleMap: Map<string, string> }) {
+function MentionRole({ name, mentionRoleMap }: MentionRoleProps) {
   const role = mentionRoleMap.get(name);
   return role ? <span className={styles.commentMentionRole}>{role}</span> : null;
 }
@@ -430,7 +435,7 @@ function CommentBlock({
  * 댓글 섹션
  * @description 댓글 작성/목록/답글 렌더링과 상호작용 UI를 표시
  */
-export const PostDetailCommentsSection = ({
+export default function PostDetailCommentsSection({
   accessToken,
   commentCount,
   commentListRef,
@@ -484,7 +489,7 @@ export const PostDetailCommentsSection = ({
   shouldShowCommentMentions,
   syncReplyMentionQuery,
   topLevelComments,
-}: PostDetailCommentsSectionProps) => {
+}: PostDetailCommentsSectionProps) {
   const handleCommentFormSubmit = createCommentFormSubmitHandler(handleCommentSubmit);
 
   return (
@@ -620,4 +625,4 @@ export const PostDetailCommentsSection = ({
       </div>
     </section>
   );
-};
+}
