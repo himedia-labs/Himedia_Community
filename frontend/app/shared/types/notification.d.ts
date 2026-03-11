@@ -1,3 +1,5 @@
+import type { MouseEvent } from 'react';
+
 // 공통 응답
 type NotificationReadResponse = {
   id: string;
@@ -45,3 +47,25 @@ export interface MarkNotificationsReadAllResponse {
 export type NotificationsQueryOptions = NotificationQueryOptions & {
   limit?: number;
 };
+
+// 알림 페이지
+export type NotificationItemClickHandler = (
+  notificationId: string,
+  notificationHref: string,
+  isRead: boolean,
+) => void;
+
+export interface NotificationsPageContentProps {
+  filteredNotifications: NotificationItem[];
+  hasUnread: boolean;
+  isLoading: boolean;
+  isMarkingAllRead: boolean;
+  postCount: number;
+  followerCount: number;
+  followingCount: number;
+  profileHandleText: string;
+  profileName: string;
+  profileImageUrl: string | null;
+  handleMarkAllRead: () => void;
+  handleItemClick: (event: MouseEvent<HTMLButtonElement>) => void;
+}
