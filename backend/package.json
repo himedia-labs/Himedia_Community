@@ -89,7 +89,13 @@
       "minimatch": "10.2.4"
     },
     "@nestjs/platform-express": {
-      "multer": "2.1.0"
+      "multer": "2.1.1"
+    },
+    "@nestjs/common": {
+      "file-type": "21.3.1"
+    },
+    "snowflake-sdk": {
+      "@tootallnate/once": "3.0.1"
     },
     "fast-xml-parser": "5.3.8",
     "serialize-javascript": "7.0.3"
