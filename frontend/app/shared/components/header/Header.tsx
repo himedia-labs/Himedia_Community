@@ -440,7 +440,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                             )}
                           </ul>
                           {filteredNotifications.length > 3 ? (
-                            <Link href="/" className={styles.notificationFooterButton}>
+                            <Link href="/notifications" className={styles.notificationFooterButton}>
                               전체 알림 보기
                             </Link>
                           ) : null}

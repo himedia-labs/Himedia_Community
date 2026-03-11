@@ -2,9 +2,8 @@ import { useMemo } from 'react';
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useMyCommentsQuery } from '@/app/api/comments/comments.queries';
-import { useLikedPostsQuery, usePostsQuery, useRecentPostsQuery } from '@/app/api/posts/posts.queries';
 import { useFollowersQuery, useFollowingsQuery } from '@/app/api/follows/follows.queries';
-
+import { useLikedPostsQuery, usePostsQuery, useRecentPostsQuery } from '@/app/api/posts/posts.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
 
 /**
@@ -12,14 +11,15 @@ import { useAuthStore } from '@/app/shared/store/authStore';
  * @description 내 정보/활동 데이터를 조회하고 파생값을 구성
  */
 export const useMyData = () => {
+  // 인증 상태
   const { accessToken, isInitialized } = useAuthStore();
-
-  // 데이터 조회
   const {
     data: currentUser,
     isFetching: isCurrentUserFetching,
     isLoading: isCurrentUserLoading,
   } = useCurrentUserQuery();
+
+  // 데이터 조회
   const { data: followersData } = useFollowersQuery({ enabled: Boolean(accessToken) });
   const { data: followingsData } = useFollowingsQuery({ enabled: Boolean(accessToken) });
   const {
@@ -55,12 +55,12 @@ export const useMyData = () => {
   // 파생 데이터
   const isAuthInitializing = !isInitialized;
   const isCurrentUserPending = Boolean(accessToken) && (isCurrentUserLoading || isCurrentUserFetching || !currentUser);
+  const isUserInfoLoading = isAuthInitializing || isCurrentUserPending;
   const isPostsPending = Boolean(accessToken) && (isPostsLoading || isPostsFetching) && !postsData;
   const isCommentsPending = Boolean(accessToken) && (isMyCommentsLoading || isMyCommentsFetching) && !myCommentsData;
   const isLikedPostsPending = Boolean(accessToken) && (isLikedPostsLoading || isLikedPostsFetching) && !likedPostsData;
   const isRecentPostsPending =
     Boolean(accessToken) && (isRecentPostsLoading || isRecentPostsFetching) && !recentPostsData;
-  const isUserInfoLoading = isAuthInitializing || isCurrentUserPending;
   const isMyPostsLoading = isUserInfoLoading || isPostsPending;
   const isMyCommentsListLoading = isUserInfoLoading || isCommentsPending;
   const isLikedPostsListLoading = isUserInfoLoading || isLikedPostsPending;
