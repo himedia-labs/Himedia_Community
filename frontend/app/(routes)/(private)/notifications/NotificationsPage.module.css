@@ -76,11 +76,11 @@
 
 .profileInfo {
   display: grid;
-  flex: 1;
-  min-width: 0;
+  gap: 0.5rem;
 }
 
 .profileName {
+  display: inline-flex;
   font-size: 2rem;
   font-weight: bold;
   color: #333d4b;
@@ -88,12 +88,12 @@
 
 .profileNameRow {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 10px;
-  height: 48px;
 }
 
 .profileHandle {
+  margin-bottom: 0.3rem;
   font-size: 1rem;
   color: #8b95a1;
 }
@@ -229,6 +229,15 @@
   height: 7px;
   border-radius: 999px;
   background: #ef4444;
+  flex-shrink: 0;
+}
+
+.unreadDotSkeleton {
+  width: 7px;
+  height: 7px;
+  border: 1px solid #cfd6de;
+  border-radius: 999px;
+  background: transparent;
   flex-shrink: 0;
 }
 

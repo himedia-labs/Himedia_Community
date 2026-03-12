@@ -863,6 +863,7 @@
   }
 
   .sidebar {
+    display: none;
     top: auto;
     position: static;
     padding: 0;
