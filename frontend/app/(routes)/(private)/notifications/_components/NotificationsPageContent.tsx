@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { FaUser } from 'react-icons/fa';
 import { FiBell, FiCheck } from 'react-icons/fi';
 
-import { formatNotificationTime, getNotificationIcon } from '@/app/shared/utils/notification';
+import { formatNotificationTime, getNotificationIcon, isNotificationNavigable } from '@/app/shared/utils/notification';
 
 import styles from '@/app/(routes)/(private)/notifications/NotificationsPage.module.css';
 
@@ -106,28 +106,44 @@ export default function NotificationsPageContent({
         <ul className={styles.list}>
           {filteredNotifications.map((notification, index) => {
             const Icon = getNotificationIcon(notification.type);
+            const isNavigable = isNotificationNavigable(notification.type, notification.href);
 
             return (
               <li key={notification.id} className={styles.listItem}>
                 <button
                   type="button"
-                  className={notification.isRead ? styles.itemButton : `${styles.itemButton} ${styles.itemButtonUnread}`}
+                  className={
+                    notification.isRead
+                      ? isNavigable
+                        ? styles.itemButton
+                        : `${styles.itemButton} ${styles.itemButtonStatic}`
+                      : isNavigable
+                        ? `${styles.itemButton} ${styles.itemButtonUnread}`
+                        : `${styles.itemButton} ${styles.itemButtonUnread} ${styles.itemButtonStatic}`
+                  }
                   data-notification-id={notification.id}
-                  data-notification-href={notification.href}
+                  data-notification-href={isNavigable ? notification.href : ''}
                   data-notification-is-read={notification.isRead ? 'true' : 'false'}
-                  onClick={handleItemClick}
+                  onClick={isNavigable ? handleItemClick : undefined}
+                  aria-disabled={!isNavigable}
                 >
                   <span className={styles.iconBox}>
                     <Icon aria-hidden="true" />
                   </span>
-                  <span className={styles.itemContent}>
+                  <span className={styles.itemLine}>
                     <span className={styles.itemTitleRow}>
-                      {!notification.isRead ? <span className={styles.unreadDot} aria-hidden="true" /> : null}
+                      <span
+                        className={notification.isRead ? `${styles.unreadDot} ${styles.unreadDotRead}` : styles.unreadDot}
+                        aria-hidden="true"
+                      />
                       <span className={styles.itemTitle}>{notification.title}</span>
                     </span>
+                    <span className={styles.itemSeparator} aria-hidden="true">
+                      -
+                    </span>
                     <span className={styles.itemDescription}>{notification.description}</span>
-                    <span className={styles.itemTime}>{formatNotificationTime(notification.createdAtMs)}</span>
                   </span>
+                  <span className={styles.itemTime}>{formatNotificationTime(notification.createdAtMs)}</span>
                 </button>
                 {index < filteredNotifications.length - 1 ? (
                   <div className={styles.listDividerItem} aria-hidden="true">

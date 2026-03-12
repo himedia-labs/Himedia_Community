@@ -7,6 +7,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { FaUser } from 'react-icons/fa6';
 import { CiChat1, CiFileOn, CiHeart, CiLogin, CiLogout, CiMenuBurger, CiUser } from 'react-icons/ci';
+import { CiBellOn } from 'react-icons/ci';
 
 import { authKeys } from '@/app/api/auth/auth.keys';
 import { useLogoutMutation } from '@/app/api/auth/auth.mutations';
@@ -17,7 +18,7 @@ import { useAuthStore } from '@/app/shared/store/authStore';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { usePathVisibility } from '@/app/shared/hooks/usePathVisibility';
 import { LayoutVisibilityConfig } from '@/app/shared/constants/config/layout.config';
-import { formatNotificationTime, getNotificationIcon } from '@/app/shared/utils/notification';
+import { formatNotificationTime, getNotificationIcon, isNotificationNavigable } from '@/app/shared/utils/notification';
 
 import { HeaderConfig } from '@/app/shared/constants/config/header.config';
 import { handleLogout as createHandleLogout } from '@/app/shared/components/header/_handlers/logout.handlers';
@@ -97,6 +98,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
     filteredNotifications,
     handleNotificationClick,
     handleMarkAllRead,
+    closeNotificationMenu,
     toggleNotifications,
   } = useNotificationMenu({ isLoggedIn, router, canFetchNotifications });
 
@@ -200,6 +202,15 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                             role="menu"
                           >
                             <Link
+                              href="/notifications"
+                              className={styles.profileItem}
+                              role="menuitem"
+                              onClick={closeProfileMenu}
+                            >
+                              <CiBellOn aria-hidden="true" />
+                              알림
+                            </Link>
+                            <Link
                               href="/mypage"
                               className={styles.profileItem}
                               role="menuitem"
@@ -263,7 +274,6 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                               <CiUser aria-hidden="true" />
                               계정 설정
                             </Link>
-                            <div className={styles.profileDivider} aria-hidden="true" />
                             <button
                               type="button"
                               className={styles.profileItem}
@@ -390,17 +400,19 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                             {hasNotifications ? (
                               visibleNotifications.map((notification, index) => {
                                 const Icon = getNotificationIcon(notification.type);
+                                const isNavigable = isNotificationNavigable(notification.type, notification.href);
                                 return (
                                   <li key={notification.id}>
                                     <button
                                       type="button"
-                                      className={`${styles.notificationItem} ${
-                                        notification.isRead ? '' : styles.notificationItemUnread
+                                      className={`${styles.notificationItem} ${notification.isRead ? '' : styles.notificationItemUnread} ${
+                                        isNavigable ? '' : styles.notificationItemStatic
                                       }`}
                                       data-notification-id={notification.id}
-                                      data-notification-href={notification.href}
+                                      data-notification-href={isNavigable ? notification.href : ''}
                                       data-notification-is-read={notification.isRead ? 'true' : 'false'}
-                                      onClick={handleNotificationItemClick}
+                                      onClick={isNavigable ? handleNotificationItemClick : undefined}
+                                      aria-disabled={!isNavigable}
                                     >
                                       <span className={styles.notificationIconBox}>
                                         <Icon aria-hidden="true" />
@@ -440,7 +452,11 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                             )}
                           </ul>
                           {filteredNotifications.length > 3 ? (
-                            <Link href="/notifications" className={styles.notificationFooterButton}>
+                            <Link
+                              href="/notifications"
+                              className={styles.notificationFooterButton}
+                              onClick={closeNotificationMenu}
+                            >
                               전체 알림 보기
                             </Link>
                           ) : null}

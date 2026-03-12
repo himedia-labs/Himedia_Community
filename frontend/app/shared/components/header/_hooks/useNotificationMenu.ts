@@ -142,6 +142,7 @@ export const useNotificationMenu = (params: HeaderNotificationMenuParams) => {
     notificationTabIndex,
     handleNotificationClick,
     handleMarkAllRead,
+    closeNotificationMenu,
     toggleNotifications,
   };
 };
