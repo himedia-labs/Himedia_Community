@@ -416,6 +416,10 @@
   min-height: 78px;
 }
 
+.notificationItemStatic {
+  cursor: default;
+}
+
 .notificationItemUnread {
   background: transparent;
 }

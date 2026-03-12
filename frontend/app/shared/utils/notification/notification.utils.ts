@@ -20,6 +20,16 @@ export const getNotificationIcon = (type: NotificationType) => {
 };
 
 /**
+ * 알림 이동 가능 여부
+ * @description 알림 항목 클릭 시 라우팅 가능한 타입인지 반환
+ */
+export const isNotificationNavigable = (type: NotificationType, href: string) => {
+  if (!href || href === '/') return false;
+  if (type === 'REPORT_RECEIVED' || type === 'REPORT_RESOLVED' || type === 'REPORT_REJECTED') return false;
+  return true;
+};
+
+/**
  * 알림 섹션 구분
  * @description 알림 생성 시간에 따라 오늘/이번주/이전으로 분류
  */
