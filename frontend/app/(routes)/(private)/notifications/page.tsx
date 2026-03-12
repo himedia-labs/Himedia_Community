@@ -4,6 +4,7 @@ import {
   createNotificationItemClickHandler,
 } from '@/app/(routes)/(private)/notifications/_handlers';
 import { NotificationsPageContent } from '@/app/(routes)/(private)/notifications/_components';
+import NotificationsPageSkeleton from '@/app/(routes)/(private)/notifications/NotificationsPage.skeleton';
 import {
   useNotificationsAuth,
   useNotificationsData,
@@ -46,7 +47,11 @@ export default function NotificationsPage() {
   // 이벤트 핸들러
   const handleItemClick = createNotificationItemClickHandler(handleNotificationClick);
 
-  if (!isInitialized || !accessToken) {
+  if (!isInitialized) {
+    return <NotificationsPageSkeleton />;
+  }
+
+  if (!accessToken) {
     return null;
   }
 

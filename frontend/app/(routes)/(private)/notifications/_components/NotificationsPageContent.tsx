@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { FaUser } from 'react-icons/fa';
 import { FiBell, FiCheck } from 'react-icons/fi';
 
+import NotificationsPageSkeleton from '@/app/(routes)/(private)/notifications/NotificationsPage.skeleton';
 import { formatNotificationTime, getNotificationIcon, isNotificationNavigable } from '@/app/shared/utils/notification';
 
 import styles from '@/app/(routes)/(private)/notifications/NotificationsPage.module.css';
@@ -28,11 +29,7 @@ export default function NotificationsPageContent({
   filteredNotifications,
 }: NotificationsPageContentProps) {
   if (isLoading) {
-    return (
-      <section className={styles.container} aria-label="전체 알림">
-        <div className={styles.loading}>알림을 불러오는 중입니다.</div>
-      </section>
-    );
+    return <NotificationsPageSkeleton />;
   }
 
   return (

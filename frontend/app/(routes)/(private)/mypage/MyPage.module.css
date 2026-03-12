@@ -334,11 +334,11 @@
 
 .profileInfo {
   display: grid;
-  flex: 1;
-  min-width: 0;
+  gap: 0.5rem;
 }
 
 .profileName {
+  display: inline-flex;
   font-size: 2rem;
   font-weight: bold;
   color: #333d4b;
@@ -346,10 +346,8 @@
 
 .profileNameRow {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 10px;
-
-  height: 48px;
 }
 
 .profileHandleInputGroup {
@@ -383,6 +381,7 @@
 }
 
 .profileHandle {
+  margin-bottom: 0.3rem;
   font-size: 1rem;
   color: #8b95a1;
 }
