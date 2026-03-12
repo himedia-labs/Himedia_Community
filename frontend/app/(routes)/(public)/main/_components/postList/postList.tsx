@@ -67,7 +67,7 @@ export default function PostListSection() {
   } = usePostList();
 
   // 스켈레톤
-  const listSkeletons = Array.from({ length: 5 });
+  const listSkeletons = Array.from({ length: 3 });
   const topSkeletons = Array.from({ length: 5 });
   const cardSkeletons = Array.from({ length: 6 });
   const categorySkeletons = Array.from({ length: 8 });
