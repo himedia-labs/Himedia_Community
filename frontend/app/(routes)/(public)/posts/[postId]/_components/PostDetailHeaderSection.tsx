@@ -45,7 +45,7 @@ export default function PostDetailHeaderSection({
                 {isMyPost ? (
                   <button
                     type="button"
-                    className={styles.postMoreItem}
+                    className={`${styles.postMoreItem} ${styles.postMoreItemDanger}`}
                     role="menuitem"
                     disabled={isPostDeleting}
                     onClick={handlePostDelete}
