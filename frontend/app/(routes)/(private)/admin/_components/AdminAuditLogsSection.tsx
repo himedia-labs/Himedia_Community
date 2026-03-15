@@ -20,51 +20,49 @@ import type { AdminAuditLogsSectionProps } from '@/app/shared/types/admin';
  */
 export default function AdminAuditLogsSection({ auditLogs, isLogsLoading }: AdminAuditLogsSectionProps) {
   return (
-    <article className={`${styles.card} ${styles.tableCard}`}>
+    <article className={styles.tableCard}>
       {isLogsLoading ? (
         <p className={styles.notice}>불러오는 중입니다.</p>
       ) : auditLogs.length ? (
-        <div className={styles.tableWrap}>
-          <table className={styles.pendingTable}>
-            <thead className={styles.pendingTableHead}>
-              <tr>
-                <th>순서</th>
-                <th>작업</th>
-                <th>대상</th>
-                <th>변경 전</th>
-                <th className={styles.auditDiffArrowCell} aria-label="변경 방향">
+        <table className={styles.pendingTable}>
+          <thead className={styles.pendingTableHead}>
+            <tr>
+              <th>순서</th>
+              <th>작업</th>
+              <th>대상</th>
+              <th>변경 전</th>
+              <th className={styles.auditDiffArrowCell} aria-label="변경 방향">
+                <FiChevronRight aria-hidden="true" />
+              </th>
+              <th>변경 후</th>
+              <th>시각</th>
+              <th>결과</th>
+            </tr>
+          </thead>
+          <tbody className={styles.pendingTableBody}>
+            {auditLogs.map((log, index) => (
+              <tr key={log.id}>
+                <td>#{index + 1}</td>
+                <td>{formatAuditActionLabel(log.action)}</td>
+                <td>{formatAuditTargetLabel(log.targetType, log.targetId, log.targetName, log.targetEmail)}</td>
+                <td>{formatAuditBeforeLabel(log.action, log.payload)}</td>
+                <td className={styles.auditDiffArrowCell}>
                   <FiChevronRight aria-hidden="true" />
-                </th>
-                <th>변경 후</th>
-                <th>시각</th>
-                <th>결과</th>
+                </td>
+                <td>{formatAuditAfterLabel(log.action, log.payload)}</td>
+                <td>{formatDate(log.createdAt)}</td>
+                <td>
+                  <span className={`${styles.auditResultBadge} ${getAuditResultBadgeClassName(styles, log.payload)}`}>
+                    <span className={styles.auditResultDot} aria-hidden="true" />
+                    {formatAuditResultLabel(log.payload)}
+                  </span>
+                </td>
               </tr>
-            </thead>
-            <tbody className={styles.pendingTableBody}>
-              {auditLogs.map((log, index) => (
-                <tr key={log.id}>
-                  <td>#{index + 1}</td>
-                  <td>{formatAuditActionLabel(log.action)}</td>
-                  <td>{formatAuditTargetLabel(log.targetType, log.targetId, log.targetName, log.targetEmail)}</td>
-                  <td>{formatAuditBeforeLabel(log.action, log.payload)}</td>
-                  <td className={styles.auditDiffArrowCell}>
-                    <FiChevronRight aria-hidden="true" />
-                  </td>
-                  <td>{formatAuditAfterLabel(log.action, log.payload)}</td>
-                  <td>{formatDate(log.createdAt)}</td>
-                  <td>
-                    <span className={`${styles.auditResultBadge} ${getAuditResultBadgeClassName(styles, log.payload)}`}>
-                      <span className={styles.auditResultDot} aria-hidden="true" />
-                      {formatAuditResultLabel(log.payload)}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       ) : (
-        <p className={styles.notice}>감사 로그가 없습니다.</p>
+        <p className={styles.emptyNotice}>감사 로그가 없습니다.</p>
       )}
     </article>
   );

@@ -1,12 +1,7 @@
 import { useMemo } from 'react';
 
-import { FiFileText, FiLogIn, FiUserCheck, FiUsers } from 'react-icons/fi';
-
-import { ADMIN_MENU_LABELS } from '@/app/shared/constants/config/admin.config';
-
 import { usePendingUsersSort } from '@/app/(routes)/(private)/admin/_hooks/usePendingUsersSort';
 
-import type { IconType } from 'react-icons';
 import type { UseAdminPageDataParams } from '@/app/shared/types/admin';
 
 /**
@@ -39,17 +34,6 @@ export const useAdminPageData = (params: UseAdminPageDataParams) => {
     });
   }, [params.selectedCourseFilter, params.selectedRoleFilter, sortedPendingUsers]);
 
-  // 메뉴 아이콘
-  const menuIconMap: Record<string, IconType> = {
-    [ADMIN_MENU_LABELS.PENDING_USERS]: FiUserCheck,
-    [ADMIN_MENU_LABELS.REJECTED_USERS]: FiUserCheck,
-    [ADMIN_MENU_LABELS.USERS]: FiUsers,
-    [ADMIN_MENU_LABELS.ADMINS]: FiUsers,
-    [ADMIN_MENU_LABELS.AUDIT_LOGS]: FiFileText,
-    [ADMIN_MENU_LABELS.ACCESS_LOGS]: FiLogIn,
-  };
-  const CurrentMenuIcon = menuIconMap[params.selectedMenu] ?? FiUserCheck;
-
   return {
     allUsers,
     auditLogs,
@@ -57,7 +41,6 @@ export const useAdminPageData = (params: UseAdminPageDataParams) => {
     adminUsers,
     pendingUsers,
     rejectedUsers,
-    CurrentMenuIcon,
     courseFilterOptions,
     filteredPendingUsers,
   };

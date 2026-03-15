@@ -10,6 +10,7 @@ import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { AdminModule } from './admin/admin.module';
+import { NoticesModule } from './notices/notices.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import appConfig from './common/config/app.config';
 
@@ -29,6 +30,7 @@ import appConfig from './common/config/app.config';
     CommentsModule,
     UploadsModule,
     AdminModule,
+    NoticesModule,
     NotificationsModule,
   ],
   controllers: [],

@@ -1,4 +1,17 @@
-import { FiFileText, FiLogIn, FiUserCheck, FiUsers } from 'react-icons/fi';
+import { FiBell, FiFileText, FiLogIn, FiRefreshCw, FiUserCheck, FiUsers } from 'react-icons/fi';
+
+import type { IconType } from 'react-icons';
+
+interface AdminSidebarItem {
+  menuLabel: string;
+  text: string;
+  Icon: IconType;
+}
+
+interface AdminSidebarSection {
+  label: string;
+  items: AdminSidebarItem[];
+}
 
 // 메뉴 레이블
 export const ADMIN_MENU_LABELS = {
@@ -6,6 +19,10 @@ export const ADMIN_MENU_LABELS = {
   REJECTED_USERS: '거절 계정',
   USERS: '사용자',
   ADMINS: '관리자',
+  NOTICE_ANNOUNCEMENTS: '공지사항',
+  NOTICE_UPDATES: '업데이트',
+  NOTICE_POST_CREATE: '공지사항 글 작성',
+  NOTICE_UPDATE_CREATE: '업데이트 내역 글 작성',
   AUDIT_LOGS: '감사 로그',
   ACCESS_LOGS: '관리자 접속일지',
 } as const;
@@ -41,6 +58,10 @@ export const ADMIN_TAB_QUERY_VALUE = {
   REJECTED_USERS: 'rejected',
   USERS: 'users',
   ADMINS: 'admins',
+  NOTICE_ANNOUNCEMENTS: 'notice-announcements',
+  NOTICE_UPDATES: 'notice-updates',
+  NOTICE_POST_CREATE: 'notice-post-create',
+  NOTICE_UPDATE_CREATE: 'notice-update-create',
   AUDIT_LOGS: 'audit',
   ACCESS_LOGS: 'access',
 } as const;
@@ -56,7 +77,7 @@ export const ADMIN_SORT_QUERY_VALUE = {
 } as const;
 
 // 사이드바 섹션
-export const ADMIN_SIDEBAR_SECTIONS = [
+export const ADMIN_SIDEBAR_SECTIONS: AdminSidebarSection[] = [
   {
     label: '관리',
     items: [
@@ -67,13 +88,20 @@ export const ADMIN_SIDEBAR_SECTIONS = [
     ],
   },
   {
+    label: '공지',
+    items: [
+      { menuLabel: ADMIN_MENU_LABELS.NOTICE_ANNOUNCEMENTS, text: '공지사항', Icon: FiBell },
+      { menuLabel: ADMIN_MENU_LABELS.NOTICE_UPDATES, text: '업데이트', Icon: FiRefreshCw },
+    ],
+  },
+  {
     label: '모니터링',
     items: [
       { menuLabel: ADMIN_MENU_LABELS.AUDIT_LOGS, text: '감사 로그', Icon: FiFileText },
       { menuLabel: ADMIN_MENU_LABELS.ACCESS_LOGS, text: '관리자 접속일지', Icon: FiLogIn },
     ],
   },
-] as const;
+];
 
 // 승인 정렬 옵션
 export const ADMIN_PENDING_SORT_OPTIONS = [

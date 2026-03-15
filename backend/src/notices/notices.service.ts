@@ -1,0 +1,307 @@
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { User } from '../auth/entities/user.entity';
+import { SnowflakeService } from '../common/services/snowflake.service';
+
+import { CreateNoticeDto } from './dto/createNotice.dto';
+import { NoticeReaction } from './entities/noticeReaction.entity';
+import { Notice, NoticeType } from './entities/notice.entity';
+
+import type {
+  CreateNoticeView,
+  NoticeDetailView,
+  NoticeReactionItemView,
+  NoticesListView,
+  ToggleNoticeReactionView,
+} from './notices.types';
+
+@Injectable()
+export class NoticesService {
+  /**
+   * 공지 서비스
+   * @description 공지 목록 조회와 리액션 토글을 처리합니다.
+   */
+  constructor(
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+    @InjectRepository(Notice)
+    private readonly noticesRepository: Repository<Notice>,
+    @InjectRepository(NoticeReaction)
+    private readonly noticeReactionsRepository: Repository<NoticeReaction>,
+    private readonly snowflakeService: SnowflakeService,
+  ) {}
+
+  /**
+   * 공지 목록 조회
+   * @description 공지사항과 업데이트 내역을 현재 사용자 기준으로 조회합니다.
+   */
+  async getNotices(userId?: string): Promise<NoticesListView> {
+    // 목록/조회
+    const notices = await this.noticesRepository.find({
+      order: { publishedAt: 'DESC' },
+      relations: { reactions: true },
+    });
+
+    return {
+      announcements: notices
+        .filter(notice => notice.type === NoticeType.ANNOUNCEMENT)
+        .map(notice => ({
+          id: notice.id,
+          title: notice.title,
+          publishedAt: this.formatNoticeDate(notice.publishedAt),
+        })),
+      updates: notices
+        .filter(notice => notice.type === NoticeType.UPDATE)
+        .map(notice => ({
+          id: notice.id,
+          version: notice.version ?? '',
+          title: notice.title,
+          publishedAt: this.formatNoticeDate(notice.publishedAt),
+          publishedLabel: this.buildPublishedLabel(notice.publishedAt),
+          adminName: notice.adminName ?? '운영팀',
+          adminInitial: notice.adminInitial ?? '운',
+          releaseType: notice.releaseType ?? 'Update',
+          releaseScope: notice.releaseScope ?? 'Web',
+          reactorCount: this.countReactors(notice.reactions),
+          selectedEmojis: this.getSelectedEmojis(notice.reactions, userId),
+          reactions: this.buildReactionItems(notice.reactions),
+          markdownContent: notice.markdownContent ?? '',
+        })),
+    };
+  }
+
+  /**
+   * 공지 상세 조회
+   * @description 공지사항 ID로 단건 조회합니다.
+   */
+  async getNotice(noticeId: string): Promise<NoticeDetailView> {
+    const notice = await this.noticesRepository.findOne({
+      where: { id: this.normalizeId(noticeId) },
+    });
+
+    if (!notice) {
+      throw new NotFoundException('공지를 찾을 수 없습니다.');
+    }
+
+    return {
+      id: notice.id,
+      title: notice.title,
+      publishedAt: this.formatNoticeDate(notice.publishedAt),
+      markdownContent: notice.markdownContent ?? '',
+    };
+  }
+
+  /**
+   * 다음 업데이트 버전 조회
+   * @description 마지막 업데이트의 버전에서 patch를 +1한 다음 버전을 반환합니다.
+   */
+  async getNextVersion(releaseType?: string): Promise<{ version: string }> {
+    const latest = await this.noticesRepository.findOne({
+      where: { type: NoticeType.UPDATE },
+      order: { publishedAt: 'DESC' },
+    });
+
+    if (!latest?.version) {
+      return { version: '0.1.0' };
+    }
+
+    const match = latest.version.match(/^v?(\d+)\.(\d+)\.(\d+)$/);
+
+    if (!match) {
+      return { version: '0.1.0' };
+    }
+
+    const [, major, minor, patch] = match;
+    const isMinorBump = releaseType === 'Feature';
+
+    if (isMinorBump) {
+      return { version: `${major}.${Number(minor) + 1}.0` };
+    }
+
+    return { version: `${major}.${minor}.${Number(patch) + 1}` };
+  }
+
+  /**
+   * 공지 생성
+   * @description 관리자 작성 입력값으로 공지사항 또는 업데이트 내역을 생성합니다.
+   */
+  async createNotice(body: CreateNoticeDto, adminUserId: string): Promise<CreateNoticeView> {
+    // 관리자/조회
+    const adminUser = await this.usersRepository.findOne({
+      where: { id: this.normalizeId(adminUserId) },
+    });
+
+    if (!adminUser) {
+      throw new NotFoundException('관리자 정보를 찾을 수 없습니다.');
+    }
+
+    // 값/생성
+    const notice = this.noticesRepository.create({
+      id: this.snowflakeService.generate(),
+      type: body.type,
+      title: body.title.trim(),
+      version: body.version?.trim() || null,
+      adminName: adminUser.name,
+      adminInitial: adminUser.name.trim().charAt(0) || '운',
+      releaseType: body.releaseType?.trim() || null,
+      releaseScope: body.releaseScope?.trim() || null,
+      markdownContent: body.markdownContent.trim(),
+      publishedAt: body.publishedAt ? new Date(body.publishedAt) : new Date(),
+    });
+
+    await this.noticesRepository.save(notice);
+
+    return {
+      id: notice.id,
+      type: notice.type,
+    };
+  }
+
+  /**
+   * 공지 리액션 토글
+   * @description 특정 업데이트 공지에 대한 사용자 이모지 리액션을 토글합니다.
+   */
+  async toggleReaction(noticeId: string, userId: string, emoji: string): Promise<ToggleNoticeReactionView> {
+    // 입력/정규화
+    const safeEmoji = this.normalizeEmoji(emoji);
+    const safeUserId = this.normalizeId(userId);
+    const safeNoticeId = this.normalizeId(noticeId);
+
+    // 공지/조회
+    const notice = await this.noticesRepository.findOne({
+      where: { id: safeNoticeId, type: NoticeType.UPDATE },
+    });
+
+    if (!notice) {
+      throw new NotFoundException('업데이트 공지를 찾을 수 없습니다.');
+    }
+
+    // 기존/조회
+    const existing = await this.noticeReactionsRepository.findOne({
+      where: { emoji: safeEmoji, noticeId: safeNoticeId, userId: safeUserId },
+    });
+
+    // 토글/처리
+    if (existing) {
+      await this.noticeReactionsRepository.remove(existing);
+    } else {
+      await this.noticeReactionsRepository.save(
+        this.noticeReactionsRepository.create({
+          emoji: safeEmoji,
+          noticeId: safeNoticeId,
+          userId: safeUserId,
+        }),
+      );
+    }
+
+    // 결과/조회
+    const reactions = await this.noticeReactionsRepository.find({
+      where: { noticeId: safeNoticeId },
+      order: { createdAt: 'ASC' },
+    });
+
+    const selectedEmojis = reactions.filter(reaction => reaction.userId === safeUserId).map(reaction => reaction.emoji);
+
+    return {
+      noticeId: safeNoticeId,
+      reactorCount: this.countReactors(reactions),
+      reactions: this.buildReactionItems(reactions),
+      selectedEmojis,
+    };
+  }
+
+  /**
+   * 공지 날짜 포맷
+   * @description 서버 응답용 공지 날짜를 YYYY.MM.DD 형식으로 변환합니다.
+   */
+  private formatNoticeDate(value: Date) {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+
+    return `${year}.${month}.${day}`;
+  }
+
+  /**
+   * 공지 상대 라벨 생성
+   * @description 게시일 기준 오늘/일주일 이내/이전 라벨을 계산합니다.
+   */
+  private buildPublishedLabel(value: Date) {
+    const today = new Date();
+    const target = new Date(value);
+
+    today.setHours(0, 0, 0, 0);
+    target.setHours(0, 0, 0, 0);
+
+    const diffDays = Math.floor((today.getTime() - target.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays <= 0) return '오늘 업데이트';
+    if (diffDays === 1) return '어제 업데이트';
+    if (diffDays < 7) return `${diffDays}일 전 업데이트`;
+
+    return '이전 업데이트';
+  }
+
+  /**
+   * 반응 아이템 생성
+   * @description 리액션 엔티티 배열을 이모지별 개수 목록으로 변환합니다.
+   */
+  private buildReactionItems(reactions: Array<Pick<NoticeReaction, 'emoji'>>) {
+    // 개수/집계
+    const counter = new Map<string, number>();
+
+    reactions.forEach(reaction => {
+      const count = counter.get(reaction.emoji) ?? 0;
+      counter.set(reaction.emoji, count + 1);
+    });
+
+    return Array.from(counter.entries()).map<NoticeReactionItemView>(([emoji, count]) => ({
+      emoji,
+      count,
+    }));
+  }
+
+  /**
+   * 반응 사용자 수
+   * @description 리액션을 남긴 고유 사용자 수를 계산합니다.
+   */
+  private countReactors(reactions: Array<Pick<NoticeReaction, 'userId'>>) {
+    return new Set(reactions.map(reaction => reaction.userId)).size;
+  }
+
+  /**
+   * 선택 이모지 목록
+   * @description 현재 사용자 기준으로 선택된 이모지 배열을 추출합니다.
+   */
+  private getSelectedEmojis(reactions: NoticeReaction[], userId?: string) {
+    if (!userId) {
+      return [];
+    }
+
+    return reactions.filter(reaction => reaction.userId === userId).map(reaction => reaction.emoji);
+  }
+
+  /**
+   * 문자열 ID 정규화
+   * @description bigint 문자열 입력값을 검증 후 trim 처리합니다.
+   */
+  private normalizeId(value: string) {
+    const normalized = value.trim();
+
+    if (!normalized || !/^\d+$/.test(normalized)) {
+      throw new BadRequestException('유효하지 않은 ID 형식입니다.');
+    }
+
+    return normalized;
+  }
+
+  /**
+   * 이모지 정규화
+   * @description 이모지 문자열 입력값을 trim 처리합니다.
+   */
+  private normalizeEmoji(value: string) {
+    return value.trim();
+  }
+}

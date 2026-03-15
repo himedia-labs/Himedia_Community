@@ -329,7 +329,7 @@
   width: 35px;
   height: 35px;
 
-  transform: translateX(4.75px) translateY(0.5px);
+  transform: translateX(4.75px) translateY(-0.5px);
 }
 
 .profileInfo {

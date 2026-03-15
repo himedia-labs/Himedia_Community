@@ -11,38 +11,36 @@ import type { AdminAdminsSectionProps } from '@/app/shared/types/admin';
  */
 export default function AdminAdminsSection({ adminUsers, isUsersLoading }: AdminAdminsSectionProps) {
   return (
-    <article className={`${styles.card} ${styles.tableCard}`}>
+    <article className={styles.tableCard}>
       {isUsersLoading ? (
         <p className={styles.notice}>불러오는 중입니다.</p>
       ) : adminUsers.length ? (
-        <div className={styles.tableWrap}>
-          <table className={styles.pendingTable}>
-            <thead className={styles.pendingTableHead}>
-              <tr>
-                <th>순서</th>
-                <th>이름</th>
-                <th>이메일</th>
-                <th>회원번호</th>
-                <th>전화번호</th>
-                <th>가입일</th>
+        <table className={styles.pendingTable}>
+          <thead className={styles.pendingTableHead}>
+            <tr>
+              <th>순서</th>
+              <th>이름</th>
+              <th>이메일</th>
+              <th>회원번호</th>
+              <th>전화번호</th>
+              <th>가입일</th>
+            </tr>
+          </thead>
+          <tbody className={styles.pendingTableBody}>
+            {adminUsers.map((user, index) => (
+              <tr key={user.id}>
+                <td>#{index + 1}</td>
+                <td>{user.name}</td>
+                <td>{user.email}</td>
+                <td>{user.id}</td>
+                <td>{formatPhoneNumber(user.phone)}</td>
+                <td>{formatDate(user.createdAt)}</td>
               </tr>
-            </thead>
-            <tbody className={styles.pendingTableBody}>
-              {adminUsers.map((user, index) => (
-                <tr key={user.id}>
-                  <td>#{index + 1}</td>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td>{user.id}</td>
-                  <td>{formatPhoneNumber(user.phone)}</td>
-                  <td>{formatDate(user.createdAt)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       ) : (
-        <p className={styles.notice}>관리자 목록이 없습니다.</p>
+        <p className={styles.emptyNotice}>관리자 목록이 없습니다.</p>
       )}
     </article>
   );

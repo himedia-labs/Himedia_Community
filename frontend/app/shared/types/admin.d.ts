@@ -2,8 +2,10 @@ import type { ADMIN_MENU_LABELS, ADMIN_PENDING_SORT } from '@/app/shared/constan
 import type { QueryClient } from '@tanstack/react-query';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import type { ReadonlyURLSearchParams } from 'next/navigation';
-import type { IconType } from 'react-icons';
 import type { ChangeEvent, RefObject, Dispatch, SetStateAction } from 'react';
+
+import type { NoticesListResponse } from '@/app/shared/types/notices';
+import type { PostListResponse } from '@/app/shared/types/post';
 import type { ToastOptions } from './toast';
 
 // 공통 응답
@@ -285,6 +287,8 @@ export type UseAdminPageDataParams = {
   usersData?: AdminUsersResponse;
   logsData?: AdminAuditLogsResponse;
   accessLogsData?: { pages: AdminAccessLogsResponse[] };
+  noticesData?: NoticesListResponse;
+  postsData?: PostListResponse;
 };
 
 export type UseAdminUserActionsParams = {
@@ -326,8 +330,8 @@ export type AdminUserEditState = {
 
 // 관리자 레이아웃
 export interface AdminSidebarProps {
-  selectedMenu: AdminMenuLabel;
   handleMenuButtonClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  handleLogoutClick: () => void;
 }
 
 export interface AdminHeaderProps {
@@ -341,7 +345,6 @@ export interface AdminHeaderProps {
   isCourseSortOpen: boolean;
   isPendingSortOpen: boolean;
   courseFilterOptions: string[];
-  CurrentMenuIcon: IconType;
   handleUserEdit: () => void;
   handleSaveAllUserRoles: () => Promise<void>;
   toggleRoleSort: () => void;
@@ -352,11 +355,12 @@ export interface AdminHeaderProps {
   handleCourseFilterClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-export interface AdminContentProps {
+export interface AdminContentProps extends AdminHeaderProps {
   allUsers: AdminUser[];
   auditLogs: AdminAuditLog[];
   accessLogs: AdminAccessLog[];
   adminUsers: AdminUser[];
+  noticesData?: NoticesListResponse;
   rejectedUsers: AdminPendingUser[];
   filteredPendingUsers: AdminPendingUser[];
   hasNextAccessLogsPage: boolean;
@@ -365,15 +369,18 @@ export interface AdminContentProps {
   isLogsLoading: boolean;
   isPendingUsersLoading: boolean;
   isRejectedUsersLoading: boolean;
-  isUsersEditMode: boolean;
   isUsersLoading: boolean;
-  selectedMenu: AdminMenuLabel;
   userRoleDrafts: Record<string, string>;
   accessLogsLoadMoreRef: RefObject<HTMLDivElement | null>;
   handleApproveUserClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   handleDeleteRejectedUserClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   handleRejectUserClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   handleUserRoleDraftChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+}
+
+export interface AdminNoticesSectionProps {
+  noticesData?: NoticesListResponse;
+  selectedMenu: AdminMenuLabel;
 }
 
 export interface AdminPendingUsersSectionProps {
