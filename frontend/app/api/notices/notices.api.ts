@@ -3,6 +3,7 @@ import { axiosInstance } from '@/app/shared/lib/axios/axios.instance';
 import type {
   CreateNoticeRequest,
   CreateNoticeResponse,
+  NoticeDetailResponse,
   NoticesListResponse,
   ToggleNoticeReactionResponse,
 } from '@/app/shared/types/notices';
@@ -10,6 +11,12 @@ import type {
 // 공지 목록 조회
 const getNotices = async (): Promise<NoticesListResponse> => {
   const res = await axiosInstance.get<NoticesListResponse>('/notices');
+  return res.data;
+};
+
+// 공지 상세 조회
+const getNoticeDetail = async (noticeId: string): Promise<NoticeDetailResponse> => {
+  const res = await axiosInstance.get<NoticeDetailResponse>(`/notices/${noticeId}`);
   return res.data;
 };
 
@@ -36,6 +43,7 @@ const createNotice = async (payload: CreateNoticeRequest): Promise<CreateNoticeR
 export const noticesApi = {
   createNotice,
   getNextVersion,
+  getNoticeDetail,
   getNotices,
   toggleNoticeReaction,
 };
