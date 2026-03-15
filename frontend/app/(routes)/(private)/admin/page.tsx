@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
+import { useNoticesQuery } from '@/app/api/notices/notices.queries';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useAuthStore } from '@/app/shared/store/authStore';
 import {
@@ -28,12 +29,7 @@ import {
   createHandleRoleFilterClick,
   createHandleCourseFilterClick,
 } from '@/app/(routes)/(private)/admin/_handlers/adminUi.handlers';
-import {
-  AdminContent,
-  AdminHeader,
-  AdminRejectUserModal,
-  AdminSidebar,
-} from '@/app/(routes)/(private)/admin/_components';
+import { AdminContent, AdminRejectUserModal, AdminSidebar } from '@/app/(routes)/(private)/admin/_components';
 import { useAdminAccessGuard } from '@/app/(routes)/(private)/admin/_hooks/useAdminAccessGuard';
 import { useTrackAdminAccess } from '@/app/(routes)/(private)/admin/_hooks/useTrackAdminAccess';
 import { useAccessLogsInfiniteScroll } from '@/app/(routes)/(private)/admin/_hooks/useAccessLogsInfiniteScroll';
@@ -57,6 +53,7 @@ export default function AdminPage() {
 
   // 인증/권한 상태
   const accessToken = useAuthStore(state => state.accessToken);
+  const clearAuth = useAuthStore(state => state.clearAuth);
   const isInitialized = useAuthStore(state => state.isInitialized);
   const { data: currentUser, isLoading: isUserLoading } = useCurrentUserQuery();
   const isAdmin = currentUser?.role === 'ADMIN';
@@ -66,6 +63,7 @@ export default function AdminPage() {
   const { data: pendingUsersData, isLoading: isPendingUsersLoading } = useAdminPendingUsersQuery(canAccess);
   const { data: rejectedUsersData, isLoading: isRejectedUsersLoading } = useAdminRejectedUsersQuery(canAccess);
   const { data: usersData, isLoading: isUsersLoading } = useAdminUsersQuery(canAccess);
+  const { data: noticesData } = useNoticesQuery(canAccess);
   const { data: logsData, isLoading: isLogsLoading } = useAdminAuditLogsQuery(canAccess);
   const {
     data: accessLogsData,
@@ -102,26 +100,19 @@ export default function AdminPage() {
     pathname,
     searchParams,
   });
-  const {
-    allUsers,
-    auditLogs,
-    accessLogs,
-    adminUsers,
-    rejectedUsers,
-    CurrentMenuIcon,
-    courseFilterOptions,
-    filteredPendingUsers,
-  } = useAdminPageData({
-    pendingSort,
-    selectedMenu,
-    selectedRoleFilter,
-    selectedCourseFilter,
-    pendingUsersData,
-    rejectedUsersData,
-    usersData,
-    logsData,
-    accessLogsData,
-  });
+  const { allUsers, auditLogs, accessLogs, adminUsers, rejectedUsers, courseFilterOptions, filteredPendingUsers } =
+    useAdminPageData({
+      pendingSort,
+      selectedMenu,
+      selectedRoleFilter,
+      selectedCourseFilter,
+      pendingUsersData,
+      rejectedUsersData,
+      usersData,
+      logsData,
+      accessLogsData,
+      noticesData,
+    });
   const {
     isUsersEditMode,
     rejectReason,
@@ -168,6 +159,10 @@ export default function AdminPage() {
   const handlePendingSortClick = createHandlePendingSortClick(handleSelectPendingSort);
   const handleRoleFilterClick = createHandleRoleFilterClick(handleSelectRoleFilter);
   const handleCourseFilterClick = createHandleCourseFilterClick(handleSelectCourseFilter);
+  const handleLogoutClick = () => {
+    clearAuth();
+    router.replace('/');
+  };
 
   if (!isInitialized || !accessToken || isUserLoading || !isAdmin) {
     return null;
@@ -175,56 +170,50 @@ export default function AdminPage() {
 
   return (
     <section className={styles.container} aria-label="관리자 페이지">
-      <AdminHeader
-        currentUserName={currentUser?.name}
-        isCourseSortOpen={isCourseSortOpen}
-        isPendingSortOpen={isPendingSortOpen}
-        isRoleSortOpen={isRoleSortOpen}
-        isUsersEditMode={isUsersEditMode}
-        pendingSort={pendingSort}
-        selectedCourseFilter={selectedCourseFilter}
-        selectedMenu={selectedMenu}
-        selectedRoleFilter={selectedRoleFilter}
-        courseFilterOptions={courseFilterOptions}
-        CurrentMenuIcon={CurrentMenuIcon}
-        handleCourseFilterClick={handleCourseFilterClick}
-        handlePendingSortClick={handlePendingSortClick}
-        handleRoleFilterClick={handleRoleFilterClick}
-        handleSaveAllUserRoles={handleSaveAllUserRoles}
-        handleUserEdit={handleUserEdit}
-        toggleCourseSort={toggleCourseSort}
-        togglePendingSort={togglePendingSort}
-        toggleRoleSort={toggleRoleSort}
-      />
-      <div className={styles.dashboard}>
-        <AdminSidebar selectedMenu={selectedMenu} handleMenuButtonClick={handleMenuButtonClick} />
+      <AdminSidebar handleLogoutClick={handleLogoutClick} handleMenuButtonClick={handleMenuButtonClick} />
 
+      <div className={styles.mainColumn}>
         <main className={styles.content}>
-          <div className={styles.contentInner}>
-            <AdminContent
-              allUsers={allUsers}
-              auditLogs={auditLogs}
-              accessLogs={accessLogs}
-              adminUsers={adminUsers}
-              rejectedUsers={rejectedUsers}
-              filteredPendingUsers={filteredPendingUsers}
-              hasNextAccessLogsPage={hasNextAccessLogsPage}
-              isAccessLogsFetchingMore={isAccessLogsFetchingMore}
-              isAccessLogsLoading={isAccessLogsLoading}
-              isLogsLoading={isLogsLoading}
-              isPendingUsersLoading={isPendingUsersLoading}
-              isRejectedUsersLoading={isRejectedUsersLoading}
-              isUsersEditMode={isUsersEditMode}
-              isUsersLoading={isUsersLoading}
-              selectedMenu={selectedMenu}
-              userRoleDrafts={userRoleDrafts}
-              accessLogsLoadMoreRef={accessLogsLoadMoreRef}
-              handleApproveUserClick={handleApproveUserClick}
-              handleDeleteRejectedUserClick={handleDeleteRejectedUserClick}
-              handleRejectUserClick={handleRejectUserClick}
-              handleUserRoleDraftChange={handleUserRoleDraftChange}
-            />
-          </div>
+          <AdminContent
+            currentUserName={currentUser?.name}
+            isCourseSortOpen={isCourseSortOpen}
+            isPendingSortOpen={isPendingSortOpen}
+            isRoleSortOpen={isRoleSortOpen}
+            isUsersEditMode={isUsersEditMode}
+            pendingSort={pendingSort}
+            selectedCourseFilter={selectedCourseFilter}
+            selectedMenu={selectedMenu}
+            selectedRoleFilter={selectedRoleFilter}
+            courseFilterOptions={courseFilterOptions}
+            allUsers={allUsers}
+            auditLogs={auditLogs}
+            accessLogs={accessLogs}
+            adminUsers={adminUsers}
+            noticesData={noticesData}
+            rejectedUsers={rejectedUsers}
+            filteredPendingUsers={filteredPendingUsers}
+            hasNextAccessLogsPage={hasNextAccessLogsPage}
+            isAccessLogsFetchingMore={isAccessLogsFetchingMore}
+            isAccessLogsLoading={isAccessLogsLoading}
+            isLogsLoading={isLogsLoading}
+            isPendingUsersLoading={isPendingUsersLoading}
+            isRejectedUsersLoading={isRejectedUsersLoading}
+            isUsersLoading={isUsersLoading}
+            userRoleDrafts={userRoleDrafts}
+            accessLogsLoadMoreRef={accessLogsLoadMoreRef}
+            handleCourseFilterClick={handleCourseFilterClick}
+            handleApproveUserClick={handleApproveUserClick}
+            handleDeleteRejectedUserClick={handleDeleteRejectedUserClick}
+            handlePendingSortClick={handlePendingSortClick}
+            handleRejectUserClick={handleRejectUserClick}
+            handleRoleFilterClick={handleRoleFilterClick}
+            handleSaveAllUserRoles={handleSaveAllUserRoles}
+            handleUserEdit={handleUserEdit}
+            handleUserRoleDraftChange={handleUserRoleDraftChange}
+            toggleCourseSort={toggleCourseSort}
+            togglePendingSort={togglePendingSort}
+            toggleRoleSort={toggleRoleSort}
+          />
         </main>
       </div>
       {rejectTargetUserId ? (
