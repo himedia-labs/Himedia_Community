@@ -249,7 +249,7 @@ export class NoticesService {
 
   /**
    * 공지 상대 라벨 생성
-   * @description 게시일 기준 오늘/일주일 이내/이전 라벨을 계산합니다.
+   * @description 게시일 기준 상대 시간 라벨을 계산합니다.
    */
   private buildPublishedLabel(value: Date) {
     const today = new Date();
@@ -262,9 +262,13 @@ export class NoticesService {
 
     if (diffDays <= 0) return '오늘 업데이트';
     if (diffDays === 1) return '어제 업데이트';
-    if (diffDays < 7) return `${diffDays}일 전 업데이트`;
+    if (diffDays < 30) return `${diffDays}일 전 업데이트`;
 
-    return '이전 업데이트';
+    const diffMonths = Math.floor(diffDays / 30);
+    if (diffMonths < 12) return `${diffMonths}개월 전 업데이트`;
+
+    const diffYears = Math.floor(diffMonths / 12);
+    return `${diffYears}년 전 업데이트`;
   }
 
   /**
