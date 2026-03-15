@@ -6,6 +6,7 @@ import type {
   NoticeDetailResponse,
   NoticesListResponse,
   ToggleNoticeReactionResponse,
+  UpdateNoticeRequest,
 } from '@/app/shared/types/notices';
 
 // 공지 목록 조회
@@ -40,10 +41,24 @@ const createNotice = async (payload: CreateNoticeRequest): Promise<CreateNoticeR
   return res.data;
 };
 
+// 공지 수정
+const updateNotice = async (noticeId: string, payload: UpdateNoticeRequest): Promise<{ id: string }> => {
+  const res = await axiosInstance.patch<{ id: string }>(`/notices/${noticeId}`, payload);
+  return res.data;
+};
+
+// 공지 삭제
+const deleteNotice = async (noticeId: string): Promise<{ id: string }> => {
+  const res = await axiosInstance.delete<{ id: string }>(`/notices/${noticeId}`);
+  return res.data;
+};
+
 export const noticesApi = {
   createNotice,
+  deleteNotice,
   getNextVersion,
   getNoticeDetail,
   getNotices,
   toggleNoticeReaction,
+  updateNotice,
 };

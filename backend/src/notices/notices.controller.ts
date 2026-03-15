@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../auth/entities/user.entity';
@@ -7,6 +7,7 @@ import { OptionalJwtGuard } from '../auth/guards/optional-jwt.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 
 import { CreateNoticeDto } from './dto/createNotice.dto';
+import { UpdateNoticeDto } from './dto/updateNotice.dto';
 import { ToggleNoticeReactionDto } from './dto/toggleNoticeReaction.dto';
 import { NoticesService } from './notices.service';
 
@@ -59,6 +60,28 @@ export class NoticesController {
   @Roles(UserRole.ADMIN)
   createNotice(@Body() body: CreateNoticeDto, @Request() req: AuthRequest) {
     return this.noticesService.createNotice(body, req.user.sub);
+  }
+
+  /**
+   * 공지 수정
+   * @description 관리자가 공지사항 또는 업데이트 내역을 수정합니다.
+   */
+  @Patch(':noticeId')
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  updateNotice(@Param('noticeId') noticeId: string, @Body() body: UpdateNoticeDto) {
+    return this.noticesService.updateNotice(noticeId, body);
+  }
+
+  /**
+   * 공지 삭제
+   * @description 관리자가 공지사항 또는 업데이트 내역을 삭제합니다.
+   */
+  @Delete(':noticeId')
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  deleteNotice(@Param('noticeId') noticeId: string) {
+    return this.noticesService.deleteNotice(noticeId);
   }
 
   /**
