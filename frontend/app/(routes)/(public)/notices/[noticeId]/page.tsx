@@ -15,11 +15,16 @@ import type { NoticeDetailPageProps, NoticeDetailResponse } from '@/app/shared/t
  */
 export default async function NoticeDetailPage({ params }: NoticeDetailPageProps) {
   const { noticeId } = await params;
-  const baseUrl = process.env.NEXT_PUBLIC_HM_API_BASE_URL;
+  const rawBaseUrl = process.env.NEXT_PUBLIC_HM_API_BASE_URL;
 
-  if (!baseUrl) {
+  if (!rawBaseUrl) {
     notFound();
   }
+
+  // 서버 컴포넌트에서 상대경로('/api')는 호스트가 없어 fetch 실패하므로 절대 URL로 변환
+  const baseUrl = rawBaseUrl.startsWith('/')
+    ? `https://${process.env.VERCEL_URL}${rawBaseUrl}`
+    : rawBaseUrl;
 
   let notice: NoticeDetailResponse;
 
