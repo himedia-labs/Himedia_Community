@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Request, UseGuards } from '@nestjs/common';
 
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../auth/entities/user.entity';
@@ -29,17 +29,6 @@ export class NoticesController {
   @UseGuards(OptionalJwtGuard)
   getNotices(@Request() req: OptionalAuthRequest) {
     return this.noticesService.getNotices(req.user?.sub);
-  }
-
-  /**
-   * 다음 업데이트 버전 조회
-   * @description 마지막 업데이트 버전에서 patch를 +1한 다음 버전을 반환합니다.
-   */
-  @Get('next-version')
-  @UseGuards(JwtGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  getNextVersion(@Query('releaseType') releaseType?: string) {
-    return this.noticesService.getNextVersion(releaseType);
   }
 
   /**

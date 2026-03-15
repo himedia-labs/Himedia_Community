@@ -44,7 +44,7 @@ export default function AdminNoticeCreatePage() {
   // 작성 상태
   const {
     state: { title, version, releaseType, releaseScope, publishedAt, markdownContent, noticeType, isEditMode, isSubmitting },
-    setters: { setTitle, setReleaseType, setReleaseScope, setPublishedAt, setMarkdownContent },
+    setters: { setTitle, setVersion, setReleaseType, setReleaseScope, setPublishedAt, setMarkdownContent },
     handlers: { handleSubmit },
   } = useAdminNoticeCreateForm();
 
@@ -76,6 +76,7 @@ export default function AdminNoticeCreatePage() {
 
   // 입력 핸들러
   const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => setTitle(event.target.value);
+  const handleVersionChange = (event: ChangeEvent<HTMLInputElement>) => setVersion(event.target.value);
   const handleReleaseTypeChange = (event: ChangeEvent<HTMLSelectElement>) => setReleaseType(event.target.value);
   const handleReleaseScopeChange = (event: ChangeEvent<HTMLSelectElement>) => setReleaseScope(event.target.value);
   const handlePublishedAtChange = (event: ChangeEvent<HTMLInputElement>) => setPublishedAt(event.target.value);
@@ -132,9 +133,9 @@ export default function AdminNoticeCreatePage() {
                     id="admin-notice-version"
                     className={styles.metaControl}
                     type="text"
-                    placeholder="예: v1.4.0"
+                    placeholder="예: 1.4.0"
                     value={version}
-                    readOnly
+                    onChange={handleVersionChange}
                   />
                 </div>
                 <div className={styles.metaField}>

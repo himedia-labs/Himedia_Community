@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 
-import { noticesApi } from '@/app/api/notices/notices.api';
 import { useCreateNoticeMutation, useUpdateNoticeMutation } from '@/app/api/notices/notices.mutations';
 import { useNoticeDetailQuery } from '@/app/api/notices/notices.queries';
 import { ADMIN_QUERY_KEYS, ADMIN_TAB_QUERY_VALUE } from '@/app/shared/constants/config/admin.config';
@@ -77,20 +76,6 @@ export const useAdminNoticeCreateForm = () => {
 
     setIsInitialized(true);
   }, [isEditMode, existingNotice, isInitialized]);
-
-  // 업데이트 타입일 때 릴리즈 타입에 따라 다음 버전 자동 조회 (생성 모드에서만)
-  useEffect(() => {
-    if (noticeType !== 'UPDATE' || isEditMode) return;
-
-    noticesApi
-      .getNextVersion(releaseType || undefined)
-      .then(data => {
-        setVersion(data.version);
-      })
-      .catch(() => {
-        setVersion('0.1.0');
-      });
-  }, [noticeType, releaseType, isEditMode]);
 
   // 제출 처리
   const handleSubmit = async () => {
@@ -169,6 +154,7 @@ export const useAdminNoticeCreateForm = () => {
     },
     setters: {
       setTitle,
+      setVersion,
       setReleaseType,
       setReleaseScope,
       setPublishedAt,
