@@ -1,45 +1,36 @@
+'use client';
+
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
 import { formatNoticePublishedDate } from '@/app/(routes)/(public)/notices/_utils';
+import { useNoticeDetailQuery } from '@/app/api/notices/notices.queries';
 import { renderMarkdownPreview } from '@/app/shared/utils/markdown';
+import EmptyState from '@/app/shared/components/empty/EmptyState';
 
 import markdownStyles from '@/app/shared/components/markdown-editor/markdown.module.css';
 import styles from '@/app/(routes)/(public)/notices/NoticeDetailPage.module.css';
 
-import type { NoticeDetailPageProps, NoticeDetailResponse } from '@/app/shared/types/notices';
-
 /**
  * 공지사항 상세 페이지
- * @description 백엔드 API에서 공지 상세 데이터를 조회하여 렌더링합니다.
+ * @description 공지 상세 데이터를 조회하여 렌더링합니다.
  */
-export default async function NoticeDetailPage({ params }: NoticeDetailPageProps) {
-  const { noticeId } = await params;
-  const rawBaseUrl = process.env.NEXT_PUBLIC_HM_API_BASE_URL;
+export default function NoticeDetailPage() {
+  const params = useParams();
+  const noticeId = typeof params?.noticeId === 'string' ? params.noticeId : '';
 
-  if (!rawBaseUrl) {
-    notFound();
+  const { data: notice, isLoading, isError } = useNoticeDetailQuery(noticeId);
+
+  if (isLoading) {
+    return null;
   }
 
-  // 서버 컴포넌트에서 상대경로('/api')는 호스트가 없어 fetch 실패하므로 절대 URL로 변환
-  const baseUrl = rawBaseUrl.startsWith('/')
-    ? `https://${process.env.VERCEL_URL}${rawBaseUrl}`
-    : rawBaseUrl;
-
-  let notice: NoticeDetailResponse;
-
-  try {
-    const res = await fetch(`${baseUrl}/notices/${noticeId}`, {
-      cache: 'no-store',
-    });
-
-    if (!res.ok) {
-      notFound();
-    }
-
-    notice = (await res.json()) as NoticeDetailResponse;
-  } catch {
-    notFound();
+  if (isError || !notice) {
+    return (
+      <main className={styles.page}>
+        <EmptyState title="공지사항을 찾을 수 없습니다." description="존재하지 않거나 삭제된 공지사항입니다." />
+      </main>
+    );
   }
 
   return (

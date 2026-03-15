@@ -1,29 +1,27 @@
+'use client';
+
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 import NoticesAnnouncementsSection from '@/app/(routes)/(public)/notices/_components/NoticesAnnouncementsSection';
 import NoticesUpdatesSection from '@/app/(routes)/(public)/notices/_components/NoticesUpdatesSection';
 import { NOTICE_PAGE_TABS } from '@/app/(routes)/(public)/notices/_constants/noticesPage.constants';
-import { fetchNoticesPageData } from '@/app/(routes)/(public)/notices/_utils';
+import { useNoticesQuery } from '@/app/api/notices/notices.queries';
+
 import styles from '@/app/(routes)/(public)/notices/NoticesPage.module.css';
-
-import type { Metadata } from 'next';
-import type { NoticesPageProps } from '@/app/shared/types/notices';
-
-export const metadata: Metadata = {
-  title: '공지사항',
-};
 
 /**
  * 공지사항 페이지
  * @description 공지사항과 업데이트 내역 탭 중 현재 선택된 화면을 렌더링합니다.
  */
-export default async function NoticesPage({ searchParams }: NoticesPageProps) {
-  const noticesPageData = await fetchNoticesPageData();
-  const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const rawView = Array.isArray(resolvedSearchParams?.view)
-    ? resolvedSearchParams?.view[0]
-    : resolvedSearchParams?.view;
+export default function NoticesPage() {
+  const searchParams = useSearchParams();
+  const rawView = searchParams.get('view');
   const activeView = rawView === 'updates' ? 'updates' : 'announcements';
+
+  const { data } = useNoticesQuery();
+  const announcements = data?.announcements ?? [];
+  const updates = data?.updates ?? [];
 
   return (
     <main className={styles.page}>
@@ -44,9 +42,9 @@ export default async function NoticesPage({ searchParams }: NoticesPageProps) {
         </header>
 
         {activeView === 'announcements' ? (
-          <NoticesAnnouncementsSection notices={noticesPageData.announcements} />
+          <NoticesAnnouncementsSection notices={announcements} />
         ) : (
-          <NoticesUpdatesSection releases={noticesPageData.updates} />
+          <NoticesUpdatesSection releases={updates} />
         )}
       </section>
     </main>
