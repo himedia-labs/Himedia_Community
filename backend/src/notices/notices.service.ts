@@ -99,36 +99,6 @@ export class NoticesService {
   }
 
   /**
-   * 다음 업데이트 버전 조회
-   * @description 마지막 업데이트의 버전에서 patch를 +1한 다음 버전을 반환합니다.
-   */
-  async getNextVersion(releaseType?: string): Promise<{ version: string }> {
-    const latest = await this.noticesRepository.findOne({
-      where: { type: NoticeType.UPDATE },
-      order: { publishedAt: 'DESC' },
-    });
-
-    if (!latest?.version) {
-      return { version: '0.1.0' };
-    }
-
-    const match = latest.version.match(/^v?(\d+)\.(\d+)\.(\d+)$/);
-
-    if (!match) {
-      return { version: '0.1.0' };
-    }
-
-    const [, major, minor, patch] = match;
-    const isMinorBump = releaseType === 'Feature';
-
-    if (isMinorBump) {
-      return { version: `${major}.${Number(minor) + 1}.0` };
-    }
-
-    return { version: `${major}.${minor}.${Number(patch) + 1}` };
-  }
-
-  /**
    * 공지 생성
    * @description 관리자 작성 입력값으로 공지사항 또는 업데이트 내역을 생성합니다.
    */

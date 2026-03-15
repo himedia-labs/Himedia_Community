@@ -27,14 +27,6 @@ const toggleNoticeReaction = async (noticeId: string, emoji: string): Promise<To
   return res.data;
 };
 
-// 다음 업데이트 버전 조회
-const getNextVersion = async (releaseType?: string): Promise<{ version: string }> => {
-  const res = await axiosInstance.get<{ version: string }>('/notices/next-version', {
-    params: releaseType ? { releaseType } : undefined,
-  });
-  return res.data;
-};
-
 // 공지 생성
 const createNotice = async (payload: CreateNoticeRequest): Promise<CreateNoticeResponse> => {
   const res = await axiosInstance.post<CreateNoticeResponse>('/notices', payload);
@@ -56,7 +48,7 @@ const deleteNotice = async (noticeId: string): Promise<{ id: string }> => {
 export const noticesApi = {
   createNotice,
   deleteNotice,
-  getNextVersion,
+
   getNoticeDetail,
   getNotices,
   toggleNoticeReaction,
