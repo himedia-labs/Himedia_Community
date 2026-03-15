@@ -15,8 +15,9 @@ const AppDataSource = new DataSource({
   password: process.env.HM_DB_PASSWORD,
   database: process.env.HM_DB_NAME,
   entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
-  migrations: [resolve(__dirname, '..', '..', '..', 'database', 'migrations', '*.{ts,js}')],
+  migrations: [resolve(__dirname, '..', '..', 'database', 'migrations', '*.{ts,js}')],
   synchronize: !isProduction,
+  migrationsRun: isProduction,
 });
 
 export default AppDataSource;
