@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 import { FiLogOut, FiSend } from 'react-icons/fi';
 import Link from 'next/link';
 
-import { PostPreview } from '@/app/(routes)/(private)/posts/_components';
 import { useMarkdownEditor } from '@/app/(routes)/(private)/posts/_hooks/useMarkdownEditor';
 import { useAdminNoticeCreateForm } from '@/app/(routes)/(private)/admin/notices/new/_hooks/useAdminNoticeCreateForm';
 import {
@@ -15,7 +14,7 @@ import {
 } from '@/app/(routes)/(private)/posts/_handlers/postCreate.handlers';
 
 import EditorToolbar from '@/app/shared/components/markdown-editor/EditorToolbar';
-import { DEFAULT_AUTHOR_NAME, DEFAULT_PREVIEW_STATS } from '@/app/shared/constants/config/post.config';
+
 import { formatDateLabel } from '@/app/shared/utils/date';
 import { renderMarkdownPreview } from '@/app/shared/utils/markdown';
 
@@ -44,7 +43,7 @@ const NOTICE_BACK_LINK_MAP = {
 export default function AdminNoticeCreatePage() {
   // 작성 상태
   const {
-    state: { title, version, releaseType, releaseScope, publishedAt, markdownContent, noticeType, isSubmitting },
+    state: { title, version, releaseType, releaseScope, publishedAt, markdownContent, noticeType, isEditMode, isSubmitting },
     setters: { setTitle, setReleaseType, setReleaseScope, setPublishedAt, setMarkdownContent },
     handlers: { handleSubmit },
   } = useAdminNoticeCreateForm();
@@ -70,9 +69,10 @@ export default function AdminNoticeCreatePage() {
   // 화면 파생값
   const dateLabel = formatDateLabel(new Date());
   const noticeTypeLabel = NOTICE_TYPE_LABEL_MAP[noticeType];
+  const submitLabel = isEditMode ? '수정하기' : '등록하기';
+  const submittingLabel = isEditMode ? '수정 중...' : '등록 중...';
   const previewContent = useMemo(() => renderMarkdownPreview(markdownContent), [markdownContent]);
   const backLinkHref = NOTICE_BACK_LINK_MAP[noticeType];
-  const authorStats = { postCount: 0, followerCount: 0, followingCount: 0 };
 
   // 입력 핸들러
   const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => setTitle(event.target.value);
@@ -90,18 +90,18 @@ export default function AdminNoticeCreatePage() {
     <section className={styles.container} aria-label={`${noticeTypeLabel} 작성`}>
       <header className={styles.header}>
         <div className={styles.headerCopy}>
-          <h1 className={styles.headerTitle}>{noticeTypeLabel} 글 작성</h1>
+          <h1 className={styles.headerTitle}>{noticeTypeLabel} 글 {isEditMode ? '수정' : '작성'}</h1>
         </div>
         <div className={styles.headerActions}>
           <button
             type="button"
             className={`${styles.headerAction} ${styles.headerActionText}`}
-            aria-label="등록하기"
-            title="등록하기"
+            aria-label={submitLabel}
+            title={submitLabel}
             disabled={isSubmitting}
             onClick={handleSubmit}
           >
-            <span>{isSubmitting ? '등록 중...' : '등록하기'}</span>
+            <span>{isSubmitting ? submittingLabel : submitLabel}</span>
             <FiSend aria-hidden="true" />
           </button>
         </div>
@@ -265,22 +265,25 @@ export default function AdminNoticeCreatePage() {
               </div>
             </article>
           ) : (
-            <PostPreview
-              title={title}
-              categoryName={noticeTypeLabel}
-              authorName={DEFAULT_AUTHOR_NAME}
-              dateLabel={dateLabel}
-              authorStats={authorStats}
-              previewStats={DEFAULT_PREVIEW_STATS}
-              content={
-                markdownContent ? (
+            <article className={styles.postPreview}>
+              <div className={styles.previewHeadingBlock}>
+                <div className={styles.previewTitleRow}>
+                  <h2 className={styles.previewTitle}>{title || '제목이 여기에 표시됩니다'}</h2>
+                </div>
+                <div className={styles.previewMeta}>
+                  <span className={styles.previewMetaGroup}>
+                    <span className={styles.previewMetaItem}>{dateLabel}</span>
+                  </span>
+                </div>
+              </div>
+              <div className={`${styles.previewContent} ${markdownStyles.markdown}`}>
+                {markdownContent ? (
                   previewContent
                 ) : (
-                  <p className={styles.previewSummary}>본문을 입력하면 요약이 여기에 표시됩니다.</p>
-                )
-              }
-              tags={[]}
-            />
+                  <p className={styles.previewSummary}>본문을 입력하면 미리보기가 여기에 표시됩니다.</p>
+                )}
+              </div>
+            </article>
           )}
         </aside>
       </div>
@@ -291,7 +294,7 @@ export default function AdminNoticeCreatePage() {
           <FiLogOut className={styles.actionIcon} aria-hidden="true" />
         </Link>
         <button type="button" className={styles.actionButton} disabled={isSubmitting} onClick={handleSubmit}>
-          <span className={styles.actionLabel}>{isSubmitting ? '등록 중...' : '등록하기'}</span>
+          <span className={styles.actionLabel}>{isSubmitting ? submittingLabel : submitLabel}</span>
           <FiSend className={styles.actionIcon} aria-hidden="true" />
         </button>
       </footer>

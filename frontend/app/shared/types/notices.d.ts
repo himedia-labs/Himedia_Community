@@ -47,9 +47,13 @@ export interface ToggleNoticeReactionResponse {
 
 export interface NoticeDetailResponse {
   id: string;
+  type: 'ANNOUNCEMENT' | 'UPDATE';
   title: string;
   publishedAt: string;
   markdownContent: string;
+  version: string | null;
+  releaseType: string | null;
+  releaseScope: string | null;
 }
 
 export interface CreateNoticeRequest {
@@ -65,6 +69,15 @@ export interface CreateNoticeRequest {
 export interface CreateNoticeResponse {
   id: string;
   type: 'ANNOUNCEMENT' | 'UPDATE';
+}
+
+export interface UpdateNoticeRequest {
+  title?: string;
+  version?: string;
+  releaseType?: string;
+  releaseScope?: string;
+  markdownContent?: string;
+  publishedAt?: string;
 }
 
 export interface NoticesUpdatesSectionProps {

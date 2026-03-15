@@ -1,9 +1,13 @@
 'use client';
 
+import { useState } from 'react';
+
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 import NumberFlow from '@number-flow/react';
-import { FiBox, FiGrid, FiSmile, FiTag } from 'react-icons/fi';
+import { FaUser } from 'react-icons/fa6';
+import { FiBox, FiEdit2, FiGrid, FiMoreHorizontal, FiSmile, FiTag, FiTrash2 } from 'react-icons/fi';
 
 import {
   createSelectNoticeReactionHandler,
@@ -11,6 +15,8 @@ import {
 } from '@/app/(routes)/(public)/notices/_handlers';
 import { useNoticeReactions } from '@/app/(routes)/(public)/notices/_hooks/useNoticeReactions';
 import { formatNoticePublishedDate, getNoticeReactionImageSrc } from '@/app/(routes)/(public)/notices/_utils';
+import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
+import { useDeleteNoticeMutation } from '@/app/api/notices/notices.mutations';
 import { useNoticesQuery } from '@/app/api/notices/notices.queries';
 import { renderMarkdownPreview } from '@/app/shared/utils/markdown';
 import EmptyState from '@/app/shared/components/empty/EmptyState';
@@ -28,8 +34,27 @@ import type { NoticesUpdatesSectionProps } from '@/app/shared/types/notices';
  */
 export default function NoticesUpdatesSection({ releases }: NoticesUpdatesSectionProps) {
   // 공용 훅
+  const router = useRouter();
   const { accessToken } = useAuthStore();
   const { showToast } = useToast();
+  const { data: currentUser } = useCurrentUserQuery();
+  const { mutate: deleteNotice, isPending: isDeleting } = useDeleteNoticeMutation();
+
+  const isAdmin = currentUser?.role === 'ADMIN';
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+
+  const handleDelete = (noticeId: string) => {
+    if (isDeleting) return;
+
+    const confirmed = window.confirm('이 업데이트 내역을 삭제하시겠습니까?');
+    if (!confirmed) return;
+
+    setOpenMenuId(null);
+    deleteNotice(noticeId, {
+      onSuccess: () => showToast({ message: '업데이트 내역이 삭제되었습니다.', type: 'success' }),
+      onError: () => showToast({ message: '삭제에 실패했습니다.', type: 'error' }),
+    });
+  };
 
   // 로그인 상태일 때 클라이언트에서 다시 조회하여 selectedEmojis 반영
   const { data: clientData } = useNoticesQuery(!!accessToken);
@@ -86,7 +111,7 @@ export default function NoticesUpdatesSection({ releases }: NoticesUpdatesSectio
 
         return (
           <article key={release.id} className={styles.releaseRow}>
-            <aside className={styles.releaseMeta} aria-label={`${release.version} 메타 정보`}>
+            <aside className={styles.releaseMeta} aria-label={`${release.version?.startsWith('v') ? release.version : `v${release.version}`} 메타 정보`}>
               <div className={styles.metaDate}>
                 <p className={styles.metaDateValue}>{formatNoticePublishedDate(release.publishedAt)}</p>
                 <p className={styles.metaDateHint}>{release.publishedLabel}</p>
@@ -95,7 +120,7 @@ export default function NoticesUpdatesSection({ releases }: NoticesUpdatesSectio
               <dl className={styles.metaDetails}>
                 <div className={styles.metaDetailRow}>
                   <span className={styles.metaAvatar} aria-hidden="true">
-                    {release.adminInitial}
+                    <FaUser className={styles.metaAvatarIcon} />
                   </span>
                   <dd className={styles.metaDetailText}>{release.adminName}</dd>
                 </div>
@@ -103,7 +128,7 @@ export default function NoticesUpdatesSection({ releases }: NoticesUpdatesSectio
                   <dt className={styles.metaDetailLabel}>
                     <FiTag className={styles.metaDetailIcon} aria-hidden="true" />
                   </dt>
-                  <dd className={styles.metaDetailText}>{release.version}</dd>
+                  <dd className={styles.metaDetailText}>{release.version?.startsWith('v') ? release.version : `v${release.version}`}</dd>
                 </div>
                 <div className={styles.metaDetailRow}>
                   <dt className={styles.metaDetailLabel}>
@@ -122,7 +147,47 @@ export default function NoticesUpdatesSection({ releases }: NoticesUpdatesSectio
 
             <div className={styles.releaseCard}>
               <header className={styles.releaseHeader}>
-                <h2 className={styles.releaseTitle}>{release.title}</h2>
+                <div className={styles.noticeItemRow}>
+                  <h2 className={styles.releaseTitle}>{release.title}</h2>
+                  {isAdmin ? (
+                    <div className={styles.noticeMoreWrapper}>
+                      <button
+                        type="button"
+                        className={styles.noticeMoreButton}
+                        aria-label="업데이트 옵션"
+                        onClick={() => setOpenMenuId(prev => (prev === release.id ? null : release.id))}
+                      >
+                        <FiMoreHorizontal aria-hidden="true" />
+                      </button>
+                      {openMenuId === release.id ? (
+                        <div className={styles.noticeMoreMenu} role="menu">
+                          <button
+                            type="button"
+                            className={styles.noticeMoreItem}
+                            role="menuitem"
+                            onClick={() => {
+                              setOpenMenuId(null);
+                              router.push(`/admin/notices/edit/${release.id}`);
+                            }}
+                          >
+                            <FiEdit2 aria-hidden="true" />
+                            수정
+                          </button>
+                          <button
+                            type="button"
+                            className={`${styles.noticeMoreItem} ${styles.noticeMoreItemDanger}`}
+                            role="menuitem"
+                            disabled={isDeleting}
+                            onClick={() => handleDelete(release.id)}
+                          >
+                            <FiTrash2 aria-hidden="true" />
+                            삭제
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
               </header>
 
               <section className={`${markdownStyles.markdown}`}>

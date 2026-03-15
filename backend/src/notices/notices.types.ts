@@ -48,9 +48,13 @@ export interface ToggleNoticeReactionView {
 
 export interface NoticeDetailView {
   id: string;
+  type: NoticeType;
   title: string;
   publishedAt: string;
   markdownContent: string;
+  version: string | null;
+  releaseType: string | null;
+  releaseScope: string | null;
 }
 
 export interface CreateNoticeView {

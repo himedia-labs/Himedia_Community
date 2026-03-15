@@ -6,6 +6,7 @@ import { User } from '../auth/entities/user.entity';
 import { SnowflakeService } from '../common/services/snowflake.service';
 
 import { CreateNoticeDto } from './dto/createNotice.dto';
+import { UpdateNoticeDto } from './dto/updateNotice.dto';
 import { NoticeReaction } from './entities/noticeReaction.entity';
 import { Notice, NoticeType } from './entities/notice.entity';
 
@@ -87,9 +88,13 @@ export class NoticesService {
 
     return {
       id: notice.id,
+      type: notice.type,
       title: notice.title,
       publishedAt: this.formatNoticeDate(notice.publishedAt),
       markdownContent: notice.markdownContent ?? '',
+      version: notice.version ?? null,
+      releaseType: notice.releaseType ?? null,
+      releaseScope: notice.releaseScope ?? null,
     };
   }
 
@@ -157,6 +162,54 @@ export class NoticesService {
       id: notice.id,
       type: notice.type,
     };
+  }
+
+  /**
+   * 공지 수정
+   * @description 공지사항 ID로 공지를 수정합니다.
+   */
+  async updateNotice(noticeId: string, body: UpdateNoticeDto): Promise<{ id: string }> {
+    const safeNoticeId = this.normalizeId(noticeId);
+
+    const notice = await this.noticesRepository.findOne({
+      where: { id: safeNoticeId },
+    });
+
+    if (!notice) {
+      throw new NotFoundException('공지를 찾을 수 없습니다.');
+    }
+
+    if (body.title !== undefined) notice.title = body.title.trim();
+    if (body.version !== undefined) notice.version = body.version.trim() || null;
+    if (body.releaseType !== undefined) notice.releaseType = body.releaseType.trim() || null;
+    if (body.releaseScope !== undefined) notice.releaseScope = body.releaseScope.trim() || null;
+    if (body.markdownContent !== undefined) notice.markdownContent = body.markdownContent.trim();
+    if (body.publishedAt !== undefined) notice.publishedAt = new Date(body.publishedAt);
+
+    await this.noticesRepository.save(notice);
+
+    return { id: safeNoticeId };
+  }
+
+  /**
+   * 공지 삭제
+   * @description 공지사항 ID로 공지와 관련 리액션을 삭제합니다.
+   */
+  async deleteNotice(noticeId: string): Promise<{ id: string }> {
+    const safeNoticeId = this.normalizeId(noticeId);
+
+    const notice = await this.noticesRepository.findOne({
+      where: { id: safeNoticeId },
+    });
+
+    if (!notice) {
+      throw new NotFoundException('공지를 찾을 수 없습니다.');
+    }
+
+    await this.noticeReactionsRepository.delete({ noticeId: safeNoticeId });
+    await this.noticesRepository.remove(notice);
+
+    return { id: safeNoticeId };
   }
 
   /**
