@@ -1,5 +1,6 @@
-import { Check, Column, CreateDateColumn, Entity, Index, OneToMany, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import { Check, Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
+import { User } from '../../auth/entities/user.entity';
 import { NoticeReaction } from './noticeReaction.entity';
 
 export enum NoticeType {
@@ -22,6 +23,13 @@ export class Notice {
 
   @Column({ type: 'varchar', length: 50, nullable: true })
   version!: string | null;
+
+  @Column({ name: 'admin_id', type: 'bigint', nullable: true })
+  adminId!: string | null;
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'admin_id' })
+  admin!: User | null;
 
   @Column({ name: 'admin_name', type: 'varchar', length: 100, nullable: true })
   adminName!: string | null;

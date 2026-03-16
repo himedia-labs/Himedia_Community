@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { type SetStateAction, useCallback, useMemo, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 
 import { useCreateNoticeMutation, useUpdateNoticeMutation } from '@/app/api/notices/notices.mutations';
@@ -36,46 +36,72 @@ export const useAdminNoticeCreateForm = () => {
     enabled: isEditMode,
   });
 
-  // 폼 상태
-  const [title, setTitle] = useState('');
-  const [version, setVersion] = useState('');
-  const [releaseType, setReleaseType] = useState('');
-  const [releaseScope, setReleaseScope] = useState('');
-  const [publishedAt, setPublishedAt] = useState('');
-  const [markdownContent, setMarkdownContent] = useState('');
-  const [noticeType, setNoticeType] = useState<CreateNoticeRequest['type']>(
-    getNoticeTypeFromSearchParam(searchParams.get('type')),
-  );
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  // 타입 동기화
-  useEffect(() => {
-    if (!isEditMode) {
-      setNoticeType(getNoticeTypeFromSearchParam(searchParams.get('type')));
-    }
-  }, [searchParams, isEditMode]);
-
-  // 수정 모드: 기존 데이터로 폼 채우기
-  useEffect(() => {
-    if (!isEditMode || !existingNotice || isInitialized) return;
-
-    setTitle(existingNotice.title);
-    setMarkdownContent(existingNotice.markdownContent);
-    setNoticeType(existingNotice.type);
-
-    if (existingNotice.type === 'UPDATE') {
-      setVersion(existingNotice.version ?? '');
-      setReleaseType(existingNotice.releaseType ?? '');
-      setReleaseScope(existingNotice.releaseScope ?? '');
-
-      // publishedAt: YYYY.MM.DD → YYYY-MM-DD
-      if (existingNotice.publishedAt) {
-        setPublishedAt(existingNotice.publishedAt.replace(/\./g, '-'));
-      }
+  // 초기값 계산: 수정 모드면 서버 데이터, 생성 모드면 빈 값
+  const initialValues = useMemo(() => {
+    if (isEditMode && existingNotice) {
+      return {
+        title: existingNotice.title,
+        markdownContent: existingNotice.markdownContent,
+        version: existingNotice.version ?? '',
+        releaseType: existingNotice.releaseType ?? '',
+        releaseScope: existingNotice.releaseScope ?? '',
+        publishedAt: existingNotice.publishedAt?.replace(/\./g, '-') ?? '',
+      };
     }
 
-    setIsInitialized(true);
-  }, [isEditMode, existingNotice, isInitialized]);
+    return {
+      title: '',
+      markdownContent: '',
+      version: '',
+      releaseType: '',
+      releaseScope: '',
+      publishedAt: '',
+    };
+  }, [isEditMode, existingNotice]);
+
+  // 폼 상태 (사용자가 직접 수정한 값)
+  const [formEdits, setFormEdits] = useState<Record<string, string>>({});
+
+  // 실제 폼 값: 사용자 수정이 있으면 그것, 없으면 초기값
+  const title = formEdits.title ?? initialValues.title;
+  const version = formEdits.version ?? initialValues.version;
+  const releaseType = formEdits.releaseType ?? initialValues.releaseType;
+  const releaseScope = formEdits.releaseScope ?? initialValues.releaseScope;
+  const publishedAt = formEdits.publishedAt ?? initialValues.publishedAt;
+  const markdownContent = formEdits.markdownContent ?? initialValues.markdownContent;
+
+  // 공지 타입: 수정 모드면 서버 데이터, 생성 모드면 searchParams
+  const noticeType: CreateNoticeRequest['type'] = isEditMode && existingNotice
+    ? existingNotice.type
+    : getNoticeTypeFromSearchParam(searchParams.get('type'));
+
+  // 개별 setter (Dispatch<SetStateAction<string>> 호환)
+  const resolveAction = (action: SetStateAction<string>, current: string) =>
+    typeof action === 'function' ? action(current) : action;
+
+  const setTitle = useCallback((action: SetStateAction<string>) => {
+    setFormEdits(prev => ({ ...prev, title: resolveAction(action, prev.title ?? initialValues.title) }));
+  }, [initialValues.title]);
+
+  const setVersion = useCallback((action: SetStateAction<string>) => {
+    setFormEdits(prev => ({ ...prev, version: resolveAction(action, prev.version ?? initialValues.version) }));
+  }, [initialValues.version]);
+
+  const setReleaseType = useCallback((action: SetStateAction<string>) => {
+    setFormEdits(prev => ({ ...prev, releaseType: resolveAction(action, prev.releaseType ?? initialValues.releaseType) }));
+  }, [initialValues.releaseType]);
+
+  const setReleaseScope = useCallback((action: SetStateAction<string>) => {
+    setFormEdits(prev => ({ ...prev, releaseScope: resolveAction(action, prev.releaseScope ?? initialValues.releaseScope) }));
+  }, [initialValues.releaseScope]);
+
+  const setPublishedAt = useCallback((action: SetStateAction<string>) => {
+    setFormEdits(prev => ({ ...prev, publishedAt: resolveAction(action, prev.publishedAt ?? initialValues.publishedAt) }));
+  }, [initialValues.publishedAt]);
+
+  const setMarkdownContent = useCallback((action: SetStateAction<string>) => {
+    setFormEdits(prev => ({ ...prev, markdownContent: resolveAction(action, prev.markdownContent ?? initialValues.markdownContent) }));
+  }, [initialValues.markdownContent]);
 
   // 제출 처리
   const handleSubmit = async () => {
