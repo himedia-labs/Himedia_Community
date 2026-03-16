@@ -5,7 +5,7 @@ import { Fragment } from 'react';
 import { CiCalendar, CiRead } from 'react-icons/ci';
 
 import { BLOG_ENTRIES } from '@/app/(routes)/(public)/blogs/_constants/blogEntries.constants';
-import { formatDate, getRelativeTimeLabel } from '@/app/shared/utils/date';
+import { buildRelativeTime, formatDate } from '@/app/shared/utils/date';
 
 import styles from '@/app/(routes)/(public)/blogs/BlogsPage.module.css';
 
@@ -47,7 +47,7 @@ export default function BlogsPage() {
                         </span>
                       </p>
                     </div>
-                    <span className={styles.blogItemTime}>{getRelativeTimeLabel(entry.publishedAt)}</span>
+                    <span className={styles.blogItemTime}>{buildRelativeTime(entry.publishedAt)}</span>
                   </article>
                 </a>
               </li>
