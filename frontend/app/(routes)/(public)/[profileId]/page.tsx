@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 
 import { ProfilePageSkeleton, ProfilePostListSkeleton } from '@/app/(routes)/(public)/[profileId]/ProfilePage.skeleton';
 import {
@@ -91,9 +91,9 @@ export default function ProfilePage() {
     return <ProfilePageSkeleton />;
   }
 
-  // 프로필 : @ 없는 요청 차단
+  // 프로필 : @ 없는 요청 → 404
   if (!hasAtPrefix) {
-    return <ProfilePageEmptyState message="프로필을 찾을 수 없습니다." />;
+    notFound();
   }
 
   // 프로필 : 로딩
@@ -101,9 +101,9 @@ export default function ProfilePage() {
     return <ProfilePageSkeleton />;
   }
 
-  // 프로필 : 없음
+  // 프로필 : 없음 → 404
   if (!profile) {
-    return <ProfilePageEmptyState message="프로필을 찾을 수 없습니다." />;
+    notFound();
   }
 
   return (
