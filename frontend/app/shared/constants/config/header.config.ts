@@ -1,4 +1,4 @@
-import { CiBellOn, CiBullhorn, CiSearch } from 'react-icons/ci';
+import { CiBellOn, CiBullhorn, CiSearch, CiViewList } from 'react-icons/ci';
 
 import type { NavItem } from '@/app/shared/types/header';
 
@@ -8,6 +8,7 @@ import type { NavItem } from '@/app/shared/types/header';
  */
 const NAV_ITEMS: NavItem[] = [
   { label: '공지사항', href: '/notices', Icon: CiBullhorn },
+  { label: '기술 블로그', href: '/blogs', Icon: CiViewList },
   { label: '알림', Icon: CiBellOn },
   { label: '검색', Icon: CiSearch },
   { label: '로그인/프로필', isAuthDependent: true },
