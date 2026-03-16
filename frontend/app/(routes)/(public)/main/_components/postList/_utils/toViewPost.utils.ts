@@ -20,7 +20,7 @@ export const toViewPost = (item: PostListItem): Post => {
     category: item.category?.name ?? 'ALL',
     tags: (item.tags ?? []).map(tag => tag.name).filter(tagName => tagName.trim().length > 0),
     authorName: item.author?.name ?? '알 수 없음',
-    date: formatDate(item.publishedAt ?? item.createdAt),
+    date: formatDate(item.publishedAt ?? item.createdAt, 'date-only'),
     timeAgo: buildRelativeTime(item.publishedAt ?? item.createdAt),
     views: item.viewCount,
     shareCount: item.shareCount,
