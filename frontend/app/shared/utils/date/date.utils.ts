@@ -34,7 +34,7 @@ export const buildRelativeTime = (value?: string | null) => {
  * 날짜 시간 포맷 (yyyy. MM. dd. HH:mm)
  * @description yyyy. MM. dd. HH:mm 형식으로 변환 (초 포함 가능)
  */
-export const formatDate = (value?: string | null, includeSeconds = false) => {
+export const formatDate = (value?: string | null, option?: 'seconds' | 'date-only') => {
   if (!value) return FALLBACK;
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return FALLBACK;
@@ -42,10 +42,13 @@ export const formatDate = (value?: string | null, includeSeconds = false) => {
   const y = date.getFullYear();
   const M = pad(date.getMonth() + 1);
   const d = pad(date.getDate());
+
+  if (option === 'date-only') return `${y}. ${M}. ${d}`;
+
   const h = pad(date.getHours());
   const m = pad(date.getMinutes());
 
-  if (includeSeconds) {
+  if (option === 'seconds') {
     const s = pad(date.getSeconds());
     return `${y}. ${M}. ${d}. ${h}:${m}:${s}`;
   }
