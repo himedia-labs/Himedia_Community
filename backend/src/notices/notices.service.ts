@@ -42,7 +42,7 @@ export class NoticesService {
     // 목록/조회
     const notices = await this.noticesRepository.find({
       order: { publishedAt: 'DESC' },
-      relations: { reactions: true },
+      relations: { reactions: true, admin: true },
     });
 
     return {
@@ -61,8 +61,9 @@ export class NoticesService {
           title: notice.title,
           publishedAt: this.formatNoticeDate(notice.publishedAt),
           publishedLabel: this.buildPublishedLabel(notice.publishedAt),
-          adminName: notice.adminName ?? '운영팀',
-          adminInitial: notice.adminInitial ?? '운',
+          adminName: notice.admin?.name ?? notice.adminName ?? '운영팀',
+          adminInitial: notice.admin?.name?.trim().charAt(0) ?? notice.adminInitial ?? '운',
+          adminProfileImageUrl: notice.admin?.profileImageUrl ?? null,
           releaseType: notice.releaseType ?? 'Update',
           releaseScope: notice.releaseScope ?? 'Web',
           reactorCount: this.countReactors(notice.reactions),
@@ -118,6 +119,7 @@ export class NoticesService {
       type: body.type,
       title: body.title.trim(),
       version: body.version?.trim() || null,
+      adminId: adminUser.id,
       adminName: adminUser.name,
       adminInitial: adminUser.name.trim().charAt(0) || '운',
       releaseType: body.releaseType?.trim() || null,

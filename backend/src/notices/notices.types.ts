@@ -26,6 +26,7 @@ export interface NoticeUpdateView {
   publishedLabel: string;
   adminName: string;
   adminInitial: string;
+  adminProfileImageUrl: string | null;
   releaseType: string;
   releaseScope: string;
   reactorCount: number;

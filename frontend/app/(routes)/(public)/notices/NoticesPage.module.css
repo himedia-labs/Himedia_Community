@@ -181,6 +181,13 @@
   height: 10px;
 }
 
+.metaAvatarImage {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .metaDetails {
   display: flex;
   flex-direction: column;

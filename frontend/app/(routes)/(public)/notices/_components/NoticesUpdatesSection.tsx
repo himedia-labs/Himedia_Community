@@ -120,7 +120,18 @@ export default function NoticesUpdatesSection({ releases }: NoticesUpdatesSectio
               <dl className={styles.metaDetails}>
                 <div className={styles.metaDetailRow}>
                   <span className={styles.metaAvatar} aria-hidden="true">
-                    <FaUser className={styles.metaAvatarIcon} />
+                    {release.adminProfileImageUrl ? (
+                      <Image
+                        className={styles.metaAvatarImage}
+                        src={release.adminProfileImageUrl}
+                        alt=""
+                        width={24}
+                        height={24}
+                        unoptimized
+                      />
+                    ) : (
+                      <FaUser className={styles.metaAvatarIcon} />
+                    )}
                   </span>
                   <dd className={styles.metaDetailText}>{release.adminName}</dd>
                 </div>
