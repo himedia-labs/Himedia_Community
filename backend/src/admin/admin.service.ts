@@ -299,7 +299,13 @@ export class AdminService {
 
     // 상태/변경
     const beforeApproved = targetUser.approved;
+    const beforeRole = targetUser.role;
     targetUser.approved = true;
+
+    if (targetUser.requestedRole) {
+      targetUser.role = targetUser.requestedRole;
+    }
+
     await this.usersRepository.save(targetUser);
     await this.createAuditLog({
       adminUserId: normalizedAdminUserId,
@@ -309,8 +315,8 @@ export class AdminService {
       payload: {
         result: 'SUCCESS',
         reasonCode: null,
-        before: { approved: beforeApproved },
-        after: { approved: targetUser.approved },
+        before: { approved: beforeApproved, role: beforeRole },
+        after: { approved: targetUser.approved, role: targetUser.role },
       },
     });
 
