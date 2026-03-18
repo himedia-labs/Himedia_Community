@@ -19,7 +19,7 @@ import { join } from 'path';
           password: configService.get<string>('HM_DB_PASSWORD'),
           database: configService.get<string>('HM_DB_NAME'),
           entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
-          synchronize: !isProduction,
+          synchronize: false,
           ssl: isProduction ? { rejectUnauthorized: false } : false,
         };
       },

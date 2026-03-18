@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { DatabaseModule } from './database/database.module';
 import { EmailModule } from './email/email.module';
@@ -12,6 +13,7 @@ import { UploadsModule } from './uploads/uploads.module';
 import { AdminModule } from './admin/admin.module';
 import { NoticesModule } from './notices/notices.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { BlogsModule } from './blogs/blogs.module';
 import appConfig from './common/config/app.config';
 
 @Module({
@@ -21,6 +23,7 @@ import appConfig from './common/config/app.config';
       envFilePath: `.env.${process.env.NODE_ENV ?? 'development'}`,
       load: [appConfig],
     }),
+    ScheduleModule.forRoot(),
     DatabaseModule,
     EmailModule,
     AuthModule,
@@ -32,6 +35,7 @@ import appConfig from './common/config/app.config';
     AdminModule,
     NoticesModule,
     NotificationsModule,
+    BlogsModule,
   ],
   controllers: [],
   providers: [],
