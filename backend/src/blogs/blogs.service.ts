@@ -10,7 +10,7 @@ import { BLOG_FEED_SOURCES, BLOGS_CONFIG } from './blogs.constants';
 import { BlogEntry } from './entities/blogEntry.entity';
 import { BlogFeed } from './entities/blogFeed.entity';
 
-import type { BlogEntriesResponse, BlogEntryView, BlogFeedSourceView } from './blogs.types';
+import type { BlogEntriesResponse, BlogFeedSourceView } from './blogs.types';
 
 /**
  * 블로그 서비스
