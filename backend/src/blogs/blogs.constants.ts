@@ -64,7 +64,7 @@ export const BLOG_FEED_SOURCES = [
     domain: 'https://developers.kakaomobility.com/techblogs',
     feedUrl: 'https://developers.kakaomobility.com/techblogs.xml',
   },
-  { name: '티빙', domain: 'https://nol.yanolja.com', feedUrl: 'https://medium.com/feed/tving-team' },
+  { name: '티빙', domain: 'https://www.tving.com', feedUrl: 'https://medium.com/feed/tving-team' },
 
   // 금융/핀테크
   { name: '뱅크샐러드', domain: 'https://blog.banksalad.com', feedUrl: 'https://blog.banksalad.com/rss.xml' },
