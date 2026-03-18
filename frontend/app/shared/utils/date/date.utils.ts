@@ -12,7 +12,7 @@ export const buildRelativeTime = (value?: string | null) => {
   if (Number.isNaN(date.getTime())) return FALLBACK;
 
   const diffMs = Date.now() - date.getTime();
-  if (diffMs < 0) return FALLBACK;
+  if (diffMs < 0) return '방금 전';
   if (diffMs < 60000) return '방금 전';
 
   const minutes = Math.floor(diffMs / 60000);

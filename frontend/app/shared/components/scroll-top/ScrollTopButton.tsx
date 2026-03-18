@@ -22,11 +22,12 @@ export default function ScrollTopButton() {
   }
 
   const isHome = pathname === '/';
+  const isBlogs = pathname === '/blogs';
   const handleClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const positionClass = isHome ? styles.homePosition : styles.innerPosition;
+  const positionClass = isHome ? styles.homePosition : isBlogs ? styles.blogsPosition : styles.innerPosition;
 
   return (
     <button

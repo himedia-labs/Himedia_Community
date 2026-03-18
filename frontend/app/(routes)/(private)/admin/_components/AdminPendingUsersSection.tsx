@@ -1,8 +1,7 @@
-import { formatDate } from '@/app/shared/utils/date';
+import { buildRelativeTime, formatDate } from '@/app/shared/utils/date';
 import { getRoleBadgeClassName } from '@/app/(routes)/(private)/admin/_utils/adminDisplay.utils';
 import { formatRoleLabel } from '@/app/(routes)/(private)/admin/_utils/formatRoleLabel.utils';
 import { formatPhoneNumber } from '@/app/(routes)/(private)/admin/_utils/formatPhoneNumber.utils';
-import { getRelativeTimeLabel } from '@/app/(routes)/(private)/admin/_utils/getRelativeTimeLabel.utils';
 
 import styles from '@/app/(routes)/(private)/admin/AdminPage.module.css';
 
@@ -43,7 +42,7 @@ export default function AdminPendingUsersSection({
                 <td>
                   <div className={styles.orderCell}>
                     <strong className={styles.orderIndex}>#{index + 1}</strong>
-                    <span className={styles.orderAgo}>({getRelativeTimeLabel(user.createdAt)})</span>
+                    <span className={styles.orderAgo}>({buildRelativeTime(user.createdAt)})</span>
                   </div>
                 </td>
                 <td>{user.name}</td>

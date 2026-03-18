@@ -1,0 +1,217 @@
+/* 파비콘 마키 배너 */
+
+.marqueeWrapper {
+  overflow: hidden;
+  padding: 3rem 0;
+  mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+}
+
+.marqueeTrack {
+  display: flex;
+  gap: 2rem;
+  width: max-content;
+  animation: marqueeScroll 60s linear infinite;
+}
+
+.marqueeTrack:hover {
+  animation-play-state: paused;
+}
+
+.marqueeFavicon {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+
+.marqueeFavicon:hover {
+  opacity: 0.7;
+}
+
+@keyframes marqueeScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* 뷰 모드 토글 버튼 */
+
+.toggleButton {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(48px, 6vw, 56px);
+  height: clamp(48px, 6vw, 56px);
+  border: none;
+  border-radius: 24px;
+  background-color: rgba(247, 247, 248, 0.9);
+  box-shadow:
+    rgba(255, 255, 255, 0.2) 0 0 0 1px inset,
+    rgba(0, 0, 0, 0.1) 0 4px 6px,
+    rgba(0, 0, 0, 0.15) 0 8px 30px;
+  color: #555;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.toggleButton:focus-visible {
+  outline: 2px solid rgba(0, 0, 0, 0.2);
+  outline-offset: 4px;
+}
+
+.toggleButton:active {
+  transform: translateY(1px) scale(0.92);
+}
+
+.sourcesList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  list-style: none;
+}
+
+.sourcesItem {
+  list-style: none;
+}
+
+.sourcesLink {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  color: #333d4b;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.sourcesLink:hover {
+  background: #edf2f7;
+}
+
+.sourcesFavicon {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.sourcesName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  width: 100%;
+}
+
+.blogList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.blogDivider {
+  width: 100%;
+  height: 1px;
+  background: #edf2f7;
+}
+
+.blogItemLink {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.blogItemLink:hover .blogItemTitle {
+  color: #1f73e8;
+}
+
+.blogItemCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.blogItemContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.blogItemTitle {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #1f2937;
+}
+
+.blogItemMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-size: 12px;
+  color: #9b9b9b;
+  white-space: nowrap;
+}
+
+.blogItemMetaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.blogItemMetaItem :global(svg) {
+  font-size: 1rem;
+}
+
+.blogItemFavicon {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.separator {
+  width: 1px;
+  display: inline-block;
+  background: #d0d0d0;
+  color: transparent;
+}
+
+.blogItemTime {
+  flex-shrink: 0;
+  font-size: 1rem;
+  color: #9b9b9b;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 0;
+  }
+
+  .shell {
+    gap: 1.5rem;
+  }
+}
