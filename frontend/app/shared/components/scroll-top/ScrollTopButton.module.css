@@ -33,6 +33,10 @@
   right: 6rem;
 }
 
+.blogsPosition {
+  right: calc(1.5rem + 56px + 0.75rem);
+}
+
 .scrollButton.visible {
   opacity: 1;
   visibility: visible;
