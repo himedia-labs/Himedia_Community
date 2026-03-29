@@ -25,7 +25,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1014.0",
+    "@aws-sdk/client-s3": "^3.1019.0",
     "@nestjs/common": "^11.1.17",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.1.17",
@@ -40,7 +40,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "cookie-parser": "^1.4.7",
-    "nodemailer": "^8.0.3",
+    "nodemailer": "^8.0.4",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
@@ -48,7 +48,7 @@
     "reflect-metadata": "^0.2.2",
     "rss-parser": "^3.13.0",
     "rxjs": "^7.8.1",
-    "snowflake-sdk": "^2.3.5",
+    "snowflake-sdk": "^2.3.6",
     "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.28"
   },
@@ -81,7 +81,7 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.57.1"
+    "typescript-eslint": "^8.57.2"
   },
   "overrides": {
     "glob@10.5.0": {
